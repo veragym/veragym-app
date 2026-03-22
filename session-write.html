@@ -585,13 +585,15 @@ async function loadMyLibrary() {
   buildFilterTabs();
 }
 
-// ─── 자주 사용 운동 집계 ───
+// ─── 자주 사용 운동 집계 (최근 500건만 — 충분한 통계, 쿼리 부담 제한) ───
 async function loadFreqMap() {
   const { data } = await db
     .from('workout_log_exercises')
-    .select('exercise_ref_id, workout_logs!inner(trainer_id)')
+    .select('exercise_ref_id, workout_logs!inner(trainer_id, session_date)')
     .eq('workout_logs.trainer_id', trainer.id)
-    .not('exercise_ref_id', 'is', null);
+    .not('exercise_ref_id', 'is', null)
+    .order('workout_logs(session_date)', { ascending: false })
+    .limit(500);
 
   freqMap = {};
   (data || []).forEach(r => {
