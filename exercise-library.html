@@ -348,9 +348,8 @@ body {
         <select id="newEquip">
           <option value="">선택</option>
           <option>체중</option><option>덤벨</option><option>바벨</option>
-          <option>케이블</option><option>머신</option><option>핀 머신</option>
-          <option>플레이트 머신</option><option>스미스머신</option>
-          <option>케틀벨</option><option>밴드</option><option>소도구</option>
+          <option>케이블</option><option>밴드</option><option>케틀벨</option>
+          <option>머신</option><option>소도구</option>
         </select>
       </div>
     </div>
@@ -391,16 +390,24 @@ async function init() {
   renderList();
 }
 
-// ─── 전체 운동 DB 로드 ───
+// ─── 전체 운동 DB 로드 (Supabase 기본 1000행 제한 우회 — 페이지네이션) ───
 async function loadAllExercises() {
-  const { data, error } = await db
-    .from('exercise_refs')
-    .select('id,name_ko,name_en,part_unified,tool_unified,image_url')
-    .eq('is_active', true)
-    .order('name_ko', { ascending: true })
-    .limit(2000);
-  if (error) console.error('운동 DB 오류:', error.message);
-  allExs = data || [];
+  const PAGE = 1000;
+  let all = [], page = 0;
+  while (true) {
+    const { data, error } = await db
+      .from('exercise_refs')
+      .select('id,name_ko,name_en,part_unified,tool_unified,image_url')
+      .eq('is_active', true)
+      .order('name_ko', { ascending: true })
+      .range(page * PAGE, (page + 1) * PAGE - 1);
+    if (error) { console.error('운동 DB 오류:', error.message); break; }
+    if (!data || data.length === 0) break;
+    all.push(...data);
+    if (data.length < PAGE) break;
+    page++;
+  }
+  allExs = all;
 }
 
 // ─── 내 운동 목록 로드 ───
