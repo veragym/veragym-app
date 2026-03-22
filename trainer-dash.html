@@ -390,11 +390,14 @@ async function showMemberDetail(memberId) {
     </div>
     <div style="font-size:11px;color:#2a4060;margin-top:5px">이 링크를 회원에게 전달하면 수업 기록을 볼 수 있습니다</div>`;
 
-  // 해당 회원 수업 기록
+  // 해당 회원 수업 기록 (필요 필드만 선택)
   document.getElementById('memberLogs').innerHTML = '<div class="loading">불러오는 중...</div>';
   const { data: logs } = await db.from('workout_logs')
-    .select('*, workout_log_exercises(*)').eq('member_id', memberId)
-    .eq('is_deleted', false).order('session_date', { ascending: false });
+    .select('id,session_date,notes,member_id,workout_log_exercises(custom_name,sets_data,sets,reps)')
+    .eq('member_id', memberId)
+    .eq('is_deleted', false)
+    .order('session_date', { ascending: false })
+    .limit(30);
 
   renderLogCards('memberLogs', logs, false);
 }
@@ -417,13 +420,36 @@ async function copyToken(url) {
 // 수업 일지
 // ══════════════════════════════════════════════════════════════
 async function loadLogs() {
-  const { data, error } = await db.from('workout_logs')
-    .select('*, members(name), workout_log_exercises(*)')
+  document.getElementById('logList').innerHTML = '<div class="loading">불러오는 중...</div>';
+
+  // ① 로그 기본정보 먼저 로드 (빠름 ~200ms) → 즉시 렌더
+  const { data: logs, error } = await db.from('workout_logs')
+    .select('id,session_date,notes,member_id,members(name)')
     .eq('trainer_id', me.id).eq('is_deleted', false)
     .order('session_date', { ascending: false }).limit(50);
   if (error) { showToast('수업 일지 불러오기 실패'); return; }
-  document.getElementById('logCount').textContent = data?.length ? `(${data.length}개)` : '';
-  renderLogCards('logList', data, true);
+
+  const cnt = logs?.length || 0;
+  document.getElementById('logCount').textContent = cnt ? `(${cnt}개)` : '';
+  if (!cnt) {
+    document.getElementById('logList').innerHTML =
+      '<div class="empty">수업 일지가 없어요<br>위 작성 버튼으로 첫 일지를 기록해보세요</div>';
+    return;
+  }
+
+  // 운동 태그 없이 먼저 렌더 (체감 속도 향상)
+  renderLogCards('logList', logs.map(l => ({ ...l, workout_log_exercises: [] })), true);
+
+  // ② 운동 태그 별도 로드 후 업데이트 (~300ms)
+  const ids = logs.map(l => l.id);
+  const { data: exs } = await db.from('workout_log_exercises')
+    .select('log_id,custom_name,sets_data,sets,reps')
+    .in('log_id', ids);
+  if (!exs?.length) return;
+
+  const exMap = {};
+  exs.forEach(e => { (exMap[e.log_id] = exMap[e.log_id] || []).push(e); });
+  renderLogCards('logList', logs.map(l => ({ ...l, workout_log_exercises: exMap[l.id] || [] })), true);
 }
 
 function renderLogCards(containerId, logs, showMember) {
