@@ -129,18 +129,18 @@ body {
 }
 .ex-comment textarea:focus { border-color: #3b82f666; color: #fff; }
 
-/* ─── 사진 영역 ─── */
-.ex-photos {
-  padding: 0 16px 14px; display: flex; align-items: center; gap: 8px;
+/* ─── 사진 영역 (운동명 우측 인라인) ─── */
+.ex-photo-area {
+  display: flex; align-items: center; gap: 4px; flex-shrink: 0;
 }
 .btn-photo {
   background: #1a3a5c; border: 1.5px solid #3b82f655;
-  border-radius: 8px; padding: 7px 12px;
-  font-size: 12px; font-weight: 700; color: #3b82f6; cursor: pointer;
-  flex-shrink: 0; transition: all 0.15s;
+  border-radius: 7px; padding: 5px 8px;
+  font-size: 11px; font-weight: 700; color: #3b82f6; cursor: pointer;
+  flex-shrink: 0; transition: all 0.15s; white-space: nowrap;
 }
 .btn-photo.done { background: #1a2a3a; color: #60a5fa; border-color: #60a5fa55; }
-.photo-dot { font-size: 9px; }
+.photo-dot { font-size: 8px; }
 .photo-dot.taken { color: #3b82f6; }
 .photo-dot.empty { color: #1e3a5f; }
 
@@ -572,6 +572,14 @@ function renderExercises() {
             ? `<div class="ex-sub">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>`
             : ''}
         </div>
+        <div class="ex-photo-area">
+          <button class="btn-photo ${hasBoth ? 'done' : ''}"
+                  onclick="${hasBoth ? `viewPhotos(${i})` : `openPhotoModal(${i})`}">
+            ${hasBoth ? '사진보기' : '사진'}
+          </button>
+          <span class="photo-dot ${ex.photos?.start ? 'taken' : 'empty'}">●</span>
+          <span class="photo-dot ${ex.photos?.end   ? 'taken' : 'empty'}">●</span>
+        </div>
         <button class="btn-del-ex" onclick="removeEx(${i})">×</button>
       </div>
 
@@ -598,15 +606,6 @@ function renderExercises() {
                   onchange="updComment(${i},this.value)">${ex.comment || ''}</textarea>
       </div>
 
-      <div class="ex-photos">
-        <button class="btn-photo ${hasBoth ? 'done' : ''}"
-                onclick="${hasBoth ? `viewPhotos(${i})` : `openPhotoModal(${i})`}">
-          ${hasBoth ? '사진보기' : '사진찍기'}
-        </button>
-        <span class="photo-dot ${ex.photos?.start ? 'taken' : 'empty'}">●</span>
-        <span class="photo-dot ${ex.photos?.end   ? 'taken' : 'empty'}">●</span>
-        ${hasAny && !hasBoth ? `<span style="font-size:11px;color:#3a5878;margin-left:2px">1/2</span>` : ''}
-      </div>
     </div>`;
   }).join('');
 }
