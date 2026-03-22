@@ -286,19 +286,16 @@ async function init() {
   if (!me) return;
   document.getElementById('trainerInfo').textContent = `${me.name} · ${me.gym_location}`;
 
+  // myMembers 는 회원 선택 모달에서도 사용 → 어느 탭이든 항상 로드
+  loadMembers();
+  checkPendingReqs();
+
   // URL 파라미터로 탭 지정 처리 (me 설정 이후 실행해야 loadLogs 등이 정상 동작)
   const _urlTab = new URLSearchParams(location.search).get('tab');
   if (_urlTab) {
     const _btn = document.getElementById(`nav-${_urlTab}`);
-    if (_btn) {
-      switchTab(_urlTab, _btn);
-      checkPendingReqs();
-      return; // loadMembers는 switchTab → members 탭 클릭 시에만 필요
-    }
+    if (_btn) switchTab(_urlTab, _btn);
   }
-
-  loadMembers();
-  checkPendingReqs();
 }
 
 // ══════════════════════════════════════════════════════════════
