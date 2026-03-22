@@ -178,11 +178,17 @@ body {
 </div>
 
 <!-- 상단 탭 네비게이션 -->
-<div class="tabs">
+<div class="tabs" id="topTabs">
   <button class="tab-btn" onclick="location.href='trainer-dash.html'">내 회원</button>
   <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=logs'">수업일지</button>
   <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=requests'">요청사항</button>
   <button class="tab-btn active">운동DB</button>
+</div>
+
+<!-- 수업작성에서 온 경우: 돌아가기 바 (JS로 표시) -->
+<div id="returnBar" style="display:none; background:#1a3a5c; padding:10px 16px; border-bottom:1px solid #3b82f655; display:flex; align-items:center; gap:10px; position:sticky; top:100px; z-index:89;">
+  <button onclick="returnToSession()" style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;">← 수업으로 돌아가기</button>
+  <span style="font-size:12px;color:#60a5fa;">라이브러리에 운동을 추가한 후 돌아가세요</span>
 </div>
 
 <!-- 검색 + 필터 -->
@@ -445,6 +451,18 @@ function showToast(msg) {
   t.textContent = msg; t.style.opacity = '1';
   clearTimeout(_toastTm);
   _toastTm = setTimeout(() => t.style.opacity = '0', 2200);
+}
+
+// ─── 수업 작성에서 온 경우 처리 ───
+const _returnTo = new URLSearchParams(location.search).get('returnTo');
+if (_returnTo) {
+  const bar = document.getElementById('returnBar');
+  bar.style.display = 'flex';
+  // 검색영역 top 을 returnBar 높이(~45px)만큼 더 내림
+  document.querySelector('.search-area').style.top = '145px';
+}
+function returnToSession() {
+  if (_returnTo) location.href = decodeURIComponent(_returnTo);
 }
 
 init();
