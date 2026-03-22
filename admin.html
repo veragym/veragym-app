@@ -275,14 +275,17 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div class="field">
       <label>도구 (tool_unified) <span style="color:#f87171">*</span></label>
       <select id="exTool">
-        <option value="체중">체중</option>
-        <option value="덤벨">덤벨</option>
+        <option value="핀 머신">핀 머신</option>
+        <option value="플레이트 머신">플레이트 머신</option>
+        <option value="스미스머신">스미스머신</option>
         <option value="바벨">바벨</option>
+        <option value="덤벨">덤벨</option>
         <option value="케이블">케이블</option>
-        <option value="밴드">밴드</option>
         <option value="케틀벨">케틀벨</option>
-        <option value="머신">머신</option>
         <option value="소도구">소도구</option>
+        <option value="밴드">밴드</option>
+        <option value="체중">체중</option>
+        <option value="머신">머신</option>
       </select>
     </div>
     <!-- 부위 -->
@@ -697,7 +700,7 @@ let _exFiltered    = [];
 let _exShowCount   = 50;
 let _exToolFilter  = '전체';
 let _exPartFilter  = '전체';
-const EX_TOOLS = ['전체','체중','덤벨','바벨','케이블','밴드','케틀벨','머신','소도구'];
+const EX_TOOLS = ['전체','핀 머신','플레이트 머신','스미스머신','바벨','덤벨','케이블','케틀벨','소도구','밴드','체중','머신'];
 const EX_PARTS = ['전체','가슴','등','어깨','팔','코어','하체','전신'];
 
 async function loadExercise() {
@@ -870,7 +873,10 @@ function autoClassify(ko, en) {
   else if (/케이블|cable/.test(t))          tool = '케이블';
   else if (/밴드|band|resistance/.test(t))  tool = '밴드';
   else if (/케틀벨|kettlebell/.test(t))     tool = '케틀벨';
-  else if (/머신|machine|seated row|lat pulldown|leg press|leg curl|leg extension|smith/.test(t)) tool = '머신';
+  else if (/smith|스미스/.test(t))           tool = '스미스머신';
+  else if (/\(핀\)|pin machine/.test(t))     tool = '핀 머신';
+  else if (/\(플레이트\)|plate machine/.test(t)) tool = '플레이트 머신';
+  else if (/머신|machine|seated row|lat pulldown|leg press|leg curl|leg extension/.test(t)) tool = '머신';
   else if (/로프|rope|폼롤|foam|ball|스틱|stick|줄넘기/.test(t)) tool = '소도구';
 
   let part = '전신';
