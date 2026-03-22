@@ -24,21 +24,27 @@ body {
 /* ── Header ──────────────────────────────────────────── */
 .header {
   background:#0d1525; border-bottom:1px solid #1e3a5f44;
-  padding:16px 20px; display:flex; align-items:center; gap:12px;
+  padding:16px 20px; display:flex; align-items:center; justify-content:space-between;
   position:sticky; top:0; z-index:100;
 }
-.header h1 { font-size:16px; font-weight:800; flex:1; }
-.header h1 span { color:#3b82f6; }
+.header-title { font-size:16px; font-weight:800; }
+.header-title span { color:#3b82f6; }
 .header-badge {
   background:#3b82f622; color:#60a5fa;
   border:1px solid #3b82f644; border-radius:20px;
   padding:4px 12px; font-size:12px; font-weight:600;
 }
 
+/* ── Top Tab Navigation ──────────────────────────────── */
+.tabs { display:flex; background:#0d1525; border-bottom:1px solid #1e3a5f44; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab-btn { flex:1; min-width:70px; padding:13px 8px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
+.tab-btn.active { color:#3b82f6; border-bottom-color:#3b82f6; }
+
 /* ── 검색 + 필터 영역 ─────────────────────────────────── */
 .search-area {
   padding:14px 14px 0;
-  position:sticky; top:57px; z-index:90;
+  position:sticky; top:100px; z-index:90;
   background:#080e1a;
 }
 .search-wrap { position:relative; margin-bottom:12px; }
@@ -167,9 +173,16 @@ body {
 
 <!-- 헤더 -->
 <div class="header">
-  <button style="background:none;border:none;color:#60a5fa;font-size:20px;cursor:pointer;padding:0;line-height:1" onclick="history.back()">←</button>
-  <h1>VERA<span>GYM</span> 운동DB</h1>
+  <div class="header-title">VERA<span>GYM</span> 트레이너</div>
   <div class="header-badge" id="myCount">라이브러리 0</div>
+</div>
+
+<!-- 상단 탭 네비게이션 -->
+<div class="tabs">
+  <button class="tab-btn" onclick="location.href='trainer-dash.html'">내 회원</button>
+  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=logs'">수업일지</button>
+  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=requests'">요청사항</button>
+  <button class="tab-btn active">운동DB</button>
 </div>
 
 <!-- 검색 + 필터 -->
@@ -225,7 +238,7 @@ let filterPart  = '';
 let showCount   = 50;
 let searchTm    = null;
 
-const TOOLS = ['전체','체중','덤벨','바벨','케이블','밴드','케틀벨','머신','소도구'];
+const TOOLS = ['전체','핀 머신','플레이트 머신','스미스머신','바벨','덤벨','케이블','케틀벨','소도구','밴드','체중','머신'];
 const PARTS = ['전체','가슴','등','어깨','팔','코어','하체','전신'];
 
 // ─── 초기화 ───
