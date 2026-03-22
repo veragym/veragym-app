@@ -195,6 +195,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <button class="nav-btn" id="nav-requests" onclick="switchTab('requests',this)">
     <span class="nav-icon" id="reqIcon">📬</span>요청사항
   </button>
+  <button class="nav-btn" onclick="location.href='exercise-library.html'">
+    <span class="nav-icon">📚</span>운동DB
+  </button>
 </nav>
 
 <div id="toast" class="toast"></div>
@@ -470,11 +473,16 @@ function renderLogCards(containerId, logs, showMember) {
           <span class="log-date">${dateStr}</span>
           ${showMember ? `<span class="log-member">👤 ${log.members?.name || '-'}</span>` : ''}
         </div>
-        ${exs.length ? `<div class="log-exercises">${exs.map(e =>
-          `<span class="ex-tag">${e.custom_name}${e.sets ? ` ${e.sets}×${e.reps}` : ''}</span>`
-        ).join('')}</div>` : ''}
+        ${exs.length ? `<div class="log-exercises">${exs.map(e => {
+          const nm = e.custom_name || '운동';
+          const setInfo = e.sets_data?.length
+            ? `${e.sets_data.length}세트`
+            : (e.sets ? `${e.sets}×${e.reps}` : '');
+          return `<span class="ex-tag">${nm}${setInfo ? ' ' + setInfo : ''}</span>`;
+        }).join('')}</div>` : ''}
         ${log.notes ? `<div class="log-notes" style="margin-top:8px">${log.notes}</div>` : ''}
         <div class="log-actions">
+          <button class="btn-sm" onclick="location.href='session-write.html?log=${log.id}'">✏️ 수정</button>
           <button class="btn-sm btn-danger" onclick="deleteLog('${log.id}')">삭제</button>
         </div>
       </div>`;
