@@ -166,78 +166,7 @@ body {
 .empty { text-align:center; padding:60px 20px; color:#3a5878; font-size:14px; }
 .loading { text-align:center; padding:40px; color:#3a5878; font-size:14px; }
 
-/* ── FAB ─────────────────────────────────────────────── */
-.fab {
-  position:fixed; bottom:76px; right:18px;
-  background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff;
-  border:none; border-radius:50px;
-  padding:13px 20px; font-size:13px; font-weight:700;
-  cursor:pointer; box-shadow:0 4px 20px #3b82f644;
-  display:flex; align-items:center; gap:7px;
-  transition:all 0.2s; z-index:50;
-}
-.fab:hover { opacity:0.9; transform:scale(1.04); }
 
-/* ── 새 운동 추가 모달 ───────────────────────────────── */
-.modal-bg {
-  display:none; position:fixed; inset:0;
-  background:#000000cc; z-index:200; flex-direction:column;
-}
-.modal-bg.open { display:flex; }
-.modal-dimmer { flex:1; }
-.modal-sheet {
-  background:#0d1525; border-radius:24px 24px 0 0;
-  border-top:1px solid #1e3a5f44;
-  width:100%; max-width:480px; margin:0 auto;
-  max-height:92dvh; display:flex; flex-direction:column;
-  animation:slideUp 0.22s ease;
-}
-@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-.modal-handle { width:36px; height:4px; background:#1e3a5f; border-radius:99px; margin:14px auto 0; flex-shrink:0; }
-.modal-body { padding:16px 18px 0; flex:1; overflow-y:auto; }
-.modal-title { font-size:16px; font-weight:700; margin-bottom:18px; }
-
-.field { margin-bottom:14px; }
-.field label { display:block; font-size:12px; color:#4a6580; margin-bottom:6px; font-weight:500; }
-.field input, .field select {
-  width:100%; background:#141f35; border:1.5px solid #1e3a5f55;
-  border-radius:10px; padding:12px 14px;
-  font-size:14px; color:#fff; outline:none; font-family:inherit;
-  transition:border-color 0.2s;
-}
-.field input:focus, .field select:focus { border-color:#3b82f6; }
-.field input::placeholder { color:#3a5878; }
-.field select option { background:#0d1525; }
-
-/* 중복 힌트 */
-.dup-hint {
-  margin-top:6px; background:#141f35;
-  border:1px solid #1e3a5f55; border-radius:8px;
-  overflow:hidden; display:none;
-}
-.dup-hint.show { display:block; }
-.dup-title { font-size:11px; color:#4a6580; padding:8px 12px 4px; }
-.dup-item {
-  padding:7px 12px; font-size:13px; color:#aaa;
-  border-bottom:1px solid #1e3a5f33; cursor:pointer;
-  display:flex; align-items:center; gap:8px; transition:background 0.1s;
-}
-.dup-item:last-child { border-bottom:none; }
-.dup-item:hover { background:#1e3a5f44; color:#fff; }
-.dup-item-tag { font-size:11px; color:#3a5878; }
-
-.modal-btns { display:flex; gap:10px; padding:14px 18px 28px; flex-shrink:0; }
-.btn-cancel  {
-  flex:1; background:#141f35; border:1px solid #1e3a5f44; border-radius:12px;
-  padding:14px; font-size:15px; color:#4a6580; cursor:pointer;
-  font-weight:600; font-family:inherit;
-}
-.btn-confirm {
-  flex:2; background:linear-gradient(135deg,#3b82f6,#1d4ed8); border:none;
-  border-radius:12px; padding:14px; font-size:15px; color:#fff;
-  font-weight:700; cursor:pointer; font-family:inherit;
-}
-.btn-confirm:disabled { opacity:0.4; cursor:not-allowed; }
 
 /* 토스트 */
 .toast {
@@ -292,9 +221,6 @@ body {
   <div class="loading">운동 목록 불러오는 중...</div>
 </div>
 
-<!-- FAB -->
-<button class="fab" onclick="openNewEx()">＋ 새 운동 추가</button>
-
 <!-- 하단 네비게이션 -->
 <nav class="bottom-nav">
   <button class="nav-btn" id="nav-members" onclick="location.href='trainer-dash.html'">내 회원</button>
@@ -304,52 +230,6 @@ body {
 </nav>
 
 <div class="toast" id="toast"></div>
-
-<!-- 새 운동 추가 모달 -->
-<div id="newExModal" class="modal-bg">
-  <div class="modal-dimmer" onclick="closeNewEx()"></div>
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-body">
-      <div class="modal-title">새 운동 추가</div>
-
-      <div class="field">
-        <label>운동 이름 <span style="color:#f87171">*</span></label>
-        <input type="text" id="newName" placeholder="예: Cable Fly" maxlength="60"
-               oninput="onNewNameInput(this.value)" autocomplete="off">
-        <div class="dup-hint" id="dupHint">
-          <div class="dup-title">유사한 운동 — 클릭하면 바로 추가</div>
-          <div id="dupList"></div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>운동 부위</label>
-        <select id="newBody">
-          <option value="">선택</option>
-          <option>가슴</option><option>등</option><option>어깨</option>
-          <option>팔</option><option>코어</option><option>하체</option>
-          <option>전신</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>기구</label>
-        <select id="newEquip">
-          <option value="">선택</option>
-          <option>체중</option><option>덤벨</option><option>바벨</option>
-          <option>케이블</option><option>밴드</option><option>케틀벨</option>
-          <option>머신</option><option>소도구</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeNewEx()">취소</button>
-      <button class="btn-confirm" id="btnSaveNew" onclick="saveNewEx()">추가</button>
-    </div>
-  </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
@@ -567,73 +447,6 @@ async function toggleFavorite(refId, isFav) {
   renderList();
 }
 
-// ─── 새 운동 추가 모달 ───
-function openNewEx() {
-  document.getElementById('newName').value  = '';
-  document.getElementById('newBody').value  = '';
-  document.getElementById('newEquip').value = '';
-  document.getElementById('dupHint').classList.remove('show');
-  document.getElementById('newExModal').classList.add('open');
-  setTimeout(() => document.getElementById('newName').focus(), 200);
-}
-function closeNewEx() { document.getElementById('newExModal').classList.remove('open'); }
-
-// ─── 실시간 중복 힌트 ───
-let dupTm = null;
-function onNewNameInput(val) {
-  clearTimeout(dupTm);
-  if (val.trim().length < 2) { document.getElementById('dupHint').classList.remove('show'); return; }
-  dupTm = setTimeout(() => {
-    const kw   = val.trim().toLowerCase();
-    const hits = allExs.filter(e =>
-      (e.name_ko||'').toLowerCase().includes(kw) ||
-      (e.name_en||'').toLowerCase().includes(kw)
-    ).slice(0, 5);
-    const hint = document.getElementById('dupHint');
-    if (!hits.length) { hint.classList.remove('show'); return; }
-    document.getElementById('dupList').innerHTML = hits.map(e =>
-      `<div class="dup-item" onclick="quickAdd('${e.id}')">
-        <span>${e.name_ko || e.name_en}</span>
-        <span class="dup-item-tag">${[e.part_unified, e.tool_unified].filter(Boolean).join(' · ')}</span>
-       </div>`
-    ).join('');
-    hint.classList.add('show');
-  }, 200);
-}
-
-async function quickAdd(refId) {
-  if (myLibIds.has(refId)) { showToast('이미 내 목록에 있어요'); closeNewEx(); return; }
-  await toggleUse(refId, false);
-  closeNewEx();
-}
-
-// ─── 새 운동 저장 ───
-async function saveNewEx() {
-  const name = document.getElementById('newName').value.trim();
-  if (!name) { showToast('운동 이름을 입력해주세요'); return; }
-  const btn = document.getElementById('btnSaveNew');
-  btn.disabled = true; btn.textContent = '저장 중...';
-  try {
-    const body  = document.getElementById('newBody').value  || null;
-    const equip = document.getElementById('newEquip').value || null;
-    const { data: ref, error: rErr } = await db.from('exercise_refs')
-      .insert({ name_ko: name, name_en: name, part_unified: body, tool_unified: equip, is_active: true })
-      .select('id').single();
-    if (rErr) throw rErr;
-    const { error: lErr } = await db.from('trainer_exercises')
-      .insert({ trainer_id: trainer.id, exercise_ref_id: ref.id });
-    if (lErr) throw lErr;
-    allExs.push({ id: ref.id, name_ko: name, name_en: name, part_unified: body, tool_unified: equip, image_url: null });
-    myLibIds.add(ref.id);
-    document.getElementById('myCount').textContent = `내 목록 ${myLibIds.size}`;
-    showToast(`'${name}' 추가 완료`);
-    closeNewEx(); renderList();
-  } catch(e) {
-    showToast('오류: ' + e.message);
-  } finally {
-    btn.disabled = false; btn.textContent = '추가';
-  }
-}
 
 // ─── 토스트 ───
 let _toastTm = null;
