@@ -274,6 +274,12 @@ let me = null;          // 현재 로그인한 트레이너 정보
 let myMembers = [];     // 내 회원 캐시
 const APP_URL = 'https://veragym.github.io/veragym-app/member-view.html';
 
+// ── 탭 데이터 캐시 (30초) ──────────────────────────────────
+const _tabCache = { members: 0, logs: 0, requests: 0 };
+const TAB_CACHE_MS = 30_000;
+function _cacheValid(tab) { return Date.now() - (_tabCache[tab] || 0) < TAB_CACHE_MS; }
+function _cacheSet(tab)   { _tabCache[tab] = Date.now(); }
+
 // ── 초기화 ─────────────────────────────────────────────────
 async function init() {
   me = await requireTrainer();
@@ -293,9 +299,9 @@ function switchTab(id, btn) {
   btn.classList.add('active');
 
   // 뒤로가기로 열린 detail 닫기
-  if (id === 'members') { showMemberList(); loadMembers(); }
-  if (id === 'logs')    loadLogs();
-  if (id === 'requests') loadRequests();
+  if (id === 'members') { showMemberList(); if (!_cacheValid('members')) loadMembers(); }
+  if (id === 'logs')    { if (!_cacheValid('logs'))     loadLogs(); }
+  if (id === 'requests') { if (!_cacheValid('requests')) loadRequests(); }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -308,6 +314,7 @@ async function loadMembers() {
   myMembers = data || [];
   document.getElementById('memberCount').textContent = `(${myMembers.length}명)`;
   renderMemberList();
+  _cacheSet('members');
 }
 
 function renderMemberList() {
@@ -450,6 +457,7 @@ async function loadLogs() {
   const exMap = {};
   exs.forEach(e => { (exMap[e.log_id] = exMap[e.log_id] || []).push(e); });
   renderLogCards('logList', logs.map(l => ({ ...l, workout_log_exercises: exMap[l.id] || [] })), true);
+  _cacheSet('logs');
 }
 
 function renderLogCards(containerId, logs, showMember) {
@@ -503,6 +511,7 @@ async function deleteLog(id) {
   const { error } = await db.from('workout_logs').update({ is_deleted: true }).eq('id', id);
   if (error) { showToast('삭제 실패'); return; }
   showToast('삭제됐습니다');
+  _tabCache.logs = 0;
   loadLogs();
 }
 
@@ -544,6 +553,7 @@ async function loadRequests() {
       <div class="req-content">${r.content}</div>
       <div class="req-meta">${new Date(r.created_at).toLocaleDateString('ko-KR')}${r.admin_note ? ' · 관리자 메모: ' + r.admin_note : ''}</div>
     </div>`).join('');
+  _cacheSet('requests');
 }
 
 function openAddReq() {
