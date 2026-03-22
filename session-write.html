@@ -293,7 +293,6 @@ body {
   transition: all 0.15s;
 }
 .btn-capture:hover { border-color: #3b82f6; }
-.btn-capture .cap-icon { font-size: 28px; margin-bottom: 6px; }
 .btn-capture .cap-label { font-size: 13px; font-weight: 700; color: #fff; }
 .btn-capture .cap-status { font-size: 11px; color: #3a5878; margin-top: 4px; }
 .btn-capture.done { border-color: #3b82f655; background: #1a3a5c; }
@@ -363,7 +362,7 @@ body {
 <!-- 하단 버튼 -->
 <div class="add-bar">
   <button class="btn-add-ex" onclick="openSearch()">＋ 운동 추가</button>
-  <button class="btn-lib" onclick="location.href='exercise-library.html'">📚 라이브러리</button>
+  <button class="btn-lib" onclick="location.href='exercise-library.html'">라이브러리</button>
 </div>
 
 <!-- ══ 운동 검색 모달 ══ -->
@@ -373,11 +372,10 @@ body {
     <div class="modal-handle"></div>
     <div class="modal-title-bar">
       <span class="modal-title">운동 선택</span>
-      <button class="btn-modal-close" onclick="closeSearch()">✕</button>
+      <button class="btn-modal-close" onclick="closeSearch()">×</button>
     </div>
     <div class="modal-search">
       <div class="modal-search-box">
-        <span style="color:#3a5878">🔍</span>
         <input type="text" id="searchInput" placeholder="운동 이름 검색..."
                oninput="onSearch(this.value)" autocomplete="off">
       </div>
@@ -394,15 +392,13 @@ body {
 <!-- ══ 사진 촬영 모달 ══ -->
 <div id="photoModal" class="photo-modal-bg" onclick="if(event.target===this)closePhotoModal()">
   <div class="photo-modal-sheet">
-    <div class="photo-modal-title" id="photoModalTitle">📷 사진 촬영</div>
+    <div class="photo-modal-title" id="photoModalTitle">사진 촬영</div>
     <div class="photo-btns">
       <div class="btn-capture" id="capStart" onclick="triggerCapture('start')">
-        <div class="cap-icon">📷</div>
         <div class="cap-label">시작 자세</div>
         <div class="cap-status" id="capStartStatus">미촬영</div>
       </div>
       <div class="btn-capture" id="capEnd" onclick="triggerCapture('end')">
-        <div class="cap-icon">📷</div>
         <div class="cap-label">끝 자세</div>
         <div class="cap-status" id="capEndStatus">미촬영</div>
       </div>
@@ -560,7 +556,7 @@ async function loadFreqMap() {
 function renderExercises() {
   const wrap = document.getElementById('exList');
   if (!exercises.length) {
-    wrap.innerHTML = `<div class="ex-empty"><div class="ex-empty-icon">🏋️</div>아래 버튼으로 운동을 추가해보세요</div>`;
+    wrap.innerHTML = `<div class="ex-empty">아래 버튼으로 운동을 추가해보세요</div>`;
     return;
   }
   wrap.innerHTML = exercises.map((ex, i) => {
@@ -605,7 +601,7 @@ function renderExercises() {
       <div class="ex-photos">
         <button class="btn-photo ${hasBoth ? 'done' : ''}"
                 onclick="${hasBoth ? `viewPhotos(${i})` : `openPhotoModal(${i})`}">
-          ${hasBoth ? '🖼️ 사진보기' : '📷 사진찍기'}
+          ${hasBoth ? '사진보기' : '사진찍기'}
         </button>
         <span class="photo-dot ${ex.photos?.start ? 'taken' : 'empty'}">●</span>
         <span class="photo-dot ${ex.photos?.end   ? 'taken' : 'empty'}">●</span>
@@ -680,8 +676,8 @@ async function saveSession() {
       if (ee) throw ee;
     }
 
-    showToast('저장 완료 ✓');
-    btn.textContent = '저장됨 ✓';
+    showToast('저장 완료');
+    btn.textContent = '저장됨';
     setTimeout(() => { btn.disabled = false; btn.textContent = '저장'; }, 2000);
   } catch (e) {
     showToast('저장 실패: ' + e.message);
@@ -693,7 +689,7 @@ async function saveSession() {
 function openPhotoModal(idx) {
   photoTargetIdx = idx;
   const ex = exercises[idx];
-  document.getElementById('photoModalTitle').textContent = `📷 ${ex.name}`;
+  document.getElementById('photoModalTitle').textContent = `${ex.name}`;
   const startDone = !!ex.photos?.start;
   const endDone   = !!ex.photos?.end;
 
@@ -701,8 +697,8 @@ function openPhotoModal(idx) {
   const capEnd   = document.getElementById('capEnd');
   capStart.className = 'btn-capture' + (startDone ? ' done' : '');
   capEnd.className   = 'btn-capture' + (endDone   ? ' done' : '');
-  document.getElementById('capStartStatus').textContent = startDone ? '촬영 완료 ✓' : '미촬영';
-  document.getElementById('capEndStatus').textContent   = endDone   ? '촬영 완료 ✓' : '미촬영';
+  document.getElementById('capStartStatus').textContent = startDone ? '촬영 완료' : '미촬영';
+  document.getElementById('capEndStatus').textContent   = endDone   ? '촬영 완료' : '미촬영';
 
   document.getElementById('photoModal').classList.add('open');
 }
@@ -744,7 +740,7 @@ async function onPhotoSelected(input) {
 
     renderExercises();
     closePhotoModal();
-    showToast(`${type === 'start' ? '시작' : '끝'} 자세 사진 저장됨 ✓`);
+    showToast(`${type === 'start' ? '시작' : '끝'} 자세 사진 저장됨`);
   } catch (e) {
     showToast('사진 업로드 실패: ' + e.message);
   }
@@ -835,7 +831,7 @@ function renderSearchResults(q) {
     wrap.innerHTML = `<div class="search-empty">라이브러리가 비어있어요.<br>
       <button onclick="location.href='exercise-library.html'"
         style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;margin-top:10px">
-        📚 운동 라이브러리에서 추가하기
+        운동 라이브러리에서 추가하기
       </button></div>`;
     return;
   }
@@ -858,7 +854,7 @@ function renderSearchResults(q) {
   if (isDefaultView) {
     const favs = list.filter(e => e.is_favorite);
     if (favs.length) {
-      html += `<div class="result-section-title">⭐ 즐겨찾기</div>`;
+      html += `<div class="result-section-title">즐겨찾기</div>`;
       html += favs.map(ex => resultItemHtml(ex)).join('');
     }
     const freqList = list
@@ -866,12 +862,12 @@ function renderSearchResults(q) {
       .sort((a, b) => (freqMap[b.refId] || b.use_count) - (freqMap[a.refId] || a.use_count))
       .slice(0, 8);
     if (freqList.length) {
-      html += `<div class="result-section-title">🔄 자주 사용</div>`;
+      html += `<div class="result-section-title">자주 사용</div>`;
       html += freqList.map(ex => resultItemHtml(ex, true)).join('');
     }
     const rest = list.filter(e => !e.is_favorite && (e.use_count === 0 && !freqMap[e.refId]));
     if (rest.length) {
-      html += `<div class="result-section-title">📋 전체 목록</div>`;
+      html += `<div class="result-section-title">전체 목록</div>`;
       html += rest.map(ex => resultItemHtml(ex)).join('');
     }
     if (!favs.length && !freqList.length) html = list.map(ex => resultItemHtml(ex)).join('');
@@ -931,7 +927,7 @@ async function toggleFav(libId, isFav) {
       a.name.localeCompare(b.name, 'ko')
     );
   }
-  showToast(newVal ? '★ 즐겨찾기 등록' : '☆ 즐겨찾기 해제');
+  showToast(newVal ? '즐겨찾기 등록' : '즐겨찾기 해제');
   renderSearchResults(document.getElementById('searchInput')?.value || '');
 }
 
