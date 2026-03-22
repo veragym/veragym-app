@@ -182,8 +182,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   </div>
   <!-- 검색 -->
   <div style="position:relative">
-    <input id="exSearch" class="ex-search" type="text" placeholder="🔍 운동명 검색 (한/영)" oninput="filterExercise()">
-    <button id="exClear" onclick="clearExSearch()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;font-size:16px;cursor:pointer;padding:0;line-height:1">✕</button>
+    <input id="exSearch" class="ex-search" type="text" placeholder="운동명 검색 (한/영)" oninput="filterExercise()">
+    <button id="exClear" onclick="clearExSearch()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;font-size:16px;cursor:pointer;padding:0;line-height:1">×</button>
   </div>
   <!-- 도구 필터 -->
   <div class="ex-filter-row">
@@ -215,7 +215,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div class="modal-handle"></div>
     <div class="memo-name" id="memoMemberName"></div>
     <div class="memo-meta" id="memoMemberMeta"></div>
-    <div style="font-size:12px;color:#888;margin-bottom:8px">📝 트레이너 메모</div>
+    <div style="font-size:12px;color:#888;margin-bottom:8px">트레이너 메모</div>
     <div class="memo-body" id="memoContent"></div>
     <button class="btn-cancel" style="margin-top:16px;width:100%" onclick="closeModal('memoModal')">닫기</button>
   </div>
@@ -247,14 +247,13 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div class="err-box" id="addExErr"></div>
     <!-- 자동분류 안내 -->
     <div id="classifyBadge" style="display:none" class="classify-badge">
-      ✨ 이름 기반 자동분류 적용됨 — 아래에서 수정 가능
+      이름 기반 자동분류 적용됨 — 아래에서 수정 가능
     </div>
     <!-- 이미지 업로드 -->
     <div class="field">
       <label>운동 이미지 <span style="color:#555;font-weight:400">(선택)</span></label>
       <div class="img-upload-zone" id="imgZone" onclick="document.getElementById('exImgInput').click()">
         <div id="imgZoneContent">
-          <div style="font-size:28px;margin-bottom:6px">📸</div>
           <div style="font-size:13px;color:#555">탭하여 이미지 업로드</div>
           <div style="font-size:11px;color:#333;margin-top:4px">JPG, PNG, WEBP 지원</div>
         </div>
@@ -402,14 +401,14 @@ async function loadTrainers() {
 
   const card = t => `
     <div class="card">
-      <div class="avatar">${t.is_admin ? '👑' : '🏋️'}</div>
+      <div class="avatar">${(t.name||'?').charAt(0)}</div>
       <div class="info">
         <div class="name-row">
           ${t.name}
           <span class="badge ${t.is_admin ? 'badge-admin' : 'badge-trainer'}">${t.is_admin ? '관리자' : '트레이너'}</span>
           ${!t.is_active ? '<span class="badge badge-inactive">비활성</span>' : ''}
         </div>
-        <div class="sub-row">${t.gym_location}${t.plain_pw ? ` · 🔑 <span style="letter-spacing:1px;font-family:monospace">${t.plain_pw}</span>` : ''}</div>
+        <div class="sub-row">${t.gym_location}${t.plain_pw ? ` · <span style="letter-spacing:1px;font-family:monospace">${t.plain_pw}</span>` : ''}</div>
       </div>
       <div class="actions">
         <button class="btn-sm" onclick="openChangePw('${t.id}','${t.name}')">비번변경</button>
@@ -607,7 +606,6 @@ function showAllBranches() {
   wrap.innerHTML = Object.entries(branchMap).sort((a,b) => b[1].length - a[1].length).map(([loc, mbs]) => {
     const trainerCount = [...new Set(mbs.map(m => m.trainer_id).filter(Boolean))].length;
     return `<div class="hier-row" onclick="showBranch('${loc}')">
-      <div class="hier-icon">🏢</div>
       <div class="hier-info">
         <div class="hier-name">${loc}</div>
         <div class="hier-sub">트레이너 ${trainerCount}명 · 회원 ${mbs.length}명</div>
@@ -635,7 +633,7 @@ function showBranch(branch) {
     html += trainerList.map(t => {
       const cnt = branchMembers.filter(m => m.trainer_id === t.id).length;
       return `<div class="hier-row" onclick="showTrainer('${t.id}','${branch}')">
-        <div class="hier-icon">${t.is_admin ? '👑' : '🏋️'}</div>
+        <div class="hier-icon">${(t.name||'?').charAt(0)}</div>
         <div class="hier-info">
           <div class="hier-name">${t.name}</div>
           <div class="hier-sub">담당 회원 ${cnt}명${!t.is_active ? ' · 비활성' : ''}</div>
@@ -646,7 +644,6 @@ function showBranch(branch) {
   }
   if (unassigned.length) {
     html += `<div class="hier-row" onclick="showTrainer('__unassigned__','${branch}')">
-      <div class="hier-icon">❓</div>
       <div class="hier-info">
         <div class="hier-name">미배정</div>
         <div class="hier-sub">트레이너 미배정 회원 ${unassigned.length}명</div>
@@ -674,7 +671,6 @@ function showTrainer(trainerId, branch) {
   if (!members.length) { wrap.innerHTML = '<div class="empty">담당 회원이 없어요</div>'; return; }
   wrap.innerHTML = members.map(m => `
     <div class="hier-row" onclick="showMemberMemo('${m.id}')">
-      <div class="hier-icon">${m.is_active ? '🏃' : '💤'}</div>
       <div class="hier-info">
         <div class="hier-name">${m.name}${!m.is_active ? ' <span style="font-size:10px;color:#f87171">비활성</span>' : ''}</div>
         <div class="hier-sub">${m.notes ? m.notes.slice(0,30) + (m.notes.length > 30 ? '…' : '') : '메모 없음'}</div>
@@ -769,7 +765,7 @@ function _renderExList() {
       <div style="display:flex;align-items:center;gap:12px">
         ${r.image_url
           ? `<img src="${r.image_url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#222" loading="lazy" onerror="this.style.display='none'">`
-          : `<div style="width:56px;height:56px;border-radius:8px;background:#1a1a12;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🏋️</div>`}
+          : `<div style="width:56px;height:56px;border-radius:8px;background:#1a1a12;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0"></div>`}
         <div style="flex:1;min-width:0">
           <div class="ex-name">${r.name_ko}</div>
           ${r.name_en ? `<div class="ex-en">${r.name_en}</div>` : ''}
@@ -794,10 +790,10 @@ function openExDetail(id) {
   // 이미지
   const imgWrap = document.getElementById('exDetailImg');
   if (r.image_url) {
-    imgWrap.innerHTML = `<img src="${r.image_url}" style="width:100%;max-height:260px;object-fit:cover;display:block" onerror="this.parentElement.innerHTML='<div style=\\'padding:24px;color:#333;font-size:28px;text-align:center\\'>🏋️</div>'">`;
+    imgWrap.innerHTML = `<img src="${r.image_url}" style="width:100%;max-height:260px;object-fit:cover;display:block" onerror="this.parentElement.innerHTML=''">`;
     imgWrap.style.display = '';
   } else {
-    imgWrap.innerHTML = '<div style="padding:24px;color:#333;font-size:36px;text-align:center">🏋️</div>';
+    imgWrap.innerHTML = '';
     imgWrap.style.display = '';
   }
 
@@ -834,7 +830,6 @@ function openAddExercise() {
   document.getElementById('addExErr').style.display = 'none';
   document.getElementById('classifyBadge').style.display = 'none';
   document.getElementById('imgZoneContent').innerHTML = `
-    <div style="font-size:28px;margin-bottom:6px">📸</div>
     <div style="font-size:13px;color:#555">탭하여 이미지 업로드</div>
     <div style="font-size:11px;color:#333;margin-top:4px">JPG, PNG, WEBP 지원</div>`;
   openModal('addExModal');
@@ -926,7 +921,7 @@ async function doAddExercise() {
     // 3) 캐시 업데이트
     _allExercises = [];  // 다음 탭 진입 시 재로드
     closeModal('addExModal');
-    showToast(`✅ "${nameKo}" 추가 완료!`);
+    showToast(`"${nameKo}" 추가 완료`);
     loadExercise();
   } catch(e) {
     showExErr(e.message);
@@ -979,7 +974,7 @@ async function loadRequests() {
     <div class="req-card">
       <div class="req-header">
         <span class="req-type ${r.type}">${TYPE_LABEL[r.type] || r.type}</span>
-        <span class="req-status ${r.status === 'completed' ? 'completed' : ''}">${r.status === 'pending' ? '⏳ 처리중' : '✅ 완료'}</span>
+        <span class="req-status ${r.status === 'completed' ? 'completed' : ''}">${r.status === 'pending' ? '처리중' : '완료'}</span>
       </div>
       <div class="req-content">${r.content}</div>
       <div class="req-meta">${r.trainers?.name || '알수없음'} · ${new Date(r.created_at).toLocaleDateString('ko-KR')}</div>
