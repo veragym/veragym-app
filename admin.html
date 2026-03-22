@@ -414,12 +414,13 @@ async function loadRequests() {
     .order('created_at', { ascending: false });
   if (error) { showToast('불러오기 실패'); return; }
 
-  const pending   = data.filter(r => r.status === 'pending');
-  const completed = data.filter(r => r.status !== 'pending');
-  document.getElementById('reqCount').textContent = pending.length ? `(미처리 ${pending.length}건)` : `(${data.length}건)`;
+  const visible   = data.filter(r => r.status !== 'deleted');
+  const pending   = visible.filter(r => r.status === 'pending');
+  const completed = visible.filter(r => r.status === 'completed');
+  document.getElementById('reqCount').textContent = pending.length ? `(미처리 ${pending.length}건)` : `(${visible.length}건)`;
 
   const wrap = document.getElementById('reqList');
-  if (!data.length) { wrap.innerHTML = '<div class="empty">요청사항이 없어요</div>'; return; }
+  if (!visible.length) { wrap.innerHTML = '<div class="empty">요청사항이 없어요</div>'; return; }
 
   const TYPE_LABEL = { db_add: 'DB 추가', bug_report: '버그 신고', other: '기타' };
   const card = r => `
@@ -430,11 +431,10 @@ async function loadRequests() {
       </div>
       <div class="req-content">${r.content}</div>
       <div class="req-meta">${r.trainers?.name || '알수없음'} · ${new Date(r.created_at).toLocaleDateString('ko-KR')}</div>
-      ${r.status === 'pending' ? `
       <div class="req-actions">
-        <button class="btn-complete" onclick="completeReq('${r.id}')">완료 처리</button>
+        ${r.status === 'pending' ? `<button class="btn-complete" onclick="completeReq('${r.id}')">완료 처리</button>` : ''}
         <button class="btn-req-del" onclick="deleteReq('${r.id}')">삭제</button>
-      </div>` : ''}
+      </div>
     </div>`;
 
   wrap.innerHTML =
