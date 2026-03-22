@@ -111,6 +111,29 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#2a2518; color:#c9a84c; border:1px solid #c9a84c44; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity 0.3s; z-index:9999; white-space:nowrap; }
 .spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(0,0,0,0.2); border-top-color:#000; border-radius:50%; animation:spin 0.7s linear infinite; margin-right:6px; vertical-align:middle; }
 @keyframes spin { to{transform:rotate(360deg)} }
+/* ── 운동DB 필터 ── */
+.ex-search { width:100%; background:#161610; border:1.5px solid #2a2518; border-radius:10px; padding:11px 40px 11px 14px; font-size:14px; color:#fff; outline:none; font-family:inherit; transition:border-color 0.2s; display:block; margin-bottom:12px; }
+.ex-search:focus { border-color:#c9a84c66; }
+.ex-search::placeholder { color:#444; }
+.ex-filter-row { margin-bottom:10px; }
+.ex-filter-label { font-size:10px; color:#555; letter-spacing:1.2px; margin-bottom:6px; font-weight:600; }
+.ex-chip { background:#161610; border:1.5px solid #2a2518; border-radius:20px; padding:5px 13px; font-size:12px; color:#666; cursor:pointer; transition:all 0.15s; white-space:nowrap; font-family:inherit; }
+.ex-chip:hover { border-color:#c9a84c55; color:#aaa; }
+.ex-chip.active { background:#c9a84c22; border-color:#c9a84c88; color:#c9a84c; font-weight:700; }
+.ex-card { background:#161610; border:1px solid #2a2518; border-radius:10px; padding:12px 14px; margin-bottom:7px; }
+.ex-name { font-size:14px; font-weight:600; }
+.ex-en { font-size:11px; color:#555; margin-top:2px; }
+.ex-tags { margin-top:5px; display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
+.ex-tag-tool { background:#c9a84c18; border:1px solid #c9a84c33; border-radius:6px; padding:2px 8px; font-size:10px; color:#c9a84c99; }
+.ex-tag-part { background:transparent; border:1px solid #2a2518; border-radius:6px; padding:2px 8px; font-size:10px; color:#555; }
+.ex-tag-muscle { font-size:10px; color:#3d3d2d; }
+.ex-more-btn { width:100%; background:#161610; border:1px solid #2a2518; border-radius:10px; padding:12px; color:#666; font-size:13px; cursor:pointer; margin-top:4px; font-family:inherit; transition:all 0.15s; }
+.ex-more-btn:hover { border-color:#c9a84c44; color:#c9a84c; }
+/* 이미지 업로드 */
+.img-upload-zone { border:2px dashed #2a2518; border-radius:12px; padding:20px; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:4px; }
+.img-upload-zone:hover, .img-upload-zone.drag { border-color:#c9a84c66; }
+.img-upload-zone img { max-height:120px; border-radius:8px; object-fit:cover; }
+.classify-badge { display:inline-flex; align-items:center; gap:5px; background:#c9a84c18; border:1px solid #c9a84c44; border-radius:8px; padding:4px 10px; font-size:11px; color:#c9a84c; margin-bottom:10px; }
 </style>
 </head>
 <body>
@@ -154,9 +177,29 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 
 <!-- 운동 DB -->
 <div id="tab-exercise" class="tab-content">
-  <div class="sec-header">
-    <span class="sec-title">운동 레퍼런스 DB</span><span class="sec-count" id="exerciseCount"></span>
+  <div class="sec-header" style="margin-bottom:14px">
+    <div><span class="sec-title">운동 레퍼런스 DB</span><span class="sec-count" id="exerciseCount"></span></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-add" onclick="exportExerciseExcel()" style="background:#1e1c10;border:1px solid #c9a84c44;color:#c9a84c;font-weight:600">↓ Excel</button>
+      <button class="btn-add" onclick="openAddExercise()">+ 추가</button>
+    </div>
   </div>
+  <!-- 검색 -->
+  <div style="position:relative">
+    <input id="exSearch" class="ex-search" type="text" placeholder="🔍 운동명 검색 (한/영)" oninput="filterExercise()">
+    <button id="exClear" onclick="clearExSearch()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;font-size:16px;cursor:pointer;padding:0;line-height:1">✕</button>
+  </div>
+  <!-- 도구 필터 -->
+  <div class="ex-filter-row">
+    <div class="ex-filter-label">TOOL</div>
+    <div id="toolFilter" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+  </div>
+  <!-- 부위 필터 -->
+  <div class="ex-filter-row" style="margin-bottom:14px">
+    <div class="ex-filter-label">부위</div>
+    <div id="partFilter" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+  </div>
+  <!-- 결과 -->
   <div id="exerciseList"><div class="loading">불러오는 중...</div></div>
 </div>
 
@@ -179,6 +222,96 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div style="font-size:12px;color:#888;margin-bottom:8px">📝 트레이너 메모</div>
     <div class="memo-body" id="memoContent"></div>
     <button class="btn-cancel" style="margin-top:16px;width:100%" onclick="closeModal('memoModal')">닫기</button>
+  </div>
+</div>
+
+<!-- 운동 상세 모달 -->
+<div id="exDetailModal" class="modal-bg" onclick="closeModal('exDetailModal',event)">
+  <div class="modal" style="padding-bottom:36px">
+    <div class="modal-handle"></div>
+    <!-- 이미지 -->
+    <div id="exDetailImg" style="margin-bottom:16px;border-radius:14px;overflow:hidden;background:#111;min-height:60px;display:flex;align-items:center;justify-content:center"></div>
+    <!-- 이름 -->
+    <div id="exDetailNameKo" style="font-size:20px;font-weight:800;margin-bottom:4px"></div>
+    <div id="exDetailNameEn" style="font-size:13px;color:#555;margin-bottom:16px"></div>
+    <!-- 태그 -->
+    <div id="exDetailTags" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"></div>
+    <!-- 주요근육 -->
+    <div style="font-size:11px;color:#666;letter-spacing:1px;margin-bottom:8px">주요 근육</div>
+    <div id="exDetailMuscles" style="font-size:14px;color:#bbb;line-height:1.8;background:#0f0f0a;border-radius:10px;padding:14px;min-height:40px"></div>
+    <button class="btn-cancel" style="margin-top:18px;width:100%" onclick="closeModal('exDetailModal')">닫기</button>
+  </div>
+</div>
+
+<!-- 운동 추가 모달 -->
+<div id="addExModal" class="modal-bg" onclick="closeModal('addExModal',event)">
+  <div class="modal" style="max-height:95dvh">
+    <div class="modal-handle"></div>
+    <div class="modal-title">운동 추가</div>
+    <div class="err-box" id="addExErr"></div>
+    <!-- 자동분류 안내 -->
+    <div id="classifyBadge" style="display:none" class="classify-badge">
+      ✨ 이름 기반 자동분류 적용됨 — 아래에서 수정 가능
+    </div>
+    <!-- 이미지 업로드 -->
+    <div class="field">
+      <label>운동 이미지 <span style="color:#555;font-weight:400">(선택)</span></label>
+      <div class="img-upload-zone" id="imgZone" onclick="document.getElementById('exImgInput').click()">
+        <div id="imgZoneContent">
+          <div style="font-size:28px;margin-bottom:6px">📸</div>
+          <div style="font-size:13px;color:#555">탭하여 이미지 업로드</div>
+          <div style="font-size:11px;color:#333;margin-top:4px">JPG, PNG, WEBP 지원</div>
+        </div>
+      </div>
+      <input id="exImgInput" type="file" accept="image/*" style="display:none" onchange="previewExImg(this)">
+    </div>
+    <!-- 한글명 -->
+    <div class="field">
+      <label>한글 운동명 <span style="color:#f87171">*</span></label>
+      <input id="exNameKo" type="text" placeholder="예: 덤벨 바이셉 컬" autocomplete="off" oninput="onExNameInput()">
+    </div>
+    <!-- 영문명 -->
+    <div class="field">
+      <label>영문 운동명</label>
+      <input id="exNameEn" type="text" placeholder="예: Dumbbell Bicep Curl" autocomplete="off" oninput="onExNameInput()">
+    </div>
+    <!-- 도구 -->
+    <div class="field">
+      <label>도구 (tool_unified) <span style="color:#f87171">*</span></label>
+      <select id="exTool">
+        <option value="체중">체중</option>
+        <option value="덤벨">덤벨</option>
+        <option value="바벨">바벨</option>
+        <option value="케이블">케이블</option>
+        <option value="밴드">밴드</option>
+        <option value="케틀벨">케틀벨</option>
+        <option value="머신">머신</option>
+        <option value="소도구">소도구</option>
+      </select>
+    </div>
+    <!-- 부위 -->
+    <div class="field">
+      <label>부위 (part_unified) <span style="color:#f87171">*</span></label>
+      <select id="exPart">
+        <option value="가슴">가슴</option>
+        <option value="등">등</option>
+        <option value="어깨">어깨</option>
+        <option value="팔">팔</option>
+        <option value="코어">코어</option>
+        <option value="하체">하체</option>
+        <option value="전신">전신</option>
+      </select>
+    </div>
+    <!-- 주요근육 -->
+    <div class="field">
+      <label>주요 근육</label>
+      <input id="exMuscles" type="text" placeholder="예: 이두근 · 전완근" autocomplete="off">
+      <div class="hint">· 로 구분 (선택사항)</div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('addExModal')">취소</button>
+      <button class="btn-save" id="btnAddEx" onclick="doAddExercise()">추가</button>
+    </div>
   </div>
 </div>
 
@@ -563,21 +696,255 @@ function showMemberMemo(memberId) {
 }
 
 // ── 운동 DB ──────────────────────────────────────────────────
+let _allExercises  = [];
+let _exFiltered    = [];
+let _exShowCount   = 50;
+let _exToolFilter  = '전체';
+let _exPartFilter  = '전체';
+const EX_TOOLS = ['전체','체중','덤벨','바벨','케이블','밴드','케틀벨','머신','소도구'];
+const EX_PARTS = ['전체','가슴','등','어깨','팔','코어','하체','전신'];
+
 async function loadExercise() {
-  const { data, count } = await db.from('exercise_refs')
-    .select('*', { count: 'exact' }).eq('is_active', true).order('name_ko').limit(100);
-  document.getElementById('exerciseCount').textContent = count ? `(총 ${count}개)` : '';
+  // 이미 로드된 경우 필터만 다시 렌더
+  if (_allExercises.length) { _buildExFilters(); filterExercise(); return; }
+  document.getElementById('exerciseList').innerHTML = '<div class="loading">불러오는 중...</div>';
+  const { data, error } = await db.from('exercise_refs')
+    .select('id,name_ko,name_en,tool_unified,part_unified,muscles_detail,image_url')
+    .eq('is_active', true).order('name_ko');
+  if (error || !data) { document.getElementById('exerciseList').innerHTML = '<div class="empty">불러오기 실패</div>'; return; }
+  _allExercises = data;
+  document.getElementById('exerciseCount').textContent = `(총 ${data.length}개)`;
+  _buildExFilters();
+  filterExercise();
+}
+
+function _buildExFilters() {
+  const chip = (arr, sel, fn) => arr.map(v =>
+    `<button class="ex-chip${sel===v?' active':''}" onclick="${fn}('${v}')">${v}</button>`).join('');
+  document.getElementById('toolFilter').innerHTML = chip(EX_TOOLS, _exToolFilter, 'setExTool');
+  document.getElementById('partFilter').innerHTML = chip(EX_PARTS, _exPartFilter, 'setExPart');
+}
+
+function setExTool(v) { _exToolFilter = v; _buildExFilters(); filterExercise(); }
+function setExPart(v) { _exPartFilter = v; _buildExFilters(); filterExercise(); }
+
+function clearExSearch() {
+  document.getElementById('exSearch').value = '';
+  document.getElementById('exClear').style.display = 'none';
+  filterExercise();
+}
+
+function filterExercise() {
+  const q = (document.getElementById('exSearch')?.value || '').trim().toLowerCase();
+  document.getElementById('exClear').style.display = q ? '' : 'none';
+  let list = _allExercises;
+  if (_exToolFilter !== '전체') list = list.filter(e => e.tool_unified === _exToolFilter);
+  if (_exPartFilter !== '전체') list = list.filter(e => e.part_unified === _exPartFilter);
+  if (q) list = list.filter(e =>
+    e.name_ko?.toLowerCase().includes(q) || e.name_en?.toLowerCase().includes(q));
+  _exFiltered = list;
+  _exShowCount = 50;
+  const total = _allExercises.length;
+  document.getElementById('exerciseCount').textContent =
+    list.length === total ? `(총 ${total}개)` : `(${list.length} / ${total}개)`;
+  _renderExList();
+}
+
+function _renderExList() {
   const wrap = document.getElementById('exerciseList');
-  if (!data?.length) {
-    wrap.innerHTML = '<div class="empty">운동 DB가 비어있어요<br><span style="font-size:12px;color:#333;margin-top:8px;display:block">트레이너 앱에서 요청하거나 직접 추가하세요</span></div>';
-    return;
-  }
-  wrap.innerHTML = data.map(r => `
-    <div style="background:#161610;border:1px solid #2a2518;border-radius:10px;padding:12px 14px;margin-bottom:8px">
-      <div style="font-size:14px;font-weight:600">${r.name_ko}</div>
-      <div style="font-size:11px;color:#555;margin-top:3px">${r.name_en || ''} ${r.category ? '· ' + r.category : ''} ${r.muscle_group ? '· ' + r.muscle_group : ''}</div>
+  const list = _exFiltered;
+  if (!list.length) { wrap.innerHTML = '<div class="empty">검색 결과가 없어요</div>'; return; }
+  const items = list.slice(0, _exShowCount);
+  wrap.innerHTML = items.map(r => `
+    <div class="ex-card" onclick="openExDetail('${r.id}')" style="cursor:pointer">
+      <div style="display:flex;align-items:center;gap:12px">
+        ${r.image_url
+          ? `<img src="${r.image_url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#222" loading="lazy" onerror="this.style.display='none'">`
+          : `<div style="width:56px;height:56px;border-radius:8px;background:#1a1a12;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🏋️</div>`}
+        <div style="flex:1;min-width:0">
+          <div class="ex-name">${r.name_ko}</div>
+          ${r.name_en ? `<div class="ex-en">${r.name_en}</div>` : ''}
+          <div class="ex-tags">
+            ${r.tool_unified ? `<span class="ex-tag-tool">${r.tool_unified}</span>` : ''}
+            ${r.part_unified ? `<span class="ex-tag-part">${r.part_unified}</span>` : ''}
+            ${r.muscles_detail ? `<span class="ex-tag-muscle">${r.muscles_detail.slice(0,35)}${r.muscles_detail.length>35?'…':''}</span>` : ''}
+          </div>
+        </div>
+        <div style="color:#333;font-size:13px;flex-shrink:0">›</div>
+      </div>
     </div>`).join('') +
-    (count > 100 ? `<div style="text-align:center;color:#333;font-size:12px;padding:12px">최대 100개 표시 (전체 ${count}개)</div>` : '');
+    (list.length > _exShowCount ? `<button class="ex-more-btn" onclick="loadMoreEx()">더 보기 (${list.length - _exShowCount}개 남음)</button>` : '');
+}
+
+function loadMoreEx() { _exShowCount += 50; _renderExList(); }
+
+function openExDetail(id) {
+  const r = _allExercises.find(e => e.id === id);
+  if (!r) return;
+
+  // 이미지
+  const imgWrap = document.getElementById('exDetailImg');
+  if (r.image_url) {
+    imgWrap.innerHTML = `<img src="${r.image_url}" style="width:100%;max-height:260px;object-fit:cover;display:block" onerror="this.parentElement.innerHTML='<div style=\\'padding:24px;color:#333;font-size:28px;text-align:center\\'>🏋️</div>'">`;
+    imgWrap.style.display = '';
+  } else {
+    imgWrap.innerHTML = '<div style="padding:24px;color:#333;font-size:36px;text-align:center">🏋️</div>';
+    imgWrap.style.display = '';
+  }
+
+  // 이름
+  document.getElementById('exDetailNameKo').textContent = r.name_ko || '';
+  document.getElementById('exDetailNameEn').textContent  = r.name_en  || '';
+
+  // 태그 (도구 + 부위)
+  document.getElementById('exDetailTags').innerHTML = [
+    r.tool_unified ? `<span class="ex-tag-tool" style="font-size:12px;padding:4px 12px">${r.tool_unified}</span>` : '',
+    r.part_unified ? `<span class="ex-tag-part" style="font-size:12px;padding:4px 12px;color:#aaa">${r.part_unified}</span>` : '',
+  ].join('');
+
+  // 주요근육 — · 구분자를 줄바꿈으로 표시
+  const muscles = r.muscles_detail || '정보 없음';
+  document.getElementById('exDetailMuscles').innerHTML =
+    muscles.split('·').map(m => m.trim()).filter(Boolean)
+      .map(m => `<span style="display:inline-block;background:#1a1a12;border:1px solid #2a2518;border-radius:8px;padding:4px 12px;margin:3px;font-size:13px">${m}</span>`)
+      .join('') || '<span style="color:#444">정보 없음</span>';
+
+  openModal('exDetailModal');
+}
+
+// ── 운동 추가 ─────────────────────────────────────────────────
+let _exImgFile = null;
+
+function openAddExercise() {
+  _exImgFile = null;
+  document.getElementById('exNameKo').value = '';
+  document.getElementById('exNameEn').value = '';
+  document.getElementById('exTool').value = '체중';
+  document.getElementById('exPart').value = '전신';
+  document.getElementById('exMuscles').value = '';
+  document.getElementById('addExErr').style.display = 'none';
+  document.getElementById('classifyBadge').style.display = 'none';
+  document.getElementById('imgZoneContent').innerHTML = `
+    <div style="font-size:28px;margin-bottom:6px">📸</div>
+    <div style="font-size:13px;color:#555">탭하여 이미지 업로드</div>
+    <div style="font-size:11px;color:#333;margin-top:4px">JPG, PNG, WEBP 지원</div>`;
+  openModal('addExModal');
+}
+
+function previewExImg(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  _exImgFile = file;
+  const url = URL.createObjectURL(file);
+  document.getElementById('imgZoneContent').innerHTML =
+    `<img src="${url}" style="max-height:120px;border-radius:8px;object-fit:cover"><div style="font-size:11px;color:#666;margin-top:6px">${file.name}</div>`;
+}
+
+// 이름 입력 시 자동분류
+let _classifyTimer = null;
+function onExNameInput() {
+  clearTimeout(_classifyTimer);
+  _classifyTimer = setTimeout(() => {
+    const ko = document.getElementById('exNameKo').value;
+    const en = document.getElementById('exNameEn').value;
+    if (!ko && !en) return;
+    const { tool, part } = autoClassify(ko, en);
+    document.getElementById('exTool').value = tool;
+    document.getElementById('exPart').value = part;
+    document.getElementById('classifyBadge').style.display = 'inline-flex';
+  }, 600);
+}
+
+// 키워드 기반 자동분류
+function autoClassify(ko, en) {
+  const t = (ko + ' ' + en).toLowerCase();
+  let tool = '체중';
+  if (/덤벨|dumbbell/.test(t))              tool = '덤벨';
+  else if (/바벨|barbell/.test(t))          tool = '바벨';
+  else if (/케이블|cable/.test(t))          tool = '케이블';
+  else if (/밴드|band|resistance/.test(t))  tool = '밴드';
+  else if (/케틀벨|kettlebell/.test(t))     tool = '케틀벨';
+  else if (/머신|machine|seated row|lat pulldown|leg press|leg curl|leg extension|smith/.test(t)) tool = '머신';
+  else if (/로프|rope|폼롤|foam|ball|스틱|stick|줄넘기/.test(t)) tool = '소도구';
+
+  let part = '전신';
+  if (/가슴|chest|bench|flye|pec|push/.test(t))           part = '가슴';
+  else if (/등|back|row|풀|lat|pull|deadlift|광배/.test(t)) part = '등';
+  else if (/어깨|shoulder|delt|overhead|press/.test(t))   part = '어깨';
+  else if (/팔|arm|curl|tricep|bicep|이두|삼두|전완/.test(t)) part = '팔';
+  else if (/복|core|plank|ab|crunch|코어|복사근/.test(t)) part = '코어';
+  else if (/하체|leg|squat|lunge|calf|glute|hamstring|quad|종아리|둔근|허벅지|런지|스쿼트/.test(t)) part = '하체';
+  return { tool, part };
+}
+
+async function doAddExercise() {
+  const nameKo  = document.getElementById('exNameKo').value.trim();
+  const nameEn  = document.getElementById('exNameEn').value.trim();
+  const tool    = document.getElementById('exTool').value;
+  const part    = document.getElementById('exPart').value;
+  const muscles = document.getElementById('exMuscles').value.trim();
+  const btn     = document.getElementById('btnAddEx');
+  document.getElementById('addExErr').style.display = 'none';
+  if (!nameKo) { showExErr('한글 운동명을 입력해주세요'); return; }
+
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>추가 중...';
+  try {
+    let image_url = null;
+    // 1) 이미지 업로드
+    if (_exImgFile) {
+      const ext  = _exImgFile.name.split('.').pop().toLowerCase();
+      const safe = nameEn || nameKo;
+      const fname = safe.replace(/[^a-zA-Z0-9가-힣\-_ ]/g,'').replace(/\s+/g,'_');
+      const path  = `${part}/${fname}.${ext}`;
+      const { error: upErr } = await db.storage.from('exercise-images').upload(path, _exImgFile, { upsert: true });
+      if (upErr) throw new Error('이미지 업로드 실패: ' + upErr.message);
+      const { data: { publicUrl } } = db.storage.from('exercise-images').getPublicUrl(path);
+      image_url = publicUrl;
+    }
+    // 2) DB INSERT
+    const { error: dbErr } = await db.from('exercise_refs').insert({
+      name_ko: nameKo, name_en: nameEn || null,
+      category: tool, muscle_group: part,
+      muscles_detail: muscles || null,
+      tool_unified: tool, part_unified: part,
+      image_url, is_active: true,
+    });
+    if (dbErr) throw new Error('DB 저장 실패: ' + dbErr.message);
+
+    // 3) 캐시 업데이트
+    _allExercises = [];  // 다음 탭 진입 시 재로드
+    closeModal('addExModal');
+    showToast(`✅ "${nameKo}" 추가 완료!`);
+    loadExercise();
+  } catch(e) {
+    showExErr(e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '추가';
+  }
+}
+function showExErr(msg) {
+  const el = document.getElementById('addExErr');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+// ── 운동DB Excel 내보내기 ─────────────────────────────────────
+async function exportExerciseExcel() {
+  showToast('Excel 생성 중...');
+  const { data } = await db.from('exercise_refs')
+    .select('name_ko,name_en,tool_unified,part_unified,muscles_detail')
+    .eq('is_active', true).order('name_ko');
+  if (!data?.length) { showToast('데이터 없음'); return; }
+
+  // TSV로 만들어서 다운로드 (xlsx 라이브러리 없이)
+  const header = ['한글 운동이름','영문 운동이름','도구_통합','부위_통합','주요 근육'];
+  const rows   = data.map(r => [r.name_ko, r.name_en||'', r.tool_unified||'', r.part_unified||'', r.muscles_detail||'']);
+  const tsv    = [header, ...rows].map(r => r.map(c => `"${c.replace(/"/g,'""')}"`).join('\t')).join('\n');
+  const blob   = new Blob(['\uFEFF' + tsv], { type: 'text/tab-separated-values;charset=utf-8' });
+  const a      = document.createElement('a');
+  a.href       = URL.createObjectURL(blob);
+  a.download   = `운동DB_${new Date().toISOString().slice(0,10)}.tsv`;
+  a.click();
+  showToast('다운로드 완료 (Excel에서 열기 가능)');
 }
 
 // ── 요청사항 ─────────────────────────────────────────────────
