@@ -40,15 +40,15 @@ body {
   position:fixed; bottom:0; left:0; right:0;
   background:#0d1525; border-top:1px solid #1e3a5f44;
   display:flex; z-index:100;
-  padding-bottom:env(safe-area-inset-bottom);
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom)); gap:6px;
 }
 .nav-btn {
   flex:1; display:flex; flex-direction:column; align-items:center;
-  justify-content:center; padding:10px 4px; border:none; background:none;
-  color:#3a5878; cursor:pointer; transition:color 0.15s;
-  font-size:11px; font-weight:700;
+  justify-content:center; min-height:52px; border:1.5px solid #1e3a5f66;
+  border-radius:8px; background:#141f35; color:#4a6580;
+  cursor:pointer; transition:all 0.15s; font-size:12px; font-weight:700;
 }
-.nav-btn.active { color:#3b82f6; }
+.nav-btn.active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
 
 /* ── 검색 + 필터 영역 ─────────────────────────────────── */
 .search-area {
