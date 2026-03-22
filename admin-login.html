@@ -13,78 +13,73 @@
 <title>VERA GYM | 관리자 로그인</title>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#0a0a0a; color:#fff; min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; }
+body {
+  font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif;
+  background:#0a0a0a; color:#fff;
+  min-height:100dvh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; padding:24px;
+}
 .logo-wrap { text-align:center; margin-bottom:32px; }
-.logo-ring { width:72px; height:72px; border-radius:50%; border:2.5px solid #c9a84c; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
-.logo-vg { font-size:26px; font-weight:900; color:#c9a84c; }
-.logo-title { font-size:18px; font-weight:800; letter-spacing:2px; }
+.logo-title { font-size:22px; font-weight:900; letter-spacing:3px; }
 .logo-title span { color:#c9a84c; }
-.logo-sub { font-size:11px; color:#555; margin-top:2px; letter-spacing:1px; }
-.card { width:100%; max-width:380px; background:#111108; border:1px solid #2a2518; border-radius:20px; padding:28px 24px; }
-.tabs { display:flex; gap:0; margin-bottom:24px; background:#0a0a08; border-radius:10px; padding:3px; }
-.tab { flex:1; padding:9px; font-size:13px; font-weight:600; color:#555; background:none; border:none; border-radius:8px; cursor:pointer; transition:all 0.18s; }
-.tab.active { background:#1e1a0f; color:#c9a84c; }
+.logo-sub { font-size:11px; color:#444; margin-top:4px; letter-spacing:2px; }
+
+.card {
+  width:100%; max-width:380px;
+  background:#111108; border:1px solid #2a2518;
+  border-radius:20px; padding:28px 24px;
+}
 .field { margin-bottom:16px; }
 .field label { display:block; font-size:12px; color:#888; margin-bottom:7px; font-weight:500; }
-.field input { width:100%; background:#0a0a08; border:1.5px solid #2a2518; border-radius:10px; padding:13px 14px; font-size:15px; color:#fff; outline:none; font-family:inherit; transition:border-color 0.2s; }
+.field input {
+  width:100%; background:#0a0a08; border:1.5px solid #2a2518;
+  border-radius:10px; padding:13px 14px; font-size:15px; color:#fff;
+  outline:none; font-family:inherit; transition:border-color 0.2s;
+}
 .field input:focus { border-color:#c9a84c; }
 .field input::placeholder { color:#383530; }
-.btn-login { width:100%; background:linear-gradient(135deg,#c9a84c,#a8893a); color:#000; border:none; border-radius:12px; padding:15px; font-size:16px; font-weight:700; cursor:pointer; margin-top:4px; transition:opacity 0.15s; }
+.btn-login {
+  width:100%; background:linear-gradient(135deg,#c9a84c,#a8893a);
+  color:#000; border:none; border-radius:12px; padding:15px;
+  font-size:16px; font-weight:700; cursor:pointer; transition:opacity 0.15s;
+}
 .btn-login:disabled { opacity:0.45; cursor:default; }
 .btn-login:hover:not(:disabled) { opacity:0.88; }
-.err-box { background:#2d1212; border:1px solid #5a2020; border-radius:8px; padding:10px 14px; font-size:13px; color:#f87171; margin-bottom:14px; display:none; }
-.spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,0.25); border-top-color:#000; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px; }
-@keyframes spin { to{transform:rotate(360deg)} }
-.hint-setup { font-size:12px; color:#444; text-align:center; margin-top:16px; }
-.hint-setup a { color:#c9a84c44; text-decoration:none; }
+.err-box {
+  background:#2d1212; border:1px solid #5a2020; border-radius:8px;
+  padding:10px 14px; font-size:13px; color:#f87171;
+  margin-bottom:14px; display:none;
+}
+.spinner {
+  display:inline-block; width:14px; height:14px;
+  border:2px solid rgba(0,0,0,0.25); border-top-color:#000;
+  border-radius:50%; animation:spin 0.7s linear infinite;
+  vertical-align:middle; margin-right:6px;
+}
+@keyframes spin { to { transform:rotate(360deg) } }
 </style>
 </head>
 <body>
 
 <div class="logo-wrap">
-  <div class="logo-ring"><div class="logo-vg">VG</div></div>
   <div class="logo-title">VERA <span>GYM</span></div>
   <div class="logo-sub">ADMIN</div>
 </div>
 
 <div class="card">
-  <div class="tabs">
-    <button class="tab active" id="tab1" onclick="switchTab(1)">최고 관리자</button>
-    <button class="tab"        id="tab2" onclick="switchTab(2)">지점 관리자</button>
-  </div>
-
   <div id="errBox" class="err-box"></div>
 
-  <!-- 최고 관리자 탭 -->
-  <div id="panel1">
-    <div class="field">
-      <label>이메일</label>
-      <input id="email" type="email" placeholder="veragym@naver.com" autocomplete="email">
-    </div>
-    <div class="field">
-      <label>비밀번호</label>
-      <input id="pw1" type="password" placeholder="비밀번호 입력" autocomplete="current-password"
-             onkeydown="if(event.key==='Enter')doSuperLogin()">
-    </div>
-    <button class="btn-login" id="btnSuper" onclick="doSuperLogin()">로그인</button>
-    <div class="hint-setup" id="hintSetup" style="display:none">
-      계정이 없으신가요? <a href="#" onclick="doSuperSignup(event)">최초 계정 생성</a>
-    </div>
+  <div class="field">
+    <label>아이디</label>
+    <input id="inpId" type="text" placeholder="아이디 입력" autocomplete="off"
+           onkeydown="if(event.key==='Enter')document.getElementById('inpPw').focus()">
   </div>
-
-  <!-- 지점 관리자 탭 -->
-  <div id="panel2" style="display:none">
-    <div class="field">
-      <label>이름</label>
-      <input id="adminName" type="text" placeholder="홍길동" autocomplete="off">
-    </div>
-    <div class="field">
-      <label>비밀번호</label>
-      <input id="pw2" type="password" placeholder="비밀번호 입력" autocomplete="current-password"
-             onkeydown="if(event.key==='Enter')doAdminLogin()">
-    </div>
-    <button class="btn-login" id="btnAdmin" onclick="doAdminLogin()">로그인</button>
+  <div class="field">
+    <label>비밀번호</label>
+    <input id="inpPw" type="password" placeholder="비밀번호 입력" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter')doLogin()">
   </div>
+  <button class="btn-login" id="btnLogin" onclick="doLogin()">로그인</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -96,90 +91,56 @@ preventBackExit();
 // 이미 로그인된 경우 자동 이동
 (async () => {
   const { data: { session } } = await db.auth.getSession();
-  if (!session) {
-    // 최초 설치 여부 확인 (trainers 테이블이 비어있으면 최초 설정 안내)
-    checkFirstSetup();
-    return;
-  }
-  const isSuperAdmin = session.user.email === 'veragym@naver.com';
-  if (isSuperAdmin) { location.replace('admin.html'); return; }
-  const { data: t } = await db.from('trainers').select('is_admin,is_active').eq('auth_id', session.user.id).single();
-  if (t?.is_admin && t?.is_active) location.replace('admin.html');
-  else await db.auth.signOut();
+  if (!session) return;
+  const ok = await checkAdminSession(session);
+  if (!ok) await db.auth.signOut();
 })();
 
-async function checkFirstSetup() {
-  const { count } = await db.from('trainers').select('id', { count: 'exact', head: true });
-  if (count === 0) {
-    document.getElementById('hintSetup').style.display = 'block';
+async function checkAdminSession(session) {
+  if (session.user.email === SUPER_ADMIN_EMAIL) {
+    location.replace('admin.html'); return true;
   }
+  const { data: t } = await db.from('trainers')
+    .select('is_admin,is_active').eq('auth_id', session.user.id).single();
+  if (t?.is_admin && t?.is_active) { location.replace('admin.html'); return true; }
+  return false;
 }
 
-function switchTab(n) {
-  document.getElementById('panel1').style.display = n===1 ? '' : 'none';
-  document.getElementById('panel2').style.display = n===2 ? '' : 'none';
-  document.getElementById('tab1').classList.toggle('active', n===1);
-  document.getElementById('tab2').classList.toggle('active', n===2);
-  showErr('');
-}
+async function doLogin() {
+  const id  = document.getElementById('inpId').value.trim();
+  const pw  = document.getElementById('inpPw').value;
+  const btn = document.getElementById('btnLogin');
+  const err = document.getElementById('errBox');
+  err.style.display = 'none';
 
-function showErr(msg) {
-  const el = document.getElementById('errBox');
-  el.textContent = msg; el.style.display = msg ? 'block' : 'none';
-}
+  if (!id || !pw) { err.textContent = '아이디와 비밀번호를 입력해주세요'; err.style.display = 'block'; return; }
 
-async function doSuperLogin() {
-  const email = document.getElementById('email').value.trim();
-  const pw    = document.getElementById('pw1').value;
-  const btn   = document.getElementById('btnSuper');
-  if (!email || !pw) { showErr('이메일과 비밀번호를 입력해주세요'); return; }
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>로그인 중...';
-  const { error } = await db.auth.signInWithPassword({ email, password: pw });
-  if (error) {
-    showErr(error.message === 'Invalid login credentials' ? '이메일 또는 비밀번호가 틀렸습니다' : error.message);
+
+  try {
+    let email;
+
+    // 마스터 관리자 (id: veragym)
+    if (id === 'veragym') {
+      email = SUPER_ADMIN_EMAIL;
+    } else {
+      // 지점 관리자 — 이름으로 이메일 조회
+      const { data: found, error: rpcErr } = await db.rpc('get_admin_login_email', { p_name: id });
+      if (rpcErr || !found) {
+        throw new Error('등록되지 않은 아이디입니다');
+      }
+      email = found;
+    }
+
+    const { error } = await db.auth.signInWithPassword({ email, password: pw });
+    if (error) throw new Error('비밀번호가 올바르지 않습니다');
+
+    location.replace('admin.html');
+  } catch(e) {
+    err.textContent = e.message; err.style.display = 'block';
+  } finally {
     btn.disabled = false; btn.textContent = '로그인';
-    return;
   }
-  location.replace('admin.html');
-}
-
-async function doSuperSignup(e) {
-  e.preventDefault();
-  const email = document.getElementById('email').value.trim() || 'veragym@naver.com';
-  const pw    = document.getElementById('pw1').value;
-  if (!pw || pw.length < 6) { showErr('비밀번호를 6자 이상 입력해주세요'); return; }
-  const btn = document.getElementById('btnSuper');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>계정 생성 중...';
-  const { error } = await db.auth.signUp({ email, password: pw });
-  if (error) {
-    showErr(error.message); btn.disabled = false; btn.textContent = '로그인';
-    return;
-  }
-  // 이메일 인증 없이 바로 로그인 시도
-  const { error: e2 } = await db.auth.signInWithPassword({ email, password: pw });
-  if (e2) { showErr('계정 생성 후 로그인 실패: ' + e2.message); btn.disabled=false; btn.textContent='로그인'; return; }
-  location.replace('admin.html');
-}
-
-async function doAdminLogin() {
-  const name = document.getElementById('adminName').value.trim();
-  const pw   = document.getElementById('pw2').value;
-  const btn  = document.getElementById('btnAdmin');
-  if (!name || !pw) { showErr('이름과 비밀번호를 입력해주세요'); return; }
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>로그인 중...';
-
-  // 이름으로 관리자 이메일 조회
-  const { data: email, error: rpcErr } = await db.rpc('get_admin_login_email', { p_name: name });
-  if (rpcErr || !email) {
-    showErr('등록되지 않은 관리자 이름입니다');
-    btn.disabled = false; btn.textContent = '로그인'; return;
-  }
-  const { error } = await db.auth.signInWithPassword({ email, password: pw });
-  if (error) {
-    showErr('비밀번호가 올바르지 않습니다');
-    btn.disabled = false; btn.textContent = '로그인'; return;
-  }
-  location.replace('admin.html');
 }
 </script>
 <script>
