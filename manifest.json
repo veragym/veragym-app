@@ -1,0 +1,15 @@
+{
+  "name": "VERA GYM Trainer",
+  "short_name": "베라짐 트레이너",
+  "description": "VERA GYM 트레이너 전용 앱",
+  "start_url": "/veragym-app/trainer-login.html",
+  "scope": "/veragym-app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0f1a",
+  "theme_color": "#3b82f6",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
