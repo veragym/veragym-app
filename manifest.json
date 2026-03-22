@@ -1,6 +1,7 @@
 {
-  "name": "VERA GYM Trainer",
+  "name": "VERA GYM 트레이너",
   "short_name": "베라짐 트레이너",
+  "id": "/veragym-app/",
   "description": "VERA GYM 트레이너 전용 앱",
   "start_url": "/veragym-app/trainer-login.html",
   "scope": "/veragym-app/",
