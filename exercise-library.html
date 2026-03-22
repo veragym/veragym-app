@@ -6,278 +6,282 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="베라짐">
-<meta name="theme-color" content="#4ade80">
+<meta name="apple-mobile-web-app-title" content="베라짐 트레이너">
+<meta name="theme-color" content="#3b82f6">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>베라짐 | 운동 라이브러리</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VERA GYM | 운동 라이브러리</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-    background: #0f0f0f; color: #fff;
-    min-height: 100dvh; padding-bottom: 40px;
-  }
+/* ── Reset & Base ─────────────────────────────────────── */
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif;
+  background:#080e1a; color:#fff;
+  min-height:100dvh; padding-bottom:80px;
+  overscroll-behavior:none;
+}
 
-  /* ─── 헤더 ─── */
-  .header {
-    background: #1a1a1a; border-bottom: 1px solid #2a2a2a;
-    padding: 14px 16px;
-    display: flex; align-items: center; gap: 12px;
-    position: sticky; top: 0; z-index: 100;
-  }
-  .btn-back { background: none; border: none; color: #4ade80; font-size: 22px; cursor: pointer; }
-  .header h1 { font-size: 17px; font-weight: 700; flex: 1; }
-  .header-badge {
-    background: #1f3a26; color: #4ade80;
-    border-radius: 20px; padding: 4px 12px;
-    font-size: 12px; font-weight: 600;
-  }
+/* ── Header ──────────────────────────────────────────── */
+.header {
+  background:#0d1525; border-bottom:1px solid #1e3a5f44;
+  padding:14px 18px; display:flex; align-items:center; gap:12px;
+  position:sticky; top:0; z-index:100;
+}
+.header h1 { font-size:16px; font-weight:800; flex:1; letter-spacing:.3px; }
+.header h1 span { color:#3b82f6; }
+.header-badge {
+  background:#3b82f622; color:#60a5fa;
+  border:1px solid #3b82f644; border-radius:20px;
+  padding:4px 12px; font-size:12px; font-weight:600;
+}
 
-  /* ─── 검색 + 필터 ─── */
-  .search-area {
-    padding: 14px 16px 0;
-    position: sticky; top: 57px; z-index: 90;
-    background: #0f0f0f;
-  }
-  .search-box {
-    display: flex; align-items: center; gap: 8px;
-    background: #1a1a1a; border: 1.5px solid #2a2a2a;
-    border-radius: 12px; padding: 11px 14px; margin-bottom: 10px;
-  }
-  .search-icon { color: #555; font-size: 16px; }
-  .search-input {
-    background: none; border: none; outline: none;
-    color: #fff; font-size: 15px; flex: 1; font-family: inherit;
-  }
-  .search-input::placeholder { color: #444; }
-  .btn-x { background: none; border: none; color: #555; font-size: 18px; cursor: pointer; }
+/* ── Bottom Navigation ───────────────────────────────── */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0;
+  background:#0d1525; border-top:1px solid #1e3a5f44;
+  display:flex; z-index:100;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.nav-btn {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding:10px 4px; border:none; background:none;
+  color:#3a5878; cursor:pointer; transition:color 0.15s;
+  font-size:10px; font-weight:600; gap:3px;
+}
+.nav-btn .nav-icon { font-size:20px; }
+.nav-btn.active { color:#3b82f6; }
 
-  /* 필터 탭 (부위) */
-  .filter-tabs {
-    display: flex; gap: 8px; overflow-x: auto;
-    padding-bottom: 10px; scrollbar-width: none;
-  }
-  .filter-tabs::-webkit-scrollbar { display: none; }
-  .tab {
-    background: #1a1a1a; border: 1.5px solid #2a2a2a;
-    border-radius: 20px; padding: 6px 14px;
-    font-size: 12px; color: #888; white-space: nowrap;
-    cursor: pointer; transition: all 0.15s; flex-shrink: 0;
-  }
-  .tab:hover  { border-color: #4ade80; color: #4ade80; }
-  .tab.active { background: #1f3a26; border-color: #4ade80; color: #4ade80; font-weight: 700; }
+/* ── 검색 + 필터 영역 ─────────────────────────────────── */
+.search-area {
+  padding:14px 14px 0;
+  position:sticky; top:53px; z-index:90;
+  background:#080e1a;
+}
+.search-wrap { position:relative; margin-bottom:12px; }
+.ex-search {
+  width:100%; background:#0d1525; border:1.5px solid #1e3a5f55;
+  border-radius:10px; padding:11px 40px 11px 14px;
+  font-size:14px; color:#fff; outline:none; font-family:inherit;
+  transition:border-color 0.2s; display:block;
+}
+.ex-search:focus { border-color:#3b82f666; }
+.ex-search::placeholder { color:#3a5878; }
+.btn-x {
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  background:none; border:none; color:#3a5878; font-size:16px;
+  cursor:pointer; padding:0; line-height:1; display:none;
+}
 
-  /* 기구 필터 */
-  .filter-row {
-    display: flex; gap: 8px; padding: 0 0 12px;
-  }
-  .filter-row select {
-    flex: 1; background: #1a1a1a; border: 1.5px solid #2a2a2a;
-    border-radius: 8px; padding: 8px 10px;
-    font-size: 12px; color: #aaa; outline: none;
-    font-family: inherit; cursor: pointer;
-    -webkit-appearance: none; appearance: none;
-  }
-  .filter-row select:focus { border-color: #4ade80; }
-  .filter-row select option { background: #1a1a1a; }
+/* 필터 라벨 + 칩 */
+.filter-row { margin-bottom:10px; }
+.filter-label { font-size:10px; color:#3a5878; letter-spacing:1.2px; margin-bottom:6px; font-weight:600; }
+.chips { display:flex; flex-wrap:wrap; gap:5px; }
+.chip {
+  background:#0d1525; border:1.5px solid #1e3a5f55;
+  border-radius:20px; padding:5px 13px;
+  font-size:12px; color:#3a5878; cursor:pointer;
+  transition:all 0.15s; white-space:nowrap; font-family:inherit;
+}
+.chip:hover { border-color:#3b82f655; color:#60a5fa; }
+.chip.active { background:#3b82f622; border-color:#3b82f688; color:#60a5fa; font-weight:700; }
 
-  /* ─── 탭 구분 (전체/내 목록) ─── */
-  .view-tabs {
-    display: flex; border-bottom: 1px solid #222;
-    padding: 0 16px; gap: 0;
-  }
-  .view-tab {
-    flex: 1; padding: 11px 0; text-align: center;
-    font-size: 13px; font-weight: 600; color: #555;
-    cursor: pointer; border-bottom: 2px solid transparent;
-    transition: all 0.15s;
-  }
-  .view-tab.active { color: #4ade80; border-bottom-color: #4ade80; }
+/* ── 뷰 탭 (전체 / 내 수업) ───────────────────────────── */
+.view-tabs {
+  display:flex; border-bottom:1px solid #1e3a5f44;
+  padding:0 14px;
+}
+.view-tab {
+  flex:1; padding:11px 0; text-align:center;
+  font-size:13px; font-weight:600; color:#3a5878;
+  cursor:pointer; border-bottom:2px solid transparent;
+  transition:all 0.15s;
+}
+.view-tab.active { color:#3b82f6; border-bottom-color:#3b82f6; }
 
-  /* ─── 운동 목록 ─── */
-  .ex-list { padding: 8px 16px 0; }
+/* ── 통계 바 ─────────────────────────────────────────── */
+.stat-bar { padding:10px 14px; font-size:12px; color:#3a5878; }
+.stat-bar span { color:#60a5fa; font-weight:700; }
 
-  .ex-card {
-    background: #1a1a1a; border: 1px solid #222;
-    border-radius: 14px; margin-bottom: 10px;
-    display: flex; align-items: center;
-    padding: 14px 14px 14px 16px; gap: 12px;
-    transition: border-color 0.15s;
-  }
-  .ex-card.active-card { border-color: #4ade8044; }
+/* ── 운동 카드 (admin.html 레이아웃 기반) ────────────── */
+.ex-list { padding:0 14px; }
+.ex-card {
+  background:#0d1525; border:1px solid #1e3a5f44;
+  border-radius:10px; padding:12px 14px; margin-bottom:7px;
+}
+.ex-card-row { display:flex; align-items:center; gap:12px; }
+.ex-thumb {
+  width:52px; height:52px; border-radius:8px;
+  background:#141f35; display:flex; align-items:center;
+  justify-content:center; font-size:22px; flex-shrink:0; overflow:hidden;
+}
+.ex-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.ex-info { flex:1; min-width:0; }
+.ex-name { font-size:14px; font-weight:600; }
+.ex-en { font-size:11px; color:#3a5878; margin-top:2px; }
+.ex-tags { margin-top:5px; display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
+.ex-tag-tool {
+  background:#3b82f618; border:1px solid #3b82f633;
+  border-radius:6px; padding:2px 8px; font-size:10px; color:#60a5fa99;
+}
+.ex-tag-part {
+  background:transparent; border:1px solid #1e3a5f55;
+  border-radius:6px; padding:2px 8px; font-size:10px; color:#3a5878;
+}
+.ex-tag-cnt { font-size:10px; color:#1e3a5f; }
 
-  .ex-info { flex: 1; min-width: 0; }
-  .ex-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-  .ex-tags { display: flex; flex-wrap: wrap; gap: 4px; }
-  .tag {
-    background: #222; border-radius: 6px;
-    padding: 2px 8px; font-size: 11px; color: #666;
-  }
-  .tag.body  { color: #60a5fa; background: #1a2a3a; }
-  .tag.equip { color: #a78bfa; background: #1e1a2e; }
+/* 버튼 영역 */
+.ex-btns { display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0; }
 
-  /* 수업에 사용 버튼 */
-  .btn-use {
-    background: #1f3a26; border: 1.5px solid #4ade8055;
-    border-radius: 10px; padding: 8px 12px;
-    font-size: 12px; font-weight: 700; color: #4ade80;
-    cursor: pointer; white-space: nowrap; flex-shrink: 0;
-    transition: all 0.15s;
-  }
-  .btn-use:hover { background: #2a4a32; border-color: #4ade80; }
-  .btn-use.using {
-    background: #2a2a2a; border-color: #444;
-    color: #888;
-  }
-  .btn-use.using:hover { background: #2a2a2a; border-color: #444; color: #888; }
+/* 즐겨찾기 ★ */
+.btn-fav {
+  background:none; border:none; font-size:20px; cursor:pointer;
+  color:#1e3a5f; padding:2px; line-height:1;
+  transition:color 0.15s, transform 0.15s;
+}
+.btn-fav.active { color:#f5c518; }
+.btn-fav:active { transform:scale(1.3); }
 
-  /* 즐겨찾기 버튼 */
-  .btn-fav {
-    background: none; border: none;
-    font-size: 22px; cursor: pointer;
-    padding: 4px 4px; flex-shrink: 0;
-    transition: transform 0.15s, color 0.15s;
-    color: #3a3a3a;
-    line-height: 1;
-  }
-  .btn-fav.active { color: #f5c518; }
-  .btn-fav:active { transform: scale(1.3); }
+/* 내 운동으로 추가 */
+.btn-add {
+  background:#3b82f622; border:1px solid #3b82f644;
+  border-radius:8px; padding:6px 10px;
+  font-size:11px; font-weight:700; color:#60a5fa;
+  cursor:pointer; white-space:nowrap; font-family:inherit;
+  transition:all 0.15s;
+}
+.btn-add:hover { background:#3b82f633; border-color:#3b82f688; }
+.btn-add.added {
+  background:transparent; border-color:#1e3a5f44; color:#3a5878; cursor:default;
+}
+.btn-add.added:hover { background:transparent; border-color:#1e3a5f44; color:#3a5878; }
 
-  /* 로딩 / 빈 상태 */
-  .empty {
-    text-align: center; padding: 60px 20px; color: #444;
-  }
-  .empty-icon { font-size: 40px; margin-bottom: 12px; }
-  .loading { text-align: center; padding: 40px; color: #555; font-size: 14px; }
+/* 더 보기 */
+.btn-more {
+  width:100%; background:#0d1525; border:1px solid #1e3a5f44;
+  border-radius:10px; padding:12px; color:#3a5878; font-size:13px;
+  cursor:pointer; margin:4px 0; font-family:inherit; transition:all 0.15s;
+}
+.btn-more:hover { border-color:#3b82f644; color:#60a5fa; }
 
-  /* ─── 새 운동 추가 FAB ─── */
-  .fab {
-    position: fixed; bottom: 28px; right: 20px;
-    background: #4ade80; color: #000;
-    border: none; border-radius: 50px;
-    padding: 14px 22px; font-size: 15px; font-weight: 700;
-    cursor: pointer; box-shadow: 0 4px 20px #4ade8055;
-    display: flex; align-items: center; gap: 8px;
-    transition: all 0.2s; z-index: 50;
-  }
-  .fab:hover { background: #22c55e; transform: scale(1.04); }
+/* 로딩 / 빈 상태 */
+.empty { text-align:center; padding:60px 20px; color:#3a5878; font-size:14px; }
+.empty-icon { font-size:36px; margin-bottom:12px; }
+.loading { text-align:center; padding:40px; color:#3a5878; font-size:14px; }
 
-  /* ─── 새 운동 추가 모달 ─── */
-  .modal-bg {
-    display: none; position: fixed; inset: 0;
-    background: #000000dd; z-index: 200; flex-direction: column;
-  }
-  .modal-bg.open { display: flex; }
-  .modal-dimmer { flex: 1; }
-  .modal-sheet {
-    background: #1a1a1a; border-radius: 24px 24px 0 0;
-    width: 100%; max-width: 480px; margin: 0 auto;
-    max-height: 92dvh; display: flex; flex-direction: column;
-    animation: slideUp 0.22s ease;
-  }
-  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .modal-handle { width: 36px; height: 4px; background: #333; border-radius: 99px; margin: 14px auto 0; flex-shrink: 0; }
-  .modal-body { padding: 16px 16px 0; flex: 1; overflow-y: auto; }
-  .modal-body h3 { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+/* ── FAB ─────────────────────────────────────────────── */
+.fab {
+  position:fixed; bottom:76px; right:18px;
+  background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff;
+  border:none; border-radius:50px;
+  padding:13px 20px; font-size:13px; font-weight:700;
+  cursor:pointer; box-shadow:0 4px 20px #3b82f644;
+  display:flex; align-items:center; gap:7px;
+  transition:all 0.2s; z-index:50;
+}
+.fab:hover { opacity:0.9; transform:scale(1.04); }
 
-  /* 모달 폼 */
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; font-weight: 500; }
-  .field input, .field select, .field textarea {
-    width: 100%; background: #111; border: 1.5px solid #333;
-    border-radius: 10px; padding: 12px 14px;
-    font-size: 14px; color: #fff; outline: none; font-family: inherit;
-    transition: border-color 0.2s;
-  }
-  .field input:focus, .field select:focus, .field textarea:focus { border-color: #4ade80; }
-  .field input::placeholder, .field textarea::placeholder { color: #444; }
-  .field textarea { resize: none; height: 70px; }
+/* ── 새 운동 추가 모달 ───────────────────────────────── */
+.modal-bg {
+  display:none; position:fixed; inset:0;
+  background:#000000cc; z-index:200; flex-direction:column;
+}
+.modal-bg.open { display:flex; }
+.modal-dimmer { flex:1; }
+.modal-sheet {
+  background:#0d1525; border-radius:24px 24px 0 0;
+  border-top:1px solid #1e3a5f44;
+  width:100%; max-width:480px; margin:0 auto;
+  max-height:92dvh; display:flex; flex-direction:column;
+  animation:slideUp 0.22s ease;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-handle { width:36px; height:4px; background:#1e3a5f; border-radius:99px; margin:14px auto 0; flex-shrink:0; }
+.modal-body { padding:16px 18px 0; flex:1; overflow-y:auto; }
+.modal-title { font-size:16px; font-weight:700; margin-bottom:18px; }
 
-  /* 중복 운동 힌트 */
-  .dup-hint {
-    margin-top: 6px; background: #1a1a2a;
-    border: 1px solid #333; border-radius: 8px;
-    overflow: hidden; display: none;
-  }
-  .dup-hint.show { display: block; }
-  .dup-title { font-size: 11px; color: #666; padding: 8px 12px 4px; }
-  .dup-item {
-    padding: 7px 12px; font-size: 13px; color: #aaa;
-    border-bottom: 1px solid #222; cursor: pointer;
-    display: flex; align-items: center; gap: 8px;
-    transition: background 0.1s;
-  }
-  .dup-item:last-child { border-bottom: none; }
-  .dup-item:hover { background: #222; color: #fff; }
-  .dup-item-tag { font-size: 11px; color: #555; }
+.field { margin-bottom:14px; }
+.field label { display:block; font-size:12px; color:#4a6580; margin-bottom:6px; font-weight:500; }
+.field input, .field select {
+  width:100%; background:#141f35; border:1.5px solid #1e3a5f55;
+  border-radius:10px; padding:12px 14px;
+  font-size:14px; color:#fff; outline:none; font-family:inherit;
+  transition:border-color 0.2s;
+}
+.field input:focus, .field select:focus { border-color:#3b82f6; }
+.field input::placeholder { color:#3a5878; }
+.field select option { background:#0d1525; }
 
-  /* 모달 버튼 */
-  .modal-btns { display: flex; gap: 10px; padding: 14px 16px 28px; flex-shrink: 0; }
-  .btn-cancel  { flex: 1; background: #2a2a2a; border: none; border-radius: 12px; padding: 14px; font-size: 15px; color: #aaa; cursor: pointer; font-weight: 600; }
-  .btn-confirm { flex: 2; background: #4ade80; border: none; border-radius: 12px; padding: 14px; font-size: 15px; color: #000; font-weight: 700; cursor: pointer; }
-  .btn-confirm:disabled { opacity: 0.4; }
+/* 중복 힌트 */
+.dup-hint {
+  margin-top:6px; background:#141f35;
+  border:1px solid #1e3a5f55; border-radius:8px;
+  overflow:hidden; display:none;
+}
+.dup-hint.show { display:block; }
+.dup-title { font-size:11px; color:#4a6580; padding:8px 12px 4px; }
+.dup-item {
+  padding:7px 12px; font-size:13px; color:#aaa;
+  border-bottom:1px solid #1e3a5f33; cursor:pointer;
+  display:flex; align-items:center; gap:8px; transition:background 0.1s;
+}
+.dup-item:last-child { border-bottom:none; }
+.dup-item:hover { background:#1e3a5f44; color:#fff; }
+.dup-item-tag { font-size:11px; color:#3a5878; }
 
-  /* 통계 바 */
-  .stat-bar {
-    padding: 10px 16px; font-size: 12px; color: #555;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .stat-bar span { color: #4ade80; font-weight: 700; }
+.modal-btns { display:flex; gap:10px; padding:14px 18px 28px; flex-shrink:0; }
+.btn-cancel  {
+  flex:1; background:#141f35; border:1px solid #1e3a5f44; border-radius:12px;
+  padding:14px; font-size:15px; color:#4a6580; cursor:pointer;
+  font-weight:600; font-family:inherit;
+}
+.btn-confirm {
+  flex:2; background:linear-gradient(135deg,#3b82f6,#1d4ed8); border:none;
+  border-radius:12px; padding:14px; font-size:15px; color:#fff;
+  font-weight:700; cursor:pointer; font-family:inherit;
+}
+.btn-confirm:disabled { opacity:0.4; cursor:not-allowed; }
 
-  /* 토스트 */
-  #toast {
-    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
-    background: #222; color: #fff; padding: 10px 20px; border-radius: 20px;
-    font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.3s;
-    z-index: 999; white-space: nowrap; pointer-events: none;
-  }
+/* 토스트 */
+.toast {
+  position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+  background:#141f35; color:#60a5fa; border:1px solid #3b82f644;
+  padding:10px 18px; border-radius:10px;
+  font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s;
+  z-index:999; white-space:nowrap; pointer-events:none;
+}
 </style>
 </head>
 <body>
-<div id="toast"></div>
 
 <!-- 헤더 -->
 <div class="header">
-  <button class="btn-back" onclick="history.back()">←</button>
-  <h1>운동 라이브러리</h1>
+  <button style="background:none;border:none;color:#60a5fa;font-size:20px;cursor:pointer;padding:0;line-height:1" onclick="history.back()">←</button>
+  <h1>VERA<span>GYM</span> 운동DB</h1>
   <div class="header-badge" id="myCount">내 목록 0</div>
 </div>
 
 <!-- 검색 + 필터 -->
 <div class="search-area">
-  <div class="search-box">
-    <span class="search-icon">🔍</span>
-    <input type="text" class="search-input" id="searchInput"
-           placeholder="운동 이름 검색..." oninput="onSearch()" autocomplete="off">
-    <button class="btn-x" onclick="clearSearch()">✕</button>
+  <div class="search-wrap">
+    <input type="text" class="ex-search" id="searchInput"
+           placeholder="🔍 운동명 검색 (한/영)" oninput="onSearch()" autocomplete="off">
+    <button class="btn-x" id="btnX" onclick="clearSearch()">✕</button>
   </div>
 
-  <!-- 부위 탭 -->
-  <div class="filter-tabs" id="bodyTabs">
-    <div class="tab active" data-val="" onclick="setBodyFilter(this,'')">전체</div>
-  </div>
-
-  <!-- 기구 필터 -->
+  <!-- 도구 필터 -->
   <div class="filter-row">
-    <select id="equipFilter" onchange="renderList()">
-      <option value="">전체 기구</option>
-      <option>바벨</option>
-      <option>덤벨</option>
-      <option>케이블</option>
-      <option>머신</option>
-      <option>핀 머신</option>
-      <option>플레이트 머신</option>
-      <option>스미스머신</option>
-      <option>체중</option>
-      <option>케틀벨</option>
-      <option>밴드</option>
-      <option>소도구</option>
-    </select>
+    <div class="filter-label">TOOL</div>
+    <div class="chips" id="toolChips"></div>
+  </div>
+
+  <!-- 부위 필터 -->
+  <div class="filter-row" style="margin-bottom:12px">
+    <div class="filter-label">부위</div>
+    <div class="chips" id="partChips"></div>
   </div>
 </div>
 
-<!-- 전체 / 내 목록 탭 -->
+<!-- 뷰 탭 -->
 <div class="view-tabs">
   <div class="view-tab active" id="tabAll"  onclick="switchView('all')">전체 운동</div>
   <div class="view-tab"        id="tabMine" onclick="switchView('mine')">내 수업 목록</div>
@@ -290,26 +294,41 @@
   <div class="loading">운동 목록 불러오는 중...</div>
 </div>
 
-<!-- 새 운동 추가 FAB -->
+<!-- FAB -->
 <button class="fab" onclick="openNewEx()">＋ 새 운동 추가</button>
 
-<!-- ══════════════════════════════
-     새 운동 추가 모달
-══════════════════════════════ -->
+<!-- 하단 네비게이션 -->
+<nav class="bottom-nav">
+  <button class="nav-btn" onclick="location.href='trainer-dash.html'">
+    <span class="nav-icon">👥</span>내 회원
+  </button>
+  <button class="nav-btn" onclick="location.href='trainer-dash.html'">
+    <span class="nav-icon">📋</span>수업일지
+  </button>
+  <button class="nav-btn" onclick="location.href='trainer-dash.html'">
+    <span class="nav-icon">📬</span>요청사항
+  </button>
+  <button class="nav-btn active">
+    <span class="nav-icon">📚</span>운동DB
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<!-- 새 운동 추가 모달 -->
 <div id="newExModal" class="modal-bg">
   <div class="modal-dimmer" onclick="closeNewEx()"></div>
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-body">
-      <h3>새 운동 추가</h3>
+      <div class="modal-title">새 운동 추가</div>
 
       <div class="field">
         <label>운동 이름 <span style="color:#f87171">*</span></label>
         <input type="text" id="newName" placeholder="예: Cable Fly" maxlength="60"
-               oninput="onNewNameInput(this.value)">
-        <!-- 실시간 중복 힌트 -->
+               oninput="onNewNameInput(this.value)" autocomplete="off">
         <div class="dup-hint" id="dupHint">
-          <div class="dup-title">⚠️ 유사한 운동이 있어요 — 클릭하면 해당 운동을 바로 추가할 수 있어요</div>
+          <div class="dup-title">⚠️ 유사한 운동 — 클릭하면 바로 추가</div>
           <div id="dupList"></div>
         </div>
       </div>
@@ -328,10 +347,10 @@
         <label>기구</label>
         <select id="newEquip">
           <option value="">선택</option>
-          <option>바벨</option><option>덤벨</option><option>케이블</option>
-          <option>머신</option><option>핀 머신</option><option>플레이트 머신</option>
-          <option>스미스머신</option><option>체중</option><option>케틀벨</option>
-          <option>밴드</option><option>소도구</option>
+          <option>체중</option><option>덤벨</option><option>바벨</option>
+          <option>케이블</option><option>머신</option><option>핀 머신</option>
+          <option>플레이트 머신</option><option>스미스머신</option>
+          <option>케틀벨</option><option>밴드</option><option>소도구</option>
         </select>
       </div>
     </div>
@@ -349,175 +368,181 @@
 init_db();
 
 // ─── 상태 ───
-let trainer   = null;
-let allExs    = [];          // exercise_refs 전체
-let myLibIds  = new Set();   // trainer_exercises의 exercise_ref_id 목록
-let favIds    = new Set();   // 즐겨찾기된 exercise_ref_id 목록
-let curView   = 'all';       // 'all' | 'mine'
-let filterBody = '';
-let searchTm  = null;
+let trainer     = null;
+let allExs      = [];
+let myLibIds    = new Set();
+let favIds      = new Set();
+let useCountMap = {};
+let curView     = 'all';
+let filterTool  = '';
+let filterPart  = '';
+let showCount   = 50;
+let searchTm    = null;
+
+const TOOLS = ['전체','체중','덤벨','바벨','케이블','밴드','케틀벨','머신','소도구'];
+const PARTS = ['전체','가슴','등','어깨','팔','코어','하체','전신'];
 
 // ─── 초기화 ───
 async function init() {
   trainer = await requireTrainer();
   if (!trainer) return;
-
   await Promise.all([loadAllExercises(), loadMyLib()]);
-  buildBodyTabs();
+  buildFilters();
   renderList();
 }
 
-// ─── 전체 운동 DB 로드 (exercise_refs) ───
+// ─── 전체 운동 DB 로드 ───
 async function loadAllExercises() {
   const { data, error } = await db
     .from('exercise_refs')
-    .select('id, name_ko, name_en, part_unified, tool_unified')
+    .select('id,name_ko,name_en,part_unified,tool_unified,image_url')
     .eq('is_active', true)
-    .order('part_unified', { ascending: true })
-    .order('name_ko',      { ascending: true })
+    .order('name_ko', { ascending: true })
     .limit(2000);
-  if (error) console.error('운동 DB 로드 오류:', error.message);
+  if (error) console.error('운동 DB 오류:', error.message);
   allExs = data || [];
 }
 
-// ─── 내 활성 운동 목록 로드 (trainer_exercises, use_count 포함) ───
-let useCountMap = {};  // refId → use_count
+// ─── 내 운동 목록 로드 ───
 async function loadMyLib() {
   const { data, error } = await db
     .from('trainer_exercises')
-    .select('exercise_ref_id, is_favorite, use_count')
+    .select('exercise_ref_id,is_favorite,use_count')
     .eq('trainer_id', trainer.id);
-  if (error) console.error('내 목록 로드 오류:', error.message);
-  myLibIds    = new Set((data || []).map(r => r.exercise_ref_id));
-  favIds      = new Set((data || []).filter(r => r.is_favorite).map(r => r.exercise_ref_id));
-  useCountMap = Object.fromEntries((data || []).map(r => [r.exercise_ref_id, r.use_count || 0]));
+  if (error) console.error('내 목록 오류:', error.message);
+  myLibIds    = new Set((data||[]).map(r => r.exercise_ref_id));
+  favIds      = new Set((data||[]).filter(r => r.is_favorite).map(r => r.exercise_ref_id));
+  useCountMap = Object.fromEntries((data||[]).map(r => [r.exercise_ref_id, r.use_count||0]));
   document.getElementById('myCount').textContent = `내 목록 ${myLibIds.size}`;
 }
 
-// ─── 부위 탭 생성 ───
-function buildBodyTabs() {
-  const parts = [...new Set(allExs.map(e => e.part_unified).filter(Boolean))].sort();
-  const wrap  = document.getElementById('bodyTabs');
-  parts.forEach(p => {
-    const t = document.createElement('div');
-    t.className   = 'tab';
-    t.dataset.val = p;
-    t.textContent = p;
-    t.onclick = () => setBodyFilter(t, p);
-    wrap.appendChild(t);
-  });
+// ─── 필터 칩 빌드 ───
+function buildFilters() {
+  const makeChips = (elId, arr, curSel, fn) => {
+    document.getElementById(elId).innerHTML = arr.map(v => {
+      const active = (curSel === v) || (!curSel && v === '전체');
+      return `<button class="chip${active?' active':''}" onclick="${fn}('${v}')">${v}</button>`;
+    }).join('');
+  };
+  makeChips('toolChips', TOOLS, filterTool || '전체', 'setTool');
+  makeChips('partChips', PARTS, filterPart || '전체', 'setPart');
 }
 
-function setBodyFilter(el, val) {
-  document.querySelectorAll('.filter-tabs .tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  filterBody = val;
-  renderList();
-}
+function setTool(v) { filterTool = (v==='전체') ? '' : v; buildFilters(); showCount=50; renderList(); }
+function setPart(v) { filterPart = (v==='전체') ? '' : v; buildFilters(); showCount=50; renderList(); }
 
 // ─── 검색 ───
 function onSearch() {
+  const val = document.getElementById('searchInput').value;
+  document.getElementById('btnX').style.display = val ? '' : 'none';
   clearTimeout(searchTm);
-  searchTm = setTimeout(renderList, 150);
+  searchTm = setTimeout(() => { showCount=50; renderList(); }, 150);
 }
 function clearSearch() {
   document.getElementById('searchInput').value = '';
-  renderList();
+  document.getElementById('btnX').style.display = 'none';
+  showCount=50; renderList();
 }
 
 // ─── 뷰 전환 ───
 function switchView(v) {
   curView = v;
-  document.getElementById('tabAll').classList.toggle('active',  v === 'all');
-  document.getElementById('tabMine').classList.toggle('active', v === 'mine');
-  renderList();
+  document.getElementById('tabAll').classList.toggle('active',  v==='all');
+  document.getElementById('tabMine').classList.toggle('active', v==='mine');
+  showCount=50; renderList();
 }
 
 // ─── 목록 렌더 ───
 function renderList() {
-  const wrap  = document.getElementById('exList');
-  const q     = document.getElementById('searchInput').value.trim().toLowerCase();
-  const equip = document.getElementById('equipFilter').value;
+  const wrap = document.getElementById('exList');
+  const q    = document.getElementById('searchInput').value.trim().toLowerCase();
 
   let list = allExs;
   if (curView === 'mine') list = list.filter(e => myLibIds.has(e.id));
-  if (filterBody) list = list.filter(e => e.part_unified === filterBody);
-  if (equip)      list = list.filter(e => e.tool_unified === equip);
-  if (q)          list = list.filter(e =>
+  if (filterTool) list = list.filter(e => e.tool_unified === filterTool);
+  if (filterPart) list = list.filter(e => e.part_unified === filterPart);
+  if (q) list = list.filter(e =>
     (e.name_ko||'').toLowerCase().includes(q) ||
     (e.name_en||'').toLowerCase().includes(q)
   );
 
-  // 정렬: 즐겨찾기 → 자주사용(use_count) → 내 목록 → 나머지
+  // 정렬: 즐겨찾기 → use_count → 내 목록 → 나머지
   list = [...list].sort((a, b) => {
-    const aFav  = favIds.has(a.id)    ? 0 : 1;
-    const bFav  = favIds.has(b.id)    ? 0 : 1;
-    const aM    = myLibIds.has(a.id)  ? 0 : 1;
-    const bM    = myLibIds.has(b.id)  ? 0 : 1;
-    const aCnt  = useCountMap[a.id]   || 0;
-    const bCnt  = useCountMap[b.id]   || 0;
-    if (aM   !== bM)   return aM - bM;
+    const aM   = myLibIds.has(a.id) ? 0 : 1;
+    const bM   = myLibIds.has(b.id) ? 0 : 1;
+    const aFav = favIds.has(a.id)   ? 0 : 1;
+    const bFav = favIds.has(b.id)   ? 0 : 1;
+    const aC   = useCountMap[a.id]  || 0;
+    const bC   = useCountMap[b.id]  || 0;
+    if (aM   !== bM)   return aM   - bM;
     if (aFav !== bFav) return aFav - bFav;
-    if (bCnt !== aCnt) return bCnt - aCnt;
+    if (bC   !== aC)   return bC   - aC;
     return 0;
   });
 
+  const total = allExs.length;
   document.getElementById('statBar').innerHTML =
-    `<span>${list.length}</span>개 운동`;
+    `<span>${list.length}</span>${list.length===total ? '개 운동' : `개 / 전체 ${total}개`}`;
 
   if (!list.length) {
     wrap.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div>해당하는 운동이 없어요</div>`;
     return;
   }
 
-  wrap.innerHTML = list.map(ex => {
+  const items = list.slice(0, showCount);
+  wrap.innerHTML = items.map(ex => {
     const isMine = myLibIds.has(ex.id);
     const isFav  = favIds.has(ex.id);
     const cnt    = useCountMap[ex.id] || 0;
+    const thumb  = ex.image_url
+      ? `<div class="ex-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.innerHTML='🏋️'"></div>`
+      : `<div class="ex-thumb">🏋️</div>`;
     return `
-      <div class="ex-card ${isMine ? 'active-card' : ''}">
-        <div class="ex-info">
-          <div class="ex-name">${ex.name_ko || ex.name_en}</div>
-          <div class="ex-tags">
-            ${ex.part_unified  ? `<span class="tag body">${ex.part_unified}</span>` : ''}
-            ${ex.tool_unified  ? `<span class="tag equip">${ex.tool_unified}</span>` : ''}
-            ${cnt > 0 ? `<span class="tag" style="color:#a78bfa;background:#1e1a2e">${cnt}회 사용</span>` : ''}
+      <div class="ex-card">
+        <div class="ex-card-row">
+          ${thumb}
+          <div class="ex-info">
+            <div class="ex-name">${ex.name_ko || ex.name_en}</div>
+            ${(ex.name_en && ex.name_en !== ex.name_ko) ? `<div class="ex-en">${ex.name_en}</div>` : ''}
+            <div class="ex-tags">
+              ${ex.tool_unified ? `<span class="ex-tag-tool">${ex.tool_unified}</span>` : ''}
+              ${ex.part_unified ? `<span class="ex-tag-part">${ex.part_unified}</span>` : ''}
+              ${cnt > 0 ? `<span class="ex-tag-cnt">${cnt}회 사용</span>` : ''}
+            </div>
+          </div>
+          <div class="ex-btns">
+            <button class="btn-fav ${isFav?'active':''}"
+                    onclick="toggleFavorite('${ex.id}',${isFav})">${isFav?'★':'☆'}</button>
+            <button class="btn-add ${isMine?'added':''}"
+                    onclick="toggleUse('${ex.id}',${isMine})">
+              ${isMine ? '✓ 추가됨' : '＋ 추가'}
+            </button>
           </div>
         </div>
-        ${isMine ? `<button class="btn-fav ${isFav ? 'active' : ''}"
-                onclick="toggleFavorite('${ex.id}', ${isFav})" title="즐겨찾기">${isFav ? '★' : '☆'}</button>` : ''}
-        <button class="btn-use ${isMine ? 'using' : ''}"
-                onclick="toggleUse('${ex.id}', ${isMine})">
-          ${isMine ? '사용 중' : '＋ 사용'}
-        </button>
-      </div>
-    `;
-  }).join('');
+      </div>`;
+  }).join('') +
+  (list.length > showCount
+    ? `<button class="btn-more" onclick="loadMore()">더 보기 (${list.length-showCount}개 남음)</button>`
+    : '');
 }
 
-// ─── 수업에 사용 토글 ───
+function loadMore() { showCount += 50; renderList(); }
+
+// ─── 내 운동으로 추가 / 제거 ───
 async function toggleUse(refId, isMine) {
   if (isMine) {
     if (!confirm('내 수업 목록에서 제거할까요?')) return;
-    const { error } = await db
-      .from('trainer_exercises')
-      .delete()
-      .eq('trainer_id', trainer.id)
-      .eq('exercise_ref_id', refId);
+    const { error } = await db.from('trainer_exercises')
+      .delete().eq('trainer_id', trainer.id).eq('exercise_ref_id', refId);
     if (error) { showToast('오류: ' + error.message); return; }
-    myLibIds.delete(refId);
-    favIds.delete(refId);
+    myLibIds.delete(refId); favIds.delete(refId);
     showToast('목록에서 제거됨');
   } else {
-    const { error } = await db
-      .from('trainer_exercises')
-      .insert({
-        trainer_id:      trainer.id,
-        exercise_ref_id: refId,
-      });
+    const { error } = await db.from('trainer_exercises')
+      .insert({ trainer_id: trainer.id, exercise_ref_id: refId });
     if (error) { showToast('오류: ' + error.message); return; }
     myLibIds.add(refId);
-    showToast('✓ 내 수업 목록에 추가됨');
+    showToast('✓ 내 운동으로 추가됨');
   }
   document.getElementById('myCount').textContent = `내 목록 ${myLibIds.size}`;
   renderList();
@@ -525,20 +550,23 @@ async function toggleUse(refId, isMine) {
 
 // ─── 즐겨찾기 토글 ───
 async function toggleFavorite(refId, isFav) {
-  const newVal = !isFav;
-  const { error } = await db
-    .from('trainer_exercises')
-    .update({ is_favorite: newVal })
-    .eq('trainer_id', trainer.id)
-    .eq('exercise_ref_id', refId);
-  if (error) { showToast('오류: ' + error.message); return; }
-  if (newVal) {
-    favIds.add(refId);
-    showToast('⭐ 즐겨찾기에 추가됨');
-  } else {
-    favIds.delete(refId);
-    showToast('즐겨찾기 해제됨');
+  // 내 목록에 없으면 자동 추가 + 즐겨찾기
+  if (!myLibIds.has(refId)) {
+    const { error } = await db.from('trainer_exercises')
+      .insert({ trainer_id: trainer.id, exercise_ref_id: refId, is_favorite: true });
+    if (error) { showToast('오류: ' + error.message); return; }
+    myLibIds.add(refId); favIds.add(refId);
+    document.getElementById('myCount').textContent = `내 목록 ${myLibIds.size}`;
+    showToast('⭐ 즐겨찾기 & 내 운동으로 추가됨');
+    renderList(); return;
   }
+  const newVal = !isFav;
+  const { error } = await db.from('trainer_exercises')
+    .update({ is_favorite: newVal })
+    .eq('trainer_id', trainer.id).eq('exercise_ref_id', refId);
+  if (error) { showToast('오류: ' + error.message); return; }
+  if (newVal) { favIds.add(refId);    showToast('⭐ 즐겨찾기 추가됨'); }
+  else        { favIds.delete(refId); showToast('즐겨찾기 해제됨'); }
   renderList();
 }
 
@@ -551,42 +579,31 @@ function openNewEx() {
   document.getElementById('newExModal').classList.add('open');
   setTimeout(() => document.getElementById('newName').focus(), 200);
 }
-function closeNewEx() {
-  document.getElementById('newExModal').classList.remove('open');
-}
+function closeNewEx() { document.getElementById('newExModal').classList.remove('open'); }
 
-// ─── 실시간 중복 검색 ───
+// ─── 실시간 중복 힌트 ───
 let dupTm = null;
 function onNewNameInput(val) {
   clearTimeout(dupTm);
-  if (val.trim().length < 2) {
-    document.getElementById('dupHint').classList.remove('show');
-    return;
-  }
+  if (val.trim().length < 2) { document.getElementById('dupHint').classList.remove('show'); return; }
   dupTm = setTimeout(() => {
-    const kw  = val.trim().toLowerCase();
-    const hits = allExs
-      .filter(e =>
-        (e.name_ko||'').toLowerCase().includes(kw) ||
-        (e.name_en||'').toLowerCase().includes(kw)
-      )
-      .slice(0, 5);
-
+    const kw   = val.trim().toLowerCase();
+    const hits = allExs.filter(e =>
+      (e.name_ko||'').toLowerCase().includes(kw) ||
+      (e.name_en||'').toLowerCase().includes(kw)
+    ).slice(0, 5);
     const hint = document.getElementById('dupHint');
-    const list = document.getElementById('dupList');
     if (!hits.length) { hint.classList.remove('show'); return; }
-
-    list.innerHTML = hits.map(e => `
-      <div class="dup-item" onclick="quickAdd('${e.id}')">
+    document.getElementById('dupList').innerHTML = hits.map(e =>
+      `<div class="dup-item" onclick="quickAdd('${e.id}')">
         <span>${e.name_ko || e.name_en}</span>
         <span class="dup-item-tag">${[e.part_unified, e.tool_unified].filter(Boolean).join(' · ')}</span>
-      </div>
-    `).join('');
+       </div>`
+    ).join('');
     hint.classList.add('show');
   }, 200);
 }
 
-// 중복 힌트에서 바로 추가
 async function quickAdd(refId) {
   if (myLibIds.has(refId)) { showToast('이미 내 목록에 있어요'); closeNewEx(); return; }
   await toggleUse(refId, false);
@@ -595,43 +612,39 @@ async function quickAdd(refId) {
 
 // ─── 새 운동 저장 ───
 async function saveNewEx() {
-  const name  = document.getElementById('newName').value.trim();
+  const name = document.getElementById('newName').value.trim();
   if (!name) { showToast('운동 이름을 입력해주세요'); return; }
-
   const btn = document.getElementById('btnSaveNew');
   btn.disabled = true; btn.textContent = '저장 중...';
-
   try {
     const body  = document.getElementById('newBody').value  || null;
     const equip = document.getElementById('newEquip').value || null;
-
-    // 1. exercise_refs에 저장 (공용 DB)
-    const { data: ref, error: rErr } = await db
-      .from('exercise_refs')
+    const { data: ref, error: rErr } = await db.from('exercise_refs')
       .insert({ name_ko: name, name_en: name, part_unified: body, tool_unified: equip, is_active: true })
-      .select('id')
-      .single();
+      .select('id').single();
     if (rErr) throw rErr;
-
-    // 2. trainer_exercises에 추가 (내 수업 목록)
-    const { error: lErr } = await db
-      .from('trainer_exercises')
+    const { error: lErr } = await db.from('trainer_exercises')
       .insert({ trainer_id: trainer.id, exercise_ref_id: ref.id });
     if (lErr) throw lErr;
-
-    // 로컬 캐시 업데이트
-    allExs.push({ id: ref.id, name_ko: name, name_en: name, part_unified: body, tool_unified: equip });
+    allExs.push({ id: ref.id, name_ko: name, name_en: name, part_unified: body, tool_unified: equip, image_url: null });
     myLibIds.add(ref.id);
     document.getElementById('myCount').textContent = `내 목록 ${myLibIds.size}`;
-
     showToast(`'${name}' 추가 완료 ✓`);
-    closeNewEx();
-    renderList();
+    closeNewEx(); renderList();
   } catch(e) {
     showToast('오류: ' + e.message);
   } finally {
     btn.disabled = false; btn.textContent = '추가';
   }
+}
+
+// ─── 토스트 ───
+let _toastTm = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(_toastTm);
+  _toastTm = setTimeout(() => t.style.opacity = '0', 2200);
 }
 
 init();
