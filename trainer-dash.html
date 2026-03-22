@@ -17,12 +17,12 @@
 body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; padding-bottom:80px; overscroll-behavior:none; }
 
 /* ── Header ──────────────────────────────────────────────── */
-.header { background:#0d1525; border-bottom:1px solid #1e3a5f44; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
-.header-left h1 { font-size:15px; font-weight:800; letter-spacing:.5px; }
-.header-left h1 span { color:#3b82f6; }
-.header-sub { font-size:11px; color:#4a6580; margin-top:1px; }
-.btn-logout { background:none; border:1px solid #1e3a5f; border-radius:8px; color:#4a6580; font-size:11px; padding:5px 10px; cursor:pointer; }
-.btn-logout:hover { color:#3b82f6; border-color:#3b82f6; }
+.header { background:#0d1525; border-bottom:1px solid #1e3a5f44; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.header-title { font-size:16px; font-weight:800; }
+.header-title span { color:#3b82f6; }
+.header-sub { font-size:11px; color:#4a6580; }
+.btn-logout { background:none; border:1px solid #1e3a5f44; border-radius:8px; color:#4a6580; font-size:12px; padding:6px 12px; cursor:pointer; transition:all 0.15s; }
+.btn-logout:hover { border-color:#3b82f644; color:#3b82f6; }
 
 /* ── Bottom Navigation ───────────────────────────────────── */
 .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:#0d1525; border-top:1px solid #1e3a5f44; display:flex; z-index:100; padding:8px 8px calc(8px + env(safe-area-inset-bottom)); gap:6px; }
@@ -130,8 +130,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 
 <!-- ── Header ─────────────────────────────────────────────── -->
 <div class="header">
-  <div class="header-left">
-    <h1>VERA<span>GYM</span></h1>
+  <div>
+    <div class="header-title">VERA<span>GYM</span> 트레이너</div>
     <div class="header-sub" id="trainerInfo">불러오는 중...</div>
   </div>
   <button class="btn-logout" onclick="doLogout()">로그아웃</button>
