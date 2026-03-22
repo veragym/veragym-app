@@ -362,7 +362,7 @@ body {
 <!-- 하단 버튼 -->
 <div class="add-bar">
   <button class="btn-add-ex" onclick="openSearch()">＋ 운동 추가</button>
-  <button class="btn-lib" onclick="location.href='exercise-library.html'">라이브러리</button>
+  <button class="btn-lib" onclick="goToLibrary()">라이브러리</button>
 </div>
 
 <!-- ══ 운동 검색 모달 ══ -->
@@ -501,15 +501,63 @@ async function loadExistingLog() {
   renderExercises();
 }
 
-// ─── 새 수업 일지 초기화 ───
+// ─── 새 수업 일지 초기화 (드래프트 복원 포함) ───
 async function initNewLog() {
   const { data: member } = await db
     .from('members').select('name').eq('id', memberId).single();
   document.getElementById('hdrMember').textContent = member?.name || '회원';
   document.getElementById('hdrMeta').textContent   = '새 수업 일지';
-  document.getElementById('metaDate').value         = today();
+
+  // 라이브러리에서 돌아온 경우 → 저장된 드래프트 복원
+  const rawDraft = sessionStorage.getItem('vg_session_draft');
+  if (rawDraft) {
+    try {
+      const draft = JSON.parse(rawDraft);
+      if (draft.memberId === memberId && !draft.logId) {
+        exercises = draft.exercises || [];
+        document.getElementById('metaDate').value    = draft.date || today();
+        document.getElementById('notesInput').value  = draft.notes || '';
+        sessionStorage.removeItem('vg_session_draft');
+        renderExercises();
+        showToast('작성 중이던 일지를 복원했습니다');
+        return;
+      }
+    } catch (_) {}
+    sessionStorage.removeItem('vg_session_draft');
+  }
+
+  document.getElementById('metaDate').value = today();
   exercises = [];
   renderExercises();
+}
+
+// ─── 라이브러리로 이동 (드래프트 저장 후) ───
+function goToLibrary() {
+  // 현재 입력 상태를 세트 배열에 동기화
+  syncInputsToState();
+  // 드래프트 저장
+  sessionStorage.setItem('vg_session_draft', JSON.stringify({
+    memberId,
+    logId,
+    date:      document.getElementById('metaDate').value,
+    notes:     document.getElementById('notesInput').value,
+    exercises
+  }));
+  // 복귀 URL 포함해서 이동
+  const returnUrl = encodeURIComponent(location.href);
+  location.href = `exercise-library.html?returnTo=${returnUrl}`;
+}
+
+// ─── DOM input 값을 exercises 배열에 반영 ───
+function syncInputsToState() {
+  document.querySelectorAll('.set-input').forEach(inp => {
+    const ev = new Event('change');
+    inp.dispatchEvent(ev);
+  });
+  document.querySelectorAll('.ex-comment textarea').forEach(ta => {
+    const ev = new Event('change');
+    ta.dispatchEvent(ev);
+  });
 }
 
 // ─── 내 운동 라이브러리 로드 ───
@@ -828,7 +876,7 @@ function renderSearchResults(q) {
 
   if (!myLibrary.length) {
     wrap.innerHTML = `<div class="search-empty">라이브러리가 비어있어요.<br>
-      <button onclick="location.href='exercise-library.html'"
+      <button onclick="closeSearch();goToLibrary()"
         style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;margin-top:10px">
         운동 라이브러리에서 추가하기
       </button></div>`;
