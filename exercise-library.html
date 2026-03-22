@@ -17,7 +17,7 @@
 body {
   font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif;
   background:#080e1a; color:#fff;
-  min-height:100dvh; padding-bottom:80px;
+  min-height:100dvh;
   overscroll-behavior:none;
 }
 
@@ -34,21 +34,6 @@ body {
   border:1px solid #3b82f644; border-radius:20px;
   padding:4px 12px; font-size:12px; font-weight:600;
 }
-
-/* ── Bottom Navigation ───────────────────────────────── */
-.bottom-nav {
-  position:fixed; bottom:0; left:0; right:0;
-  background:#0d1525; border-top:1px solid #1e3a5f44;
-  display:flex; z-index:100;
-  padding:8px 8px calc(8px + env(safe-area-inset-bottom)); gap:6px;
-}
-.nav-btn {
-  flex:1; display:flex; flex-direction:column; align-items:center;
-  justify-content:center; min-height:52px; border:1.5px solid #1e3a5f66;
-  border-radius:8px; background:#141f35; color:#4a6580;
-  cursor:pointer; transition:all 0.15s; font-size:12px; font-weight:700;
-}
-.nav-btn.active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
 
 /* ── 검색 + 필터 영역 ─────────────────────────────────── */
 .search-area {
@@ -170,7 +155,7 @@ body {
 
 /* 토스트 */
 .toast {
-  position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
   background:#141f35; color:#60a5fa; border:1px solid #3b82f644;
   padding:10px 18px; border-radius:10px;
   font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s;
@@ -184,7 +169,7 @@ body {
 <div class="header">
   <button style="background:none;border:none;color:#60a5fa;font-size:20px;cursor:pointer;padding:0;line-height:1" onclick="history.back()">←</button>
   <h1>VERA<span>GYM</span> 운동DB</h1>
-  <div class="header-badge" id="myCount">내 목록 0</div>
+  <div class="header-badge" id="myCount">라이브러리 0</div>
 </div>
 
 <!-- 검색 + 필터 -->
@@ -211,7 +196,7 @@ body {
 <!-- 뷰 탭 -->
 <div class="view-tabs">
   <div class="view-tab active" id="tabAll"  onclick="switchView('all')">전체 운동</div>
-  <div class="view-tab"        id="tabMine" onclick="switchView('mine')">내 수업 목록</div>
+  <div class="view-tab"        id="tabMine" onclick="switchView('mine')">운동 라이브러리</div>
 </div>
 
 <div class="stat-bar" id="statBar"></div>
@@ -220,14 +205,6 @@ body {
 <div class="ex-list" id="exList">
   <div class="loading">운동 목록 불러오는 중...</div>
 </div>
-
-<!-- 하단 네비게이션 -->
-<nav class="bottom-nav">
-  <button class="nav-btn" id="nav-members" onclick="location.href='trainer-dash.html'">내 회원</button>
-  <button class="nav-btn" id="nav-logs" onclick="location.href='trainer-dash.html'">수업일지</button>
-  <button class="nav-btn" id="nav-requests" onclick="location.href='trainer-dash.html'">요청사항</button>
-  <button class="nav-btn active" id="nav-exercises">운동DB</button>
-</nav>
 
 <div class="toast" id="toast"></div>
 
@@ -290,7 +267,7 @@ async function loadMyLib() {
   myLibIds    = new Set((data||[]).map(r => r.exercise_ref_id));
   favIds      = new Set((data||[]).filter(r => r.is_favorite).map(r => r.exercise_ref_id));
   useCountMap = Object.fromEntries((data||[]).map(r => [r.exercise_ref_id, r.use_count||0]));
-  document.getElementById('myCount').textContent = `내 목록 ${myLibIds.size}`;
+  document.getElementById('myCount').textContent = `라이브러리 ${myLibIds.size}`;
 }
 
 // ─── 필터 칩 빌드 ───
@@ -408,7 +385,7 @@ function loadMore() { showCount += 50; renderList(); }
 // ─── 내 운동으로 추가 / 제거 ───
 async function toggleUse(refId, isMine) {
   if (isMine) {
-    if (!confirm('내 수업 목록에서 제거할까요?')) return;
+    if (!confirm('운동 라이브러리에서 제거할까요?')) return;
     const { error } = await db.from('trainer_exercises')
       .delete().eq('trainer_id', trainer.id).eq('exercise_ref_id', refId);
     if (error) { showToast('오류: ' + error.message); return; }
@@ -419,9 +396,9 @@ async function toggleUse(refId, isMine) {
       .insert({ trainer_id: trainer.id, exercise_ref_id: refId });
     if (error) { showToast('오류: ' + error.message); return; }
     myLibIds.add(refId);
-    showToast('내 운동으로 추가됨');
+    showToast('라이브러리에 추가됨');
   }
-  document.getElementById('myCount').textContent = `내 목록 ${myLibIds.size}`;
+  document.getElementById('myCount').textContent = `라이브러리 ${myLibIds.size}`;
   renderList();
 }
 
@@ -433,8 +410,8 @@ async function toggleFavorite(refId, isFav) {
       .insert({ trainer_id: trainer.id, exercise_ref_id: refId, is_favorite: true });
     if (error) { showToast('오류: ' + error.message); return; }
     myLibIds.add(refId); favIds.add(refId);
-    document.getElementById('myCount').textContent = `내 목록 ${myLibIds.size}`;
-    showToast('즐겨찾기 & 내 운동으로 추가됨');
+    document.getElementById('myCount').textContent = `라이브러리 ${myLibIds.size}`;
+    showToast('즐겨찾기 & 라이브러리에 추가됨');
     renderList(); return;
   }
   const newVal = !isFav;
