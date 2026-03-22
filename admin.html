@@ -133,7 +133,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .img-upload-zone { border:2px dashed #2a2518; border-radius:12px; padding:20px; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:4px; }
 .img-upload-zone:hover, .img-upload-zone.drag { border-color:#c9a84c66; }
 .img-upload-zone img { max-height:120px; border-radius:8px; object-fit:cover; }
-.classify-badge { display:inline-flex; align-items:center; gap:5px; background:#c9a84c18; border:1px solid #c9a84c44; border-radius:8px; padding:4px 10px; font-size:11px; color:#c9a84c; margin-bottom:10px; }
 </style>
 </head>
 <body>
@@ -239,76 +238,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   </div>
 </div>
 
-<!-- 운동 추가 모달 -->
-<div id="addExModal" class="modal-bg" onclick="closeModal('addExModal',event)">
-  <div class="modal" style="max-height:95dvh">
-    <div class="modal-handle"></div>
-    <div class="modal-title">운동 추가</div>
-    <div class="err-box" id="addExErr"></div>
-    <!-- 자동분류 안내 -->
-    <div id="classifyBadge" style="display:none" class="classify-badge">
-      이름 기반 자동분류 적용됨 — 아래에서 수정 가능
-    </div>
-    <!-- 이미지 업로드 -->
-    <div class="field">
-      <label>운동 이미지 <span style="color:#555;font-weight:400">(선택)</span></label>
-      <div class="img-upload-zone" id="imgZone" onclick="document.getElementById('exImgInput').click()">
-        <div id="imgZoneContent">
-          <div style="font-size:13px;color:#555">탭하여 이미지 업로드</div>
-          <div style="font-size:11px;color:#333;margin-top:4px">JPG, PNG, WEBP 지원</div>
-        </div>
-      </div>
-      <input id="exImgInput" type="file" accept="image/*" style="display:none" onchange="previewExImg(this)">
-    </div>
-    <!-- 한글명 -->
-    <div class="field">
-      <label>한글 운동명 <span style="color:#f87171">*</span></label>
-      <input id="exNameKo" type="text" placeholder="예: 덤벨 바이셉 컬" autocomplete="off" oninput="onExNameInput()">
-    </div>
-    <!-- 영문명 -->
-    <div class="field">
-      <label>영문 운동명</label>
-      <input id="exNameEn" type="text" placeholder="예: Dumbbell Bicep Curl" autocomplete="off" oninput="onExNameInput()">
-    </div>
-    <!-- 도구 -->
-    <div class="field">
-      <label>도구 (tool_unified) <span style="color:#f87171">*</span></label>
-      <select id="exTool">
-        <option value="체중">체중</option>
-        <option value="덤벨">덤벨</option>
-        <option value="바벨">바벨</option>
-        <option value="케이블">케이블</option>
-        <option value="밴드">밴드</option>
-        <option value="케틀벨">케틀벨</option>
-        <option value="머신">머신</option>
-        <option value="소도구">소도구</option>
-      </select>
-    </div>
-    <!-- 부위 -->
-    <div class="field">
-      <label>부위 (part_unified) <span style="color:#f87171">*</span></label>
-      <select id="exPart">
-        <option value="가슴">가슴</option>
-        <option value="등">등</option>
-        <option value="어깨">어깨</option>
-        <option value="팔">팔</option>
-        <option value="코어">코어</option>
-        <option value="하체">하체</option>
-        <option value="전신">전신</option>
-      </select>
-    </div>
-    <!-- 주요근육 -->
-    <div class="field">
-      <label>주요 근육</label>
-      <input id="exMuscles" type="text" placeholder="예: 이두근 · 전완근" autocomplete="off">
-      <div class="hint">· 로 구분 (선택사항)</div>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('addExModal')">취소</button>
-      <button class="btn-save" id="btnAddEx" onclick="doAddExercise()">추가</button>
-    </div>
-  </div>
-</div>
 
 <!-- 비밀번호 변경 모달 -->
 <div id="changePwModal" class="modal-bg" onclick="closeModal('changePwModal',event)">
@@ -814,122 +743,6 @@ function openExDetail(id) {
   openModal('exDetailModal');
 }
 
-// ── 운동 추가 ─────────────────────────────────────────────────
-let _exImgFile = null;
-
-function openAddExercise() {
-  _exImgFile = null;
-  document.getElementById('exNameKo').value = '';
-  document.getElementById('exNameEn').value = '';
-  document.getElementById('exTool').value = '체중';
-  document.getElementById('exPart').value = '전신';
-  document.getElementById('exMuscles').value = '';
-  document.getElementById('addExErr').style.display = 'none';
-  document.getElementById('classifyBadge').style.display = 'none';
-  document.getElementById('imgZoneContent').innerHTML = `
-    <div style="font-size:13px;color:#555">탭하여 이미지 업로드</div>
-    <div style="font-size:11px;color:#333;margin-top:4px">JPG, PNG, WEBP 지원</div>`;
-  openModal('addExModal');
-}
-
-function previewExImg(input) {
-  const file = input.files?.[0];
-  if (!file) return;
-  _exImgFile = file;
-  const url = URL.createObjectURL(file);
-  document.getElementById('imgZoneContent').innerHTML =
-    `<img src="${url}" style="max-height:120px;border-radius:8px;object-fit:cover"><div style="font-size:11px;color:#666;margin-top:6px">${file.name}</div>`;
-}
-
-// 이름 입력 시 자동분류
-let _classifyTimer = null;
-function onExNameInput() {
-  clearTimeout(_classifyTimer);
-  _classifyTimer = setTimeout(() => {
-    const ko = document.getElementById('exNameKo').value;
-    const en = document.getElementById('exNameEn').value;
-    if (!ko && !en) return;
-    const { tool, part } = autoClassify(ko, en);
-    document.getElementById('exTool').value = tool;
-    document.getElementById('exPart').value = part;
-    document.getElementById('classifyBadge').style.display = 'inline-flex';
-  }, 600);
-}
-
-// 키워드 기반 자동분류
-function autoClassify(ko, en) {
-  const t = (ko + ' ' + en).toLowerCase();
-  let tool = '체중';
-  if (/덤벨|dumbbell/.test(t))              tool = '덤벨';
-  else if (/바벨|barbell/.test(t))          tool = '바벨';
-  else if (/케이블|cable/.test(t))          tool = '케이블';
-  else if (/밴드|band|resistance/.test(t))  tool = '밴드';
-  else if (/케틀벨|kettlebell/.test(t))     tool = '케틀벨';
-  else if (/smith|스미스/.test(t))           tool = '스미스머신';
-  else if (/\(핀\)|pin machine/.test(t))     tool = '핀 머신';
-  else if (/\(플레이트\)|plate machine/.test(t)) tool = '플레이트 머신';
-  else if (/머신|machine|seated row|lat pulldown|leg press|leg curl|leg extension/.test(t)) tool = '머신';
-  else if (/로프|rope|폼롤|foam|ball|스틱|stick|줄넘기/.test(t)) tool = '소도구';
-
-  let part = '전신';
-  if (/가슴|chest|bench|flye|pec|push/.test(t))           part = '가슴';
-  else if (/등|back|row|풀|lat|pull|deadlift|광배/.test(t)) part = '등';
-  else if (/어깨|shoulder|delt|overhead|press/.test(t))   part = '어깨';
-  else if (/팔|arm|curl|tricep|bicep|이두|삼두|전완/.test(t)) part = '팔';
-  else if (/복|core|plank|ab|crunch|코어|복사근/.test(t)) part = '코어';
-  else if (/하체|leg|squat|lunge|calf|glute|hamstring|quad|종아리|둔근|허벅지|런지|스쿼트/.test(t)) part = '하체';
-  return { tool, part };
-}
-
-async function doAddExercise() {
-  const nameKo  = document.getElementById('exNameKo').value.trim();
-  const nameEn  = document.getElementById('exNameEn').value.trim();
-  const tool    = document.getElementById('exTool').value;
-  const part    = document.getElementById('exPart').value;
-  const muscles = document.getElementById('exMuscles').value.trim();
-  const btn     = document.getElementById('btnAddEx');
-  document.getElementById('addExErr').style.display = 'none';
-  if (!nameKo) { showExErr('한글 운동명을 입력해주세요'); return; }
-
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>추가 중...';
-  try {
-    let image_url = null;
-    // 1) 이미지 업로드
-    if (_exImgFile) {
-      const ext  = _exImgFile.name.split('.').pop().toLowerCase();
-      const safe = nameEn || nameKo;
-      const fname = safe.replace(/[^a-zA-Z0-9가-힣\-_ ]/g,'').replace(/\s+/g,'_');
-      const path  = `${part}/${fname}.${ext}`;
-      const { error: upErr } = await db.storage.from('exercise-images').upload(path, _exImgFile, { upsert: true });
-      if (upErr) throw new Error('이미지 업로드 실패: ' + upErr.message);
-      const { data: { publicUrl } } = db.storage.from('exercise-images').getPublicUrl(path);
-      image_url = publicUrl;
-    }
-    // 2) DB INSERT
-    const { error: dbErr } = await db.from('exercise_refs').insert({
-      name_ko: nameKo, name_en: nameEn || null,
-      category: tool, muscle_group: part,
-      muscles_detail: muscles || null,
-      tool_unified: tool, part_unified: part,
-      image_url, is_active: true,
-    });
-    if (dbErr) throw new Error('DB 저장 실패: ' + dbErr.message);
-
-    // 3) 캐시 업데이트
-    _allExercises = [];  // 다음 탭 진입 시 재로드
-    closeModal('addExModal');
-    showToast(`"${nameKo}" 추가 완료`);
-    loadExercise();
-  } catch(e) {
-    showExErr(e.message);
-  } finally {
-    btn.disabled = false; btn.textContent = '추가';
-  }
-}
-function showExErr(msg) {
-  const el = document.getElementById('addExErr');
-  el.textContent = msg; el.style.display = 'block';
-}
 
 // ── 운동DB Excel 내보내기 ─────────────────────────────────────
 async function exportExerciseExcel() {
