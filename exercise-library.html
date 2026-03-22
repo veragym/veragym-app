@@ -46,9 +46,8 @@ body {
   flex:1; display:flex; flex-direction:column; align-items:center;
   justify-content:center; padding:10px 4px; border:none; background:none;
   color:#3a5878; cursor:pointer; transition:color 0.15s;
-  font-size:10px; font-weight:600; gap:3px;
+  font-size:11px; font-weight:700;
 }
-.nav-btn .nav-icon { font-size:20px; }
 .nav-btn.active { color:#3b82f6; }
 
 /* ── 검색 + 필터 영역 ─────────────────────────────────── */
@@ -165,7 +164,6 @@ body {
 
 /* 로딩 / 빈 상태 */
 .empty { text-align:center; padding:60px 20px; color:#3a5878; font-size:14px; }
-.empty-icon { font-size:36px; margin-bottom:12px; }
 .loading { text-align:center; padding:40px; color:#3a5878; font-size:14px; }
 
 /* ── FAB ─────────────────────────────────────────────── */
@@ -264,7 +262,7 @@ body {
 <div class="search-area">
   <div class="search-wrap">
     <input type="text" class="ex-search" id="searchInput"
-           placeholder="🔍 운동명 검색 (한/영)" oninput="onSearch()" autocomplete="off">
+           placeholder="운동명 검색 (한/영)" oninput="onSearch()" autocomplete="off">
     <button class="btn-x" id="btnX" onclick="clearSearch()">✕</button>
   </div>
 
@@ -299,18 +297,10 @@ body {
 
 <!-- 하단 네비게이션 -->
 <nav class="bottom-nav">
-  <button class="nav-btn" onclick="location.href='trainer-dash.html'">
-    <span class="nav-icon">👥</span>내 회원
-  </button>
-  <button class="nav-btn" onclick="location.href='trainer-dash.html'">
-    <span class="nav-icon">📋</span>수업일지
-  </button>
-  <button class="nav-btn" onclick="location.href='trainer-dash.html'">
-    <span class="nav-icon">📬</span>요청사항
-  </button>
-  <button class="nav-btn active">
-    <span class="nav-icon">📚</span>운동DB
-  </button>
+  <button class="nav-btn" id="nav-members" onclick="location.href='trainer-dash.html'">내 회원</button>
+  <button class="nav-btn" id="nav-logs" onclick="location.href='trainer-dash.html'">수업일지</button>
+  <button class="nav-btn" id="nav-requests" onclick="location.href='trainer-dash.html'">요청사항</button>
+  <button class="nav-btn active" id="nav-exercises">운동DB</button>
 </nav>
 
 <div class="toast" id="toast"></div>
@@ -328,7 +318,7 @@ body {
         <input type="text" id="newName" placeholder="예: Cable Fly" maxlength="60"
                oninput="onNewNameInput(this.value)" autocomplete="off">
         <div class="dup-hint" id="dupHint">
-          <div class="dup-title">⚠️ 유사한 운동 — 클릭하면 바로 추가</div>
+          <div class="dup-title">유사한 운동 — 클릭하면 바로 추가</div>
           <div id="dupList"></div>
         </div>
       </div>
@@ -492,7 +482,7 @@ function renderList() {
     `<span>${list.length}</span>${list.length===total ? '개 운동' : `개 / 전체 ${total}개`}`;
 
   if (!list.length) {
-    wrap.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div>해당하는 운동이 없어요</div>`;
+    wrap.innerHTML = `<div class="empty">해당하는 운동이 없어요</div>`;
     return;
   }
 
@@ -502,8 +492,8 @@ function renderList() {
     const isFav  = favIds.has(ex.id);
     const cnt    = useCountMap[ex.id] || 0;
     const thumb  = ex.image_url
-      ? `<div class="ex-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.innerHTML='🏋️'"></div>`
-      : `<div class="ex-thumb">🏋️</div>`;
+      ? `<div class="ex-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
+      : `<div class="ex-thumb"></div>`;
     return `
       <div class="ex-card">
         <div class="ex-card-row">
@@ -549,7 +539,7 @@ async function toggleUse(refId, isMine) {
       .insert({ trainer_id: trainer.id, exercise_ref_id: refId });
     if (error) { showToast('오류: ' + error.message); return; }
     myLibIds.add(refId);
-    showToast('✓ 내 운동으로 추가됨');
+    showToast('내 운동으로 추가됨');
   }
   document.getElementById('myCount').textContent = `내 목록 ${myLibIds.size}`;
   renderList();
@@ -564,7 +554,7 @@ async function toggleFavorite(refId, isFav) {
     if (error) { showToast('오류: ' + error.message); return; }
     myLibIds.add(refId); favIds.add(refId);
     document.getElementById('myCount').textContent = `내 목록 ${myLibIds.size}`;
-    showToast('⭐ 즐겨찾기 & 내 운동으로 추가됨');
+    showToast('즐겨찾기 & 내 운동으로 추가됨');
     renderList(); return;
   }
   const newVal = !isFav;
@@ -572,7 +562,7 @@ async function toggleFavorite(refId, isFav) {
     .update({ is_favorite: newVal })
     .eq('trainer_id', trainer.id).eq('exercise_ref_id', refId);
   if (error) { showToast('오류: ' + error.message); return; }
-  if (newVal) { favIds.add(refId);    showToast('⭐ 즐겨찾기 추가됨'); }
+  if (newVal) { favIds.add(refId);    showToast('즐겨찾기 추가됨'); }
   else        { favIds.delete(refId); showToast('즐겨찾기 해제됨'); }
   renderList();
 }
@@ -636,7 +626,7 @@ async function saveNewEx() {
     allExs.push({ id: ref.id, name_ko: name, name_en: name, part_unified: body, tool_unified: equip, image_url: null });
     myLibIds.add(ref.id);
     document.getElementById('myCount').textContent = `내 목록 ${myLibIds.size}`;
-    showToast(`'${name}' 추가 완료 ✓`);
+    showToast(`'${name}' 추가 완료`);
     closeNewEx(); renderList();
   } catch(e) {
     showToast('오류: ' + e.message);
