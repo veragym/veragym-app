@@ -14,7 +14,7 @@
 <style>
 /* ── Reset & Base ─────────────────────────────────────────── */
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; padding-bottom:80px; overscroll-behavior:none; }
+body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; overscroll-behavior:none; }
 
 /* ── Header ──────────────────────────────────────────────── */
 .header { background:#0d1525; border-bottom:1px solid #1e3a5f44; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
@@ -24,15 +24,15 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .btn-logout { background:none; border:1px solid #1e3a5f44; border-radius:8px; color:#4a6580; font-size:12px; padding:6px 12px; cursor:pointer; transition:all 0.15s; }
 .btn-logout:hover { border-color:#3b82f644; color:#3b82f6; }
 
-/* ── Bottom Navigation ───────────────────────────────────── */
-.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:#0d1525; border-top:1px solid #1e3a5f44; display:flex; z-index:100; padding:8px 8px calc(8px + env(safe-area-inset-bottom)); gap:6px; }
-.nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:52px; border:1.5px solid #1e3a5f66; border-radius:8px; background:#141f35; color:#4a6580; cursor:pointer; transition:all 0.15s; font-size:12px; font-weight:700; }
-.nav-btn.active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
-.nav-btn .badge { background:#f87171; color:#fff; font-size:9px; border-radius:99px; padding:1px 5px; min-width:16px; text-align:center; position:absolute; top:6px; right:calc(50% - 20px); }
+/* ── Top Tab Navigation ──────────────────────────────────── */
+.tabs { display:flex; background:#0d1525; border-bottom:1px solid #1e3a5f44; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab-btn { flex:1; min-width:70px; padding:13px 8px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
+.tab-btn.active { color:#3b82f6; border-bottom-color:#3b82f6; }
 
 /* ── Tab Content ─────────────────────────────────────────── */
-.tab { display:none; padding:16px 14px; }
-.tab.active { display:block; }
+.tab-content { display:none; padding:16px 14px; }
+.tab-content.active { display:block; }
 
 /* ── Section Header ──────────────────────────────────────── */
 .sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
@@ -114,7 +114,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .empty { text-align:center; padding:40px; color:#2a4060; font-size:14px; line-height:1.8; }
 .divider { font-size:11px; font-weight:700; color:#3b82f6; letter-spacing:1px; margin:16px 0 10px; display:flex; align-items:center; gap:8px; }
 .divider::after { content:''; flex:1; height:1px; background:#1e3a5f44; }
-.toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#141f35; color:#60a5fa; border:1px solid #3b82f644; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; }
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#141f35; color:#60a5fa; border:1px solid #3b82f644; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; }
 .spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; margin-right:6px; vertical-align:middle; }
 @keyframes spin { to{transform:rotate(360deg)} }
 </style>
@@ -130,8 +130,16 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <button class="btn-logout" onclick="doLogout()">로그아웃</button>
 </div>
 
+<!-- ── Top Tab Navigation ──────────────────────────────────── -->
+<div class="tabs">
+  <button class="tab-btn active" id="nav-members" onclick="switchTab('members',this)">내 회원</button>
+  <button class="tab-btn" id="nav-logs" onclick="switchTab('logs',this)">수업일지</button>
+  <button class="tab-btn" id="nav-requests" onclick="switchTab('requests',this)">요청사항</button>
+  <button class="tab-btn" onclick="location.href='exercise-library.html'">운동DB</button>
+</div>
+
 <!-- ── Tab: 회원 ───────────────────────────────────────────── -->
-<div id="tab-members" class="tab active">
+<div id="tab-members" class="tab-content active">
   <!-- 회원 목록 -->
   <div id="view-member-list">
     <div class="sec-header">
@@ -158,7 +166,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 </div>
 
 <!-- ── Tab: 수업일지 ────────────────────────────────────────── -->
-<div id="tab-logs" class="tab">
+<div id="tab-logs" class="tab-content">
   <div class="sec-header">
     <div><span class="sec-title">수업 일지</span><span class="sec-count" id="logCount"></span></div>
     <button class="btn-add" onclick="openAddLog()">+ 작성</button>
@@ -167,21 +175,13 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 </div>
 
 <!-- ── Tab: 요청사항 ────────────────────────────────────────── -->
-<div id="tab-requests" class="tab">
+<div id="tab-requests" class="tab-content">
   <div class="sec-header">
     <div><span class="sec-title">요청사항</span><span class="sec-count" id="reqCount"></span></div>
     <button class="btn-add" onclick="openAddReq()">+ 요청 추가</button>
   </div>
   <div id="reqList"><div class="loading">불러오는 중...</div></div>
 </div>
-
-<!-- ── Bottom Nav ──────────────────────────────────────────── -->
-<nav class="bottom-nav">
-  <button class="nav-btn active" id="nav-members" onclick="switchTab('members',this)">내 회원</button>
-  <button class="nav-btn" id="nav-logs" onclick="switchTab('logs',this)">수업일지</button>
-  <button class="nav-btn" id="nav-requests" onclick="switchTab('requests',this)">요청사항</button>
-  <button class="nav-btn" onclick="location.href='exercise-library.html'">운동DB</button>
-</nav>
 
 <div id="toast" class="toast"></div>
 
@@ -287,8 +287,8 @@ async function init() {
 // 탭 전환
 // ══════════════════════════════════════════════════════════════
 function switchTab(id, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`tab-${id}`).classList.add('active');
   btn.classList.add('active');
 
