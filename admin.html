@@ -83,6 +83,31 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 /* Misc */
 .loading { text-align:center; padding:40px; color:#555; }
 .empty { text-align:center; padding:40px; color:#444; font-size:14px; }
+/* 지점별 카운트 칩 */
+.branch-chip { background:#161610; border:1.5px solid #2a2518; border-radius:10px; padding:8px 14px; cursor:pointer; transition:all 0.15s; min-width:80px; text-align:center; }
+.branch-chip:hover, .branch-chip.active { border-color:#c9a84c88; background:#1e1c10; }
+.branch-chip-name { font-size:11px; color:#888; margin-bottom:2px; }
+.branch-chip-count { font-size:18px; font-weight:800; color:#c9a84c; }
+.branch-chip-label { font-size:10px; color:#555; }
+/* 계층형 행 */
+.hier-row { background:#161610; border:1px solid #2a2518; border-radius:12px; padding:13px 16px; margin-bottom:8px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:border-color 0.15s; }
+.hier-row:hover { border-color:#c9a84c55; }
+.hier-icon { font-size:20px; flex-shrink:0; }
+.hier-info { flex:1; min-width:0; }
+.hier-name { font-size:14px; font-weight:700; }
+.hier-sub { font-size:11px; color:#555; margin-top:2px; }
+.hier-arrow { color:#444; font-size:14px; flex-shrink:0; }
+/* 브레드크럼 */
+.breadcrumb { display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:12px; color:#666; margin-bottom:12px; }
+.bc-item { cursor:pointer; color:#c9a84c88; transition:color 0.15s; }
+.bc-item:hover { color:#c9a84c; }
+.bc-sep { color:#333; }
+.bc-current { color:#888; cursor:default; }
+/* 메모 모달 */
+.memo-modal { background:#161610; border-radius:24px 24px 0 0; border-top:1px solid #2a2518; width:100%; max-width:480px; padding:0 24px 40px; max-height:80dvh; overflow-y:auto; animation:slideUp 0.22s ease; }
+.memo-name { font-size:18px; font-weight:800; margin-bottom:4px; }
+.memo-meta { font-size:12px; color:#666; margin-bottom:18px; }
+.memo-body { font-size:14px; color:#ccc; line-height:1.7; background:#0f0f0a; border-radius:10px; padding:14px; min-height:60px; }
 .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#2a2518; color:#c9a84c; border:1px solid #c9a84c44; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity 0.3s; z-index:9999; white-space:nowrap; }
 .spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(0,0,0,0.2); border-top-color:#000; border-radius:50%; animation:spin 0.7s linear infinite; margin-right:6px; vertical-align:middle; }
 @keyframes spin { to{transform:rotate(360deg)} }
@@ -119,6 +144,11 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <div class="sec-header">
     <div><span class="sec-title">전체 회원</span><span class="sec-count" id="memberCount"></span></div>
   </div>
+  <!-- 지점별 요약 카운트 -->
+  <div id="branchSummary" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
+  <!-- 계층형 뷰 breadcrumb -->
+  <div id="memberBreadcrumb" style="display:none;font-size:12px;color:#888;margin-bottom:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
+  <!-- 계층형 리스트 -->
   <div id="memberList"><div class="loading">불러오는 중...</div></div>
 </div>
 
@@ -139,6 +169,18 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 </div>
 
 <div id="toast" class="toast"></div>
+
+<!-- 회원 메모 모달 -->
+<div id="memoModal" class="modal-bg" onclick="closeModal('memoModal',event)">
+  <div class="memo-modal">
+    <div class="modal-handle"></div>
+    <div class="memo-name" id="memoMemberName"></div>
+    <div class="memo-meta" id="memoMemberMeta"></div>
+    <div style="font-size:12px;color:#888;margin-bottom:8px">📝 트레이너 메모</div>
+    <div class="memo-body" id="memoContent"></div>
+    <button class="btn-cancel" style="margin-top:16px;width:100%" onclick="closeModal('memoModal')">닫기</button>
+  </div>
+</div>
 
 <!-- 비밀번호 변경 모달 -->
 <div id="changePwModal" class="modal-bg" onclick="closeModal('changePwModal',event)">
@@ -367,26 +409,157 @@ async function deleteTrainer(id, name) {
   loadTrainers();
 }
 
-// ── 전체 회원 ────────────────────────────────────────────────
+// ── 전체 회원 (계층형) ────────────────────────────────────────
+let _allTrainers = [];
+let _allMembers  = [];
+
 async function loadMembers() {
-  const { data, error } = await db.from('members')
-    .select('*, trainers(name)')
-    .order('name');
-  if (error) { showToast('불러오기 실패'); return; }
-  document.getElementById('memberCount').textContent = `(${data.length}명)`;
-  const wrap = document.getElementById('memberList');
-  if (!data.length) { wrap.innerHTML = '<div class="empty">등록된 회원이 없어요</div>'; return; }
-  wrap.innerHTML = data.map(m => `
-    <div class="card">
-      <div class="avatar">${m.is_active ? '🏃' : '💤'}</div>
-      <div class="info">
-        <div class="name-row">
-          ${m.name}
-          ${!m.is_active ? '<span class="badge badge-inactive">비활성</span>' : ''}
-        </div>
-        <div class="sub-row">담당: ${m.trainers?.name || '미배정'} · ${m.gym_location}</div>
-      </div>
+  const [trRes, mbRes] = await Promise.all([
+    db.from('trainers').select('id,name,gym_location,is_active,is_admin').order('name'),
+    db.from('members').select('id,name,gym_location,notes,is_active,trainer_id').order('name'),
+  ]);
+  if (trRes.error || mbRes.error) { showToast('불러오기 실패'); return; }
+  _allTrainers = trRes.data || [];
+  _allMembers  = mbRes.data || [];
+
+  // 전체 회원 수
+  document.getElementById('memberCount').textContent = `(${_allMembers.length}명)`;
+
+  // 지점별 요약 칩
+  const branchMap = {};
+  _allMembers.forEach(m => {
+    const loc = m.gym_location || '미지정';
+    branchMap[loc] = (branchMap[loc] || 0) + 1;
+  });
+  const total = _allMembers.length;
+  const chips = Object.entries(branchMap).sort((a,b) => b[1]-a[1]).map(([loc, cnt]) => `
+    <div class="branch-chip" onclick="showBranch('${loc}')">
+      <div class="branch-chip-name">${loc}</div>
+      <div class="branch-chip-count">${cnt}</div>
+      <div class="branch-chip-label">명</div>
     </div>`).join('');
+  document.getElementById('branchSummary').innerHTML = `
+    <div class="branch-chip" onclick="showAllBranches()">
+      <div class="branch-chip-name">전체</div>
+      <div class="branch-chip-count">${total}</div>
+      <div class="branch-chip-label">명</div>
+    </div>${chips}`;
+
+  showAllBranches();
+}
+
+function setBreadcrumb(items) {
+  // items: [{label, onclick}] — 마지막은 현재 위치
+  const bc = document.getElementById('memberBreadcrumb');
+  if (!items.length) { bc.style.display = 'none'; return; }
+  bc.style.display = 'flex';
+  bc.innerHTML = '<div class="breadcrumb">' +
+    items.map((it, i) => {
+      if (i === items.length - 1)
+        return `<span class="bc-current">${it.label}</span>`;
+      return `<span class="bc-item" onclick="${it.onclick}">${it.label}</span><span class="bc-sep">›</span>`;
+    }).join('') +
+    '</div>';
+}
+
+function showAllBranches() {
+  const branchMap = {};
+  _allMembers.forEach(m => {
+    const loc = m.gym_location || '미지정';
+    if (!branchMap[loc]) branchMap[loc] = [];
+    branchMap[loc].push(m);
+  });
+  setBreadcrumb([{label:'전 지점', onclick:'showAllBranches()'}]);
+  const wrap = document.getElementById('memberList');
+  if (!Object.keys(branchMap).length) { wrap.innerHTML = '<div class="empty">등록된 회원이 없어요</div>'; return; }
+  wrap.innerHTML = Object.entries(branchMap).sort((a,b) => b[1].length - a[1].length).map(([loc, mbs]) => {
+    const trainerCount = [...new Set(mbs.map(m => m.trainer_id).filter(Boolean))].length;
+    return `<div class="hier-row" onclick="showBranch('${loc}')">
+      <div class="hier-icon">🏢</div>
+      <div class="hier-info">
+        <div class="hier-name">${loc}</div>
+        <div class="hier-sub">트레이너 ${trainerCount}명 · 회원 ${mbs.length}명</div>
+      </div>
+      <div class="hier-arrow">›</div>
+    </div>`;
+  }).join('');
+}
+
+function showBranch(branch) {
+  // 해당 지점의 트레이너 목록 (회원이 있는 트레이너)
+  const branchMembers = _allMembers.filter(m => (m.gym_location || '미지정') === branch);
+  const trainerIds = [...new Set(branchMembers.map(m => m.trainer_id).filter(Boolean))];
+  const trainerList = trainerIds.map(tid => _allTrainers.find(t => t.id === tid)).filter(Boolean);
+  // 미배정 회원
+  const unassigned = branchMembers.filter(m => !m.trainer_id);
+
+  setBreadcrumb([
+    {label:'전 지점', onclick:'showAllBranches()'},
+    {label: branch, onclick:`showBranch('${branch}')`},
+  ]);
+  const wrap = document.getElementById('memberList');
+  let html = '';
+  if (trainerList.length) {
+    html += trainerList.map(t => {
+      const cnt = branchMembers.filter(m => m.trainer_id === t.id).length;
+      return `<div class="hier-row" onclick="showTrainer('${t.id}','${branch}')">
+        <div class="hier-icon">${t.is_admin ? '👑' : '🏋️'}</div>
+        <div class="hier-info">
+          <div class="hier-name">${t.name}</div>
+          <div class="hier-sub">담당 회원 ${cnt}명${!t.is_active ? ' · 비활성' : ''}</div>
+        </div>
+        <div class="hier-arrow">›</div>
+      </div>`;
+    }).join('');
+  }
+  if (unassigned.length) {
+    html += `<div class="hier-row" onclick="showTrainer('__unassigned__','${branch}')">
+      <div class="hier-icon">❓</div>
+      <div class="hier-info">
+        <div class="hier-name">미배정</div>
+        <div class="hier-sub">트레이너 미배정 회원 ${unassigned.length}명</div>
+      </div>
+      <div class="hier-arrow">›</div>
+    </div>`;
+  }
+  if (!html) html = '<div class="empty">회원이 없어요</div>';
+  wrap.innerHTML = html;
+}
+
+function showTrainer(trainerId, branch) {
+  const members = trainerId === '__unassigned__'
+    ? _allMembers.filter(m => !m.trainer_id && (m.gym_location || '미지정') === branch)
+    : _allMembers.filter(m => m.trainer_id === trainerId && (m.gym_location || '미지정') === branch);
+  const trainer = _allTrainers.find(t => t.id === trainerId);
+  const trainerName = trainer?.name || '미배정';
+
+  setBreadcrumb([
+    {label:'전 지점', onclick:'showAllBranches()'},
+    {label: branch, onclick:`showBranch('${branch}')`},
+    {label: trainerName, onclick:`showTrainer('${trainerId}','${branch}')`},
+  ]);
+  const wrap = document.getElementById('memberList');
+  if (!members.length) { wrap.innerHTML = '<div class="empty">담당 회원이 없어요</div>'; return; }
+  wrap.innerHTML = members.map(m => `
+    <div class="hier-row" onclick="showMemberMemo('${m.id}')">
+      <div class="hier-icon">${m.is_active ? '🏃' : '💤'}</div>
+      <div class="hier-info">
+        <div class="hier-name">${m.name}${!m.is_active ? ' <span style="font-size:10px;color:#f87171">비활성</span>' : ''}</div>
+        <div class="hier-sub">${m.notes ? m.notes.slice(0,30) + (m.notes.length > 30 ? '…' : '') : '메모 없음'}</div>
+      </div>
+      <div class="hier-arrow" style="font-size:12px;color:#555">메모 ›</div>
+    </div>`).join('');
+}
+
+function showMemberMemo(memberId) {
+  const m = _allMembers.find(x => x.id === memberId);
+  if (!m) return;
+  const trainer = _allTrainers.find(t => t.id === m.trainer_id);
+  document.getElementById('memoMemberName').textContent = m.name;
+  document.getElementById('memoMemberMeta').textContent =
+    `${m.gym_location || ''} · 담당: ${trainer?.name || '미배정'}`;
+  document.getElementById('memoContent').textContent = m.notes || '(메모 없음)';
+  openModal('memoModal');
 }
 
 // ── 운동 DB ──────────────────────────────────────────────────
