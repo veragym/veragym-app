@@ -990,9 +990,14 @@ function showToast(msg) {
 
 // ─── 하드웨어 뒤로가기 차단 (Android / iOS) ─────────────────
 // 저장 버튼으로만 나갈 수 있도록 popstate 이벤트를 무력화
-history.pushState(null, '', location.href);
-window.addEventListener('popstate', () => {
+function _blockBack() {
   history.pushState(null, '', location.href);
+}
+_blockBack();
+window.addEventListener('popstate', _blockBack);
+// Android bfcache 복원 시에도 재차단 (뒤로 → 앞으로 했을 때 핸들러가 풀리는 문제 방지)
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) _blockBack();
 });
 
 init();
