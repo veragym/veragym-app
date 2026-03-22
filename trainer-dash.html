@@ -99,13 +99,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .btn-save:disabled { opacity:0.4; cursor:default; }
 .err-box { display:none; background:#1a0d20; border:1px solid #5a2080; border-radius:8px; padding:10px 14px; font-size:13px; color:#c084fc; margin-bottom:12px; }
 
-/* ── Exercise Items in Log Modal ─────────────────────────── */
-.ex-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-.ex-row input { flex:2; min-width:0; }
-.ex-row .ex-num { flex:1; min-width:0; }
-.ex-row .btn-del-ex { background:#1a0d20; border:1px solid #5a2080; border-radius:8px; padding:6px 10px; color:#f87171; font-size:14px; cursor:pointer; flex-shrink:0; }
-.btn-add-ex { width:100%; background:#141f35; border:1.5px dashed #1e3a5f; border-radius:10px; padding:10px; font-size:13px; color:#3a5878; cursor:pointer; margin-top:4px; }
-.btn-add-ex:hover { border-color:#3b82f644; color:#60a5fa; }
 
 /* ── Token Link ──────────────────────────────────────────── */
 .token-box { background:#141f35; border:1px solid #1e3a5f44; border-radius:10px; padding:10px 14px; font-size:12px; color:#3a5878; display:flex; align-items:center; gap:8px; margin-top:8px; cursor:pointer; }
@@ -236,23 +229,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
         <option value="">회원 선택</option>
       </select>
     </div>
-    <div class="field">
-      <label>수업 날짜 <span style="color:#f87171">*</span></label>
-      <input id="logDate" type="date">
-    </div>
-    <div class="field">
-      <label>운동 목록</label>
-      <div id="exList"></div>
-      <button class="btn-add-ex" onclick="addExRow()">＋ 운동 추가</button>
-      <div class="hint" style="margin-top:6px">운동명 · 세트 · 횟수 · 중량(kg) 순으로 입력</div>
-    </div>
-    <div class="field">
-      <label>메모</label>
-      <textarea id="logNotes" placeholder="오늘 수업 내용, 특이사항 등" rows="3"></textarea>
-    </div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('addLogModal')">취소</button>
-      <button class="btn-save" id="btnAddLog" onclick="saveLog()">저장</button>
+      <button class="btn-save" id="btnAddLog" onclick="goToSessionWrite()">작성 시작</button>
     </div>
   </div>
 </div>
@@ -480,96 +459,17 @@ function renderLogCards(containerId, logs, showMember) {
 }
 
 function openAddLog() {
-  // 회원 목록 로드
   const sel = document.getElementById('logMember');
   sel.innerHTML = '<option value="">회원 선택</option>' +
     myMembers.filter(m => m.is_active).map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-
-  // 오늘 날짜 기본값
-  document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
-  document.getElementById('logNotes').value = '';
   document.getElementById('logErr').style.display = 'none';
-
-  // 운동 행 초기화
-  document.getElementById('exList').innerHTML = '';
-  addExRow(); addExRow(); addExRow();  // 기본 3행
-
   openModal('addLogModal');
 }
 
-let exRowCount = 0;
-function addExRow() {
-  exRowCount++;
-  const id = `ex_${exRowCount}`;
-  const div = document.createElement('div');
-  div.className = 'ex-row';
-  div.id = id;
-  div.innerHTML = `
-    <input type="text" placeholder="운동명" class="ex-name" autocomplete="off">
-    <input type="number" placeholder="세트" class="ex-num" min="1" max="99">
-    <input type="number" placeholder="횟수" class="ex-num" min="1" max="999">
-    <input type="number" placeholder="kg" class="ex-num" min="0" max="999" step="0.5">
-    <button class="btn-del-ex" onclick="document.getElementById('${id}').remove()">×</button>`;
-  document.getElementById('exList').appendChild(div);
-}
-
-async function saveLog() {
+function goToSessionWrite() {
   const memberId = document.getElementById('logMember').value;
-  const date     = document.getElementById('logDate').value;
-  const notes    = document.getElementById('logNotes').value.trim();
-  const btn      = document.getElementById('btnAddLog');
-
-  document.getElementById('logErr').style.display = 'none';
   if (!memberId) { showModalErr('logErr', '회원을 선택해주세요'); return; }
-  if (!date)     { showModalErr('logErr', '날짜를 선택해주세요'); return; }
-
-  // 운동 항목 수집
-  const exRows = document.querySelectorAll('#exList .ex-row');
-  const exercises = [];
-  exRows.forEach((row, i) => {
-    const [nameEl, setsEl, repsEl, weightEl] = row.querySelectorAll('input');
-    const name = nameEl.value.trim();
-    if (!name) return;
-    exercises.push({
-      custom_name: name,
-      sets:   parseInt(setsEl.value)  || null,
-      reps:   parseInt(repsEl.value)  || null,
-      weight: parseFloat(weightEl.value) || null,
-      order_index: i,
-    });
-  });
-
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
-
-  // 수업 일지 생성
-  const { data: log, error: logErr } = await db.from('workout_logs').insert({
-    trainer_id: me.id,
-    member_id: memberId,
-    session_date: date,
-    notes: notes || null,
-    is_deleted: false,
-  }).select().single();
-
-  if (logErr) {
-    showModalErr('logErr', '저장 실패: ' + logErr.message);
-    btn.disabled = false; btn.textContent = '저장'; return;
-  }
-
-  // 운동 항목 추가
-  if (exercises.length) {
-    const { error: exErr } = await db.from('workout_log_exercises').insert(
-      exercises.map(e => ({ ...e, log_id: log.id }))
-    );
-    if (exErr) console.warn('운동 항목 저장 실패:', exErr.message);
-  }
-
-  closeModal('addLogModal');
-  showToast('수업 일지 저장 완료!');
-  const memberName = myMembers.find(m => m.id === memberId)?.name || '';
-  if (memberName) showToast(`${memberName} 수업 일지 저장 완료!`);
-  loadLogs();
-
-  btn.disabled = false; btn.textContent = '저장';
+  location.href = `session-write.html?member=${memberId}`;
 }
 
 async function deleteLog(id) {
