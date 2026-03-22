@@ -25,7 +25,6 @@ body {
   padding: 16px 20px; display: flex; align-items: center; gap: 12px;
   position: sticky; top: 0; z-index: 100;
 }
-.btn-back { background: none; border: none; color: #3b82f6; font-size: 22px; cursor: pointer; padding: 4px; }
 .header-info { flex: 1; min-width: 0; }
 .header-info .member-nm { font-size: 16px; font-weight: 700; }
 .header-info .sess-meta { font-size: 12px; color: #3a5878; margin-top: 2px; }
@@ -331,12 +330,11 @@ body {
 
 <!-- 헤더 -->
 <div class="header">
-  <button class="btn-back" onclick="history.back()">←</button>
   <div class="header-info">
     <div class="member-nm" id="hdrMember">...</div>
     <div class="sess-meta" id="hdrMeta"></div>
   </div>
-  <button class="btn-save-top" id="btnSave" onclick="saveSession()">저장</button>
+  <button class="btn-save-top" id="btnSave" onclick="saveSession()">저장 후 나가기</button>
 </div>
 
 <!-- 수업 메타 -->
@@ -442,7 +440,7 @@ async function init() {
 
   if (!logId && !memberId) {
     showToast('잘못된 접근입니다');
-    setTimeout(() => history.back(), 1500);
+    setTimeout(() => location.replace('trainer-dash.html'), 1500);
     return;
   }
 
@@ -726,8 +724,8 @@ async function saveSession() {
     }
 
     showToast('저장 완료');
-    btn.textContent = '저장됨';
-    setTimeout(() => { btn.disabled = false; btn.textContent = '저장'; }, 2000);
+    btn.textContent = '저장됨 ✓';
+    setTimeout(() => { location.replace('trainer-dash.html?tab=logs'); }, 800);
   } catch (e) {
     showToast('저장 실패: ' + e.message);
     btn.disabled = false; btn.textContent = '저장';
@@ -989,6 +987,13 @@ function showToast(msg) {
   clearTimeout(showToast._tm);
   showToast._tm = setTimeout(() => { t.style.opacity = 0; }, 2200);
 }
+
+// ─── 하드웨어 뒤로가기 차단 (Android / iOS) ─────────────────
+// 저장 버튼으로만 나갈 수 있도록 popstate 이벤트를 무력화
+history.pushState(null, '', location.href);
+window.addEventListener('popstate', () => {
+  history.pushState(null, '', location.href);
+});
 
 init();
 </script>
