@@ -256,8 +256,24 @@ async function init() {
   renderList();
 }
 
-// ─── 전체 운동 DB 로드 (Supabase 기본 1000행 제한 우회 — 페이지네이션) ───
+// ─── 전체 운동 DB 로드 (sessionStorage 5분 캐싱) ───
+const _EX_CACHE_KEY = 'vg_exdb_cache';
+const _EX_CACHE_TTL = 5 * 60 * 1000; // 5분
+
 async function loadAllExercises() {
+  // 캐시 확인
+  try {
+    const raw = sessionStorage.getItem(_EX_CACHE_KEY);
+    if (raw) {
+      const { ts, data } = JSON.parse(raw);
+      if (Date.now() - ts < _EX_CACHE_TTL) {
+        allExs = data;
+        return;
+      }
+    }
+  } catch (_) {}
+
+  // 캐시 없거나 만료 → Supabase 에서 로드 (페이지네이션)
   const PAGE = 1000;
   let all = [], page = 0;
   while (true) {
@@ -274,6 +290,11 @@ async function loadAllExercises() {
     page++;
   }
   allExs = all;
+
+  // sessionStorage 에 저장
+  try {
+    sessionStorage.setItem(_EX_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: all }));
+  } catch (_) {} // 저장 실패 시 무시 (용량 초과 등)
 }
 
 // ─── 내 운동 목록 로드 ───
