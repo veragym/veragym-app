@@ -199,13 +199,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
       <label>이름 <span style="color:#f87171">*</span></label>
       <input id="mName" type="text" placeholder="홍길동" autocomplete="off">
     </div>
-    <div class="field">
-      <label>지점</label>
-      <select id="mGym">
-        <option value="미사점">미사점</option>
-        <option value="동탄점">동탄점</option>
-      </select>
-    </div>
+
     <div class="field">
       <label>메모 (선택)</label>
       <textarea id="mNotes" placeholder="특이사항, 목표 등" rows="2"></textarea>
@@ -364,7 +358,6 @@ function openAddMember() {
 
 async function addMember() {
   const name  = document.getElementById('mName').value.trim();
-  const gym   = document.getElementById('mGym').value;
   const notes = document.getElementById('mNotes').value.trim();
   const btn   = document.getElementById('btnAddMember');
 
@@ -373,7 +366,7 @@ async function addMember() {
 
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>추가 중...';
   const { error } = await db.from('members').insert({
-    name, gym_location: gym, notes: notes || null, trainer_id: me.id, is_active: true
+    name, gym_location: me.gym_location, notes: notes || null, trainer_id: me.id, is_active: true
   });
 
   if (error) {
