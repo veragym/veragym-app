@@ -285,6 +285,18 @@ async function init() {
   me = await requireTrainer();
   if (!me) return;
   document.getElementById('trainerInfo').textContent = `${me.name} · ${me.gym_location}`;
+
+  // URL 파라미터로 탭 지정 처리 (me 설정 이후 실행해야 loadLogs 등이 정상 동작)
+  const _urlTab = new URLSearchParams(location.search).get('tab');
+  if (_urlTab) {
+    const _btn = document.getElementById(`nav-${_urlTab}`);
+    if (_btn) {
+      switchTab(_urlTab, _btn);
+      checkPendingReqs();
+      return; // loadMembers는 switchTab → members 탭 클릭 시에만 필요
+    }
+  }
+
   loadMembers();
   checkPendingReqs();
 }
@@ -597,13 +609,6 @@ async function doLogout() {
   await db.auth.signOut();
   localStorage.removeItem('vg_trainer');
   location.replace('trainer-login.html');
-}
-
-// URL 파라미터로 탭 지정 처리 (exercise-library.html에서 복귀 시)
-const _urlTab = new URLSearchParams(location.search).get('tab');
-if (_urlTab) {
-  const _btn = document.getElementById(`nav-${_urlTab}`);
-  if (_btn) switchTab(_urlTab, _btn);
 }
 
 init();
