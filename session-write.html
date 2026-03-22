@@ -300,6 +300,10 @@ body {
   width: 100%; margin-top: 12px; background: none; border: none;
   color: #3a5878; font-size: 14px; padding: 12px; cursor: pointer;
 }
+.photo-source-label {
+  font-size: 13px; color: #60a5fa; text-align: center;
+  margin-bottom: 14px; font-weight: 600;
+}
 
 /* ─── 사진 뷰어 ─── */
 .photo-viewer-bg {
@@ -325,7 +329,11 @@ body {
 </head>
 <body>
 <div id="toast"></div>
-<input type="file" id="photoInput" accept="image/*"
+<!-- 카메라 전용 (capture=environment) -->
+<input type="file" id="photoInputCamera" accept="image/*" capture="environment"
+       style="display:none" onchange="onPhotoSelected(this)">
+<!-- 갤러리 전용 (capture 없음) -->
+<input type="file" id="photoInputGallery" accept="image/*"
        style="display:none" onchange="onPhotoSelected(this)">
 
 <!-- 헤더 -->
@@ -390,18 +398,39 @@ body {
 <!-- ══ 사진 촬영 모달 ══ -->
 <div id="photoModal" class="photo-modal-bg" onclick="if(event.target===this)closePhotoModal()">
   <div class="photo-modal-sheet">
-    <div class="photo-modal-title" id="photoModalTitle">사진 촬영</div>
-    <div class="photo-btns">
-      <div class="btn-capture" id="capStart" onclick="triggerCapture('start')">
-        <div class="cap-label">시작 자세</div>
-        <div class="cap-status" id="capStartStatus">미촬영</div>
-      </div>
-      <div class="btn-capture" id="capEnd" onclick="triggerCapture('end')">
-        <div class="cap-label">끝 자세</div>
-        <div class="cap-status" id="capEndStatus">미촬영</div>
+    <div class="photo-modal-title" id="photoModalTitle">사진</div>
+
+    <!-- Step 1: 자세 선택 -->
+    <div id="photoStep1">
+      <div class="photo-btns">
+        <div class="btn-capture" id="capStart" onclick="selectPose('start')">
+          <div class="cap-label">시작 자세</div>
+          <div class="cap-status" id="capStartStatus">미촬영</div>
+        </div>
+        <div class="btn-capture" id="capEnd" onclick="selectPose('end')">
+          <div class="cap-label">끝 자세</div>
+          <div class="cap-status" id="capEndStatus">미촬영</div>
+        </div>
       </div>
     </div>
-    <button class="btn-photo-cancel" onclick="closePhotoModal()">닫기</button>
+
+    <!-- Step 2: 소스 선택 (카메라 / 갤러리) -->
+    <div id="photoStep2" style="display:none">
+      <div class="photo-source-label" id="photoSourceLabel">시작 자세 — 선택</div>
+      <div class="photo-btns">
+        <div class="btn-capture" onclick="triggerSource('camera')">
+          <div class="cap-label">📷 카메라</div>
+          <div class="cap-status">바로 촬영</div>
+        </div>
+        <div class="btn-capture" onclick="triggerSource('gallery')">
+          <div class="cap-label">🖼 갤러리</div>
+          <div class="cap-status">앨범에서 선택</div>
+        </div>
+      </div>
+      <button class="btn-photo-cancel" onclick="backToStep1()">← 뒤로</button>
+    </div>
+
+    <button class="btn-photo-cancel" id="photoModalClose" onclick="closePhotoModal()">닫기</button>
   </div>
 </div>
 
@@ -752,11 +781,33 @@ function openPhotoModal(idx) {
 
 function closePhotoModal() {
   document.getElementById('photoModal').classList.remove('open');
+  // Step 초기화
+  document.getElementById('photoStep1').style.display = '';
+  document.getElementById('photoStep2').style.display = 'none';
+  document.getElementById('photoModalClose').style.display = '';
 }
 
-function triggerCapture(type) {
+// Step1: 자세 선택 → Step2로 전환
+function selectPose(type) {
   photoTargetType = type;
-  document.getElementById('photoInput').click();
+  const label = type === 'start' ? '시작 자세' : '끝 자세';
+  document.getElementById('photoSourceLabel').textContent = label + ' — 선택';
+  document.getElementById('photoStep1').style.display = 'none';
+  document.getElementById('photoStep2').style.display = '';
+  document.getElementById('photoModalClose').style.display = 'none';
+}
+
+// Step2: 카메라 or 갤러리 선택 → 파일 input 트리거
+function triggerSource(source) {
+  const inputId = source === 'camera' ? 'photoInputCamera' : 'photoInputGallery';
+  document.getElementById(inputId).click();
+}
+
+// Step2 → Step1 뒤로가기
+function backToStep1() {
+  document.getElementById('photoStep1').style.display = '';
+  document.getElementById('photoStep2').style.display = 'none';
+  document.getElementById('photoModalClose').style.display = '';
 }
 
 async function onPhotoSelected(input) {
