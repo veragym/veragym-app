@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="베라짐 트레이너">
+<meta name="theme-color" content="#3b82f6">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERA GYM | 트레이너</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'Pretendard',sans-serif; background:#0a0f1a; color:#fff; min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px; text-align:center; }
+.icon { font-size:60px; margin-bottom:20px; }
+h2 { font-size:20px; font-weight:700; margin-bottom:8px; }
+h2 span { color:#3b82f6; }
+p { font-size:14px; color:#555; line-height:1.6; }
+.badge { display:inline-block; background:#3b82f622; border:1px solid #3b82f644; border-radius:99px; color:#60a5fa; font-size:12px; padding:4px 12px; margin-top:16px; }
+.btn-logout { margin-top:32px; background:none; border:1px solid #1e3a5f; border-radius:8px; color:#555; font-size:13px; padding:8px 16px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="icon">🏋️</div>
+<h2>트레이너 <span>대시보드</span></h2>
+<p>트레이너 앱 기능을 준비 중입니다.<br>회원 관리 · 수업 일지 · 운동 선택이 곧 제공됩니다.</p>
+<div class="badge" id="trainerBadge">로딩 중...</div>
+<br>
+<button class="btn-logout" onclick="doLogout()">로그아웃</button>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+init_db();
+preventBackExit();
+(async () => {
+  const t = await requireTrainer();
+  if (!t) return;
+  document.getElementById('trainerBadge').textContent = `${t.name} · ${t.gym_location}`;
+})();
+async function doLogout() {
+  await db.auth.signOut();
+  localStorage.removeItem('vg_trainer');
+  location.replace('trainer-login.html');
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/veragym-app/service-worker.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
