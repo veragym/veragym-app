@@ -43,20 +43,35 @@ async function requireTrainer() {
   const { data: { session } } = await db.auth.getSession();
   if (!session) { location.replace('trainer-login.html'); return null; }
 
-  let saved = localStorage.getItem('vg_trainer');
-  if (!saved) {
-    const { data: trainer, error } = await db.from('trainers')
-      .select('id, name, gym_location, is_active, is_admin')
-      .eq('auth_id', session.user.id).single();
-    if (error || !trainer || !trainer.is_active) {
-      await db.auth.signOut();
-      location.replace('trainer-login.html');
-      return null;
-    }
-    saved = JSON.stringify({ id: trainer.id, name: trainer.name, gym_location: trainer.gym_location });
-    localStorage.setItem('vg_trainer', saved);
+  // 캐시가 있고, auth_id가 현재 세션과 일치하면 그대로 사용
+  const raw = localStorage.getItem('vg_trainer');
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed.auth_id === session.user.id) return parsed;
+    } catch (_) {}
+    // 불일치(다른 계정으로 세션 변경) → 캐시 무효화
+    localStorage.removeItem('vg_trainer');
   }
-  return JSON.parse(saved);
+
+  // DB에서 재조회
+  const { data: trainer, error } = await db.from('trainers')
+    .select('id, name, gym_location, is_active, is_admin')
+    .eq('auth_id', session.user.id).single();
+  if (error || !trainer || !trainer.is_active) {
+    await db.auth.signOut();
+    location.replace('trainer-login.html');
+    return null;
+  }
+  // auth_id 포함해서 저장 (다음 호출 시 세션 검증에 사용)
+  const trainerData = {
+    id: trainer.id,
+    name: trainer.name,
+    gym_location: trainer.gym_location,
+    auth_id: session.user.id
+  };
+  localStorage.setItem('vg_trainer', JSON.stringify(trainerData));
+  return trainerData;
 }
 
 // ── 토스트 메시지 ───────────────────────────────────────────
