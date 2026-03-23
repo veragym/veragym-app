@@ -147,7 +147,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 
 <div class="header">
   <div>
-    <div class="header-title">VERA<span>GYM</span> 관리자</div>
+    <div class="header-title">VERA<span>GYM</span>관리자</div>
     <div class="header-sub" id="adminName">불러오는 중...</div>
   </div>
   <button class="btn-logout" onclick="doLogout()">로그아웃</button>
@@ -317,7 +317,7 @@ async function init() {
   if (!me) return;
 
   document.getElementById('adminName').textContent =
-    me.is_super ? '최고 관리자' : `${me.name} (${me.gym_location})`;
+    me.is_super ? '최고 관리자' : `${me.name} · ${me.gym_location}`;
 
   loadTrainers();
 }
