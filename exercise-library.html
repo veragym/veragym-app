@@ -30,11 +30,8 @@ body {
 .header-title { font-size:16px; font-weight:800; }
 .header-title span { color:#3b82f6; }
 .header-sub { font-size:11px; color:#4a6580; margin-top:2px; }
-.header-badge {
-  background:#3b82f622; color:#60a5fa;
-  border:1px solid #3b82f644; border-radius:20px;
-  padding:4px 12px; font-size:12px; font-weight:600;
-}
+.btn-logout { background:none; border:1px solid #1e3a5f44; border-radius:8px; color:#4a6580; font-size:12px; padding:6px 12px; cursor:pointer; transition:all 0.15s; font-family:inherit; }
+.btn-logout:hover { border-color:#3b82f644; color:#3b82f6; }
 
 /* ── Top Tab Navigation ──────────────────────────────── */
 .tabs { display:flex; background:#0d1525; border-bottom:1px solid #1e3a5f44; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
@@ -232,7 +229,7 @@ body {
     <div class="header-title">VERA<span>GYM트레이너</span></div>
     <div class="header-sub" id="trainerInfo">불러오는 중...</div>
   </div>
-  <div class="header-badge">운동DB</div>
+  <button class="btn-logout" onclick="doLogout()">로그아웃</button>
 </div>
 
 <!-- 상단 탭 네비게이션 -->
@@ -597,11 +594,20 @@ function returnToSession() {
 
 init();
 
+// ─── 로그아웃 ───────────────────────────────────────────────
+async function doLogout() {
+  await db.auth.signOut();
+  localStorage.removeItem('vg_trainer');
+  location.replace('trainer-login.html');
+}
+
 // ─── bfcache 복원 시 재초기화 ───────────────────────────────
-// iOS Safari/PWA 에서 탭 이동 후 돌아올 때 bfcache로 복원되면
-// 스크립트가 재실행되지 않아 trainer·allExs 가 빈 상태일 수 있음
+// bfcache가 _initRunning=true 상태를 그대로 얼려서 저장하면,
+// 복원 후 init() 호출해도 즉시 return되는 deadlock이 발생한다.
+// pageshow 에서 플래그를 강제 리셋 후 항상 재초기화.
 window.addEventListener('pageshow', (e) => {
-  if (e.persisted && (!trainer || allExs.length === 0)) {
+  if (e.persisted) {
+    _initRunning = false;   // deadlock 방지: 고착된 플래그 리셋
     init();
   }
 });

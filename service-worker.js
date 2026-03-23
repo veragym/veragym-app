@@ -1,5 +1,5 @@
 // VERA GYM App - Service Worker
-const CACHE_NAME = 'veragym-v6';
+const CACHE_NAME = 'veragym-v7';
 const STATIC = [
   '/veragym-app/',
   '/veragym-app/index.html',
