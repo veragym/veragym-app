@@ -14,7 +14,12 @@
 <style>
 /* ── Reset & Base ─────────────────────────────────────────── */
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; overscroll-behavior:none; }
+body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; overscroll-behavior:none; padding-bottom:90px; }
+
+/* ── 회원 상세 하단 작성 버튼 ─────────────────────────────── */
+.write-bar { position:fixed; bottom:0; left:0; right:0; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:#080e1a; border-top:1px solid #1e3a5f44; }
+.btn-write { width:100%; background:#1a3a5c; border:1.5px solid #3b82f655; border-radius:12px; padding:14px; font-size:15px; font-weight:700; color:#3b82f6; cursor:pointer; font-family:inherit; }
+.btn-write:hover { background:#243d5c; }
 
 /* ── Header ──────────────────────────────────────────────── */
 .header { background:#0d1525; border-bottom:1px solid #1e3a5f44; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
@@ -169,7 +174,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <div id="tab-logs" class="tab-content">
   <div class="sec-header">
     <div><span class="sec-title">수업 일지</span><span class="sec-count" id="logCount"></span></div>
-    <button class="btn-add" onclick="openAddLog()">+ 작성</button>
   </div>
   <div id="logList"><div class="loading">불러오는 중...</div></div>
 </div>
@@ -184,6 +188,11 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 </div>
 
 <div id="toast" class="toast"></div>
+
+<!-- 회원 상세 하단 고정 작성 버튼 -->
+<div id="writeBar" class="write-bar" style="display:none">
+  <button class="btn-write" onclick="location.href='session-write.html?member='+currentDetailMemberId">＋ 작성</button>
+</div>
 
 <!-- ══════════════════════════════════════════════════════════
      MODALS
@@ -211,24 +220,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   </div>
 </div>
 
-<!-- 수업 일지 작성 모달 -->
-<div id="addLogModal" class="modal-bg" onclick="closeModal('addLogModal',event)">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">수업 일지 작성</div>
-    <div class="err-box" id="logErr"></div>
-    <div class="field">
-      <label>회원 <span style="color:#f87171">*</span></label>
-      <select id="logMember">
-        <option value="">회원 선택</option>
-      </select>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('addLogModal')">취소</button>
-      <button class="btn-save" id="btnAddLog" onclick="goToSessionWrite()">작성 시작</button>
-    </div>
-  </div>
-</div>
 
 <!-- 요청사항 추가 모달 -->
 <div id="addReqModal" class="modal-bg" onclick="closeModal('addReqModal',event)">
@@ -266,6 +257,7 @@ preventBackExit();
 
 let me = null;          // 현재 로그인한 트레이너 정보
 let myMembers = [];     // 내 회원 캐시
+let currentDetailMemberId = null; // 현재 열린 회원 상세 ID
 const APP_URL = 'https://veragym.github.io/veragym-app/member-view.html';
 
 // ── 탭 데이터 캐시 (30초) ──────────────────────────────────
@@ -300,6 +292,9 @@ function switchTab(id, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`tab-${id}`).classList.add('active');
   btn.classList.add('active');
+
+  // 탭 전환 시 회원 상세 작성 버튼 숨기기
+  document.getElementById('writeBar').style.display = 'none';
 
   // 뒤로가기로 열린 detail 닫기
   if (id === 'members') { showMemberList(); if (!_cacheValid('members')) loadMembers(); }
@@ -384,8 +379,10 @@ async function showMemberDetail(memberId) {
   const m = myMembers.find(x => x.id === memberId);
   if (!m) return;
 
+  currentDetailMemberId = memberId;
   document.getElementById('view-member-list').style.display = 'none';
   document.getElementById('view-member-detail').style.display = 'block';
+  document.getElementById('writeBar').style.display = '';
   document.getElementById('detailName').textContent = m.name;
   document.getElementById('detailSub').textContent = `${m.gym_location}${m.notes ? ' · ' + m.notes : ''}`;
 
@@ -414,6 +411,8 @@ async function showMemberDetail(memberId) {
 function showMemberList() {
   document.getElementById('view-member-list').style.display = 'block';
   document.getElementById('view-member-detail').style.display = 'none';
+  document.getElementById('writeBar').style.display = 'none';
+  currentDetailMemberId = null;
 }
 
 async function shareToken(memberName, url) {
@@ -508,19 +507,6 @@ function renderLogCards(containerId, logs, showMember) {
   }).join('');
 }
 
-function openAddLog() {
-  const sel = document.getElementById('logMember');
-  sel.innerHTML = '<option value="">회원 선택</option>' +
-    myMembers.filter(m => m.is_active).map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-  document.getElementById('logErr').style.display = 'none';
-  openModal('addLogModal');
-}
-
-function goToSessionWrite() {
-  const memberId = document.getElementById('logMember').value;
-  if (!memberId) { showModalErr('logErr', '회원을 선택해주세요'); return; }
-  location.href = `session-write.html?member=${memberId}`;
-}
 
 async function deleteLog(id) {
   if (!confirm('이 수업 일지를 삭제할까요?\n(관리자는 복구할 수 있습니다)')) return;
