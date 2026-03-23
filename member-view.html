@@ -639,9 +639,27 @@ async function openLogDetail(logId, sessionNo) {
     return;
   }
   renderDetailExercises(data);
+  prefetchPhotoUrls(data); // await 없이 백그라운드에서 signed URL 미리 생성
 }
 
-let _detailExList = []; // 사진 뷰어에서 photo_urls 접근용
+let _detailExList  = []; // 사진 뷰어에서 photo_urls 접근용
+let _signedUrlCache = {}; // storage path → signedUrl (세션 내 캐시)
+
+// ── 사진 URL 일괄 사전 생성 (백그라운드, await 없이 호출) ──
+async function prefetchPhotoUrls(exList) {
+  const paths = exList
+    .flatMap(ex => [ex.photo_urls?.start, ex.photo_urls?.end])
+    .filter(Boolean);
+  if (!paths.length) return;
+  try {
+    const { data } = await db.storage
+      .from('session-photos')
+      .createSignedUrls(paths, 7200); // 2시간 유효
+    if (data) data.forEach(item => {
+      if (item.signedUrl) _signedUrlCache[item.path] = item.signedUrl;
+    });
+  } catch (_) {}
+}
 
 function renderDetailExercises(exList) {
   _detailExList = exList;
@@ -710,40 +728,49 @@ function buildSetsTable(setsData) {
 async function openPhotoViewer(idx) {
   const ex = _detailExList[idx];
   if (!ex) return;
-  const pu = ex.photo_urls || {};
+  const pu     = ex.photo_urls || {};
+  const labels = ['시작 자세', '끝 자세'];
+  const types  = ['start', 'end'];
 
   document.getElementById('viewerTitle').textContent = (ex.name_ko || ex.custom_name || '운동') + ' — 자세 사진';
-
-  // 로딩 상태 먼저 표시 후 모달 열기
-  const labels = ['시작 자세', '끝 자세'];
-  document.getElementById('viewerImgs').innerHTML = labels.map(l => `
-    <div class="photo-viewer-slot">
-      <div class="photo-viewer-label">${l}</div>
-      <div class="photo-viewer-empty">불러오는 중...</div>
-    </div>`).join('');
   document.getElementById('photoViewer').classList.add('open');
 
-  // Storage anon SELECT 정책 추가 후 직접 Signed URL 생성 가능
-  const rendered = await Promise.all(['start', 'end'].map(async (type, i) => {
+  // 캐시에 없는 경로가 있으면 로딩 표시 후 개별 fetch (prefetch가 아직 진행 중인 경우)
+  const needFetch = types.some(t => pu[t] && !_signedUrlCache[pu[t]]);
+  if (needFetch) {
+    document.getElementById('viewerImgs').innerHTML = labels.map(l => `
+      <div class="photo-viewer-slot">
+        <div class="photo-viewer-label">${l}</div>
+        <div class="photo-viewer-empty">불러오는 중...</div>
+      </div>`).join('');
+    await Promise.all(types.map(async (type, i) => {
+      const path = pu[type];
+      if (!path || _signedUrlCache[path]) return;
+      const { data } = await db.storage.from('session-photos').createSignedUrl(path, 7200);
+      if (data?.signedUrl) _signedUrlCache[path] = data.signedUrl;
+    }));
+  }
+
+  // 캐시(또는 방금 fetch한) URL로 렌더
+  document.getElementById('viewerImgs').innerHTML = types.map((type, i) => {
     const path = pu[type];
     if (!path) return `
       <div class="photo-viewer-slot">
         <div class="photo-viewer-empty">사진 없음</div>
         <div class="photo-viewer-label">${labels[i]}</div>
       </div>`;
-    const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
-    if (error || !data?.signedUrl) return `
+    const url = _signedUrlCache[path];
+    if (!url) return `
       <div class="photo-viewer-slot">
         <div class="photo-viewer-empty">불러오기 실패</div>
         <div class="photo-viewer-label">${labels[i]}</div>
       </div>`;
     return `
       <div class="photo-viewer-slot">
-        <img src="${data.signedUrl}" alt="${labels[i]}">
+        <img src="${url}" alt="${labels[i]}">
         <div class="photo-viewer-label">${labels[i]}</div>
       </div>`;
-  }));
-  document.getElementById('viewerImgs').innerHTML = rendered.join('');
+  }).join('');
 }
 
 function closePhotoViewer() {
