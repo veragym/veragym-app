@@ -316,13 +316,12 @@ body {
 .photo-viewer-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; flex-shrink: 0; }
 .photo-viewer-imgs {
   display: flex; gap: 10px; width: 100%; max-width: 420px;
-  flex: 1; min-height: 0; max-height: calc(100dvh - 110px);
 }
 .photo-viewer-slot {
   flex: 1; min-width: 0; background: #141f35; border-radius: 12px; overflow: hidden;
   display: flex; flex-direction: column;
 }
-.photo-viewer-slot img { flex: 1; min-height: 0; width: 100%; object-fit: contain; }
+.photo-viewer-slot img { width: 100%; height: auto; display: block; max-height: calc(100dvh - 130px); object-fit: contain; }
 .photo-viewer-label { font-size: 11px; color: #3a5878; padding: 5px 6px; text-align: center; flex-shrink: 0; }
 .btn-viewer-close {
   flex-shrink: 0; margin-top: 12px; background: #141f35; border: 1.5px solid #1e3a5f44;

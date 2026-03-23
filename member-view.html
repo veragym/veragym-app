@@ -215,7 +215,6 @@ body {
 }
 .photo-viewer-imgs {
   display:flex; gap:10px; width:100%; max-width:420px;
-  flex:1; min-height:0; max-height:calc(100dvh - 110px);
 }
 .photo-viewer-slot {
   flex:1; min-width:0; background:#0a1a10; border-radius:12px; overflow:hidden;
@@ -223,7 +222,8 @@ body {
   border:1px solid var(--g-border);
 }
 .photo-viewer-slot img {
-  flex:1; min-height:0; width:100%; object-fit:contain;
+  width:100%; height:auto; display:block;
+  max-height:calc(100dvh - 130px); object-fit:contain;
 }
 .photo-viewer-label {
   font-size:11px; color:var(--sub); padding:5px 6px;
