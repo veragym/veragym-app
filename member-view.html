@@ -320,6 +320,32 @@ body {
 .stat-num { font-size:28px; font-weight:800; color:var(--g); }
 .stat-label { font-size:11px; color:var(--sub); margin-top:4px; }
 
+/* ── 운동 상세 모달 (admin.html 동일 방식) ───────────────── */
+.modal-bg {
+  display:none; position:fixed; inset:0;
+  background:#000000cc; z-index:200;
+  align-items:flex-end; justify-content:center;
+}
+.modal-bg.open { display:flex; }
+.modal {
+  background:#0d1525; border-radius:24px 24px 0 0;
+  border-top:1px solid var(--g-border);
+  width:100%; max-width:520px;
+  padding:0 20px calc(28px + env(safe-area-inset-bottom));
+  max-height:92dvh; overflow-y:auto;
+  animation:slideUp .22s ease;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-handle {
+  width:36px; height:4px; background:var(--g-border2);
+  border-radius:99px; margin:14px auto 20px;
+}
+.btn-modal-close {
+  width:100%; background:var(--card2); border:1px solid var(--g-border);
+  border-radius:12px; padding:14px; font-size:15px; color:#aaa;
+  cursor:pointer; font-weight:600; font-family:inherit; margin-top:18px;
+}
+
 /* ── 오류 화면 ──────────────────────────────────────────── */
 .error-screen {
   display:flex; flex-direction:column; align-items:center;
@@ -427,6 +453,25 @@ body {
 
 </div>
 
+<!-- ── 운동 상세 모달 (admin.html 동일) ──────────────────── -->
+<div id="exDetailModal" class="modal-bg" onclick="closeExModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="exDetailImg"
+         style="margin-bottom:16px;border-radius:14px;overflow:hidden;background:#141f35;min-height:60px;display:flex;align-items:center;justify-content:center"></div>
+    <div id="exDetailNameKo"
+         style="font-size:20px;font-weight:800;margin-bottom:4px"></div>
+    <div id="exDetailNameEn"
+         style="font-size:13px;color:#4a6580;margin-bottom:14px"></div>
+    <div id="exDetailTags"
+         style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
+    <div style="font-size:11px;color:var(--sub);letter-spacing:1px;margin-bottom:8px;font-weight:600">주요 근육</div>
+    <div id="exDetailMuscles"
+         style="font-size:14px;color:#bbb;line-height:1.8;background:#080e1a;border:1px solid var(--g-border);border-radius:10px;padding:14px;min-height:40px"></div>
+    <button class="btn-modal-close" onclick="closeExModal()">닫기</button>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -435,7 +480,7 @@ body {
 init_db();
 
 // ── 상수 (exercise-library.html 동일) ─────────────────────
-const TOOLS = ['전체','체중','덤벨','바벨','케이블','밴드','케틀벨','머신','소도구'];
+const TOOLS = ['전체','핀 머신','플레이트 머신','스미스머신','바벨','덤벨','케이블','케틀벨','소도구','밴드','체중','머신'];
 const PARTS = ['전체','가슴','등','어깨','팔','코어','하체','전신'];
 const _EX_CACHE_KEY = 'vg_member_exdb';
 const _EX_CACHE_TTL = 5 * 60 * 1000;
@@ -689,7 +734,7 @@ async function loadAllExercises() {
   while (true) {
     const { data, error } = await db
       .from('exercise_refs')
-      .select('id,name_ko,name_en,tool_unified,part_unified,image_url')
+      .select('id,name_ko,name_en,tool_unified,part_unified,image_url,muscles_detail')
       .eq('is_active', true)
       .order('name_ko')
       .range(from, from + PAGE - 1);
@@ -753,7 +798,7 @@ function renderExList() {
              onerror="this.parentElement.textContent=''"></div>`
       : `<div class="ex-thumb"></div>`;
     return `
-      <div class="ex-card">
+      <div class="ex-card" onclick="openExDetail('${ex.id}')" style="cursor:pointer">
         <div class="ex-card-row">
           ${thumb}
           <div class="ex-info">
@@ -773,6 +818,50 @@ function renderExList() {
 }
 
 function loadMore() { showCount += 50; renderExList(); }
+
+// ══════════════════════════════════════════════════════════
+//  운동 상세 모달 (admin.html 동일 방식)
+// ══════════════════════════════════════════════════════════
+function openExDetail(id) {
+  const r = allExs.find(e => e.id === id);
+  if (!r) return;
+
+  // 이미지
+  const imgWrap = document.getElementById('exDetailImg');
+  if (r.image_url) {
+    imgWrap.innerHTML = `<img src="${r.image_url}"
+      style="width:100%;max-height:260px;object-fit:cover;display:block"
+      onerror="this.parentElement.innerHTML=''">`;
+    imgWrap.style.minHeight = '';
+  } else {
+    imgWrap.innerHTML = `<div style="font-size:52px;color:#1e3a5f;padding:24px">🏋️</div>`;
+  }
+
+  // 이름
+  document.getElementById('exDetailNameKo').textContent = r.name_ko || '';
+  document.getElementById('exDetailNameEn').textContent  = r.name_en  || '';
+
+  // 태그
+  document.getElementById('exDetailTags').innerHTML = [
+    r.tool_unified ? `<span class="ex-tag-tool" style="font-size:12px;padding:4px 12px">${r.tool_unified}</span>` : '',
+    r.part_unified ? `<span class="ex-tag-part" style="font-size:12px;padding:4px 12px">${r.part_unified}</span>` : '',
+  ].join('');
+
+  // 주요 근육 (·로 분리 → 개별 칩)
+  const muscles = r.muscles_detail || '';
+  document.getElementById('exDetailMuscles').innerHTML =
+    muscles ? muscles.split('·').map(m => m.trim()).filter(Boolean)
+      .map(m => `<span style="display:inline-block;background:#141f35;border:1px solid var(--g-border);border-radius:8px;padding:4px 12px;margin:3px;font-size:13px">${m}</span>`)
+      .join('')
+    : '<span style="color:#2a4060;font-size:13px">정보 없음</span>';
+
+  document.getElementById('exDetailModal').classList.add('open');
+}
+
+function closeExModal(e) {
+  if (e && e.target !== document.getElementById('exDetailModal')) return;
+  document.getElementById('exDetailModal').classList.remove('open');
+}
 
 // ══════════════════════════════════════════════════════════
 //  내 정보 탭
