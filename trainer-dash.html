@@ -390,14 +390,18 @@ async function showMemberDetail(memberId) {
   document.getElementById('detailSub').textContent = `${m.gym_location}${m.notes ? ' · ' + m.notes : ''}`;
 
   // 토큰 링크
-  const tokenUrl = `${APP_URL}?token=${m.token}`;
+  const tokenUrl = `${APP_URL}?t=${m.token}`;
   document.getElementById('detailTokenBox').innerHTML = `
     <div class="token-box" onclick="copyToken('${tokenUrl}')">
       <span style="font-size:11px;color:#3a5878">링크</span>
       <span class="token-url">${tokenUrl}</span>
       <span style="font-size:11px;color:#60a5fa;flex-shrink:0">복사</span>
     </div>
-    <div style="font-size:11px;color:#2a4060;margin-top:5px">이 링크를 회원에게 전달하면 수업 기록을 볼 수 있습니다</div>`;
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn-sm" style="flex:1;text-align:center" onclick="copyToken('${tokenUrl}')">📋 링크 복사</button>
+      <button class="btn-sm" style="flex:1;text-align:center;color:#4ade80;border-color:#22c55e33" onclick="shareToken('${m.name}','${tokenUrl}')">📤 공유하기</button>
+    </div>
+    <div style="font-size:11px;color:#2a4060;margin-top:6px">이 링크를 회원에게 전달하면 수업 기록을 볼 수 있습니다</div>`;
 
   // 해당 회원 수업 기록 (필요 필드만 선택)
   document.getElementById('memberLogs').innerHTML = '<div class="loading">불러오는 중...</div>';
@@ -414,6 +418,20 @@ async function showMemberDetail(memberId) {
 function showMemberList() {
   document.getElementById('view-member-list').style.display = 'block';
   document.getElementById('view-member-detail').style.display = 'none';
+}
+
+async function shareToken(memberName, url) {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: `${memberName}님 수업 기록 — VERA GYM`,
+        text: `${memberName}님의 VERA GYM 수업 기록을 확인해보세요!`,
+        url: url
+      });
+    } catch (_) {}
+  } else {
+    copyToken(url);
+  }
 }
 
 async function copyToken(url) {
