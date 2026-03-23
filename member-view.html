@@ -717,32 +717,26 @@ async function openPhotoViewer(idx) {
     </div>`).join('');
   document.getElementById('photoViewer').classList.add('open');
 
-  // SECURITY DEFINER RPC로 Signed URL 생성 (anon 권한으로도 동작)
-  const { data, error } = await db.rpc('member_get_photo_signed_urls', {
-    p_token: token,
-    p_start: pu.start || null,
-    p_end:   pu.end   || null
-  });
-
-  if (error || !data) {
-    document.getElementById('viewerImgs').innerHTML = labels.map(l => `
+  // Storage anon SELECT 정책 추가 후 직접 Signed URL 생성 가능
+  const rendered = await Promise.all(['start', 'end'].map(async (type, i) => {
+    const path = pu[type];
+    if (!path) return `
       <div class="photo-viewer-slot">
-        <div class="photo-viewer-label">${l}</div>
+        <div class="photo-viewer-label">${labels[i]}</div>
+        <div class="photo-viewer-empty">사진 없음</div>
+      </div>`;
+    const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) return `
+      <div class="photo-viewer-slot">
+        <div class="photo-viewer-label">${labels[i]}</div>
         <div class="photo-viewer-empty">불러오기 실패</div>
-      </div>`).join('');
-    return;
-  }
-
-  const rendered = ['start', 'end'].map((type, i) => {
-    const url = data[type];
+      </div>`;
     return `
       <div class="photo-viewer-slot">
         <div class="photo-viewer-label">${labels[i]}</div>
-        ${url
-          ? `<img src="${url}" alt="${labels[i]}">`
-          : `<div class="photo-viewer-empty">사진 없음</div>`}
+        <img src="${data.signedUrl}" alt="${labels[i]}">
       </div>`;
-  });
+  }));
   document.getElementById('viewerImgs').innerHTML = rendered.join('');
 }
 
