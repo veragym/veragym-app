@@ -112,14 +112,22 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(0,0,0,0.2); border-top-color:#000; border-radius:50%; animation:spin 0.7s linear infinite; margin-right:6px; vertical-align:middle; }
 @keyframes spin { to{transform:rotate(360deg)} }
 /* ── 운동DB 필터 ── */
-.ex-search { width:100%; background:#161610; border:1.5px solid #2a2518; border-radius:10px; padding:11px 40px 11px 14px; font-size:14px; color:#fff; outline:none; font-family:inherit; transition:border-color 0.2s; display:block; margin-bottom:12px; }
+.ex-search-area {
+  position:sticky; top:96px; z-index:90; background:#0a0a0a;
+  margin:-20px -16px 0; padding:14px 16px 10px;
+}
+.ex-search-wrap { position:relative; margin-bottom:12px; }
+.ex-search { width:100%; background:#161610; border:1.5px solid #2a2518; border-radius:10px; padding:11px 40px 11px 14px; font-size:14px; color:#fff; outline:none; font-family:inherit; transition:border-color 0.2s; display:block; }
 .ex-search:focus { border-color:#c9a84c66; }
 .ex-search::placeholder { color:#444; }
+.ex-clear-btn { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#555; font-size:16px; cursor:pointer; padding:0; line-height:1; display:none; }
 .ex-filter-row { margin-bottom:10px; }
 .ex-filter-label { font-size:10px; color:#555; letter-spacing:1.2px; margin-bottom:6px; font-weight:600; }
 .ex-chip { background:#161610; border:1.5px solid #2a2518; border-radius:20px; padding:5px 13px; font-size:12px; color:#666; cursor:pointer; transition:all 0.15s; white-space:nowrap; font-family:inherit; }
 .ex-chip:hover { border-color:#c9a84c55; color:#aaa; }
 .ex-chip.active { background:#c9a84c22; border-color:#c9a84c88; color:#c9a84c; font-weight:700; }
+.ex-stat-bar { padding:6px 16px 4px; font-size:12px; color:#555; }
+.ex-stat-bar span { color:#c9a84c; font-weight:700; }
 .ex-card { background:#161610; border:1px solid #2a2518; border-radius:10px; padding:12px 14px; margin-bottom:7px; }
 .ex-name { font-size:14px; font-weight:600; }
 .ex-en { font-size:11px; color:#555; margin-top:2px; }
@@ -176,26 +184,28 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 
 <!-- 운동 DB -->
 <div id="tab-exercise" class="tab-content">
-  <div class="sec-header" style="margin-bottom:14px">
-    <div><span class="sec-title">운동 DB</span><span class="sec-count" id="exerciseCount"></span></div>
+  <!-- 검색 + 필터 (sticky) -->
+  <div class="ex-search-area">
+    <div class="ex-search-wrap">
+      <input id="exSearch" class="ex-search" type="text"
+             placeholder="운동명 검색 (한/영)" oninput="filterExercise()" autocomplete="off">
+      <button id="exClear" class="ex-clear-btn" onclick="clearExSearch()">×</button>
+    </div>
+    <!-- 도구 필터 -->
+    <div class="ex-filter-row">
+      <div class="ex-filter-label">도구</div>
+      <div id="toolFilter" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+    </div>
+    <!-- 부위 필터 -->
+    <div class="ex-filter-row" style="margin-bottom:0">
+      <div class="ex-filter-label">부위</div>
+      <div id="partFilter" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+    </div>
   </div>
-  <!-- 검색 -->
-  <div style="position:relative">
-    <input id="exSearch" class="ex-search" type="text" placeholder="운동명 검색 (한/영)" oninput="filterExercise()">
-    <button id="exClear" onclick="clearExSearch()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;font-size:16px;cursor:pointer;padding:0;line-height:1">×</button>
-  </div>
-  <!-- 도구 필터 -->
-  <div class="ex-filter-row">
-    <div class="ex-filter-label">TOOL</div>
-    <div id="toolFilter" style="display:flex;flex-wrap:wrap;gap:5px"></div>
-  </div>
-  <!-- 부위 필터 -->
-  <div class="ex-filter-row" style="margin-bottom:14px">
-    <div class="ex-filter-label">부위</div>
-    <div id="partFilter" style="display:flex;flex-wrap:wrap;gap:5px"></div>
-  </div>
+  <!-- 스탯바 -->
+  <div class="ex-stat-bar" id="exStatBar"></div>
   <!-- 결과 -->
-  <div id="exerciseList"><div class="loading">불러오는 중...</div></div>
+  <div id="exerciseList" style="padding:0"><div class="loading">불러오는 중...</div></div>
 </div>
 
 <!-- 요청사항 -->
@@ -676,8 +686,9 @@ function filterExercise() {
   _exFiltered = list;
   _exShowCount = 50;
   const total = _allExercises.length;
-  document.getElementById('exerciseCount').textContent =
-    list.length === total ? `(총 ${total}개)` : `(${list.length} / ${total}개)`;
+  const statEl = document.getElementById('exStatBar');
+  if (statEl) statEl.innerHTML =
+    `<span>${list.length}</span>${list.length === total ? '개 운동' : `개 / 전체 ${total}개`}`;
   _renderExList();
 }
 
