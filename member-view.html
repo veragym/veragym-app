@@ -701,26 +701,49 @@ function buildSetsTable(setsData) {
     </div>`;
 }
 
-function openPhotoViewer(idx) {
+async function openPhotoViewer(idx) {
   const ex = _detailExList[idx];
   if (!ex) return;
   const pu = ex.photo_urls || {};
 
   document.getElementById('viewerTitle').textContent = (ex.name_ko || ex.custom_name || '운동') + ' — 자세 사진';
 
-  const slots = [
-    { label: '시작 자세', url: pu.start },
-    { label: '끝 자세',   url: pu.end   }
-  ].map(s => `
+  // 로딩 상태 먼저 표시 후 모달 열기
+  const labels = ['시작 자세', '끝 자세'];
+  document.getElementById('viewerImgs').innerHTML = labels.map(l => `
     <div class="photo-viewer-slot">
-      <div class="photo-viewer-label">${s.label}</div>
-      ${s.url
-        ? `<img src="${escHtml(s.url)}" alt="${s.label}" onerror="this.style.display='none'">`
-        : `<div class="photo-viewer-empty">사진 없음</div>`}
+      <div class="photo-viewer-label">${l}</div>
+      <div class="photo-viewer-empty">불러오는 중...</div>
     </div>`).join('');
-
-  document.getElementById('viewerImgs').innerHTML = slots;
   document.getElementById('photoViewer').classList.add('open');
+
+  // SECURITY DEFINER RPC로 Signed URL 생성 (anon 권한으로도 동작)
+  const { data, error } = await db.rpc('member_get_photo_signed_urls', {
+    p_token: token,
+    p_start: pu.start || null,
+    p_end:   pu.end   || null
+  });
+
+  if (error || !data) {
+    document.getElementById('viewerImgs').innerHTML = labels.map(l => `
+      <div class="photo-viewer-slot">
+        <div class="photo-viewer-label">${l}</div>
+        <div class="photo-viewer-empty">불러오기 실패</div>
+      </div>`).join('');
+    return;
+  }
+
+  const rendered = ['start', 'end'].map((type, i) => {
+    const url = data[type];
+    return `
+      <div class="photo-viewer-slot">
+        <div class="photo-viewer-label">${labels[i]}</div>
+        ${url
+          ? `<img src="${url}" alt="${labels[i]}">`
+          : `<div class="photo-viewer-empty">사진 없음</div>`}
+      </div>`;
+  });
+  document.getElementById('viewerImgs').innerHTML = rendered.join('');
 }
 
 function closePhotoViewer() {
