@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERA GYM 트레이너 앱 사용 안내</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', -apple-system, sans-serif;
+    background: #f4f6fb;
+    color: #1a2540;
+    line-height: 1.7;
+  }
+
+  /* ── 커버 ── */
+  .cover {
+    background: linear-gradient(135deg, #0d1525 0%, #1a3a5c 100%);
+    color: #fff;
+    padding: 60px 32px 48px;
+    text-align: center;
+  }
+  .cover-badge {
+    display: inline-block;
+    background: #3b82f6;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 5px 14px;
+    border-radius: 99px;
+    margin-bottom: 20px;
+  }
+  .cover h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .cover h1 span { color: #3b82f6; }
+  .cover-sub {
+    font-size: 14px;
+    color: #60a5fa;
+    margin-top: 10px;
+  }
+
+  /* ── 목차 ── */
+  .toc {
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 28px 32px;
+  }
+  .toc-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 1.5px;
+    margin-bottom: 14px;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #3b82f6;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .toc-item:hover { color: #1d4ed8; }
+  .toc-num {
+    width: 22px; height: 22px;
+    background: #eff6ff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #3b82f6;
+    flex-shrink: 0;
+  }
+
+  /* ── 본문 ── */
+  .content { max-width: 780px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── 섹션 ── */
+  .section {
+    margin-top: 48px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  .section-num {
+    width: 36px; height: 36px;
+    background: #3b82f6;
+    color: #fff;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  /* ── 카드 ── */
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    padding: 20px 24px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card p, .card li {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+  .card ul, .card ol {
+    padding-left: 18px;
+  }
+  .card ol li { margin-bottom: 8px; }
+
+  /* ── 앱 버튼 모형 ── */
+  .app-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .btn-blue   { background: #1a3a5c; color: #3b82f6; border: 1.5px solid #3b82f655; }
+  .btn-red    { background: #2a0e0e; color: #f87171; border: 1.5px solid #7f1d1d; }
+  .btn-navy   { background: #141f35; color: #60a5fa; border: 1.5px solid #1e3a5f44; }
+  .btn-green  { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; border: none; }
+  .btn-gray   { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+
+  /* ── 탭 모형 ── */
+  .fake-tabs {
+    display: flex;
+    background: #0d1525;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 12px 0;
+  }
+  .fake-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a6580;
+  }
+  .fake-tab.active {
+    color: #3b82f6;
+    border-bottom: 2px solid #3b82f6;
+  }
+
+  /* ── 경고 박스 ── */
+  .warn-box {
+    background: #fff7ed;
+    border: 1.5px solid #fb923c;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 12px;
+  }
+  .warn-icon { font-size: 22px; flex-shrink: 0; }
+  .warn-title { font-size: 14px; font-weight: 700; color: #c2410c; margin-bottom: 4px; }
+  .warn-desc { font-size: 13px; color: #7c2d12; line-height: 1.6; }
+
+  .danger-box {
+    background: #fff1f2;
+    border: 1.5px solid #f87171;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 12px;
+  }
+  .danger-title { font-size: 14px; font-weight: 700; color: #be123c; margin-bottom: 4px; }
+  .danger-desc { font-size: 13px; color: #881337; line-height: 1.6; }
+
+  .info-box {
+    background: #eff6ff;
+    border: 1.5px solid #93c5fd;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 12px;
+  }
+  .info-title { font-size: 14px; font-weight: 700; color: #1d4ed8; margin-bottom: 4px; }
+  .info-desc { font-size: 13px; color: #1e3a8a; line-height: 1.6; }
+
+  /* ── 스텝 ── */
+  .steps { padding: 0; list-style: none; }
+  .step {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 28px; height: 28px; min-width: 28px;
+    background: #3b82f6;
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+  .step-body { flex: 1; padding-top: 4px; }
+  .step-body strong { font-size: 14px; font-weight: 700; color: #0f172a; display: block; margin-bottom: 3px; }
+  .step-body span { font-size: 13px; color: #4b5563; }
+
+  /* ── 구분선 ── */
+  .divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 20px 0;
+  }
+
+  /* ── 하이라이트 텍스트 ── */
+  .hl { background: #dbeafe; color: #1d4ed8; padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 13px; }
+  .hl-red { background: #ffe4e6; color: #be123c; padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 13px; }
+  .hl-orange { background: #ffedd5; color: #c2410c; padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 13px; }
+
+  /* ── 표 ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+  th {
+    background: #1e3a5f;
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr:last-child td { border-bottom: none; }
+
+  /* ── 앱 화면 시뮬레이터 ── */
+  .phone-frame {
+    background: #0d1525;
+    border-radius: 16px;
+    padding: 16px;
+    max-width: 320px;
+    margin: 16px auto;
+    border: 1px solid #1e3a5f;
+  }
+  .phone-header {
+    background: #0d1525;
+    border-bottom: 1px solid #1e3a5f44;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px 10px 0 0;
+  }
+  .phone-title { font-size: 13px; font-weight: 800; color: #fff; }
+  .phone-title span { color: #3b82f6; }
+  .phone-content { padding: 12px 0; }
+  .phone-tab-row {
+    display: flex;
+    gap: 4px;
+    margin: 8px 0;
+  }
+  .phone-tag {
+    background: #141f35;
+    border: 1px solid #1e3a5f;
+    border-radius: 99px;
+    font-size: 10px;
+    color: #60a5fa;
+    padding: 3px 8px;
+  }
+
+  /* ── 풋터 ── */
+  .footer {
+    background: #0d1525;
+    color: #4a6580;
+    text-align: center;
+    padding: 28px 24px;
+    font-size: 12px;
+    margin-top: 60px;
+  }
+  .footer strong { color: #3b82f6; }
+
+  @media print {
+    body { background: #fff; }
+    .section { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 커버 -->
+<div class="cover">
+  <div class="cover-badge">TRAINER GUIDE</div>
+  <h1>VERA<span>GYM</span> 트레이너 앱</h1>
+  <p class="cover-sub">트레이너 전용 사용 안내서 · 모든 기능 설명</p>
+</div>
+
+<!-- 목차 -->
+<div class="toc">
+  <div class="toc-title">목차 · CONTENTS</div>
+  <div class="toc-grid">
+    <a href="#s1" class="toc-item"><span class="toc-num">1</span> 앱 설치 방법</a>
+    <a href="#s2" class="toc-item"><span class="toc-num">2</span> 로그인</a>
+    <a href="#s3" class="toc-item"><span class="toc-num">3</span> 화면 구성</a>
+    <a href="#s4" class="toc-item"><span class="toc-num">4</span> 내 회원 관리</a>
+    <a href="#s5" class="toc-item"><span class="toc-num">5</span> 수업일지 작성</a>
+    <a href="#s6" class="toc-item"><span class="toc-num">6</span> 수업일지 수정·삭제</a>
+    <a href="#s7" class="toc-item"><span class="toc-num">7</span> 운동DB</a>
+    <a href="#s8" class="toc-item"><span class="toc-num">8</span> 요청사항</a>
+    <a href="#s9" class="toc-item"><span class="toc-num">9</span> ⚠️ 필수 주의사항</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ══ 1. 앱 설치 ══ -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">앱 설치 방법</div>
+    </div>
+
+    <div class="info-box">
+      <span class="warn-icon">📱</span>
+      <div>
+        <div class="info-title">VERA GYM은 별도 앱스토어 설치 없이 홈 화면에 추가하는 방식입니다.</div>
+        <div class="info-desc">설치 후에는 일반 앱과 동일하게 아이콘으로 실행됩니다.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🍎 iPhone (iOS) — Safari에서만 설치 가능</div>
+      <ol class="steps" style="list-style:none; padding:0;">
+        <li class="step">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <strong>Safari 앱을 실행합니다</strong>
+            <span>Chrome, 네이버 앱 등 다른 브라우저는 설치 불가</span>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <strong>관리자에게 받은 트레이너 앱 링크를 주소창에 입력합니다</strong>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <strong>하단 공유 버튼(□↑)을 누릅니다</strong>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">4</span>
+          <div class="step-body">
+            <strong>「홈 화면에 추가」를 선택합니다</strong>
+            <span>이름 확인 후 「추가」 버튼 터치</span>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">5</span>
+          <div class="step-body">
+            <strong>홈 화면의 VERA GYM 아이콘으로 실행합니다</strong>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🤖 Android — Chrome에서 설치</div>
+      <ol class="steps" style="list-style:none; padding:0;">
+        <li class="step">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <strong>Chrome 브라우저로 트레이너 앱 링크에 접속합니다</strong>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <strong>주소창 우측 또는 하단에 「앱 설치」 팝업이 나타납니다</strong>
+            <span>팝업이 없으면 Chrome 메뉴(⋮) → 「홈 화면에 추가」</span>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <strong>「설치」를 눌러 홈 화면에 추가합니다</strong>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-icon">🔄</span>
+      <div>
+        <div class="warn-title">업데이트는 자동으로 적용됩니다</div>
+        <div class="warn-desc">앱을 완전히 종료 후 다시 실행하면 최신 버전이 자동으로 반영됩니다. 재설치나 캐시 삭제는 필요 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 2. 로그인 ══ -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">로그인</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔐 로그인 방법</div>
+      <ol class="steps" style="list-style:none; padding:0;">
+        <li class="step">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <strong>관리자에게 발급받은 이메일과 비밀번호를 입력합니다</strong>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <strong><span class="app-btn btn-green">로그인</span> 버튼을 누릅니다</strong>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <strong>헤더에 이름·지점명이 표시되면 로그인 완료</strong>
+            <span>예: 김트레이너 · 강남점</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="info-box">
+      <span class="warn-icon">💡</span>
+      <div>
+        <div class="info-title">로그아웃</div>
+        <div class="info-desc">화면 우측 상단 <span class="app-btn btn-gray">로그아웃</span> 버튼을 누르면 됩니다. 본인의 기기가 아닐 때 반드시 로그아웃하세요.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 3. 화면 구성 ══ -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">화면 구성</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 상단 탭 메뉴</div>
+      <p style="font-size:13px;color:#64748b;margin-bottom:12px">앱은 4개의 탭으로 구성되어 있습니다.</p>
+      <div class="fake-tabs">
+        <div class="fake-tab active">내 회원</div>
+        <div class="fake-tab">수업일지</div>
+        <div class="fake-tab">요청사항</div>
+        <div class="fake-tab">운동DB</div>
+      </div>
+      <table>
+        <tr>
+          <th>탭</th>
+          <th>기능 설명</th>
+        </tr>
+        <tr>
+          <td><strong>내 회원</strong></td>
+          <td>담당 회원 목록 확인, 회원 추가, 회원별 수업 기록 조회</td>
+        </tr>
+        <tr>
+          <td><strong>수업일지</strong></td>
+          <td>전체 수업 일지 목록 조회, 새 수업 일지 작성</td>
+        </tr>
+        <tr>
+          <td><strong>요청사항</strong></td>
+          <td>운동DB 추가 요청, 버그 신고, 기타 요청 관리자에게 전달</td>
+        </tr>
+        <tr>
+          <td><strong>운동DB</strong></td>
+          <td>전체 운동 목록 조회, 내 라이브러리 관리 (별도 페이지로 이동)</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ 4. 내 회원 ══ -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">내 회원 관리</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">➕ 회원 추가</div>
+      <ol class="steps" style="list-style:none; padding:0;">
+        <li class="step">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <strong>「내 회원」 탭에서 <span class="app-btn btn-green">+ 회원 추가</span> 버튼을 누릅니다</strong>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <strong>회원 이름을 입력합니다</strong>
+            <span>메모란에 특이사항, 목표 등 추가 정보를 입력할 수 있습니다 (선택)</span>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <strong><span class="app-btn btn-green">추가</span> 버튼을 눌러 저장합니다</strong>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔗 회원 앱 링크 전달</div>
+      <p style="font-size:14px; color:#374151; margin-bottom:12px">
+        회원이 본인의 수업 기록과 사진을 볼 수 있는 전용 링크를 제공할 수 있습니다.
+      </p>
+      <ol class="steps" style="list-style:none; padding:0;">
+        <li class="step">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <strong>회원 이름을 눌러 상세 화면으로 이동합니다</strong>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <strong>상단에 표시된 링크 박스를 누르면 클립보드에 복사됩니다</strong>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <strong>카카오톡 등으로 회원에게 링크를 전달합니다</strong>
+            <span>회원은 이 링크로 수업 기록, 운동 사진을 확인할 수 있습니다</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 회원별 수업 기록 확인</div>
+      <p style="font-size:14px; color:#374151;">
+        회원 상세 화면 하단에서 해당 회원의 전체 수업 기록을 확인할 수 있습니다.<br>
+        각 기록에서 <span class="app-btn btn-navy">수정</span> <span class="app-btn btn-red">삭제</span> 버튼으로 편집 또는 삭제할 수 있습니다.
+      </p>
+    </div>
+
+    <div class="info-box">
+      <span class="warn-icon">💡</span>
+      <div>
+        <div class="info-title">회원 목록으로 돌아가기</div>
+        <div class="info-desc">회원 상세에서 좌측 상단 <span class="app-btn btn-gray">목록</span> 버튼을 누르면 회원 목록으로 돌아옵니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5. 수업일지 작성 ══ -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div class="section-title">수업일지 작성</div>
+    </div>
+
+    <div class="info-box">
+      <span class="warn-icon">📍</span>
+      <div>
+        <div class="info-title">수업일지 작성 진입 방법</div>
+        <div class="info-desc">
+          <strong>내 회원 탭</strong> → 회원 선택 → 하단 <span class="app-btn btn-blue" style="font-size:11px">＋ 작성</span> 버튼
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📅 날짜 선택</div>
+      <p style="font-size:14px;color:#374151;">상단 날짜 칩을 누르면 날짜 선택 창이 열립니다. 기본값은 오늘 날짜입니다.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏋️ 운동 추가</div>
+      <ol class="steps" style="list-style:none; padding:0;">
+        <li class="step">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <strong>하단 <span class="app-btn btn-blue">＋ 운동 추가</span> 버튼을 누릅니다</strong>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <strong>「운동 라이브러리」 모달이 열립니다</strong>
+            <span>상단 검색창에서 운동명을 검색하거나, 부위·도구 필터를 사용해 운동을 찾습니다</span>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <strong>원하는 운동을 눌러 추가합니다</strong>
+            <span>자주 사용한 운동은 상단 「자주 사용」 섹션에 표시됩니다</span>
+          </div>
+        </li>
+      </ol>
+      <div class="divider"></div>
+      <p style="font-size:13px;color:#64748b;">원하는 운동이 없으면 모달 하단 <span class="app-btn btn-navy">라이브러리 수정</span> 버튼으로 운동DB에서 추가할 수 있습니다.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚖️ 세트 · 무게 · 횟수 입력</div>
+      <ul style="font-size:14px;color:#374151;padding-left:18px;">
+        <li>추가된 운동 카드 안에 세트별로 <strong>무게(kg)</strong>와 <strong>횟수</strong>를 입력합니다</li>
+        <li><span class="app-btn btn-navy" style="font-size:11px">＋ 세트 추가</span> 버튼으로 세트를 늘릴 수 있습니다</li>
+        <li>각 세트 우측 <strong>「—」</strong> 버튼으로 해당 세트를 삭제합니다</li>
+        <li>운동 카드 하단 코멘트란에 해당 운동에 대한 메모를 남길 수 있습니다 (선택)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📸 운동 사진 촬영</div>
+      <p style="font-size:14px;color:#374151;margin-bottom:12px">시작 자세와 끝 자세 각각 1장씩 촬영할 수 있습니다.</p>
+      <ol class="steps" style="list-style:none; padding:0;">
+        <li class="step">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <strong>운동 카드 우측 <span class="app-btn btn-navy" style="font-size:11px">사진 ●●</span> 버튼을 누릅니다</strong>
+            <span>● 은 미촬영, 색이 채워진 ● 은 촬영 완료 상태입니다</span>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <strong>「시작 자세」 또는 「끝 자세」를 선택합니다</strong>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <strong>「카메라로 촬영」 또는 「갤러리에서 선택」을 누릅니다</strong>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">4</span>
+          <div class="step-body">
+            <strong>사진 선택 후 자동으로 저장됩니다</strong>
+            <span>저장 완료 후 다시 자세 선택 화면으로 돌아옵니다. 나머지 자세도 동일하게 촬영합니다.</span>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">5</span>
+          <div class="step-body">
+            <strong>모두 촬영했으면 「닫기」 버튼을 눌러 사진 모달을 닫습니다</strong>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📝 전체 메모</div>
+      <p style="font-size:14px;color:#374151;">운동 목록 하단의 메모란에 오늘 수업 전체에 대한 내용을 자유롭게 입력합니다 (선택).</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">운동 삭제</div>
+      <p style="font-size:14px;color:#374151;">
+        운동 카드 우측 상단 <span class="app-btn btn-red">삭제</span> 버튼을 누르면 확인 팝업 후 해당 운동이 제거됩니다.
+      </p>
+    </div>
+
+    <div class="danger-box">
+      <span class="warn-icon">🚨</span>
+      <div>
+        <div class="danger-title">반드시 「저장 후 나가기」 버튼을 눌러야 저장됩니다!</div>
+        <div class="danger-desc">
+          화면 우측 상단 <span class="app-btn btn-green" style="font-size:11px">저장 후 나가기</span> 버튼을 눌러야만 수업 일지가 저장됩니다.<br><br>
+          <strong>스마트폰 하드웨어 뒤로가기 버튼, 스와이프 제스처, 다른 앱 전환 등으로 나가면 작성 내용이 모두 사라집니다.</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 6. 수업일지 수정·삭제 ══ -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div class="section-title">수업일지 수정 · 삭제</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✏️ 수업일지 수정 (2가지 경로)</div>
+      <p style="font-size:13px;color:#64748b;margin-bottom:12px">어느 경로든 동일한 편집 화면으로 연결됩니다.</p>
+      <table>
+        <tr>
+          <th>경로</th>
+          <th>방법</th>
+        </tr>
+        <tr>
+          <td><strong>수업일지 탭</strong></td>
+          <td>수업 일지 카드 하단 <span class="app-btn btn-navy">수정</span> 버튼</td>
+        </tr>
+        <tr>
+          <td><strong>내 회원 탭</strong></td>
+          <td>회원 상세 → 수업 기록 → 해당 일지 <span class="app-btn btn-navy">수정</span> 버튼</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="danger-box">
+      <span class="warn-icon">🚨</span>
+      <div>
+        <div class="danger-title">수정 후에도 반드시 「저장 후 나가기」를 눌러야 저장됩니다!</div>
+        <div class="danger-desc">
+          수정 완료 후 <span class="app-btn btn-green" style="font-size:11px">저장 후 나가기</span> 버튼을 눌러야 변경 사항이 저장됩니다.<br>
+          다른 방법으로 나가면 수정 내용이 반영되지 않습니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🗑️ 수업일지 삭제</div>
+      <p style="font-size:14px;color:#374151;">
+        수업 일지 카드 하단 <span class="app-btn btn-red">삭제</span> 버튼을 누르면 확인 팝업이 뜨고, 확인 시 삭제됩니다.<br>
+        <span style="font-size:13px;color:#64748b;">※ 삭제된 일지는 관리자가 복구할 수 있습니다.</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ══ 7. 운동DB ══ -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div class="section-title">운동DB</div>
+    </div>
+
+    <div class="info-box">
+      <span class="warn-icon">💡</span>
+      <div>
+        <div class="info-title">운동DB 진입 방법 3가지</div>
+        <div class="info-desc">
+          ① 상단 탭 「운동DB」 직접 진입<br>
+          ② 수업일지 작성 중 「라이브러리 수정」 버튼<br>
+          ③ 운동 추가 모달에서 라이브러리가 비어있을 때 나타나는 버튼
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📂 전체 운동 탭</div>
+      <p style="font-size:14px;color:#374151;margin-bottom:10px">
+        관리자가 등록한 모든 운동의 목록입니다.
+      </p>
+      <ul style="font-size:14px;color:#374151;padding-left:18px;">
+        <li><strong>검색:</strong> 상단 검색창에 운동 이름을 입력해 검색합니다</li>
+        <li><strong>필터:</strong> 부위(전신, 상체, 하체 등) 또는 도구로 필터링할 수 있습니다</li>
+        <li><strong><span class="app-btn btn-blue" style="font-size:11px">＋ 추가</span></strong> 버튼을 눌러 내 라이브러리에 운동을 등록합니다</li>
+        <li>등록된 운동은 <span class="app-btn btn-red" style="font-size:11px">추가됨 / 해제</span> 버튼으로 표시되며, 누르면 확인 팝업 후 제거됩니다</li>
+        <li>운동 이름을 누르면 설명·이미지 상세 보기가 열립니다</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⭐ 운동 라이브러리 탭</div>
+      <p style="font-size:14px;color:#374151;margin-bottom:10px">
+        내가 추가한 운동만 보이는 내 전용 목록입니다. 수업일지 작성 시 이 목록에서 운동을 선택합니다.
+      </p>
+      <ul style="font-size:14px;color:#374151;padding-left:18px;">
+        <li><strong>즐겨찾기 ★:</strong> 자주 사용하는 운동에 별표를 눌러 즐겨찾기로 등록합니다. 즐겨찾기 운동은 목록 최상단에 표시됩니다</li>
+        <li><strong>사용 횟수:</strong> 수업일지 작성 시 사용된 횟수가 자동 기록되어 표시됩니다</li>
+        <li><span class="app-btn btn-red" style="font-size:11px">추가됨 / 해제</span> 버튼으로 라이브러리에서 제거할 수 있습니다</li>
+      </ul>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-icon">⚠️</span>
+      <div>
+        <div class="warn-title">수업일지 작성 중 라이브러리 수정 후 돌아오기</div>
+        <div class="warn-desc">
+          수업일지 작성 화면에서 「라이브러리 수정」 버튼으로 운동DB에 진입했을 경우,<br>
+          운동 추가 완료 후 반드시 상단의 <span class="app-btn btn-blue" style="font-size:11px">← 수업으로 돌아가기</span> 버튼을 눌러야 합니다.<br><br>
+          <strong>스마트폰 뒤로가기를 사용하면 작성 중이던 수업일지 내용이 사라질 수 있습니다.</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 8. 요청사항 ══ -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <div class="section-title">요청사항</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📬 요청사항 작성</div>
+      <p style="font-size:14px;color:#374151;margin-bottom:12px">
+        관리자에게 전달할 내용을 요청사항 탭에서 작성합니다.
+      </p>
+      <table>
+        <tr>
+          <th>유형</th>
+          <th>설명</th>
+        </tr>
+        <tr>
+          <td><strong>운동DB 추가 요청</strong></td>
+          <td>라이브러리에 없는 운동 추가를 요청할 때</td>
+        </tr>
+        <tr>
+          <td><strong>버그/오류 신고</strong></td>
+          <td>앱에서 오류가 발생했을 때 신고</td>
+        </tr>
+        <tr>
+          <td><strong>기타</strong></td>
+          <td>그 외 전달사항</td>
+        </tr>
+      </table>
+      <div class="divider"></div>
+      <p style="font-size:13px;color:#64748b;">요청사항 목록에서 처리 상태(처리중 / 완료)를 확인할 수 있습니다.</p>
+    </div>
+  </div>
+
+  <!-- ══ 9. 필수 주의사항 ══ -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <div class="section-title">⚠️ 필수 주의사항</div>
+    </div>
+
+    <div class="danger-box">
+      <span class="warn-icon">🚫</span>
+      <div>
+        <div class="danger-title">스마트폰 뒤로가기 버튼 사용 금지</div>
+        <div class="danger-desc">
+          수업일지 작성·수정 화면에서 <strong>안드로이드 뒤로가기 버튼, iOS 스와이프 제스처</strong>를 사용하면 작성 중인 내용이 모두 사라집니다.<br><br>
+          반드시 <strong>앱 화면 안의 버튼</strong>으로만 이동하세요.
+        </div>
+      </div>
+    </div>
+
+    <div class="danger-box">
+      <span class="warn-icon">💾</span>
+      <div>
+        <div class="danger-title">「저장 후 나가기」 버튼 필수</div>
+        <div class="danger-desc">
+          수업일지 작성·수정 후 <span class="app-btn btn-green" style="font-size:11px">저장 후 나가기</span> 버튼을 눌러야만 저장됩니다.<br><br>
+          앱을 강제 종료하거나 다른 앱으로 이동하면 저장되지 않습니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-icon">↩️</span>
+      <div>
+        <div class="warn-title">운동DB에서 수업일지로 돌아올 때</div>
+        <div class="warn-desc">
+          수업일지 작성 중 운동DB로 이동했다면, 반드시 <span class="app-btn btn-blue" style="font-size:11px">← 수업으로 돌아가기</span> 버튼을 눌러야 기존 작성 내용이 유지됩니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-icon">📸</span>
+      <div>
+        <div class="warn-title">사진 촬영 후 「닫기」 버튼 필수</div>
+        <div class="warn-desc">
+          시작·끝 자세 사진을 모두 촬영한 후 <span class="app-btn btn-gray">닫기</span> 버튼을 눌러 사진 모달을 닫아야 합니다. 닫기 전에도 사진은 저장되어 있습니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:#e2e8f0;">
+      <div class="card-title">✅ 올바른 수업일지 작성 흐름 요약</div>
+      <ol style="font-size:14px;color:#374151;padding-left:20px;line-height:2;">
+        <li><strong>내 회원 탭</strong> → 회원 선택 → 하단 <strong>＋ 작성</strong> 버튼</li>
+        <li>날짜 확인 및 수정</li>
+        <li><strong>운동 추가</strong> → 검색 또는 필터로 운동 선택</li>
+        <li>세트별 <strong>무게·횟수</strong> 입력</li>
+        <li>필요 시 <strong>사진 촬영</strong> → 닫기</li>
+        <li>필요 시 코멘트, 전체 메모 입력</li>
+        <li><span class="app-btn btn-green">저장 후 나가기</span> 버튼 클릭 ← <span class="hl-red">가장 중요!</span></li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+<!-- 풋터 -->
+<div class="footer">
+  <strong>VERA GYM</strong> 트레이너 앱 사용 안내서<br>
+  문의 및 오류 신고는 앱 내 「요청사항」 탭을 이용해 주세요.
+</div>
+
+</body>
+</html>
