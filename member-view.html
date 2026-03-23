@@ -179,9 +179,6 @@ body {
 .btn-my-photo.no-photo {
   background:transparent; border-color:#1e3a5f33; color:#2a4060; cursor:default;
 }
-.btn-my-photo.active {
-  background:#22c55e22; border-color:#22c55e44; color:#4ade80;
-}
 
 /* 태그 행 */
 .detail-ex-tags {
@@ -203,22 +200,41 @@ body {
 .sets-table tbody tr:nth-child(odd) td { background:#141f3544; }
 .set-no-td { color:var(--g-text); font-size:11px; }
 
-/* 내사진 영역 */
-.photo-area { padding:0 16px 16px; display:flex; gap:10px; }
-.photo-slot {
-  flex:1; border-radius:10px; overflow:hidden;
-  border:1px solid var(--g-border); background:var(--card2);
-  display:flex; flex-direction:column;
+/* ── 사진 뷰어 모달 ───────────────────────────────── */
+.photo-viewer-bg {
+  display:none; position:fixed; inset:0;
+  background:#000000f0; z-index:400; flex-direction:column;
+  align-items:center; justify-content:center; padding:20px;
 }
-.photo-slot-label {
-  font-size:10px; color:var(--sub); text-align:center;
-  padding:6px; font-weight:600;
+.photo-viewer-bg.open { display:flex; }
+.photo-viewer-title {
+  font-size:14px; font-weight:700; margin-bottom:16px;
+  color:#fff; text-align:center;
 }
-.photo-slot img { width:100%; height:160px; object-fit:cover; display:block; }
-.photo-slot-empty {
-  flex:1; display:flex; align-items:center; justify-content:center;
-  font-size:11px; color:#2a4060; padding:20px; text-align:center; min-height:80px;
+.photo-viewer-imgs {
+  display:flex; gap:10px; width:100%; max-width:420px;
 }
+.photo-viewer-slot {
+  flex:1; background:#0a1a10; border-radius:12px; overflow:hidden;
+  aspect-ratio:3/4; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  border:1px solid var(--g-border);
+}
+.photo-viewer-slot img { width:100%; height:100%; object-fit:cover; }
+.photo-viewer-label {
+  font-size:11px; color:var(--sub); padding:6px; text-align:center;
+}
+.photo-viewer-empty {
+  font-size:12px; color:#2a5040; padding:10px; text-align:center;
+}
+.btn-viewer-close {
+  margin-top:20px; background:#0a1a10;
+  border:1.5px solid var(--g-border2); border-radius:12px;
+  padding:12px 40px; color:var(--g-text); font-size:14px;
+  font-weight:700; cursor:pointer; font-family:inherit;
+  transition:all 0.15s;
+}
+.btn-viewer-close:hover { background:var(--g-dim); }
 
 /* ══════════════════════════════════════════════════════════
    운동DB 탭 (exercise-library.html 동일 구조)
@@ -472,6 +488,13 @@ body {
   </div>
 </div>
 
+<!-- 사진 뷰어 모달 -->
+<div id="photoViewer" class="photo-viewer-bg" onclick="if(event.target===this)closePhotoViewer()">
+  <div class="photo-viewer-title" id="viewerTitle">자세 사진</div>
+  <div class="photo-viewer-imgs" id="viewerImgs"></div>
+  <button class="btn-viewer-close" onclick="closePhotoViewer()">닫기</button>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -612,7 +635,10 @@ async function openLogDetail(logId, sessionNo) {
   renderDetailExercises(data);
 }
 
+let _detailExList = []; // 사진 뷰어에서 photo_urls 접근용
+
 function renderDetailExercises(exList) {
+  _detailExList = exList;
   const wrap = document.getElementById('detailExList');
   if (!exList.length) {
     wrap.innerHTML = '<div class="empty">등록된 운동이 없습니다.</div>';
@@ -632,8 +658,8 @@ function renderDetailExercises(exList) {
 
     // 내사진 버튼
     const photoBtn = hasPhoto
-      ? `<button class="btn-my-photo has-photo" id="photoBtn-${idx}"
-             onclick="toggleMyPhoto(${idx})">내사진 보기</button>`
+      ? `<button class="btn-my-photo has-photo"
+             onclick="openPhotoViewer(${idx})">내사진 보기</button>`
       : `<button class="btn-my-photo no-photo" disabled>내사진 없음</button>`;
 
     return `
@@ -651,9 +677,6 @@ function renderDetailExercises(exList) {
           ${ex.part_unified ? `<span class="ex-tag">${escHtml(ex.part_unified)}</span>` : ''}
         </div>
         ${buildSetsTable(ex.sets_data)}
-        <div class="photo-area" id="photoArea-${idx}" style="display:none">
-          ${buildPhotoArea(ex.photo_urls)}
-        </div>
       </div>`;
   }).join('');
 }
@@ -678,34 +701,30 @@ function buildSetsTable(setsData) {
     </div>`;
 }
 
-function buildPhotoArea(photoUrls) {
-  if (!photoUrls) return '';
-  return [
-    { label: '시작 자세', url: photoUrls.start },
-    { label: '끝 자세',   url: photoUrls.end   }
+function openPhotoViewer(idx) {
+  const ex = _detailExList[idx];
+  if (!ex) return;
+  const pu = ex.photo_urls || {};
+
+  document.getElementById('viewerTitle').textContent = (ex.name_ko || ex.custom_name || '운동') + ' — 자세 사진';
+
+  const slots = [
+    { label: '시작 자세', url: pu.start },
+    { label: '끝 자세',   url: pu.end   }
   ].map(s => `
-    <div class="photo-slot">
-      <div class="photo-slot-label">${s.label}</div>
+    <div class="photo-viewer-slot">
+      <div class="photo-viewer-label">${s.label}</div>
       ${s.url
-        ? `<img src="${escHtml(s.url)}" loading="lazy" alt="${s.label}"
-               onerror="this.style.display='none'">`
-        : `<div class="photo-slot-empty">사진 없음</div>`}
+        ? `<img src="${escHtml(s.url)}" alt="${s.label}" onerror="this.style.display='none'">`
+        : `<div class="photo-viewer-empty">사진 없음</div>`}
     </div>`).join('');
+
+  document.getElementById('viewerImgs').innerHTML = slots;
+  document.getElementById('photoViewer').classList.add('open');
 }
 
-function toggleMyPhoto(idx) {
-  const area = document.getElementById('photoArea-' + idx);
-  const btn  = document.getElementById('photoBtn-' + idx);
-  const open = area.style.display !== 'none';
-  if (open) {
-    area.style.display = 'none';
-    btn.classList.remove('active');
-    btn.textContent = '내사진 보기';
-  } else {
-    area.style.display = 'flex';
-    btn.classList.add('active');
-    btn.textContent = '운동사진 닫기';
-  }
+function closePhotoViewer() {
+  document.getElementById('photoViewer').classList.remove('open');
 }
 
 function showLogList() {
