@@ -9,29 +9,471 @@
 <meta name="apple-mobile-web-app-title" content="베라짐 회원">
 <meta name="theme-color" content="#3b82f6">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VERA GYM | 회원</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VERA GYM | 내 수업</title>
 <style>
-* { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:-apple-system,'Pretendard',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px; text-align:center; }
-.logo { font-size:20px; font-weight:900; letter-spacing:2px; margin-bottom:24px; }
-.logo span { color:#3b82f6; }
-h2 { font-size:18px; font-weight:700; margin-bottom:10px; }
-p { font-size:13px; color:#3a5878; line-height:1.7; }
-.badge { display:inline-block; background:#3b82f622; border:1px solid #3b82f644; border-radius:99px; color:#60a5fa; font-size:12px; padding:4px 14px; margin-top:18px; font-weight:600; }
+/* ── Reset & Base ─────────────────────────────────────────── */
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; overscroll-behavior:none; }
+
+/* ── Header ──────────────────────────────────────────────── */
+.header { background:#0d1525; border-bottom:1px solid #1e3a5f44; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.header-title { font-size:16px; font-weight:800; }
+.header-title span { color:#3b82f6; }
+.header-sub { font-size:11px; color:#4a6580; margin-top:2px; }
+
+/* ── Top Tab Navigation ──────────────────────────────────── */
+.tabs { display:flex; background:#0d1525; border-bottom:1px solid #1e3a5f44; position:sticky; top:57px; z-index:99; }
+.tab-btn { flex:1; padding:13px 8px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
+.tab-btn.active { color:#3b82f6; border-bottom-color:#3b82f6; }
+
+/* ── Tab Content ─────────────────────────────────────────── */
+.tab-content { display:none; padding:16px 14px; }
+.tab-content.active { display:block; }
+
+/* ── Section ─────────────────────────────────────────────── */
+.sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.sec-title { font-size:15px; font-weight:700; }
+.sec-count { font-size:12px; color:#3a5878; margin-left:6px; }
+
+/* ── 수업 목록 카드 ──────────────────────────────────────── */
+.log-card { background:#0d1525; border:1px solid #1e3a5f44; border-radius:14px; padding:14px 16px; margin-bottom:10px; cursor:pointer; transition:border-color 0.15s; }
+.log-card:active { border-color:#3b82f644; }
+.log-card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.log-session-no { font-size:11px; font-weight:700; color:#3b82f6; background:#3b82f618; border:1px solid #3b82f633; border-radius:99px; padding:2px 10px; }
+.log-date { font-size:13px; font-weight:700; color:#60a5fa; }
+.log-ex-preview { font-size:12px; color:#4a6580; margin-top:5px; line-height:1.5; }
+.log-ex-count { font-size:11px; color:#3a5878; margin-top:4px; }
+
+/* ── 상세 뷰 ─────────────────────────────────────────────── */
+.detail-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid #1e3a5f22; }
+.btn-back { background:#141f35; border:1px solid #1e3a5f44; border-radius:8px; padding:6px 12px; font-size:13px; color:#60a5fa; cursor:pointer; flex-shrink:0; font-family:inherit; }
+.detail-session-no { font-size:11px; font-weight:700; color:#3b82f6; background:#3b82f618; border:1px solid #3b82f633; border-radius:99px; padding:2px 10px; margin-bottom:4px; display:inline-block; }
+.detail-date { font-size:16px; font-weight:700; }
+.detail-notes { font-size:13px; color:#8ba4c0; line-height:1.5; margin-top:10px; padding:10px 14px; background:#0d1525; border:1px solid #1e3a5f33; border-radius:10px; }
+
+/* ── 운동 카드 (수업 상세) ──────────────────────────────── */
+.ex-card { background:#0d1525; border:1px solid #1e3a5f44; border-radius:14px; margin-bottom:10px; overflow:hidden; }
+.ex-card-head { display:flex; align-items:center; padding:14px 16px; gap:12px; }
+.ex-order { width:26px; height:26px; border-radius:50%; background:#1e3a5f; color:#60a5fa; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+
+/* ── 운동 썸네일 (exercise-library.html 동일) ─────────────── */
+.ex-thumb { width:52px; height:52px; border-radius:8px; background:#141f35; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; overflow:hidden; border:1px solid #1e3a5f33; }
+.ex-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.ex-thumb-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:20px; color:#1e3a5f; }
+
+.ex-name-area { flex:1; min-width:0; }
+.ex-name { font-size:14px; font-weight:700; }
+.ex-sub { font-size:11px; color:#3a5878; margin-top:2px; display:flex; gap:6px; flex-wrap:wrap; }
+.ex-tag { background:#141f35; border:1px solid #1e3a5f33; border-radius:6px; padding:1px 7px; font-size:10px; color:#4a6580; }
+
+/* 내사진 버튼 */
+.btn-my-photo { background:#3b82f618; border:1px solid #3b82f633; border-radius:8px; padding:5px 10px; font-size:11px; font-weight:600; color:#60a5fa; cursor:pointer; flex-shrink:0; font-family:inherit; transition:all 0.15s; white-space:nowrap; }
+.btn-my-photo.active { background:#22c55e22; border-color:#22c55e44; color:#4ade80; }
+.btn-my-photo.no-photo { background:transparent; border-color:#1e3a5f22; color:#2a4060; cursor:default; }
+
+/* ── 세트 테이블 ─────────────────────────────────────────── */
+.sets-area { padding:0 16px 14px; }
+.sets-table { width:100%; border-collapse:collapse; }
+.sets-table th { font-size:10px; color:#3a5878; text-align:center; padding:4px; font-weight:600; }
+.sets-table td { font-size:13px; font-weight:700; text-align:center; padding:6px 4px; color:#e2e8f0; }
+.sets-table tr:nth-child(even) td { background:#141f3544; border-radius:4px; }
+.set-no-td { color:#60a5fa; font-size:11px; }
+
+/* ── 내사진 영역 ─────────────────────────────────────────── */
+.photo-area { padding:0 16px 14px; display:flex; gap:10px; }
+.photo-slot { flex:1; border-radius:10px; overflow:hidden; border:1px solid #1e3a5f33; background:#141f35; min-height:100px; display:flex; flex-direction:column; }
+.photo-slot-label { font-size:10px; color:#3a5878; text-align:center; padding:6px; font-weight:600; }
+.photo-slot img { width:100%; height:160px; object-fit:cover; display:block; }
+.photo-slot-empty { flex:1; display:flex; align-items:center; justify-content:center; font-size:11px; color:#2a4060; padding:20px; text-align:center; }
+
+/* ── 내 정보 탭 ─────────────────────────────────────────── */
+.info-card { background:#0d1525; border:1px solid #1e3a5f44; border-radius:14px; padding:20px; margin-bottom:12px; }
+.info-avatar { width:64px; height:64px; border-radius:50%; background:#141f35; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 16px; }
+.info-name { font-size:20px; font-weight:800; text-align:center; margin-bottom:4px; }
+.info-gym { font-size:13px; color:#4a6580; text-align:center; margin-bottom:16px; }
+.info-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-top:1px solid #1e3a5f22; }
+.info-label { font-size:12px; color:#4a6580; }
+.info-val { font-size:13px; font-weight:600; color:#e2e8f0; }
+.info-stat-grid { display:flex; gap:10px; margin-top:14px; }
+.info-stat { flex:1; background:#141f35; border:1px solid #1e3a5f33; border-radius:12px; padding:14px; text-align:center; }
+.info-stat-num { font-size:24px; font-weight:800; color:#3b82f6; }
+.info-stat-label { font-size:11px; color:#4a6580; margin-top:4px; }
+
+/* ── 오류 / 빈 화면 ─────────────────────────────────────── */
+.error-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60dvh; padding:40px 24px; text-align:center; }
+.error-icon { font-size:48px; margin-bottom:20px; }
+.error-title { font-size:18px; font-weight:700; margin-bottom:8px; }
+.error-desc { font-size:13px; color:#4a6580; line-height:1.7; }
+.loading { text-align:center; padding:40px; color:#2a4060; font-size:13px; }
+.empty { text-align:center; padding:40px; color:#2a4060; font-size:14px; line-height:1.8; }
+
+/* ── Toast ──────────────────────────────────────────────── */
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#141f35; color:#60a5fa; border:1px solid #3b82f644; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; }
+
+/* ── 네비 구분선 ─────────────────────────────────────────── */
+.divider { font-size:11px; font-weight:700; color:#3b82f6; letter-spacing:1px; margin:16px 0 10px; display:flex; align-items:center; gap:8px; }
+.divider::after { content:''; flex:1; height:1px; background:#1e3a5f44; }
 </style>
 </head>
 <body>
-<div class="logo">VERA<span>GYM</span></div>
-<h2>회원 앱</h2>
-<p>회원 앱 기능을 준비 중입니다.<br>트레이너가 보내준 링크로 접속하면<br>수업 기록을 확인할 수 있습니다.</p>
-<div class="badge">준비 중</div>
+
+<!-- ── 오류 화면 (토큰 없음 / 유효하지 않음) ─────────────── -->
+<div id="errorScreen" style="display:none">
+  <div class="header">
+    <div>
+      <div class="header-title">VERA<span>GYM</span></div>
+      <div class="header-sub">회원 수업 기록</div>
+    </div>
+  </div>
+  <div class="error-screen">
+    <div class="error-icon">🔒</div>
+    <div class="error-title">접근할 수 없습니다</div>
+    <div class="error-desc">올바른 링크로 접속해주세요.<br>트레이너에게 링크를 다시 받아보세요.</div>
+  </div>
+</div>
+
+<!-- ── 메인 앱 ─────────────────────────────────────────────── -->
+<div id="appMain" style="display:none">
+
+  <!-- 헤더 -->
+  <div class="header">
+    <div>
+      <div class="header-title">VERA<span>GYM</span></div>
+      <div class="header-sub" id="hdrSub">불러오는 중...</div>
+    </div>
+  </div>
+
+  <!-- 탭 네비게이션 -->
+  <div class="tabs">
+    <button class="tab-btn active" id="nav-logs" onclick="switchTab('logs',this)">수업목록</button>
+    <button class="tab-btn" id="nav-info" onclick="switchTab('info',this)">내 정보</button>
+  </div>
+
+  <!-- ── 탭: 수업목록 ───────────────────────────────────────── -->
+  <div id="tab-logs" class="tab-content active">
+
+    <!-- 목록 뷰 -->
+    <div id="view-log-list">
+      <div class="sec-header">
+        <div><span class="sec-title">내 수업</span><span class="sec-count" id="logCount"></span></div>
+      </div>
+      <div id="logList"><div class="loading">불러오는 중...</div></div>
+    </div>
+
+    <!-- 상세 뷰 -->
+    <div id="view-log-detail" style="display:none">
+      <div class="detail-header">
+        <button class="btn-back" onclick="showLogList()">← 목록</button>
+        <div style="flex:1;min-width:0">
+          <div class="detail-session-no" id="detailSessionNo"></div>
+          <div class="detail-date" id="detailDate"></div>
+        </div>
+      </div>
+      <div id="detailNotes"></div>
+      <div class="divider">운동 목록</div>
+      <div id="detailExList"><div class="loading">불러오는 중...</div></div>
+    </div>
+
+  </div>
+
+  <!-- ── 탭: 내 정보 ────────────────────────────────────────── -->
+  <div id="tab-info" class="tab-content">
+    <div id="infoContent"><div class="loading">불러오는 중...</div></div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/veragym-app/service-worker.js').catch(()=>{});
+init_db();
+
+// ── 상태 ──────────────────────────────────────────────────
+let token    = null;
+let member   = null;   // { member_id, member_name, gym_location, notes, trainer_name, total_logs }
+let logs     = [];     // 수업 목록 (최신순)
+let curLogId = null;
+
+// ── 초기화 ────────────────────────────────────────────────
+async function init() {
+  token = new URLSearchParams(location.search).get('t');
+  if (!token) { showError(); return; }
+
+  const { data, error } = await db.rpc('member_get_by_token', { p_token: token });
+  if (error || !data || data.length === 0) { showError(); return; }
+
+  member = data[0];
+  document.getElementById('hdrSub').textContent = member.member_name + ' · ' + member.gym_location;
+  document.getElementById('appMain').style.display = '';
+
+  renderInfo();
+  await loadLogs();
+}
+
+function showError() {
+  document.getElementById('errorScreen').style.display = '';
+}
+
+// ── 탭 전환 ──────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+// ── 수업 목록 로드 ────────────────────────────────────────
+async function loadLogs() {
+  const { data, error } = await db.rpc('member_get_logs', { p_token: token });
+  if (error) {
+    document.getElementById('logList').innerHTML = '<div class="empty">수업 기록을 불러올 수 없습니다.</div>';
+    return;
+  }
+  logs = data || [];
+  renderLogList();
+}
+
+function renderLogList() {
+  const wrap = document.getElementById('logList');
+  const total = logs.length;
+  document.getElementById('logCount').textContent = `총 ${total}회`;
+
+  if (!total) {
+    wrap.innerHTML = '<div class="empty">아직 수업 기록이 없어요 🏋️</div>';
+    return;
+  }
+
+  wrap.innerHTML = logs.map((log, idx) => {
+    const sessionNo = total - idx;   // 최신순 → 회차는 역순
+    const dateStr   = formatDate(log.session_date);
+    const exNames   = log.ex_names || '운동 미등록';
+    const exCount   = log.ex_count || 0;
+    return `
+      <div class="log-card" onclick="openLogDetail('${log.log_id}', ${sessionNo})">
+        <div class="log-card-top">
+          <span class="log-session-no">${sessionNo}회차</span>
+          <span class="log-date">${dateStr}</span>
+        </div>
+        <div class="log-ex-preview">${exNames}</div>
+        <div class="log-ex-count">운동 ${exCount}개</div>
+      </div>`;
+  }).join('');
+}
+
+// ── 수업 상세 열기 ────────────────────────────────────────
+async function openLogDetail(logId, sessionNo) {
+  curLogId = logId;
+
+  // 해당 log의 메타 정보
+  const log = logs.find(l => l.log_id === logId);
+
+  document.getElementById('detailSessionNo').textContent = sessionNo + '회차';
+  document.getElementById('detailDate').textContent      = log ? formatDate(log.session_date) : '';
+
+  // 메모
+  const notesEl = document.getElementById('detailNotes');
+  if (log && log.notes) {
+    notesEl.innerHTML = `<div class="detail-notes">${escHtml(log.notes)}</div>`;
+  } else {
+    notesEl.innerHTML = '';
+  }
+
+  // 뷰 전환
+  document.getElementById('view-log-list').style.display   = 'none';
+  document.getElementById('view-log-detail').style.display = '';
+
+  // 운동 목록 로드
+  document.getElementById('detailExList').innerHTML = '<div class="loading">불러오는 중...</div>';
+  const { data, error } = await db.rpc('member_get_log_detail', {
+    p_token:  token,
+    p_log_id: logId
+  });
+
+  if (error || !data) {
+    document.getElementById('detailExList').innerHTML = '<div class="empty">운동 목록을 불러올 수 없습니다.</div>';
+    return;
+  }
+
+  renderDetailExercises(data);
+}
+
+// ── 운동 목록 렌더 ────────────────────────────────────────
+function renderDetailExercises(exList) {
+  const wrap = document.getElementById('detailExList');
+  if (!exList.length) {
+    wrap.innerHTML = '<div class="empty">등록된 운동이 없습니다.</div>';
+    return;
+  }
+
+  wrap.innerHTML = exList.map((ex, idx) => {
+    const name    = ex.name_ko || ex.custom_name || '운동';
+    const nameEn  = (ex.name_en && ex.name_en !== ex.name_ko) ? ex.name_en : '';
+    const hasPhoto = ex.photo_urls && (ex.photo_urls.start || ex.photo_urls.end);
+
+    // 썸네일: 운동DB 이미지 (기본)
+    const thumbHtml = ex.image_url
+      ? `<img src="${escHtml(ex.image_url)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'ex-thumb-placeholder\\'>🏋️</div>'">`
+      : `<div class="ex-thumb-placeholder">🏋️</div>`;
+
+    // 세트 테이블
+    const setsHtml = buildSetsTable(ex.sets_data);
+
+    // 내사진 버튼
+    const photoBtn = hasPhoto
+      ? `<button class="btn-my-photo" id="photoBtn-${idx}" onclick="toggleMyPhoto(${idx})" title="내 사진 보기">내사진 📷</button>`
+      : `<button class="btn-my-photo no-photo" disabled>내사진 없음</button>`;
+
+    return `
+      <div class="ex-card" id="exCard-${idx}">
+        <div class="ex-card-head">
+          <div class="ex-order">${idx + 1}</div>
+          <div class="ex-thumb" id="exThumb-${idx}">${thumbHtml}</div>
+          <div class="ex-name-area">
+            <div class="ex-name">${escHtml(name)}</div>
+            ${nameEn ? `<div class="ex-sub">${escHtml(nameEn)}</div>` : ''}
+            <div class="ex-sub">
+              ${ex.tool_unified ? `<span class="ex-tag">${escHtml(ex.tool_unified)}</span>` : ''}
+              ${ex.part_unified ? `<span class="ex-tag">${escHtml(ex.part_unified)}</span>` : ''}
+            </div>
+          </div>
+          ${photoBtn}
+        </div>
+        ${setsHtml}
+        <div class="photo-area" id="photoArea-${idx}" style="display:none">
+          ${buildPhotoArea(ex.photo_urls)}
+        </div>
+      </div>`;
+  }).join('');
+
+  // 사진 데이터를 카드에 보관
+  exList.forEach((ex, idx) => {
+    const card = document.getElementById('exCard-' + idx);
+    if (card) card._photoData = ex.photo_urls || null;
   });
 }
+
+// ── 세트 테이블 빌드 ──────────────────────────────────────
+function buildSetsTable(setsData) {
+  if (!setsData || !Array.isArray(setsData) || setsData.length === 0) return '';
+  return `
+    <div class="sets-area">
+      <table class="sets-table">
+        <thead>
+          <tr>
+            <th>세트</th>
+            <th>중량 (kg)</th>
+            <th>횟수</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${setsData.map((s, i) => `
+            <tr>
+              <td class="set-no-td">${i + 1}</td>
+              <td>${s.weight != null && s.weight !== 0 ? s.weight : '—'}</td>
+              <td>${s.reps != null ? s.reps : '—'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ── 내사진 영역 빌드 ──────────────────────────────────────
+function buildPhotoArea(photoUrls) {
+  if (!photoUrls) return '';
+  const slots = [
+    { label: '시작 자세', url: photoUrls.start },
+    { label: '끝 자세',   url: photoUrls.end   }
+  ];
+  return slots.map(slot => `
+    <div class="photo-slot">
+      <div class="photo-slot-label">${slot.label}</div>
+      ${slot.url
+        ? `<img src="${escHtml(slot.url)}" loading="lazy" alt="${slot.label}" onerror="this.style.display='none'">`
+        : `<div class="photo-slot-empty">사진 없음</div>`}
+    </div>`).join('');
+}
+
+// ── 내사진 토글 ──────────────────────────────────────────
+function toggleMyPhoto(idx) {
+  const card      = document.getElementById('exCard-' + idx);
+  const photoArea = document.getElementById('photoArea-' + idx);
+  const thumbEl   = document.getElementById('exThumb-' + idx);
+  const btn       = document.getElementById('photoBtn-' + idx);
+  const isOpen    = photoArea.style.display !== 'none';
+
+  if (isOpen) {
+    // 닫기 → DB 이미지 복원
+    photoArea.style.display = 'none';
+    btn.classList.remove('active');
+    btn.textContent = '내사진 📷';
+  } else {
+    // 열기 → 내사진 표시
+    photoArea.style.display = 'flex';
+    btn.classList.add('active');
+    btn.textContent = '운동사진 🏋️';
+  }
+}
+
+// ── 목록으로 돌아가기 ─────────────────────────────────────
+function showLogList() {
+  document.getElementById('view-log-detail').style.display = 'none';
+  document.getElementById('view-log-list').style.display   = '';
+}
+
+// ── 내 정보 렌더 ─────────────────────────────────────────
+function renderInfo() {
+  if (!member) return;
+  const wrap = document.getElementById('infoContent');
+  wrap.innerHTML = `
+    <div class="info-card">
+      <div class="info-avatar">🏋️</div>
+      <div class="info-name">${escHtml(member.member_name)}</div>
+      <div class="info-gym">${escHtml(member.gym_location)}</div>
+      <div class="info-row">
+        <span class="info-label">담당 트레이너</span>
+        <span class="info-val">${escHtml(member.trainer_name || '—')}</span>
+      </div>
+      ${member.notes ? `
+      <div class="info-row">
+        <span class="info-label">메모</span>
+        <span class="info-val" style="text-align:right;max-width:65%">${escHtml(member.notes)}</span>
+      </div>` : ''}
+    </div>
+    <div class="info-stat-grid">
+      <div class="info-stat">
+        <div class="info-stat-num">${member.total_logs || 0}</div>
+        <div class="info-stat-label">총 수업 횟수</div>
+      </div>
+    </div>`;
+}
+
+// ── 유틸 ─────────────────────────────────────────────────
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const days = ['일','월','화','수','목','금','토'];
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} (${days[d.getDay()]})`;
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = '0'; }, 2400);
+}
+
+// ── 시작 ─────────────────────────────────────────────────
+init();
 </script>
 </body>
 </html>
