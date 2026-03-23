@@ -397,10 +397,6 @@ async function showMemberDetail(memberId) {
       <span class="token-url">${tokenUrl}</span>
       <span style="font-size:11px;color:#60a5fa;flex-shrink:0">복사</span>
     </div>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="btn-sm" style="flex:1;text-align:center" onclick="copyToken('${tokenUrl}')">📋 링크 복사</button>
-      <button class="btn-sm" style="flex:1;text-align:center;color:#4ade80;border-color:#22c55e33" onclick="shareToken('${m.name}','${tokenUrl}')">📤 공유하기</button>
-    </div>
     <div style="font-size:11px;color:#2a4060;margin-top:6px">이 링크를 회원에게 전달하면 수업 기록을 볼 수 있습니다</div>`;
 
   // 해당 회원 수업 기록 (필요 필드만 선택)
