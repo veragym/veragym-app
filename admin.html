@@ -344,7 +344,7 @@ async function loadTrainers() {
           <span class="badge ${t.is_admin ? 'badge-admin' : 'badge-trainer'}">${t.is_admin ? '관리자' : '트레이너'}</span>
           ${!t.is_active ? '<span class="badge badge-inactive">비활성</span>' : ''}
         </div>
-        <div class="sub-row">${t.gym_location}${t.plain_pw ? ` · <span style="letter-spacing:1px;font-family:monospace">${t.plain_pw}</span>` : ''}</div>
+        <div class="sub-row">${t.gym_location}</div>
       </div>
       <div class="actions">
         <button class="btn-sm" onclick="openChangePw('${t.id}','${t.name}')">비번변경</button>
