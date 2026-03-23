@@ -1,5 +1,5 @@
 // VERA GYM App - Service Worker
-const CACHE_NAME = 'veragym-v5';
+const CACHE_NAME = 'veragym-v6';
 const STATIC = [
   '/veragym-app/',
   '/veragym-app/index.html',
@@ -7,8 +7,12 @@ const STATIC = [
   '/veragym-app/admin.html',
   '/veragym-app/trainer-login.html',
   '/veragym-app/trainer-dash.html',
+  '/veragym-app/session-write.html',
+  '/veragym-app/exercise-library.html',
   '/veragym-app/member-view.html',
   '/veragym-app/config.js',
+  '/veragym-app/manifest.json',
+  '/veragym-app/manifest-member.json',
   '/veragym-app/icons/icon-192.png',
   '/veragym-app/icons/icon-512.png',
 ];
