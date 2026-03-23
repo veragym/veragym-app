@@ -159,6 +159,60 @@ body {
 
 
 
+/* ── 운동 상세 모달 ─────────────────────────────────── */
+.modal-bg {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,0.72);
+  z-index:200; align-items:flex-end;
+}
+.modal-bg.open { display:flex; }
+.modal {
+  background:#0d1525; border-radius:20px 20px 0 0;
+  padding:24px 20px 40px; width:100%; max-height:90dvh;
+  overflow-y:auto; animation:slideUp 0.28s ease;
+  border-top:1px solid #1e3a5f66;
+}
+@keyframes slideUp {
+  from { transform:translateY(100%); }
+  to   { transform:translateY(0); }
+}
+.modal-img {
+  width:100%; max-height:220px; object-fit:contain;
+  border-radius:12px; background:#141f35; margin-bottom:16px; display:block;
+}
+.modal-no-img {
+  width:100%; height:160px; background:#141f35;
+  border-radius:12px; display:flex; align-items:center; justify-content:center;
+  font-size:42px; margin-bottom:16px;
+}
+.modal-name { font-size:22px; font-weight:800; margin-bottom:4px; }
+.modal-en   { font-size:13px; color:#4a6580; margin-bottom:14px; }
+.modal-tags { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:16px; }
+.modal-tag-tool {
+  background:#3b82f622; border:1px solid #3b82f644;
+  border-radius:8px; padding:4px 12px; font-size:12px; color:#60a5fa; font-weight:600;
+}
+.modal-tag-part {
+  background:#1e3a5f22; border:1px solid #1e3a5f55;
+  border-radius:8px; padding:4px 12px; font-size:12px; color:#4a6580;
+}
+.modal-section-title {
+  font-size:11px; font-weight:700; color:#4a6580;
+  letter-spacing:1px; margin-bottom:8px;
+}
+.modal-muscles { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+.modal-muscle-chip {
+  background:#3b82f611; border:1px solid #3b82f633;
+  border-radius:16px; padding:5px 12px;
+  font-size:12px; color:#60a5fa;
+}
+.modal-close {
+  width:100%; background:#141f35; border:1px solid #1e3a5f44;
+  border-radius:12px; padding:13px; color:#4a6580;
+  font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;
+  margin-top:8px; transition:all 0.15s;
+}
+.modal-close:hover { border-color:#3b82f644; color:#60a5fa; }
+
 /* 토스트 */
 .toast {
   position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
@@ -225,6 +279,14 @@ body {
   <div class="loading">운동 목록 불러오는 중...</div>
 </div>
 
+<!-- 운동 상세 모달 -->
+<div class="modal-bg" id="exModal" onclick="closeExModal(event)">
+  <div class="modal" id="exModalContent">
+    <div id="exModalBody"></div>
+    <button class="modal-close" onclick="closeExModal()">닫기</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -257,7 +319,7 @@ async function init() {
 }
 
 // ─── 전체 운동 DB 로드 (sessionStorage 5분 캐싱) ───
-const _EX_CACHE_KEY = 'vg_exdb_cache';
+const _EX_CACHE_KEY = 'vg_exdb_cache_v2';
 const _EX_CACHE_TTL = 5 * 60 * 1000; // 5분
 
 async function loadAllExercises() {
@@ -279,7 +341,7 @@ async function loadAllExercises() {
   while (true) {
     const { data, error } = await db
       .from('exercise_refs')
-      .select('id,name_ko,name_en,part_unified,tool_unified,image_url')
+      .select('id,name_ko,name_en,part_unified,tool_unified,image_url,muscles_detail')
       .eq('is_active', true)
       .order('name_ko', { ascending: true })
       .range(page * PAGE, (page + 1) * PAGE - 1);
@@ -392,7 +454,7 @@ function renderList() {
       ? `<div class="ex-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
       : `<div class="ex-thumb"></div>`;
     return `
-      <div class="ex-card">
+      <div class="ex-card" onclick="openExDetail('${ex.id}')" style="cursor:pointer">
         <div class="ex-card-row">
           ${thumb}
           <div class="ex-info">
@@ -406,9 +468,9 @@ function renderList() {
           </div>
           <div class="ex-btns">
             <button class="btn-fav ${isFav?'active':''}"
-                    onclick="toggleFavorite('${ex.id}',${isFav})">${isFav?'★':'☆'}</button>
+                    onclick="event.stopPropagation();toggleFavorite('${ex.id}',${isFav})">${isFav?'★':'☆'}</button>
             <button class="btn-add ${isMine?'added':''}"
-                    onclick="toggleUse('${ex.id}',${isMine})">
+                    onclick="event.stopPropagation();toggleUse('${ex.id}',${isMine})">
               ${isMine ? '✓ 추가됨' : '＋ 추가'}
             </button>
           </div>
@@ -421,6 +483,39 @@ function renderList() {
 }
 
 function loadMore() { showCount += 50; renderList(); }
+
+// ─── 운동 상세 모달 ───
+function openExDetail(id) {
+  const ex = allExs.find(e => e.id === id);
+  if (!ex) return;
+
+  const imgHtml = ex.image_url
+    ? `<img class="modal-img" src="${ex.image_url}" onerror="this.style.display='none'">`
+    : `<div class="modal-no-img">🏋️</div>`;
+
+  const muscles = (ex.muscles_detail || '').split('.').map(s => s.trim()).filter(Boolean);
+  const muscleHtml = muscles.length
+    ? `<div class="modal-section-title">주요 근육</div>
+       <div class="modal-muscles">${muscles.map(m => `<span class="modal-muscle-chip">${m}</span>`).join('')}</div>`
+    : '';
+
+  document.getElementById('exModalBody').innerHTML = `
+    ${imgHtml}
+    <div class="modal-name">${ex.name_ko || ex.name_en}</div>
+    ${(ex.name_en && ex.name_en !== ex.name_ko) ? `<div class="modal-en">${ex.name_en}</div>` : ''}
+    <div class="modal-tags">
+      ${ex.tool_unified ? `<span class="modal-tag-tool">${ex.tool_unified}</span>` : ''}
+      ${ex.part_unified ? `<span class="modal-tag-part">${ex.part_unified}</span>` : ''}
+    </div>
+    ${muscleHtml}
+  `;
+  document.getElementById('exModal').classList.add('open');
+}
+
+function closeExModal(e) {
+  if (e && e.target !== document.getElementById('exModal')) return;
+  document.getElementById('exModal').classList.remove('open');
+}
 
 // ─── 내 운동으로 추가 / 제거 ───
 async function toggleUse(refId, isMine) {
