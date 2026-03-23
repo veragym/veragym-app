@@ -139,9 +139,9 @@ body {
 }
 .btn-add:hover { background:#3b82f633; border-color:#3b82f688; }
 .btn-add.added {
-  background:transparent; border-color:#1e3a5f44; color:#3a5878; cursor:default;
+  background:#2a0e0e; border-color:#7f1d1d; color:#f87171; cursor:pointer;
 }
-.btn-add.added:hover { background:transparent; border-color:#1e3a5f44; color:#3a5878; }
+.btn-add.added:hover { background:#3a1010; border-color:#f87171; color:#fca5a5; }
 
 /* 더 보기 */
 .btn-more {
@@ -477,11 +477,12 @@ function renderList() {
             </div>
           </div>
           <div class="ex-btns">
+            ${curView === 'mine' ? `
             <button class="btn-fav ${isFav?'active':''}"
-                    onclick="event.stopPropagation();toggleFavorite('${ex.id}',${isFav})">${isFav?'★':'☆'}</button>
+                    onclick="event.stopPropagation();toggleFavorite('${ex.id}',${isFav})">${isFav?'★':'☆'}</button>` : ''}
             <button class="btn-add ${isMine?'added':''}"
                     onclick="event.stopPropagation();toggleUse('${ex.id}',${isMine})">
-              ${isMine ? '✓ 추가됨' : '＋ 추가'}
+              ${isMine ? '추가됨 / 해제' : '＋ 추가'}
             </button>
           </div>
         </div>
