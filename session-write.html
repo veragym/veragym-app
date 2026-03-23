@@ -309,21 +309,24 @@ body {
 .photo-viewer-bg {
   display: none; position: fixed; inset: 0;
   background: #000000f0; z-index: 400; flex-direction: column;
-  align-items: center; justify-content: center; padding: 20px;
+  align-items: center; justify-content: center;
+  padding: 16px 16px calc(env(safe-area-inset-bottom) + 16px); gap: 0;
 }
 .photo-viewer-bg.open { display: flex; }
-.photo-viewer-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
-.photo-viewer-imgs { display: flex; gap: 10px; width: 100%; max-width: 420px; }
-.photo-viewer-slot {
-  flex: 1; background: #141f35; border-radius: 12px; overflow: hidden;
-  aspect-ratio: 3/4; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
+.photo-viewer-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; flex-shrink: 0; }
+.photo-viewer-imgs {
+  display: flex; gap: 10px; width: 100%; max-width: 420px;
+  flex: 1; min-height: 0; max-height: calc(100dvh - 110px);
 }
-.photo-viewer-slot img { width: 100%; height: 100%; object-fit: cover; }
-.photo-viewer-label { font-size: 11px; color: #3a5878; padding: 6px; }
+.photo-viewer-slot {
+  flex: 1; min-width: 0; background: #141f35; border-radius: 12px; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.photo-viewer-slot img { flex: 1; min-height: 0; width: 100%; object-fit: contain; }
+.photo-viewer-label { font-size: 11px; color: #3a5878; padding: 5px 6px; text-align: center; flex-shrink: 0; }
 .btn-viewer-close {
-  margin-top: 20px; background: #141f35; border: 1.5px solid #1e3a5f44;
-  border-radius: 12px; padding: 12px 32px; color: #fff; font-size: 14px; cursor: pointer;
+  flex-shrink: 0; margin-top: 12px; background: #141f35; border: 1.5px solid #1e3a5f44;
+  border-radius: 12px; padding: 11px 40px; color: #fff; font-size: 14px; cursor: pointer; font-family: inherit;
 }
 </style>
 </head>
@@ -864,18 +867,18 @@ async function viewPhotos(idx) {
 
   const imgs = document.getElementById('viewerImgs');
   imgs.innerHTML = `
-    <div class="photo-viewer-slot"><div class="photo-viewer-label">시작 자세</div><span style="color:#3a5878;font-size:12px">로딩 중...</span></div>
-    <div class="photo-viewer-slot"><div class="photo-viewer-label">끝 자세</div><span style="color:#3a5878;font-size:12px">로딩 중...</span></div>`;
+    <div class="photo-viewer-slot"><span style="flex:1"></span><div class="photo-viewer-label">시작 자세</div></div>
+    <div class="photo-viewer-slot"><span style="flex:1"></span><div class="photo-viewer-label">끝 자세</div></div>`;
   document.getElementById('photoViewer').classList.add('open');
 
   const labels = ['시작 자세', '끝 자세'];
   const rendered = await Promise.all(['start', 'end'].map(async (type, i) => {
     const path = ex.photos?.[type];
-    if (!path) return `<div class="photo-viewer-slot"><div class="photo-viewer-label">${labels[i]}</div><span style="color:#3a5878;font-size:12px">미촬영</span></div>`;
+    if (!path) return `<div class="photo-viewer-slot"><div style="flex:1;display:flex;align-items:center;justify-content:center;color:#3a5878;font-size:12px">미촬영</div><div class="photo-viewer-label">${labels[i]}</div></div>`;
     const { data } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
     const url = data?.signedUrl;
-    if (!url) return `<div class="photo-viewer-slot"><div class="photo-viewer-label">${labels[i]}</div><span style="color:#f87171;font-size:12px">불러오기 실패</span></div>`;
-    return `<div class="photo-viewer-slot"><div class="photo-viewer-label">${labels[i]}</div><img src="${url}" alt="${labels[i]}"></div>`;
+    if (!url) return `<div class="photo-viewer-slot"><div style="flex:1;display:flex;align-items:center;justify-content:center;color:#f87171;font-size:12px">불러오기 실패</div><div class="photo-viewer-label">${labels[i]}</div></div>`;
+    return `<div class="photo-viewer-slot"><img src="${url}" alt="${labels[i]}"><div class="photo-viewer-label">${labels[i]}</div></div>`;
   }));
   imgs.innerHTML = rendered.join('');
 }
