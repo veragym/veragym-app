@@ -29,6 +29,7 @@ body {
 }
 .header-title { font-size:16px; font-weight:800; }
 .header-title span { color:#3b82f6; }
+.header-sub { font-size:11px; color:#4a6580; margin-top:2px; }
 .header-badge {
   background:#3b82f622; color:#60a5fa;
   border:1px solid #3b82f644; border-radius:20px;
@@ -176,7 +177,7 @@ body {
   to   { transform:translateY(0); }
 }
 .modal-img {
-  width:100%; max-height:220px; object-fit:contain;
+  width:100%; max-height:260px; object-fit:cover;
   border-radius:12px; background:#141f35; margin-bottom:16px; display:block;
 }
 .modal-no-img {
@@ -227,7 +228,10 @@ body {
 
 <!-- 헤더 -->
 <div class="header">
-  <div class="header-title">VERA<span>GYM</span>트레이너</div>
+  <div>
+    <div class="header-title">VERA<span>GYM트레이너</span></div>
+    <div class="header-sub" id="trainerInfo">불러오는 중...</div>
+  </div>
   <div class="header-badge" id="myCount">라이브러리 0</div>
 </div>
 
@@ -313,6 +317,7 @@ const PARTS = ['전체','가슴','등','어깨','팔','코어','하체','전신'
 async function init() {
   trainer = await requireTrainer();
   if (!trainer) return;
+  document.getElementById('trainerInfo').textContent = `${trainer.name} · ${trainer.gym_location}`;
   await Promise.all([loadAllExercises(), loadMyLib()]);
   buildFilters();
   renderList();
