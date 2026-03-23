@@ -616,6 +616,13 @@ async function doLogout() {
 }
 
 init();
+
+// ─── bfcache 복원 시 재초기화 ─────────────────────────────
+// exercise-library ↔ trainer-dash 탭 이동 시 bfcache 복원되면
+// me=null 상태로 자막·회원목록이 비어있을 수 있음
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted && !me) init();
+});
 </script>
 <script>
 if ('serviceWorker' in navigator) {
