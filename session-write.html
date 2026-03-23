@@ -16,7 +16,7 @@
 body {
   font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
   background: #080e1a; color: #fff;
-  min-height: 100dvh; padding-bottom: 90px;
+  min-height: 100dvh; padding-bottom: 140px;
 }
 
 /* ─── 헤더 ─── */
@@ -165,22 +165,22 @@ body {
 /* ─── 하단 버튼 ─── */
 .add-bar {
   position: fixed; bottom: 0; left: 0; right: 0;
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
   background: #080e1a; border-top: 1px solid #1e3a5f44;
-  display: flex; gap: 10px;
+  display: flex; flex-direction: column; gap: 8px;
 }
 .btn-add-ex {
-  flex: 1; background: #1a3a5c; border: 1.5px solid #3b82f655;
+  width: 100%; background: #1a3a5c; border: 1.5px solid #3b82f655;
   border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700;
-  color: #3b82f6; cursor: pointer;
+  color: #3b82f6; cursor: pointer; font-family: inherit;
 }
 .btn-add-ex:hover { background: #243d5c; }
-.btn-lib {
-  background: #141f35; border: 1.5px solid #1e3a5f44;
-  border-radius: 12px; padding: 14px 16px;
-  font-size: 13px; color: #3a5878; cursor: pointer; white-space: nowrap;
+.btn-lib-edit {
+  width: 100%; background: #141f35; border: 1.5px solid #1e3a5f44;
+  border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700;
+  color: #60a5fa; cursor: pointer; font-family: inherit;
 }
-.btn-lib:hover { border-color: #3b82f6; color: #3b82f6; }
+.btn-lib-edit:hover { border-color: #3b82f644; color: #3b82f6; }
 
 /* ─── 검색 모달 ─── */
 .modal-bg {
@@ -264,7 +264,7 @@ body {
 
 /* ─── 토스트 ─── */
 #toast {
-  position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: 148px; left: 50%; transform: translateX(-50%);
   background: #141f35; color: #fff; padding: 10px 20px; border-radius: 20px;
   font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.3s;
   z-index: 999; white-space: nowrap; pointer-events: none;
@@ -371,7 +371,7 @@ body {
 <!-- 하단 버튼 -->
 <div class="add-bar">
   <button class="btn-add-ex" onclick="openSearch()">＋ 운동 추가</button>
-  <button class="btn-lib" onclick="goToLibrary()">라이브러리</button>
+  <button class="btn-lib-edit" onclick="goToLibrary()">라이브러리 수정</button>
 </div>
 
 <!-- ══ 운동 검색 모달 ══ -->
@@ -380,7 +380,7 @@ body {
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title-bar">
-      <span class="modal-title">운동 선택</span>
+      <span class="modal-title">운동 라이브러리</span>
       <button class="btn-modal-close" onclick="closeSearch()">×</button>
     </div>
     <div class="modal-search">
