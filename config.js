@@ -14,7 +14,7 @@ const ENV = 'test'; // 테스트 환경 표시용
 // ============================================================
 
 // ★ 슈퍼 관리자 이메일
-const SUPER_ADMIN_EMAIL = 'iksung0904@gmail.com';
+const SUPER_ADMIN_EMAIL = 'veragym@naver.com';
 
 // Supabase 클라이언트
 let db = null;
