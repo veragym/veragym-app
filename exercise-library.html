@@ -19,7 +19,7 @@ body {
   background:#080e1a; color:#fff;
   min-height:100dvh;
   overscroll-behavior:none;
-}
+padding-bottom:70px;}
 
 /* ── Header ──────────────────────────────────────────── */
 .header {
@@ -32,12 +32,6 @@ body {
 .header-sub { font-size:11px; color:#4a6580; margin-top:2px; }
 .btn-logout { background:none; border:1px solid #1e3a5f44; border-radius:8px; color:#4a6580; font-size:12px; padding:6px 12px; cursor:pointer; transition:all 0.15s; font-family:inherit; }
 .btn-logout:hover { border-color:#3b82f644; color:#3b82f6; }
-
-/* ── Top Tab Navigation ──────────────────────────────── */
-.tabs { display:flex; background:#0d1525; border-bottom:1px solid #1e3a5f44; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
-.tabs::-webkit-scrollbar { display:none; }
-.tab-btn { flex:1; min-width:70px; padding:13px 8px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
-.tab-btn.active { color:#3b82f6; border-bottom-color:#3b82f6; }
 
 /* ── 검색 + 필터 영역 ─────────────────────────────────── */
 .search-area {
@@ -219,6 +213,13 @@ body {
   font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s;
   z-index:999; white-space:nowrap; pointer-events:none;
 }
+
+/* ── Bottom Nav ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#0d1525;border-top:1px solid #1e3a5f44;display:flex;height:56px;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;color:#3a5878;font-size:9px;font-weight:700;cursor:pointer;font-family:inherit;transition:color .15s;white-space:nowrap;padding:6px 2px}
+.nav-btn.active{color:#60a5fa}
+.nav-btn .ni{font-size:18px;line-height:1}
+.nav-btn:active{opacity:.7}
 </style>
 </head>
 <body>
@@ -233,12 +234,6 @@ body {
 </div>
 
 <!-- 상단 탭 네비게이션 -->
-<div class="tabs" id="topTabs">
-  <button class="tab-btn" onclick="location.href='trainer-dash.html'">내 회원</button>
-  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=logs'">수업일지</button>
-  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=requests'">요청사항</button>
-  <button class="tab-btn active" onclick="location.href='exercise-library.html'">운동DB</button>
-</div>
 
 <!-- 수업작성에서 온 경우: 돌아가기 바 (JS로 표시) -->
 <div id="returnBar" style="display:none; background:#1a3a5c; padding:10px 16px; border-bottom:1px solid #3b82f655; align-items:center; gap:10px; position:sticky; top:100px; z-index:89;">
@@ -613,5 +608,14 @@ window.addEventListener('pageshow', (e) => {
   }
 });
 </script>
+
+<!-- ── Bottom Nav ── -->
+<nav class="bottom-nav">
+  <button class="nav-btn" onclick="location.href='trainer-dash.html'"><span class="ni">👥</span>내 회원</button>
+  <button class="nav-btn" onclick="location.href='trainer-dash.html?tab=logs'"><span class="ni">📋</span>수업일지</button>
+  <button class="nav-btn" onclick="location.href='schedule.html'"><span class="ni">📅</span>일정</button>
+  <button class="nav-btn active" onclick="location.href='exercise-library.html'"><span class="ni">💪</span>운동DB</button>
+  <button class="nav-btn" onclick="location.href='trainer-dash.html?tab=requests'"><span class="ni">💬</span>요청</button>
+</nav>
 </body>
 </html>
