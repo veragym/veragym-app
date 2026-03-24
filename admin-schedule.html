@@ -14,7 +14,7 @@
 <style>
 /* === Reset & Base === */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif;background:#0a0a0a;color:#fff;min-height:100dvh;padding-bottom:20px;overscroll-behavior:none}
+body{font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif;background:#0a0a0a;color:#fff;min-height:100dvh;padding-bottom:20px;padding-bottom:70px;overscroll-behavior:none}
 
 /* === Header === */
 .header{background:#111108;border-bottom:1px solid #2a2518;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
@@ -130,10 +130,17 @@ td.slot.today-bg{background:rgba(201,168,76,.04)}
 .loading-ov.show{display:flex}
 .spinner{width:36px;height:36px;border:3px solid #2a2518;border-top-color:#c9a84c;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#2a2518;color:#c9a84c;border:1px solid #c9a84c44;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s;z-index:9999;white-space:nowrap}
+#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#2a2518;color:#c9a84c;border:1px solid #c9a84c44;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s;z-index:9999;white-space:nowrap}
 
 /* No trainer selected message */
 .select-trainer-msg{text-align:center;padding:60px 20px;color:#444;font-size:14px;line-height:1.6}
+
+/* ── Bottom Nav ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#111108;border-top:1px solid #2a2518;display:flex;height:56px;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;color:#444;font-size:9px;font-weight:700;cursor:pointer;font-family:inherit;transition:color .15s;white-space:nowrap;padding:6px 2px}
+.nav-btn.active{color:#c9a84c}
+.nav-btn .ni{font-size:18px;line-height:1}
+.nav-btn:active{opacity:.7}
 </style>
 </head>
 <body>
@@ -170,7 +177,7 @@ td.slot.today-bg{background:rgba(201,168,76,.04)}
 
 <!-- Calendar View -->
 <div id="calView">
-  <div class="cal-scroll" id="calScroll" style="height:calc(100dvh - 57px - 44px - 44px - 20px)">
+  <div class="cal-scroll" id="calScroll" style="height:calc(100dvh - 57px - 44px - 44px - 56px)">
     <div id="calNoTrainer" class="select-trainer-msg" style="display:none">
       트레이너를 선택하면<br>4일 캘린더를 확인할 수 있습니다<br><br>
       <span style="font-size:12px;color:#333">전체 일정은 [목록] 탭에서 확인하세요</span>
@@ -304,7 +311,7 @@ const ST_LABEL = {scheduled:'예약',completed:'완료',noshow:'노쇼',cancelle
 const ST_CLS   = {scheduled:'st-scheduled',completed:'st-completed',noshow:'st-noshow',cancelled:'st-cancelled'};
 
 function showLoad(v) { document.getElementById('loadingOv').classList.toggle('show',v); }
-function openModal(id) { document.getElementById(id).classList.add('open'); document.getElementById(id.replace('Modal','Err')||'__').style.display='none'; }
+function openModal(id) { document.getElementById(id).classList.add('open'); const _eid=id==='noshowCancelModal'?'noshowErr':id.replace('Modal','Err'); const _el=document.getElementById(_eid); if(_el)_el.style.display='none'; }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function showErr(id, msg) { const el=document.getElementById(id); if(el){el.textContent=msg;el.style.display='block';} }
 function showToast(msg,ms=2600) {
@@ -634,8 +641,25 @@ async function doNoshowCancel() {
   const btn = document.getElementById('btnNoshowConfirm');
   btn.disabled = true;
   try {
-    // noshow도 completed처럼 취소 가능 여부 확인 후 처리
-    await checkAndCancel(actionTarget);
+    // 노쇼 → 취소: 24회차 차단 없이 직접 취소 처리 (실수 노쇼 정정 목적)
+    const { error } = await db.from('schedules')
+      .update({ status:'cancelled', updated_at: new Date().toISOString() })
+      .eq('id', actionTarget.id);
+    if (error) throw new Error('취소 실패: ' + error.message);
+
+    // 계약이 completed 상태였다면 active로 복구
+    const { data: contract } = await db.from('pt_contracts')
+      .select('id,status,total_sessions')
+      .eq('id', actionTarget.contract_id).single();
+    if (contract?.status === 'completed') {
+      const { count: newCnt } = await db.from('schedules')
+        .select('id',{count:'exact',head:true})
+        .eq('contract_id', actionTarget.contract_id)
+        .in('status',['completed','noshow']);
+      if ((newCnt||0) < contract.total_sessions) {
+        await db.from('pt_contracts').update({status:'active'}).eq('id', contract.id);
+      }
+    }
     closeModal('noshowCancelModal');
     showToast('노쇼가 취소 처리되었습니다');
     await refreshAll();
@@ -754,5 +778,14 @@ document.querySelectorAll('.modal-bg').forEach(bg => {
   bg.addEventListener('click', e => { if (e.target===bg) bg.classList.remove('open'); });
 });
 </script>
+
+<!-- ── Bottom Nav ── -->
+<nav class="bottom-nav">
+  <button class="nav-btn" onclick="location.href='admin.html'"><span class="ni">🏋</span>트레이너</button>
+  <button class="nav-btn" onclick="location.href='admin.html?tab=members'"><span class="ni">👥</span>회원</button>
+  <button class="nav-btn active" onclick="location.href='admin-schedule.html'"><span class="ni">📅</span>일정</button>
+  <button class="nav-btn" onclick="location.href='admin.html?tab=exercise'"><span class="ni">💪</span>운동DB</button>
+  <button class="nav-btn" onclick="location.href='admin.html?tab=requests'"><span class="ni">💬</span>요청</button>
+</nav>
 </body>
 </html>
