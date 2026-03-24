@@ -14,7 +14,7 @@
 <style>
 /* ── Reset & Base ─────────────────────────────────────────── */
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; overscroll-behavior:none; padding-bottom:90px; }
+body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; padding-bottom:70px;overscroll-behavior:none; padding-bottom:90px; }
 
 /* ── 회원 상세 하단 작성 버튼 ─────────────────────────────── */
 .write-bar { position:fixed; bottom:0; left:0; right:0; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:#080e1a; border-top:1px solid #1e3a5f44; }
@@ -28,12 +28,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .header-sub { font-size:11px; color:#4a6580; }
 .btn-logout { background:none; border:1px solid #1e3a5f44; border-radius:8px; color:#4a6580; font-size:12px; padding:6px 12px; cursor:pointer; transition:all 0.15s; }
 .btn-logout:hover { border-color:#3b82f644; color:#3b82f6; }
-
-/* ── Top Tab Navigation ──────────────────────────────────── */
-.tabs { display:flex; background:#0d1525; border-bottom:1px solid #1e3a5f44; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
-.tabs::-webkit-scrollbar { display:none; }
-.tab-btn { flex:1; min-width:70px; padding:13px 8px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
-.tab-btn.active { color:#3b82f6; border-bottom-color:#3b82f6; }
 
 /* ── Tab Content ─────────────────────────────────────────── */
 .tab-content { display:none; padding:16px 14px; }
@@ -122,6 +116,13 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#141f35; color:#60a5fa; border:1px solid #3b82f644; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; }
 .spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; margin-right:6px; vertical-align:middle; }
 @keyframes spin { to{transform:rotate(360deg)} }
+
+/* ── Bottom Nav ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#0d1525;border-top:1px solid #1e3a5f44;display:flex;height:56px;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;color:#3a5878;font-size:9px;font-weight:700;cursor:pointer;font-family:inherit;transition:color .15s;white-space:nowrap;padding:6px 2px}
+.nav-btn.active{color:#60a5fa}
+.nav-btn .ni{font-size:18px;line-height:1}
+.nav-btn:active{opacity:.7}
 </style>
 </head>
 <body>
@@ -136,12 +137,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 </div>
 
 <!-- ── Top Tab Navigation ──────────────────────────────────── -->
-<div class="tabs">
-  <button class="tab-btn active" id="nav-members" onclick="switchTab('members',this)">내 회원</button>
-  <button class="tab-btn" id="nav-logs" onclick="switchTab('logs',this)">수업일지</button>
-  <button class="tab-btn" id="nav-requests" onclick="switchTab('requests',this)">요청사항</button>
-  <button class="tab-btn" onclick="location.href='exercise-library.html'">운동DB</button>
-</div>
 
 <!-- ── Tab: 회원 ───────────────────────────────────────────── -->
 <div id="tab-members" class="tab-content active">
@@ -289,7 +284,7 @@ async function init() {
 // ══════════════════════════════════════════════════════════════
 function switchTab(id, btn) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`tab-${id}`).classList.add('active');
   btn.classList.add('active');
 
@@ -617,5 +612,14 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<!-- ── Bottom Nav ── -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-members" onclick="switchTab('members',this)"><span class="ni">👥</span>내 회원</button>
+  <button class="nav-btn" id="nav-logs" onclick="switchTab('logs',this)"><span class="ni">📋</span>수업일지</button>
+  <button class="nav-btn" onclick="location.href='schedule.html'"><span class="ni">📅</span>일정</button>
+  <button class="nav-btn" onclick="location.href='exercise-library.html'"><span class="ni">💪</span>운동DB</button>
+  <button class="nav-btn" id="nav-requests" onclick="switchTab('requests',this)"><span class="ni">💬</span>요청</button>
+</nav>
 </body>
 </html>
