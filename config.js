@@ -11,6 +11,11 @@
 const SUPA_URL  = 'https://jpfgcwlhitzwjoppszzl.supabase.co';
 const SUPA_ANON = 'sb_publishable_t6mKiM_s_ruF6fuzj4uz6g_kusBpwE5';
 const ENV = 'test'; // 테스트 환경 표시용
+
+// Edge Function 베이스 URL (admin.html에서 트레이너 생성/비번변경에 사용)
+const EDGE_BASE = 'https://jpfgcwlhitzwjoppszzl.supabase.co/functions/v1';
+// anon key 별칭 (admin.html 호환)
+const SUPABASE_ANON_KEY = SUPA_ANON;
 // ============================================================
 
 // ★ 슈퍼 관리자 이메일
