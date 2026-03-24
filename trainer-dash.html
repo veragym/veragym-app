@@ -596,6 +596,21 @@ async function doLogout() {
   location.replace('trainer-login.html');
 }
 
+
+// ══════════════════════════════════════════════════════════════
+// 모달 유틸
+// ══════════════════════════════════════════════════════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id, e) {
+  if (e && e.target.id !== id) return;
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 init();
 
 // ─── bfcache 복원 시 재초기화 ─────────────────────────────
