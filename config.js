@@ -155,6 +155,11 @@ async function requireAdmin() {
   const { data: { session } } = await db.auth.getSession();
   if (!session) { location.replace('admin-login.html'); return null; }
 
+  // 슈퍼 관리자 직접 허용 (trainers 테이블 조회 없이 통과)
+  if (session.user.email === SUPER_ADMIN_EMAIL) {
+    return { email: SUPER_ADMIN_EMAIL, is_admin: true, is_active: true, name: 'SUPER ADMIN' };
+  }
+
   const { data, error } = await db
     .from('trainers')
     .select('*')
