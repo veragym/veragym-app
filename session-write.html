@@ -709,7 +709,14 @@ function updSet(idx, si, field, val) {
 }
 function updComment(idx, val) { exercises[idx].comment = val; }
 function removeEx(idx) {
-  if (!confirm(`'${exercises[idx].name}' 삭제할까요?`)) return;
+  const ex = exercises[idx];
+  if (!confirm(`'${ex.name}' 삭제할까요?`)) return;
+  // 사진이 있으면 Storage에서도 함께 삭제 (고아 파일 방지)
+  const pathsToDelete = [ex.photos?.start, ex.photos?.end].filter(Boolean);
+  if (pathsToDelete.length > 0) {
+    db.storage.from('session-photos').remove(pathsToDelete)
+      .catch(e => console.warn('사진 파일 삭제 실패:', e));
+  }
   exercises.splice(idx, 1);
   renderExercises();
 }
