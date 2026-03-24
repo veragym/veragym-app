@@ -291,7 +291,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 async function autoComplete() {
   const cutoff = new Date(Date.now() - 48*3600*1000).toISOString();
   const { data } = await db.from('schedules')
-    .select('id')
+    .select('id,contract_id,member_id')
     .eq('trainer_id', trainer.id)
     .eq('status', 'scheduled')
     .lt('scheduled_at', cutoff);
@@ -299,6 +299,12 @@ async function autoComplete() {
     await db.from('schedules')
       .update({ status:'completed', updated_at: new Date().toISOString() })
       .in('id', data.map(s=>s.id));
+    // 계약 완료 여부 체크 (자동완료 시에도 계약 상태 갱신)
+    for (const s of data) {
+      if (s.contract_id && s.member_id) {
+        await checkContractCompletion(s.contract_id, s.member_id);
+      }
+    }
   }
 }
 
