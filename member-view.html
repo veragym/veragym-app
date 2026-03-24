@@ -17,7 +17,7 @@
 body {
   font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif;
   background:#080e1a; color:#fff;
-  min-height:100dvh; overscroll-behavior:none;
+  min-height:100dvh; padding-bottom:70px;overscroll-behavior:none;
 }
 
 /* ── 초록 형광 테마 변수 ─────────────────────────────────── */
@@ -44,22 +44,6 @@ body {
 .header-title { font-size:16px; font-weight:800; }
 .header-title span { color:var(--g); }
 .header-sub { font-size:11px; color:var(--sub); margin-top:2px; }
-
-/* ── Top Tab Navigation ──────────────────────────────────── */
-.tabs {
-  display:flex; background:#0d1525;
-  border-bottom:1px solid var(--g-border);
-  position:sticky; top:57px; z-index:99;
-  overflow-x:auto; scrollbar-width:none;
-}
-.tabs::-webkit-scrollbar { display:none; }
-.tab-btn {
-  flex:1; min-width:60px; padding:13px 8px;
-  font-size:12px; font-weight:600; color:#4a6580;
-  background:none; border:none; border-bottom:2px solid transparent;
-  cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit;
-}
-.tab-btn.active { color:var(--g); border-bottom-color:var(--g); }
 
 /* ── Tab Content ─────────────────────────────────────────── */
 .tab-content { display:none; }
@@ -385,6 +369,13 @@ body {
   padding:10px 18px; font-size:13px; font-weight:600;
   opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap;
 }
+
+/* ── Bottom Nav ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#080e1a;border-top:1px solid #00ff8820;display:flex;height:56px;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;color:#1a3a2a;font-size:9px;font-weight:700;cursor:pointer;font-family:inherit;transition:color .15s;white-space:nowrap;padding:6px 2px}
+.nav-btn.active{color:#00ff88}
+.nav-btn .ni{font-size:18px;line-height:1}
+.nav-btn:active{opacity:.7}
 </style>
 </head>
 <body>
@@ -411,12 +402,7 @@ body {
     </div>
   </div>
 
-  <div class="tabs">
-    <button class="tab-btn active" id="nav-logs"  onclick="switchTab('logs',this)">수업일지</button>
-    <button class="tab-btn"        id="nav-exdb"  onclick="switchTab('exdb',this)">운동DB</button>
-    <button class="tab-btn"        id="nav-info"  onclick="switchTab('info',this)">내 정보</button>
-  </div>
-
+  
   <!-- ══ 탭: 수업일지 ════════════════════════════════════════ -->
   <div id="tab-logs" class="tab-content active">
 
@@ -547,7 +533,7 @@ function showError() {
 
 // ── 탭 전환 ──────────────────────────────────────────────
 function switchTab(id, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('tab-' + id).classList.add('active');
@@ -986,5 +972,12 @@ function showToast(msg) {
 // ── 시작 ─────────────────────────────────────────────────
 init();
 </script>
+
+<!-- ── Bottom Nav ── -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-logs" onclick="switchTab('logs',this)"><span class="ni">📋</span>수업일지</button>
+  <button class="nav-btn" id="nav-exdb" onclick="switchTab('exdb',this)"><span class="ni">💪</span>운동DB</button>
+  <button class="nav-btn" id="nav-info" onclick="switchTab('info',this)"><span class="ni">👤</span>내 정보</button>
+</nav>
 </body>
 </html>
