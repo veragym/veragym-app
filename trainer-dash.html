@@ -14,10 +14,10 @@
 <style>
 /* ── Reset & Base ─────────────────────────────────────────── */
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; padding-bottom:24px; overscroll-behavior:none; }
+body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; padding-bottom:80px;overscroll-behavior:none; }
 
 /* ── 회원 상세 하단 작성 버튼 ─────────────────────────────── */
-.write-bar { position:fixed; bottom:0; left:0; right:0; padding:12px 16px; background:#080e1a; border-top:1px solid #1e3a5f44; padding-bottom:calc(12px + env(safe-area-inset-bottom)); }
+.write-bar { position:fixed; bottom:56px; left:0; right:0; padding:12px 16px; background:#080e1a; border-top:1px solid #1e3a5f44; }
 .btn-write { width:100%; background:#1a3a5c; border:1.5px solid #3b82f655; border-radius:12px; padding:14px; font-size:15px; font-weight:700; color:#3b82f6; cursor:pointer; font-family:inherit; }
 .btn-write:hover { background:#243d5c; }
 
@@ -117,41 +117,12 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; margin-right:6px; vertical-align:middle; }
 @keyframes spin { to{transform:rotate(360deg)} }
 
-/* ── Top Tab Nav ── */
-.top-nav { display:flex; background:#0d1525; border-bottom:1px solid #1e3a5f44; padding:0 4px; position:sticky; top:57px; z-index:99; }
-.top-nav-btn { flex:1; background:none; border:none; color:#3a5878; font-size:13px; font-weight:700; padding:12px 4px; cursor:pointer; font-family:inherit; border-bottom:2px solid transparent; transition:all .15s; white-space:nowrap; }
-.top-nav-btn.active { color:#60a5fa; border-bottom-color:#3b82f6; }
-.top-nav-btn:active { opacity:.7; }
-
-/* ── Schedule / Calendar ── */
-.cal-nav { display:flex; align-items:center; justify-content:space-between; padding:10px 14px 4px; }
-.cal-nav-title { font-size:13px; font-weight:700; color:#60a5fa; }
-.cal-arrow { background:none; border:1px solid #1e3a5f44; border-radius:8px; color:#60a5fa; font-size:16px; width:32px; height:32px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.cal-arrow:active { opacity:.6; }
-.cal-days { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; padding:0 14px 8px; }
-.cal-day-col { background:#0d1525; border:1px solid #1e3a5f44; border-radius:12px; overflow:hidden; min-height:80px; }
-.cal-day-header { padding:8px 6px 6px; text-align:center; border-bottom:1px solid #1e3a5f22; }
-.cal-day-name { font-size:10px; font-weight:700; color:#3a5878; letter-spacing:.5px; }
-.cal-day-num { font-size:18px; font-weight:800; margin-top:2px; }
-.cal-day-col.today .cal-day-num { color:#3b82f6; }
-.cal-day-col.today .cal-day-name { color:#3b82f6; }
-.cal-day-col.today { border-color:#3b82f644; }
-.cal-events { padding:4px; display:flex; flex-direction:column; gap:3px; }
-.cal-event { border-radius:6px; padding:4px 5px; font-size:10px; font-weight:700; line-height:1.3; cursor:pointer; }
-.cal-event:active { opacity:.7; }
-.cal-event .ev-time { font-size:9px; font-weight:600; opacity:.8; }
-.cal-event .ev-title { margin-top:1px; }
-.cal-add-btn { width:100%; margin:0 14px 16px; width:calc(100% - 28px); background:#141f35; border:1.5px dashed #1e3a5f88; border-radius:12px; padding:13px; font-size:13px; font-weight:700; color:#3a5878; cursor:pointer; font-family:inherit; display:block; text-align:center; }
-.cal-add-btn:hover { border-color:#3b82f644; color:#60a5fa; }
-.cal-detail { padding:0 14px; }
-.cal-detail-title { font-size:13px; font-weight:700; color:#3a5878; margin-bottom:10px; }
-.sched-card { background:#0d1525; border:1px solid #1e3a5f44; border-radius:12px; padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:12px; cursor:pointer; }
-.sched-card:active { opacity:.7; }
-.sched-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.sched-info { flex:1; min-width:0; }
-.sched-time { font-size:11px; color:#3a5878; font-weight:600; }
-.sched-name { font-size:14px; font-weight:700; margin-top:2px; }
-.sched-member { font-size:11px; color:#3a5878; margin-top:1px; }
+/* ── Bottom Nav ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#0d1525;border-top:1px solid #1e3a5f44;display:flex;height:56px;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;color:#3a5878;font-size:9px;font-weight:700;cursor:pointer;font-family:inherit;transition:color .15s;white-space:nowrap;padding:6px 2px}
+.nav-btn.active{color:#60a5fa}
+.nav-btn .ni{font-size:18px;line-height:1}
+.nav-btn:active{opacity:.7}
 </style>
 </head>
 <body>
@@ -166,11 +137,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 </div>
 
 <!-- ── Top Tab Navigation ──────────────────────────────────── -->
-<nav class="top-nav">
-  <button class="top-nav-btn active" id="nav-members" onclick="switchTab('members',this)">내 회원</button>
-  <button class="top-nav-btn" id="nav-logs" onclick="switchTab('logs',this)">수업일지</button>
-  <button class="top-nav-btn" id="nav-schedule" onclick="switchTab('schedule',this)">일정</button>
-</nav>
 
 <!-- ── Tab: 회원 ───────────────────────────────────────────── -->
 <div id="tab-members" class="tab-content active">
@@ -205,21 +171,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div><span class="sec-title">수업 일지</span><span class="sec-count" id="logCount"></span></div>
   </div>
   <div id="logList"><div class="loading">불러오는 중...</div></div>
-</div>
-
-<!-- ── Tab: 일정 ────────────────────────────────────────────── -->
-<div id="tab-schedule" class="tab-content" style="padding:0">
-  <div class="cal-nav">
-    <button class="cal-arrow" onclick="shiftWeek(-4)">&#8249;</button>
-    <span class="cal-nav-title" id="calRangeLabel"></span>
-    <button class="cal-arrow" onclick="shiftWeek(4)">&#8250;</button>
-  </div>
-  <div class="cal-days" id="calDaysCols"></div>
-  <button class="cal-add-btn" onclick="openSchedModal(null, calBaseDate)">+ 일정 추가</button>
-  <div class="cal-detail">
-    <div class="cal-detail-title" id="calDetailTitle"></div>
-    <div id="calDetailList"></div>
-  </div>
 </div>
 
 <!-- ── Tab: 요청사항 ────────────────────────────────────────── -->
@@ -333,9 +284,8 @@ async function init() {
 // ══════════════════════════════════════════════════════════════
 function switchTab(id, btn) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.top-nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`tab-${id}`).classList.add('active');
-  if (id === 'schedule') loadScheduleView();
   btn.classList.add('active');
 
   // 탭 전환 시 회원 상세 작성 버튼 숨기기
@@ -670,258 +620,6 @@ window.addEventListener('pageshow', (e) => {
   if (e.persisted && !me) init();
 });
 </script>
-
-// ══════════════════════════════════════════════════════════════
-// 일정(Schedule) 기능
-// ══════════════════════════════════════════════════════════════
-let calBaseDate  = new Date(); // 4일 뷰의 시작 날짜
-let scheduleData = [];         // 현재 로드된 일정 배열
-let selectedCalDate = null;    // 하단 리스트에 표시할 날짜
-let myMembersForSched = [];    // 회원 목록 (모달용)
-
-// 날짜 → 'YYYY-MM-DD'
-function toYMD(d) {
-  return d.toISOString().slice(0, 10);
-}
-
-// 'YYYY-MM-DD' → Date (로컬 자정)
-function fromYMD(s) {
-  const [y, m, d] = s.split('-').map(Number);
-  return new Date(y, m - 1, d);
-}
-
-// HH:MM 포맷
-function toHM(timeStr) {
-  return timeStr ? timeStr.slice(0, 5) : '';
-}
-
-// 4일 범위 이동
-function shiftWeek(days) {
-  calBaseDate = new Date(calBaseDate);
-  calBaseDate.setDate(calBaseDate.getDate() + days);
-  loadScheduleView();
-}
-
-async function loadScheduleView() {
-  const dates = [];
-  for (let i = 0; i < 4; i++) {
-    const d = new Date(calBaseDate);
-    d.setDate(d.getDate() + i);
-    dates.push(d);
-  }
-
-  // 날짜 범위 레이블
-  const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
-  document.getElementById('calRangeLabel').textContent =
-    `${fmt(dates[0])} – ${fmt(dates[3])}`;
-
-  // DB 조회 (4일치)
-  const from = toYMD(dates[0]);
-  const to   = toYMD(dates[3]);
-  const { data, error } = await db.from('schedules')
-    .select('*')
-    .gte('sched_date', from)
-    .lte('sched_date', to)
-    .order('start_time');
-
-  scheduleData = data || [];
-
-  // 회원 목록 (모달에서 쓰기 위해 미리 로드)
-  if (!myMembersForSched.length && me) {
-    const { data: mems } = await db.from('members')
-      .select('id, name')
-      .eq('trainer_id', me.id)
-      .eq('is_active', true)
-      .order('name');
-    myMembersForSched = mems || [];
-  }
-
-  renderCalDays(dates);
-  // 첫 번째 날 기본 선택
-  if (!selectedCalDate || !dates.find(d => toYMD(d) === toYMD(selectedCalDate))) {
-    selectedCalDate = dates[0];
-  }
-  renderCalDetail(selectedCalDate);
-}
-
-const DAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
-
-function renderCalDays(dates) {
-  const today = toYMD(new Date());
-  const cols  = document.getElementById('calDaysCols');
-  cols.innerHTML = dates.map(d => {
-    const ymd      = toYMD(d);
-    const isToday  = ymd === today;
-    const isSelected = selectedCalDate && toYMD(selectedCalDate) === ymd;
-    const events   = scheduleData.filter(s => s.sched_date === ymd);
-    const evHtml   = events.slice(0, 3).map(s => `
-      <div class="cal-event" style="background:${s.color}22;border-left:3px solid ${s.color}"
-           onclick="selectCalDay(event,'${ymd}')">
-        <div class="ev-time">${toHM(s.start_time)}</div>
-        <div class="ev-title">${s.title || '수업'}</div>
-      </div>`).join('');
-    const more = events.length > 3 ? `<div style="font-size:9px;color:#3a5878;padding:2px 5px">+${events.length-3}개</div>` : '';
-    return `
-      <div class="cal-day-col${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}"
-           onclick="selectCalDay(event,'${ymd}')" style="${isSelected ? 'border-color:#3b82f6' : ''}">
-        <div class="cal-day-header">
-          <div class="cal-day-name">${DAY_KO[d.getDay()]}</div>
-          <div class="cal-day-num">${d.getDate()}</div>
-        </div>
-        <div class="cal-events">${evHtml}${more}</div>
-      </div>`;
-  }).join('');
-}
-
-function selectCalDay(e, ymd) {
-  e.stopPropagation();
-  selectedCalDate = fromYMD(ymd);
-  // 선택된 날 강조 재렌더
-  document.querySelectorAll('.cal-day-col').forEach(el => {
-    el.style.borderColor = '';
-    el.classList.remove('selected');
-  });
-  e.currentTarget.style.borderColor = '#3b82f6';
-  // 하단 리스트 업데이트
-  renderCalDetail(selectedCalDate);
-  // + 일정 추가 버튼 날짜 연동
-  document.querySelector('.cal-add-btn').onclick = () => openSchedModal(null, selectedCalDate);
-}
-
-function renderCalDetail(date) {
-  const ymd   = toYMD(date);
-  const days  = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
-  const label = `${date.getMonth()+1}월 ${date.getDate()}일 ${days[date.getDay()]}`;
-  document.getElementById('calDetailTitle').textContent = label;
-
-  const events = scheduleData.filter(s => s.sched_date === ymd)
-                   .sort((a, b) => a.start_time.localeCompare(b.start_time));
-  const list   = document.getElementById('calDetailList');
-
-  if (!events.length) {
-    list.innerHTML = '<div class="empty" style="padding:24px 0">일정 없음</div>';
-    return;
-  }
-
-  list.innerHTML = events.map(s => {
-    const member = myMembersForSched.find(m => m.id === s.member_id);
-    return `
-      <div class="sched-card" onclick="openSchedModal('${s.id}', null)">
-        <div class="sched-dot" style="background:${s.color}"></div>
-        <div class="sched-info">
-          <div class="sched-time">${toHM(s.start_time)}${s.end_time ? ' – ' + toHM(s.end_time) : ''}</div>
-          <div class="sched-name">${s.title || '수업'}</div>
-          ${member ? `<div class="sched-member">${member.name}</div>` : ''}
-        </div>
-        <div style="color:#3a5878;font-size:18px">›</div>
-      </div>`;
-  }).join('');
-}
-
-// ── 일정 추가 / 편집 모달 ────────────────────────────────────
-let _schedEditId = null;
-
-function openSchedModal(schedId, date) {
-  _schedEditId = schedId;
-  const modal = document.getElementById('schedModal');
-
-  if (schedId) {
-    // 편집 모드
-    const s = scheduleData.find(x => x.id === schedId);
-    if (!s) return;
-    document.getElementById('schedTitle').textContent  = '일정 수정';
-    document.getElementById('schedTitleIn').value      = s.title || '';
-    document.getElementById('schedDate').value         = s.sched_date;
-    document.getElementById('schedStart').value        = toHM(s.start_time);
-    document.getElementById('schedEnd').value          = s.end_time ? toHM(s.end_time) : '';
-    document.getElementById('schedNotes').value        = s.notes || '';
-    document.getElementById('schedColor').value        = s.color;
-    document.getElementById('schedMember').value       = s.member_id || '';
-    document.getElementById('schedDeleteBtn').style.display = 'block';
-  } else {
-    // 추가 모드
-    const d = date || selectedCalDate || new Date();
-    document.getElementById('schedTitle').textContent  = '일정 추가';
-    document.getElementById('schedTitleIn').value      = '';
-    document.getElementById('schedDate').value         = toYMD(d);
-    document.getElementById('schedStart').value        = '09:00';
-    document.getElementById('schedEnd').value          = '10:00';
-    document.getElementById('schedNotes').value        = '';
-    document.getElementById('schedColor').value        = '#3b82f6';
-    document.getElementById('schedMember').value       = '';
-    document.getElementById('schedDeleteBtn').style.display = 'none';
-  }
-
-  // 회원 셀렉트 채우기
-  const sel = document.getElementById('schedMember');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">회원 없음</option>' +
-    myMembersForSched.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-  sel.value = cur;
-
-  modal.classList.add('open');
-}
-
-function closeSchedModal() {
-  document.getElementById('schedModal').classList.remove('open');
-}
-
-async function saveSchedule() {
-  const titleIn  = document.getElementById('schedTitleIn').value.trim();
-  const date     = document.getElementById('schedDate').value;
-  const start    = document.getElementById('schedStart').value;
-  const end      = document.getElementById('schedEnd').value;
-  const notes    = document.getElementById('schedNotes').value.trim();
-  const color    = document.getElementById('schedColor').value;
-  const memberId = document.getElementById('schedMember').value || null;
-  const btn      = document.getElementById('schedSaveBtn');
-  const errEl    = document.getElementById('schedErr');
-  errEl.style.display = 'none';
-
-  if (!date || !start) { errEl.textContent = '날짜와 시작시간을 입력해주세요'; errEl.style.display = 'block'; return; }
-
-  btn.disabled = true; btn.textContent = '저장 중...';
-
-  const payload = {
-    trainer_id: me.id,
-    sched_date: date,
-    start_time: start,
-    end_time:   end || null,
-    title:      titleIn || '수업',
-    notes:      notes || null,
-    color,
-    member_id:  memberId,
-  };
-
-  let error;
-  if (_schedEditId) {
-    ({ error } = await db.from('schedules').update(payload).eq('id', _schedEditId));
-  } else {
-    ({ error } = await db.from('schedules').insert(payload));
-  }
-
-  btn.disabled = false; btn.textContent = '저장';
-
-  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
-
-  closeSchedModal();
-  showToast(_schedEditId ? '일정 수정 완료' : '일정 추가 완료');
-  await loadScheduleView();
-}
-
-async function deleteSchedule() {
-  if (!_schedEditId) return;
-  if (!confirm('이 일정을 삭제할까요?')) return;
-
-  const { error } = await db.from('schedules').delete().eq('id', _schedEditId);
-  if (error) { showToast('삭제 실패: ' + error.message); return; }
-
-  closeSchedModal();
-  showToast('일정 삭제 완료');
-  await loadScheduleView();
-}
-
-</script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -930,198 +628,13 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-
-<!-- ===== 일정 모달 ===== -->
-<div id="schedModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
-  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:16px 16px 0 0;padding:24px 20px 32px;box-sizing:border-box;max-height:90vh;overflow-y:auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <h3 id="schedModalTitle" style="margin:0;font-size:17px;font-weight:700;color:#fff;">일정 추가</h3>
-      <button onclick="closeSchedModal()" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;line-height:1;">&times;</button>
-    </div>
-
-    <div id="schedModalErr" style="display:none;background:#ff4d4f22;color:#ff4d4f;border:1px solid #ff4d4f55;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px;"></div>
-
-    <div style="margin-bottom:14px;">
-      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">날짜</label>
-      <input id="schedDate" type="date" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;">
-    </div>
-
-    <div style="display:flex;gap:12px;margin-bottom:14px;">
-      <div style="flex:1;">
-        <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">시작 시간</label>
-        <input id="schedStart" type="time" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;">
-      </div>
-      <div style="flex:1;">
-        <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">종료 시간</label>
-        <input id="schedEnd" type="time" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;">
-      </div>
-    </div>
-
-    <div style="margin-bottom:14px;">
-      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">제목</label>
-      <input id="schedTitle" type="text" placeholder="예) 개인 PT, 그룹 수업" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;">
-    </div>
-
-    <div style="margin-bottom:14px;">
-      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">회원 (선택)</label>
-      <select id="schedMember" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;-webkit-appearance:none;">
-        <option value="">-- 회원 없음 --</option>
-      </select>
-    </div>
-
-    <div style="margin-bottom:14px;">
-      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:8px;">색상</label>
-      <div id="schedColorPicker" style="display:flex;gap:10px;flex-wrap:wrap;">
-        <span data-color="#6c63ff" onclick="selectSchedColor(this)" style="width:28px;height:28px;border-radius:50%;background:#6c63ff;cursor:pointer;border:3px solid #fff;box-sizing:border-box;"></span>
-        <span data-color="#4fc3f7" onclick="selectSchedColor(this)" style="width:28px;height:28px;border-radius:50%;background:#4fc3f7;cursor:pointer;border:3px solid transparent;box-sizing:border-box;"></span>
-        <span data-color="#81c784" onclick="selectSchedColor(this)" style="width:28px;height:28px;border-radius:50%;background:#81c784;cursor:pointer;border:3px solid transparent;box-sizing:border-box;"></span>
-        <span data-color="#ffb74d" onclick="selectSchedColor(this)" style="width:28px;height:28px;border-radius:50%;background:#ffb74d;cursor:pointer;border:3px solid transparent;box-sizing:border-box;"></span>
-        <span data-color="#f06292" onclick="selectSchedColor(this)" style="width:28px;height:28px;border-radius:50%;background:#f06292;cursor:pointer;border:3px solid transparent;box-sizing:border-box;"></span>
-        <span data-color="#90a4ae" onclick="selectSchedColor(this)" style="width:28px;height:28px;border-radius:50%;background:#90a4ae;cursor:pointer;border:3px solid transparent;box-sizing:border-box;"></span>
-      </div>
-    </div>
-
-    <div style="margin-bottom:20px;">
-      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">메모 (선택)</label>
-      <textarea id="schedNotes" rows="3" placeholder="추가 메모..." style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;resize:vertical;font-family:inherit;"></textarea>
-    </div>
-
-    <div style="display:flex;gap:10px;">
-      <button id="schedDeleteBtn" onclick="deleteSchedule()" style="display:none;flex:1;background:#3a1a1a;border:1px solid #ff4d4f55;color:#ff4d4f;border-radius:10px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;">삭제</button>
-      <button id="schedSaveBtn" onclick="saveSchedule()" style="flex:2;background:#6c63ff;border:none;color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
-    </div>
-  </div>
-</div>
-
-<script>
-/* ── 색상 선택 ── */
-let _schedColor = '#6c63ff';
-function selectSchedColor(el) {
-  _schedColor = el.dataset.color;
-  document.querySelectorAll('#schedColorPicker span').forEach(s => s.style.border = '3px solid transparent');
-  el.style.border = '3px solid #fff';
-}
-
-/* ── 모달 열기 (원본 openSchedModal 교체) ── */
-openSchedModal = async function(schedId, date) {
-  /* 회원 select 채우기 */
-  const sel = document.getElementById('schedMember');
-  sel.innerHTML = '<option value="">-- 회원 없음 --</option>';
-  (myMembersForSched || []).forEach(m => {
-    const opt = document.createElement('option');
-    opt.value = m.id;
-    opt.textContent = m.name;
-    sel.appendChild(opt);
-  });
-
-  /* 색상 초기화 */
-  _schedColor = '#6c63ff';
-  document.querySelectorAll('#schedColorPicker span').forEach((s,i) => {
-    s.style.border = i === 0 ? '3px solid #fff' : '3px solid transparent';
-  });
-
-  if (schedId) {
-    const { data } = await db.from('schedules').select('*').eq('id', schedId).single();
-    if (data) {
-      document.getElementById('schedDate').value  = data.sched_date;
-      document.getElementById('schedStart').value = data.start_time ? data.start_time.slice(0,5) : '';
-      document.getElementById('schedEnd').value   = data.end_time   ? data.end_time.slice(0,5)   : '';
-      document.getElementById('schedTitle').value = data.title || '';
-      document.getElementById('schedNotes').value = data.notes || '';
-      sel.value = data.member_id || '';
-      if (data.color) {
-        _schedColor = data.color;
-        document.querySelectorAll('#schedColorPicker span').forEach(s => {
-          s.style.border = s.dataset.color === data.color ? '3px solid #fff' : '3px solid transparent';
-        });
-      }
-      document.getElementById('schedDeleteBtn').style.display = 'block';
-      document.getElementById('schedModalTitle').textContent = '일정 수정';
-    }
-  } else {
-    document.getElementById('schedDate').value  = date || '';
-    document.getElementById('schedStart').value = '';
-    document.getElementById('schedEnd').value   = '';
-    document.getElementById('schedTitle').value = '';
-    document.getElementById('schedNotes').value = '';
-    sel.value = '';
-    document.getElementById('schedDeleteBtn').style.display = 'none';
-    document.getElementById('schedModalTitle').textContent = '일정 추가';
-  }
-
-  _schedEditId = schedId || null;
-  document.getElementById('schedModalErr').style.display = 'none';
-  const modal = document.getElementById('schedModal');
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-};
-
-/* ── 모달 닫기 (원본 closeSchedModal 교체) ── */
-closeSchedModal = function() {
-  document.getElementById('schedModal').style.display = 'none';
-  document.body.style.overflow = '';
-  _schedEditId = null;
-};
-
-/* ── 저장 (원본 saveSchedule 교체: _schedColor 사용) ── */
-saveSchedule = async function() {
-  const btn    = document.getElementById('schedSaveBtn');
-  const errEl  = document.getElementById('schedModalErr');
-  const date   = document.getElementById('schedDate').value.trim();
-  const start  = document.getElementById('schedStart').value.trim();
-  const end    = document.getElementById('schedEnd').value.trim();
-  const titleIn= document.getElementById('schedTitle').value.trim();
-  const notes  = document.getElementById('schedNotes').value.trim();
-  const memberId = document.getElementById('schedMember').value || null;
-  const color  = _schedColor;
-
-  errEl.style.display = 'none';
-  if (!date)  { errEl.textContent = '날짜를 입력해주세요.'; errEl.style.display='block'; return; }
-  if (!start) { errEl.textContent = '시작 시간을 입력해주세요.'; errEl.style.display='block'; return; }
-
-  btn.disabled = true; btn.textContent = '저장 중...';
-
-  const payload = {
-    trainer_id: me.id,
-    sched_date: date,
-    start_time: start,
-    end_time:   end || null,
-    title:      titleIn || '수업',
-    notes:      notes || null,
-    color,
-    member_id:  memberId,
-  };
-
-  let error;
-  if (_schedEditId) {
-    ({ error } = await db.from('schedules').update(payload).eq('id', _schedEditId));
-  } else {
-    ({ error } = await db.from('schedules').insert(payload));
-  }
-
-  btn.disabled = false; btn.textContent = '저장';
-
-  if (error) { errEl.textContent = error.message; errEl.style.display='block'; return; }
-
-  closeSchedModal();
-  showToast(_schedEditId ? '일정 수정 완료' : '일정 추가 완료');
-  await loadScheduleView();
-};
-
-/* ── 삭제 (원본 deleteSchedule 교체) ── */
-deleteSchedule = async function() {
-  if (!_schedEditId) return;
-  if (!confirm('이 일정을 삭제할까요?')) return;
-
-  const { error } = await db.from('schedules').delete().eq('id', _schedEditId);
-  if (error) { showToast('삭제 실패: ' + error.message); return; }
-
-  closeSchedModal();
-  showToast('일정 삭제 완료');
-  await loadScheduleView();
-};
-</script>
-
-<!-- bottom-nav removed: tabs moved to top -->
+<!-- ── Bottom Nav ── -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-members" onclick="switchTab('members',this)"><span class="ni">👥</span>내 회원</button>
+  <button class="nav-btn" id="nav-logs" onclick="switchTab('logs',this)"><span class="ni">📋</span>수업일지</button>
+  <button class="nav-btn" onclick="location.href='schedule.html'"><span class="ni">📅</span>일정</button>
+  <button class="nav-btn" onclick="location.href='exercise-library.html'"><span class="ni">💪</span>운동DB</button>
+  <button class="nav-btn" id="nav-requests" onclick="switchTab('requests',this)"><span class="ni">💬</span>요청</button>
+</nav>
 </body>
 </html>
