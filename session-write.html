@@ -350,7 +350,7 @@ body {
 
 <!-- 수업 메타 -->
 <div class="meta-bar">
-  <div class="meta-chip">
+  <div class="meta-chip" id="metaDateChip">
     <label>날짜</label>
     <input type="date" id="metaDate">
   </div>
@@ -469,8 +469,10 @@ async function init() {
   if (!trainer) return;
 
   const p = new URLSearchParams(location.search);
-  logId    = p.get('log');
-  memberId = p.get('member');
+  logId        = p.get('log');
+  memberId     = p.get('member');
+  scheduleId   = p.get('schedule') || null;
+  scheduleDate = p.get('date') || null;
 
   if (!logId && !memberId) {
     showToast('잘못된 접근입니다');
@@ -558,7 +560,11 @@ async function initNewLog() {
     sessionStorage.removeItem('vg_session_draft');
   }
 
-  document.getElementById('metaDate').value = today();
+  document.getElementById('metaDate').value = scheduleDate || today();
+  // 일정에서 넘어온 경우 날짜 선택 숨김 (날짜 이미 확정)
+  if(scheduleDate){
+    document.getElementById('metaDateChip').style.display='none';
+  }
   exercises = [];
   renderExercises();
 }
@@ -709,14 +715,7 @@ function updSet(idx, si, field, val) {
 }
 function updComment(idx, val) { exercises[idx].comment = val; }
 function removeEx(idx) {
-  const ex = exercises[idx];
-  if (!confirm(`'${ex.name}' 삭제할까요?`)) return;
-  // 사진이 있으면 Storage에서도 함께 삭제 (고아 파일 방지)
-  const pathsToDelete = [ex.photos?.start, ex.photos?.end].filter(Boolean);
-  if (pathsToDelete.length > 0) {
-    db.storage.from('session-photos').remove(pathsToDelete)
-      .catch(e => console.warn('사진 파일 삭제 실패:', e));
-  }
+  if (!confirm(`'${exercises[idx].name}' 삭제할까요?`)) return;
   exercises.splice(idx, 1);
   renderExercises();
 }
@@ -732,14 +731,16 @@ async function saveSession() {
 
   try {
     if (logId) {
+      const updatePayload = { session_date: date, notes };
+      if (scheduleId) updatePayload.schedule_id = scheduleId;
       await db.from('workout_logs')
-        .update({ session_date: date, notes })
+        .update(updatePayload)
         .eq('id', logId);
       await db.from('workout_log_exercises').delete().eq('log_id', logId);
     } else {
       const { data: newLog, error: le } = await db
         .from('workout_logs')
-        .insert({ trainer_id: trainer.id, member_id: memberId, session_date: date, notes })
+        .insert({ trainer_id: trainer.id, member_id: memberId, session_date: date, notes, ...(scheduleId ? { schedule_id: scheduleId } : {}) })
         .select('id').single();
       if (le) throw le;
       logId = newLog.id;
@@ -871,7 +872,7 @@ async function ensureLog() {
   const notes = document.getElementById('notesInput').value || null;
   const { data: newLog, error } = await db
     .from('workout_logs')
-    .insert({ trainer_id: trainer.id, member_id: memberId, session_date: date, notes })
+    .insert({ trainer_id: trainer.id, member_id: memberId, session_date: date, notes, ...(scheduleId ? { schedule_id: scheduleId } : {}) })
     .select('id').single();
   if (error) throw error;
   logId = newLog.id;

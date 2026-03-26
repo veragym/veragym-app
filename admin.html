@@ -111,6 +111,14 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#2a2518; color:#c9a84c; border:1px solid #c9a84c44; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity 0.3s; z-index:9999; white-space:nowrap; }
 .spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(0,0,0,0.2); border-top-color:#000; border-radius:50%; animation:spin 0.7s linear infinite; margin-right:6px; vertical-align:middle; }
 @keyframes spin { to{transform:rotate(360deg)} }
+/* ── PT 상품 카드 ── */
+.pt-card { background:#0f0f0a; border:1px solid #2a2518; border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+.pt-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.pt-sessions { font-size:20px; font-weight:800; color:#c9a84c; }
+.pt-sessions-label { font-size:12px; color:#555; }
+.pt-badge-active { background:#4ade8022; border:1px solid #4ade8044; border-radius:20px; padding:2px 10px; font-size:11px; color:#4ade80; font-weight:600; }
+.pt-badge-done { background:#f8717122; border:1px solid #f8717144; border-radius:20px; padding:2px 10px; font-size:11px; color:#f87171; font-weight:600; }
+.pt-meta { font-size:12px; color:#666; line-height:1.8; margin-top:4px; }
 /* ── 운동DB 필터 ── */
 .ex-search-area {
   position:sticky; top:96px; z-index:90; background:#0a0a0a;
@@ -141,6 +149,72 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .img-upload-zone { border:2px dashed #2a2518; border-radius:12px; padding:20px; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:4px; }
 .img-upload-zone:hover, .img-upload-zone.drag { border-color:#c9a84c66; }
 .img-upload-zone img { max-height:120px; border-radius:8px; object-fit:cover; }
+
+/* ── 일정 탭 ─────────────────────────────────────────── */
+#tab-schedule { padding:0; }
+/* 필터 + 날짜이동 */
+.sc-ctrl { background:#111108; border-bottom:1px solid #2a2518; padding:10px 14px; display:flex; align-items:center; gap:10px; position:sticky; top:101px; z-index:97; }
+.sc-trainer-sel { background:#161610; border:1.5px solid #2a2518; border-radius:10px; padding:8px 12px; font-size:13px; color:#ccc; outline:none; font-family:inherit; cursor:pointer; flex:1; min-width:130px; -webkit-appearance:none; }
+.sc-trainer-sel:focus { border-color:#c9a84c66; }
+.sc-trainer-sel option { background:#161610; }
+.sc-vtoggle { display:flex; border:1.5px solid #2a2518; border-radius:10px; overflow:hidden; flex-shrink:0; }
+.sc-vbtn { background:#161610; border:none; color:#666; font-size:12px; font-weight:700; padding:8px 14px; cursor:pointer; font-family:inherit; transition:all .15s; }
+.sc-vbtn.active { background:#c9a84c22; color:#c9a84c; }
+/* .sc-date-nav merged into .sc-ctrl */
+.sc-date-range { font-size:13px; font-weight:700; color:#c9a84c; letter-spacing:.3px; }
+.sc-nav-arrow { background:#1a1a14; border:1px solid #2a251888; border-radius:8px; color:#c9a84c; font-size:13px; padding:6px 12px; cursor:pointer; font-weight:700; font-family:inherit; }
+.sc-nav-arrow:active { opacity:.7; }
+/* 날짜 헤더 행 (sticky) */
+.sc-date-row { display:flex; background:#111108; border-bottom:2px solid #2a2518; padding:4px 0; position:sticky; top:145px; z-index:95; }
+.sc-gutter { width:52px; flex-shrink:0; border-right:1px solid #2a251844; }
+.sc-day-hdr { flex:1; text-align:center; padding:4px 2px; }
+.sc-dhdr-name { font-size:10px; color:#6a5830; margin-bottom:1px; text-transform:uppercase; }
+.sc-dhdr-num { font-size:18px; font-weight:700; color:#c0b8a8; display:inline-block; width:34px; height:34px; line-height:34px; text-align:center; border-radius:50%; }
+.sc-day-hdr.today .sc-dhdr-num { color:#000; background:#c9a84c; }
+/* 그리드 스크롤 */
+.sc-grid-scroll { overflow-y:auto; -webkit-overflow-scrolling:touch; height:calc(100dvh - 57px - 44px - 44px - 52px); }
+.sc-grid { display:grid; grid-template-columns:52px repeat(4,1fr); }
+.sc-time-col { position:relative; }
+.sc-time-label { position:absolute; font-size:10px; font-weight:500; color:#6a5830; text-align:right; right:6px; transform:translateY(-50%); line-height:1.2; pointer-events:none; white-space:nowrap; }
+.sc-day-col { position:relative; border-left:1px solid #2a251833; }
+.sc-gridline-hr { position:absolute; left:0; right:0; height:1px; background:#2a251844; pointer-events:none; }
+.sc-gridline-half { position:absolute; left:4px; right:0; height:0; border-top:1px dashed #2a251822; pointer-events:none; }
+.sc-now-line { position:absolute; left:0; right:0; height:2px; background:#c9a84c; z-index:3; pointer-events:none; }
+.sc-now-line::before { content:''; position:absolute; left:-3px; top:-3px; width:8px; height:8px; background:#c9a84c; border-radius:50%; }
+.sc-event { position:absolute; left:2px; right:2px; border-radius:6px; padding:3px 4px; overflow:hidden; cursor:pointer; z-index:2; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+.sc-ev-title { font-size:11px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.4; width:100%; text-align:center; }
+.sc-ev-sub { font-size:10px; color:rgba(255,255,255,.85); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center; font-weight:600; }
+/* List view */
+.sc-list { padding:14px; }
+.sc-dg { margin-bottom:20px; }
+.sc-dg-label { font-size:12px; font-weight:700; letter-spacing:1.2px; color:#c9a84c; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.sc-dg-label::after { content:''; flex:1; height:1px; background:#2a2518; }
+.sc-card { background:#161610; border:1px solid #2a2518; border-radius:12px; padding:13px 14px; margin-bottom:8px; }
+.sc-card-top { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:8px; }
+.sc-card-time { font-size:14px; font-weight:800; color:#e5d9b5; }
+.sc-card-trainer { font-size:12px; color:#888; background:#1a1a14; border:1px solid #2a2518; border-radius:6px; padding:2px 7px; }
+.sc-card-member { font-size:14px; font-weight:700; color:#ccc; }
+.sc-card-dur { font-size:11px; color:#555; }
+.sc-card-acts { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+/* Status badges */
+.sc-st { display:inline-block; font-size:10px; padding:2px 8px; border-radius:20px; font-weight:600; white-space:nowrap; }
+.sc-st-scheduled { background:#6c63ff22; border:1px solid #6c63ff44; color:#a5a0ff; }
+.sc-st-completed { background:#22c55e22; border:1px solid #22c55e44; color:#4ade80; }
+.sc-st-noshow { background:#f59e0b22; border:1px solid #f59e0b44; color:#fbbf24; }
+.sc-st-cancelled { background:#33333322; border:1px solid #33333344; color:#666; }
+/* Action buttons */
+.sc-btn { border-radius:8px; padding:7px 12px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; border:1px solid; transition:all .15s; }
+.sc-btn-green { background:#22c55e22; border-color:#22c55e55; color:#4ade80; }
+.sc-btn-amber { background:#f59e0b22; border-color:#f59e0b55; color:#fbbf24; }
+.sc-btn-red { background:#f8717122; border-color:#f8717155; color:#f87171; }
+.sc-btn-gold { background:#c9a84c22; border-color:#c9a84c55; color:#c9a84c; }
+/* Info modal */
+.sc-detail { background:#0f0f0a; border:1px solid #2a2518; border-radius:10px; padding:12px 14px; margin-bottom:14px; }
+.sc-dr { display:flex; gap:8px; margin-bottom:5px; font-size:13px; align-items:flex-start; }
+.sc-dr:last-child { margin-bottom:0; }
+.sc-dl { color:#666; width:52px; flex-shrink:0; }
+.sc-dv { color:#ccc; font-weight:600; flex:1; }
+.sc-warn { background:#1a1200; border:1px solid #c9a84c44; border-radius:8px; padding:11px 13px; font-size:13px; color:#c9a84c88; margin-bottom:14px; line-height:1.5; display:none; }
 </style>
 </head>
 <body>
@@ -158,6 +232,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <button class="tab-btn"        onclick="switchTab('members',this)">전체 회원</button>
   <button class="tab-btn"        onclick="switchTab('exercise',this)">운동DB</button>
   <button class="tab-btn"        onclick="switchTab('requests',this)">요청사항</button>
+  <button class="tab-btn"        onclick="switchTab('schedule',this)">일정</button>
 </div>
 
 <!-- 트레이너 관리 -->
@@ -173,6 +248,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <div id="tab-members" class="tab-content">
   <div class="sec-header">
     <div><span class="sec-title">전체 회원</span><span class="sec-count" id="memberCount"></span></div>
+    <button class="btn-add" onclick="openAddMember()">+ 회원 추가</button>
   </div>
   <!-- 지점별 요약 카운트 -->
   <div id="branchSummary" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
@@ -216,7 +292,60 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <div id="reqList"><div class="loading">불러오는 중...</div></div>
 </div>
 
+<!-- ── 일정 탭 ─────────────────────────────────────────── -->
+<div id="tab-schedule" class="tab-content">
+  <!-- 필터 + 날짜이동 (한 줄로 통합) -->
+  <div class="sc-ctrl">
+    <select class="sc-trainer-sel" id="scBranchSel" onchange="scOnBranchChange()" style="max-width:90px">
+      <option value="">전체 지점</option>
+    </select>
+    <select class="sc-trainer-sel" id="scTrainerSel" onchange="scOnFilter()">
+      <option value="">전체 트레이너</option>
+    </select>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:auto;">
+      <button class="sc-nav-arrow" onclick="scMoveDays(-4)">&#8249;</button>
+      <span id="scRange" class="sc-date-range" style="font-size:12px;white-space:nowrap;"></span>
+      <button class="sc-nav-arrow" onclick="scMoveDays(4)">&#8250;</button>
+    </div>
+  </div>
+  <!-- 캘린더 -->
+  <div id="scCalView">
+    <div id="scDateRow" class="sc-date-row"><div class="sc-gutter"></div></div>
+    <div class="sc-grid-scroll" id="scGridScroll">
+      <div class="sc-grid" id="scGrid"></div>
+    </div>
+  </div>
+  <!-- 목록 -->
+  <div id="scListView" style="display:none;">
+    <div class="sc-list" id="scListBody"></div>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
+
+<!-- ── 일정 정보 모달 ─────────────────────────────────── -->
+<div class="modal-bg" id="scInfoModal">
+  <div class="modal" style="padding:0 20px calc(28px + env(safe-area-inset-bottom));max-width:520px;">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div class="modal-title" style="margin-bottom:0;" id="scInfoMember">수업 상세</div>
+      <span id="scInfoStatus"></span>
+    </div>
+    <div class="sc-detail" id="scInfoDetail"></div>
+    <div class="sc-warn" id="scInfoWarn"></div>
+    <div class="err-box" id="scInfoErr"></div>
+    <!-- 1단계: 액션 버튼 -->
+    <div id="scInfoActions" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;"></div>
+    <!-- 2단계: 확인 영역 (동적 표시) -->
+    <div id="scConfirmArea" style="display:none;margin-top:4px;">
+      <div style="font-size:14px;color:#ccc;margin-bottom:14px;" id="scConfirmMsg"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-cancel" style="flex:1;" onclick="scCancelConfirm()">취소</button>
+        <button id="scConfirmExec" style="flex:2;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;border:none;" onclick="scExecAction()">실행</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- 회원 메모 모달 -->
 <div id="memoModal" class="modal-bg" onclick="closeModal('memoModal',event)">
@@ -227,6 +356,142 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div style="font-size:12px;color:#888;margin-bottom:8px">트레이너 메모</div>
     <div class="memo-body" id="memoContent"></div>
     <button class="btn-cancel" style="margin-top:16px;width:100%" onclick="closeModal('memoModal')">닫기</button>
+  </div>
+</div>
+
+<!-- 회원 추가 모달 -->
+<div id="addMemberModal" class="modal-bg" onclick="closeModal('addMemberModal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">회원 추가</div>
+    <div class="err-box" id="memberErr"></div>
+    <div class="field">
+      <label>이름 <span style="color:#f87171">*</span></label>
+      <input id="mName" type="text" placeholder="홍길동" autocomplete="off" oninput="onMemberNameInput()">
+      <div class="hint" id="mNameHint" style="display:none;color:#f87171"></div>
+    </div>
+    <div class="field" id="mSuffixField" style="display:none">
+      <label>구분 suffix (선택) <span style="font-size:10px;color:#666">— 동명이인 구분용</span></label>
+      <input id="mSuffix" type="text" placeholder="예: 73051" autocomplete="off" maxlength="10">
+      <div class="hint">입력 시 이름+suffix로 저장됩니다 (예: 홍길동73051)</div>
+    </div>
+    <div class="field">
+      <label>지점 <span style="color:#f87171">*</span></label>
+      <select id="mGym" onchange="onGymChange()">
+        <option value="미사점">미사점</option>
+        <option value="동탄점">동탄점</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>계약 트레이너</label>
+      <select id="mContractTrainer">
+        <option value="">-- 선택 --</option>
+      </select>
+      <div class="hint">PT 계약 담당자 (없으면 생략 가능)</div>
+    </div>
+    <div class="field">
+      <label>담당 트레이너 <span style="color:#f87171">*</span></label>
+      <select id="mTrainer">
+        <option value="">-- 선택 --</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>메모 (선택)</label>
+      <textarea id="mNotes" placeholder="특이사항, 목표 등" rows="2" style="width:100%;background:#0a0a08;border:1.5px solid #2a2518;border-radius:10px;padding:12px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;resize:none"></textarea>
+    </div>
+    <!-- PT 상품 섹션 -->
+    <div style="font-size:11px;color:#c9a84c88;letter-spacing:1.2px;font-weight:600;margin:16px 0 12px;display:flex;align-items:center;gap:8px">
+      PT 상품 <span style="flex:1;height:1px;background:#2a2518;display:block"></span>
+      <span style="font-size:10px;color:#555;font-weight:400">선택사항</span>
+    </div>
+    <div style="display:flex;gap:10px">
+      <div class="field" style="flex:1">
+        <label>계약일</label>
+        <input id="mContractDate" type="date">
+      </div>
+      <div class="field" style="flex:1">
+        <label>횟수</label>
+        <input id="mSessions" type="number" min="1" placeholder="예: 30">
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('addMemberModal')">취소</button>
+      <button class="btn-save" id="btnAddMember" onclick="addMember()">추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- 회원 상세 (PT 상품) 모달 -->
+<div id="memberDetailModal" class="modal-bg" onclick="closeModal('memberDetailModal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="modal-title" id="detailMemberName" style="margin-bottom:0"></div>
+      <button class="btn-add" style="font-size:12px;padding:6px 12px" onclick="openAddPtProduct()">+ PT 상품</button>
+    </div>
+    <div id="detailMemberMeta" style="font-size:12px;color:#666;margin-bottom:18px"></div>
+    <div style="font-size:11px;color:#888;letter-spacing:1.2px;margin-bottom:10px;font-weight:600">PT 상품 목록</div>
+    <div id="ptProductList"></div>
+    <button class="btn-cancel" style="margin-top:16px;width:100%" onclick="closeModal('memberDetailModal')">닫기</button>
+  </div>
+</div>
+
+<!-- PT 상품 추가 모달 -->
+<div id="addPtModal" class="modal-bg" onclick="closeModal('addPtModal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="addPtTitle">PT 상품 추가</div>
+    <div class="err-box" id="ptErr"></div>
+    <div class="field">
+      <label>계약일 <span style="color:#f87171">*</span></label>
+      <input id="ptDate" type="date">
+    </div>
+    <div class="field">
+      <label>횟수 <span style="color:#f87171">*</span></label>
+      <input id="ptSessions" type="number" min="1" placeholder="예: 30">
+    </div>
+    <div class="field">
+      <label>계약 트레이너 <span style="color:#f87171">*</span></label>
+      <select id="ptContractTrainer">
+        <option value="">-- 선택 --</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>메모 (선택)</label>
+      <textarea id="ptNotes" rows="2" style="width:100%;background:#0a0a08;border:1.5px solid #2a2518;border-radius:10px;padding:12px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;resize:none"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('addPtModal')">취소</button>
+      <button class="btn-save" id="btnAddPt" onclick="addPtProduct()">추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- 담당트레이너 변경 모달 -->
+<div id="changeTrainerModal" class="modal-bg" onclick="closeModal('changeTrainerModal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">담당 트레이너 변경</div>
+    <div class="err-box" id="ctErr"></div>
+    <div class="field">
+      <label>계약 트레이너 <span style="color:#555;font-weight:400;font-size:11px">(변경 불가)</span></label>
+      <div id="ctContractName" style="background:#0a0a08;border:1.5px solid #1a1a14;border-radius:10px;padding:12px 14px;font-size:14px;color:#555;cursor:not-allowed"></div>
+    </div>
+    <div class="field">
+      <label>담당 트레이너 <span style="color:#f87171">*</span></label>
+      <select id="ctTrainerSel"></select>
+    </div>
+    <div class="field" style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <input type="checkbox" id="ctSyncMember" checked style="width:auto;height:auto;flex-shrink:0;accent-color:#c9a84c">
+      <label for="ctSyncMember" style="font-size:12px;color:#888;margin-bottom:0;cursor:pointer;line-height:1.4">
+        회원의 담당 트레이너도 함께 변경<br>
+        <span style="color:#555;font-size:11px">(목록 분류에 반영됩니다)</span>
+      </label>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('changeTrainerModal')">취소</button>
+      <button class="btn-save" id="btnCtSave" onclick="saveChangeTrainer()">변경</button>
+    </div>
   </div>
 </div>
 
@@ -307,6 +572,19 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
+// ── 모달 / 뒤로가기 유틸 ───────────────────────────────────────
+function preventBackExit() {
+  history.pushState(null, '', location.href);
+  window.addEventListener('popstate', () => history.pushState(null, '', location.href));
+}
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id, e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById(id).classList.remove('open');
+}
+// ─────────────────────────────────────────────────────────────
 init_db();
 preventBackExit();
 
@@ -317,7 +595,7 @@ async function init() {
   if (!me) return;
 
   document.getElementById('adminName').textContent =
-    me.is_super ? '최고 관리자' : `${me.name} · ${me.gym_location}`;
+    me.is_admin ? `관리자 · ${me.name}` : `${me.name} · ${me.gym_location}`;
 
   loadTrainers();
 }
@@ -351,7 +629,7 @@ async function loadTrainers() {
         <button class="btn-sm" onclick="toggleActive('${t.id}','${t.name}',${t.is_active})">
           ${t.is_active ? '비활성화' : '활성화'}
         </button>
-        ${!t.is_admin && me?.is_super ? `<button class="btn-sm btn-danger" onclick="deleteTrainer('${t.id}','${t.name}')">삭제</button>` : ''}
+        ${!t.is_admin && me?.is_admin ? `<button class="btn-sm btn-danger" onclick="deleteTrainer('${t.id}','${t.name}')">삭제</button>` : ''}
       </div>
     </div>`;
 
@@ -367,7 +645,7 @@ function openAddTrainer() {
   document.getElementById('tPw').value = '';
   document.getElementById('tRole').value = 'false';
   document.getElementById('addErr').style.display = 'none';
-  document.getElementById('roleField').style.display = me?.is_super ? '' : 'none';
+  document.getElementById('roleField').style.display = me?.is_admin ? '' : 'none';
   openModal('addModal');
 }
 
@@ -469,10 +747,10 @@ async function toggleActive(id, name, isActive) {
 }
 
 async function deleteTrainer(id, name) {
-  if (!confirm(`"${name}" 트레이너를 삭제할까요?\n되돌릴 수 없습니다.`)) return;
-  const { error } = await db.from('trainers').delete().eq('id', id);
-  if (error) { showToast('삭제 실패: ' + error.message); return; }
-  showToast(`${name} 삭제 완료`);
+  if (!confirm(`"${name}" 트레이너를 비활성화할까요?\n앱에서 숨겨지지만 계약 기록은 유지됩니다.`)) return;
+  const { error } = await db.from('trainers').update({ is_active: false }).eq('id', id);
+  if (error) { showToast('비활성화 실패: ' + error.message); return; }
+  showToast(`${name} 비활성화 완료`);
   loadTrainers();
 }
 
@@ -552,78 +830,285 @@ function showAllBranches() {
 }
 
 function showBranch(branch) {
-  // 해당 지점의 트레이너 목록 (회원이 있는 트레이너)
   const branchMembers = _allMembers.filter(m => (m.gym_location || '미지정') === branch);
-  const trainerIds = [...new Set(branchMembers.map(m => m.trainer_id).filter(Boolean))];
-  const trainerList = trainerIds.map(tid => _allTrainers.find(t => t.id === tid)).filter(Boolean);
-  // 미배정 회원
-  const unassigned = branchMembers.filter(m => !m.trainer_id);
-
   setBreadcrumb([
     {label:'전 지점', onclick:'showAllBranches()'},
     {label: branch, onclick:`showBranch('${branch}')`},
   ]);
   const wrap = document.getElementById('memberList');
-  let html = '';
-  if (trainerList.length) {
-    html += trainerList.map(t => {
-      const cnt = branchMembers.filter(m => m.trainer_id === t.id).length;
-      return `<div class="hier-row" onclick="showTrainer('${t.id}','${branch}')">
-        <div class="hier-icon">${(t.name||'?').charAt(0)}</div>
-        <div class="hier-info">
-          <div class="hier-name">${t.name}</div>
-          <div class="hier-sub">담당 회원 ${cnt}명${!t.is_active ? ' · 비활성' : ''}</div>
-        </div>
-        <div class="hier-arrow">›</div>
-      </div>`;
-    }).join('');
-  }
-  if (unassigned.length) {
-    html += `<div class="hier-row" onclick="showTrainer('__unassigned__','${branch}')">
-      <div class="hier-info">
-        <div class="hier-name">미배정</div>
-        <div class="hier-sub">트레이너 미배정 회원 ${unassigned.length}명</div>
-      </div>
-      <div class="hier-arrow">›</div>
-    </div>`;
-  }
-  if (!html) html = '<div class="empty">회원이 없어요</div>';
+  if (!branchMembers.length) { wrap.innerHTML = '<div class="empty">등록된 회원이 없어요</div>'; return; }
+  const active   = branchMembers.filter(m => m.is_active);
+  const inactive = branchMembers.filter(m => !m.is_active);
+  let html = active.map(m => memberRow(m)).join('');
+  if (inactive.length) html += `<div class="group-label" style="margin-top:14px">비활성 (${inactive.length})</div>` + inactive.map(m => memberRow(m)).join('');
   wrap.innerHTML = html;
 }
 
-function showTrainer(trainerId, branch) {
-  const members = trainerId === '__unassigned__'
-    ? _allMembers.filter(m => !m.trainer_id && (m.gym_location || '미지정') === branch)
-    : _allMembers.filter(m => m.trainer_id === trainerId && (m.gym_location || '미지정') === branch);
-  const trainer = _allTrainers.find(t => t.id === trainerId);
-  const trainerName = trainer?.name || '미배정';
-
-  setBreadcrumb([
-    {label:'전 지점', onclick:'showAllBranches()'},
-    {label: branch, onclick:`showBranch('${branch}')`},
-    {label: trainerName, onclick:`showTrainer('${trainerId}','${branch}')`},
-  ]);
-  const wrap = document.getElementById('memberList');
-  if (!members.length) { wrap.innerHTML = '<div class="empty">담당 회원이 없어요</div>'; return; }
-  wrap.innerHTML = members.map(m => `
-    <div class="hier-row" onclick="showMemberMemo('${m.id}')">
-      <div class="hier-info">
-        <div class="hier-name">${m.name}${!m.is_active ? ' <span style="font-size:10px;color:#f87171">비활성</span>' : ''}</div>
-        <div class="hier-sub">${m.notes ? m.notes.slice(0,30) + (m.notes.length > 30 ? '…' : '') : '메모 없음'}</div>
-      </div>
-      <div class="hier-arrow" style="font-size:12px;color:#555">메모 ›</div>
-    </div>`).join('');
+function memberRow(m) {
+  const trainer = _allTrainers.find(t => t.id === m.trainer_id);
+  return `<div class="hier-row" onclick="showMemberDetail('${m.id}')">
+    <div class="hier-info">
+      <div class="hier-name">${m.name}${!m.is_active ? ' <span style="font-size:10px;color:#f87171">비활성</span>' : ''}</div>
+      <div class="hier-sub">담당: ${trainer?.name || '미배정'}</div>
+    </div>
+    <div class="hier-arrow">›</div>
+  </div>`;
 }
 
-function showMemberMemo(memberId) {
+let _currentMemberId = null;
+
+async function showMemberDetail(memberId) {
   const m = _allMembers.find(x => x.id === memberId);
   if (!m) return;
+  _currentMemberId = memberId;
   const trainer = _allTrainers.find(t => t.id === m.trainer_id);
-  document.getElementById('memoMemberName').textContent = m.name;
-  document.getElementById('memoMemberMeta').textContent =
+  document.getElementById('detailMemberName').textContent = m.name;
+  document.getElementById('detailMemberMeta').textContent =
     `${m.gym_location || ''} · 담당: ${trainer?.name || '미배정'}`;
-  document.getElementById('memoContent').textContent = m.notes || '(메모 없음)';
-  openModal('memoModal');
+  document.getElementById('ptProductList').innerHTML = '<div class="loading" style="padding:20px;font-size:13px">불러오는 중...</div>';
+  openModal('memberDetailModal');
+  await loadPtProducts(memberId);
+}
+
+async function loadPtProducts(memberId) {
+  const { data, error } = await db
+    .from('pt_products')
+    .select('id,contract_date,total_sessions,remaining_sessions,contract_trainer_id,notes,is_active')
+    .eq('member_id', memberId)
+    .order('created_at', { ascending: false });
+  const wrap = document.getElementById('ptProductList');
+  if (error) { wrap.innerHTML = '<div class="empty">불러오기 실패</div>'; return; }
+  if (!data || !data.length) { wrap.innerHTML = '<div style="text-align:center;padding:20px;color:#444;font-size:13px">등록된 PT 상품이 없어요</div>'; return; }
+  wrap.innerHTML = data.map(p => {
+    const ct = _allTrainers.find(t => t.id === p.contract_trainer_id);
+    const curMember = _allMembers.find(m => m.id === _currentMemberId);
+    const at = _allTrainers.find(t => t.id === curMember?.trainer_id);
+    const active = p.is_active && p.remaining_sessions > 0;
+    const cId = p.contract_trainer_id || '';
+    return `<div class="pt-card">
+      <div class="pt-card-header">
+        <div>
+          <span class="pt-sessions">${p.remaining_sessions}</span>
+          <span class="pt-sessions-label"> / ${p.total_sessions}회 남음</span>
+        </div>
+        <span class="${active ? 'pt-badge-active' : 'pt-badge-done'}">${active ? '진행중' : '종료'}</span>
+      </div>
+      <div class="pt-meta">
+        계약일 ${p.contract_date}<br>
+        계약 ${ct?.name || '미지정'} · 담당 <span style="color:#c9a84c">${at?.name || '미배정'}</span>
+        ${p.notes ? `<br>${p.notes}` : ''}
+      </div>
+      <div style="margin-top:8px">
+        <button class="btn-sm" style="font-size:11px"
+          onclick="openChangeTrainer('${p.id}','${cId}')">담당 트레이너 변경</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── 담당트레이너 변경 ─────────────────────────────────────────
+let _ctProductId = null;
+
+function openChangeTrainer(productId, contractTrainerId) {
+  _ctProductId = productId;
+  const cTr = _allTrainers.find(t => t.id === contractTrainerId);
+  document.getElementById('ctContractName').textContent = cTr?.name || '미지정';
+  const currentTrainerId = _allMembers.find(m => m.id === _currentMemberId)?.trainer_id || '';
+  const sel = document.getElementById('ctTrainerSel');
+  sel.innerHTML = '<option value="">미배정</option>' +
+    _allTrainers.filter(t => !t.is_admin && t.is_active)
+      .sort((a,b) => a.name.localeCompare(b.name,'ko'))
+      .map(t => `<option value="${t.id}"${t.id === currentTrainerId ? ' selected' : ''}>${t.name}</option>`)
+      .join('');
+  document.getElementById('ctErr').style.display = 'none';
+  openModal('changeTrainerModal');
+}
+
+async function saveChangeTrainer() {
+  const newTrId    = document.getElementById('ctTrainerSel').value || null;
+  const btn = document.getElementById('btnCtSave');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
+  try {
+    // members.trainer_id만 업데이트 (담당=배정 통합)
+    if (_currentMemberId) {
+      const { error: e1 } = await db.from('members')
+        .update({ trainer_id: newTrId }).eq('id', _currentMemberId);
+      if (e1) throw e1;
+    }
+    closeModal('changeTrainerModal');
+    showToast('담당 트레이너 변경 완료!');
+    // 로컬 데이터 갱신 후 현재 상품 목록 재렌더
+    const { data } = await db.from('members')
+      .select('id,name,gym_location,notes,is_active,trainer_id').order('name');
+    if (data) _allMembers = data;
+    if (_currentMemberId) await loadPtProducts(_currentMemberId);
+  } catch(e) {
+    const el = document.getElementById('ctErr');
+    el.textContent = e.message || '저장 실패'; el.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = '변경';
+  }
+}
+
+function openAddPtProduct() {
+  const m = _allMembers.find(x => x.id === _currentMemberId);
+  const gym = m?.gym_location || '';
+  document.getElementById('addPtTitle').textContent = `PT 상품 추가 — ${m?.name || ''}`;
+  document.getElementById('ptErr').style.display = 'none';
+  document.getElementById('ptDate').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('ptSessions').value = '';
+  document.getElementById('ptNotes').value = '';
+
+  const trainers = _allTrainers
+    .filter(t => t.is_active && (!gym || t.gym_location === gym))
+    .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  const opts = '<option value="">-- 선택 --</option>' + trainers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  document.getElementById('ptContractTrainer').innerHTML = opts;
+  openModal('addPtModal');
+}
+
+async function addPtProduct() {
+  const date       = document.getElementById('ptDate').value;
+  const sessions   = parseInt(document.getElementById('ptSessions').value);
+  const contractTr = document.getElementById('ptContractTrainer').value;
+  const notes      = document.getElementById('ptNotes').value.trim();
+  const btn        = document.getElementById('btnAddPt');
+  const errBox     = document.getElementById('ptErr');
+
+  errBox.style.display = 'none';
+  if (!date)                   { errBox.textContent = '계약일을 입력해주세요';        errBox.style.display = 'block'; return; }
+  if (!sessions || sessions < 1){ errBox.textContent = '횟수를 입력해주세요';           errBox.style.display = 'block'; return; }
+  if (!contractTr)             { errBox.textContent = '계약 트레이너를 선택해주세요'; errBox.style.display = 'block'; return; }
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>추가 중...';
+  const { error } = await db.from('pt_products').insert({
+    member_id: _currentMemberId,
+    contract_date: date,
+    total_sessions: sessions,
+    remaining_sessions: sessions,
+    contract_trainer_id: contractTr,
+    notes: notes || null,
+    is_active: true,
+  });
+
+  if (error) {
+    errBox.textContent = '추가 실패: ' + error.message;
+    errBox.style.display = 'block';
+  } else {
+    closeModal('addPtModal');
+    showToast('PT 상품이 추가됐어요!');
+    await loadPtProducts(_currentMemberId);
+  }
+  btn.disabled = false; btn.textContent = '추가';
+}
+
+// ── 회원 추가 ────────────────────────────────────────────────
+
+function openAddMember() {
+  // 초기화
+  document.getElementById('mName').value = '';
+  document.getElementById('mSuffix').value = '';
+  document.getElementById('mNotes').value = '';
+  document.getElementById('mContractDate').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('mSessions').value = '';
+  document.getElementById('memberErr').style.display = 'none';
+  document.getElementById('mNameHint').style.display = 'none';
+  document.getElementById('mSuffixField').style.display = 'none';
+  document.getElementById('mGym').value = '미사점';
+  // 지점에 맞는 트레이너 목록 초기 세팅
+  filterTrainersByGym('미사점');
+  openModal('addMemberModal');
+}
+
+function filterTrainersByGym(gym) {
+  const trainers = _allTrainers
+    .filter(t => t.is_active && t.gym_location === gym)
+    .sort((a,b) => a.name.localeCompare(b.name, 'ko'));
+  const blank = '<option value="">-- 선택 --</option>';
+  const trOpts = blank + trainers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  const ctOpts = '<option value="">-- 선택 안 함 --</option>' + trainers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  document.getElementById('mTrainer').innerHTML = trOpts;
+  document.getElementById('mContractTrainer').innerHTML = ctOpts;
+}
+
+function onGymChange() {
+  const gym = document.getElementById('mGym').value;
+  filterTrainersByGym(gym);
+}
+
+function onMemberNameInput() {
+  const name = document.getElementById('mName').value.trim();
+  const hint = document.getElementById('mNameHint');
+  const sfField = document.getElementById('mSuffixField');
+  if (!name) { hint.style.display = 'none'; sfField.style.display = 'none'; return; }
+  const dupes = _allMembers.filter(m => m.name === name || m.name.startsWith(name));
+  if (dupes.length) {
+    hint.textContent = `동일한 이름 회원이 ${dupes.length}명 있습니다. suffix로 구분해 주세요.`;
+    hint.style.display = 'block';
+    sfField.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+    sfField.style.display = 'none';
+  }
+}
+
+
+async function addMember() {
+  const rawName      = document.getElementById('mName').value.trim();
+  const suffix       = document.getElementById('mSuffix').value.trim();
+  const name         = rawName + suffix;
+  const notes        = document.getElementById('mNotes').value.trim();
+  const trainerId    = document.getElementById('mTrainer').value || null;
+  const contractTrId = document.getElementById('mContractTrainer').value || null;
+  const contractDate = document.getElementById('mContractDate').value;
+  const sessions     = parseInt(document.getElementById('mSessions').value) || 0;
+  const gym          = document.getElementById('mGym').value;
+  const btn          = document.getElementById('btnAddMember');
+  const errBox       = document.getElementById('memberErr');
+
+  errBox.style.display = 'none';
+  if (!rawName)    { errBox.textContent = '이름을 입력해주세요'; errBox.style.display = 'block'; return; }
+  if (!trainerId)  { errBox.textContent = '담당 트레이너를 선택해주세요'; errBox.style.display = 'block'; return; }
+  // PT 상품 입력 부분 검증 (날짜/횟수 중 하나만 입력된 경우)
+  if ((contractDate && !sessions) || (!contractDate && sessions > 0)) {
+    errBox.textContent = 'PT 상품 등록 시 계약일과 횟수를 모두 입력해주세요'; errBox.style.display = 'block'; return;
+  }
+
+  // 최종 이름 중복 체크
+  const exactDupe = _allMembers.find(m => m.name === name);
+  if (exactDupe) {
+    errBox.textContent = `"${name}" 이름이 이미 존재합니다. suffix를 변경해 주세요.`;
+    errBox.style.display = 'block'; return;
+  }
+
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>추가 중...';
+  try {
+    // 1. 회원 추가
+    const { data: newMember, error: e1 } = await db.from('members')
+      .insert({ name, gym_location: gym, notes: notes || null, trainer_id: trainerId, is_active: true })
+      .select('id').single();
+    if (e1) throw e1;
+
+    // 2. PT 상품 추가 (날짜와 횟수 모두 입력된 경우)
+    if (contractDate && sessions > 0) {
+      const { error: e2 } = await db.from('pt_products').insert({
+        member_id: newMember.id,
+        contract_date: contractDate,
+        total_sessions: sessions,
+        remaining_sessions: sessions,
+        contract_trainer_id: contractTrId,
+        is_active: true,
+      });
+      if (e2) throw e2;
+    }
+
+    closeModal('addMemberModal');
+    showToast(`${name} 회원 추가 완료!`);
+    loadMembers();
+  } catch(e) {
+    errBox.textContent = '추가 실패: ' + e.message;
+    errBox.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = '추가';
 }
 
 // ── 운동 DB ──────────────────────────────────────────────────
@@ -833,6 +1318,323 @@ function switchTab(id, btn) {
   if (id === 'members')  loadMembers();
   if (id === 'exercise') loadExercise();
   if (id === 'requests') loadRequests();
+  if (id === 'schedule') loadScheduleTab();
+}
+
+// ══════════════════════════════════════════════════════════════
+// 일정 탭
+// ══════════════════════════════════════════════════════════════
+const SC_TC = {PT:'#6c63ff',SPT:'#4fc3f7',업무:'#ffb74d',청소:'#66bb6a',홍보:'#f06292',식사:'#ffd54f'};
+const SC_SL = {scheduled:'예약',completed:'완료',noshow:'노쇼',cancelled:'취소'};
+const SC_SC = {scheduled:'sc-st-scheduled',completed:'sc-st-completed',noshow:'sc-st-noshow',cancelled:'sc-st-cancelled'};
+const SC_SLOTS=[];for(let _h=6;_h<=23;_h++){SC_SLOTS.push(String(_h).padStart(2,'0')+':00');if(_h<23)SC_SLOTS.push(String(_h).padStart(2,'0')+':30');}
+const SC_DAY=['일','월','화','수','목','금','토'];
+
+let scData=[],scStart=null,scView='cal',scTrainerId='',scTarget=null,scPendingAction=null,scTrainersLoaded=false,_scAllTrainers=[];
+
+function scP2(n){return String(n).padStart(2,'0');}
+function scDayStart(d){const r=new Date(d);r.setHours(0,0,0,0);return r;}
+function scAddDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function scYMD(d){return`${d.getFullYear()}-${scP2(d.getMonth()+1)}-${scP2(d.getDate())}`;}
+function scFmtShort(d){return`${d.getMonth()+1}/${d.getDate()}`;}
+function scFmtDate(d){return`${d.getMonth()+1}/${d.getDate()}(${SC_DAY[d.getDay()]})`;}
+function scDurMin(s,e){if(!s||!e)return 60;const[sh,sm]=s.split(':').map(Number);const[eh,em]=e.split(':').map(Number);const d=(eh*60+em)-(sh*60+sm);return d>0?d:60;}
+
+async function loadScheduleTab(){
+  if(!scStart)scStart=scDayStart(new Date());
+  if(!scTrainersLoaded){
+    const{data}=await db.from('trainers').select('id,name,gym_location').eq('is_active',true).order('name');
+    _scAllTrainers=data||[];
+    // 지점 드롭다운 채우기
+    const branchSel=document.getElementById('scBranchSel');
+    const branches=[...new Set(_scAllTrainers.map(t=>t.gym_location).filter(Boolean))].sort();
+    branches.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;branchSel.appendChild(o);});
+    // 트레이너 드롭다운 초기화 (전체)
+    scPopulateTrainers('');
+    scTrainersLoaded=true;
+  }
+  await scRefresh();
+}
+
+function scPopulateTrainers(branch){
+  const sel=document.getElementById('scTrainerSel');
+  sel.innerHTML='<option value="">전체 트레이너</option>';
+  const filtered=branch?_scAllTrainers.filter(t=>t.gym_location===branch):_scAllTrainers;
+  filtered.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.name;sel.appendChild(o);});
+}
+
+function scOnBranchChange(){
+  const branch=document.getElementById('scBranchSel').value;
+  scPopulateTrainers(branch);
+  scTrainerId='';
+  scRefresh();
+}
+
+function scOnFilter(){scTrainerId=document.getElementById('scTrainerSel').value;scRefresh();}
+function scMoveDays(n){scStart=scAddDays(scStart,n);scRefresh();}
+function scSwitchView(v){
+  scView=v;
+  document.getElementById('scCalView').style.display=v==='cal'?'':'none';
+  document.getElementById('scListView').style.display=v==='list'?'':'none';
+  document.getElementById('scVbCal').classList.toggle('active',v==='cal');
+  document.getElementById('scVbList').classList.toggle('active',v==='list');
+}
+
+async function scRefresh(){
+  const from=scYMD(scStart),to=scYMD(scAddDays(scStart,3));
+  document.getElementById('scRange').textContent=`${scFmtShort(scStart)} ~ ${scFmtShort(scAddDays(scStart,3))}`;
+  let q=db.from('schedules')
+    .select('id,pt_product_id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,members(name),trainers(name),pt_products(remaining_sessions,total_sessions)')
+    .gte('sched_date',from).lte('sched_date',to)
+    .order('sched_date').order('start_time');
+  if(scTrainerId){
+    q=q.eq('trainer_id',scTrainerId);
+  } else {
+    // 지점만 선택된 경우: 해당 지점 트레이너 ID 목록으로 필터
+    const branch=document.getElementById('scBranchSel')?.value||'';
+    if(branch){
+      const ids=_scAllTrainers.filter(t=>t.gym_location===branch).map(t=>t.id);
+      if(ids.length)q=q.in('trainer_id',ids);
+    }
+  }
+  const{data,error}=await q;
+  if(error){showToast('일정 불러오기 실패');return;}
+  scData=data||[];
+  if(scView==='cal')scRenderCal();else scRenderList();
+}
+
+const SC_CAL_START=6,SC_CAL_END=23,SC_CAL_PX=56;
+function scTimeToY(hh,mm){return((hh-SC_CAL_START)+mm/60)*SC_CAL_PX;}
+function scTotalPx(){return(SC_CAL_END-SC_CAL_START+1)*SC_CAL_PX;}
+
+function scRenderCal(){
+  const TOTAL=scTotalPx();
+  const days=[0,1,2,3].map(i=>scAddDays(scStart,i));
+  const todayISO=scYMD(new Date());
+  const now=new Date(),nowH=now.getHours(),nowM=now.getMinutes();
+
+  // 날짜 헤더
+  document.getElementById('scDateRow').innerHTML='<div class="sc-gutter"></div>'+days.map(d=>{
+    const isT=scYMD(d)===todayISO;
+    return`<div class="sc-day-hdr${isT?' today':''}"><div class="sc-dhdr-name">${SC_DAY[d.getDay()]}</div><div class="sc-dhdr-num">${d.getDate()}</div></div>`;
+  }).join('');
+
+  // 시간 컬럼
+  let timeCol=`<div class="sc-time-col" style="height:${TOTAL}px">`;
+  for(let h=SC_CAL_START;h<=SC_CAL_END;h++){
+    const y=scTimeToY(h,0);
+    const lbl=h<12?`오전 ${h}시`:h===12?`오후 12시`:`오후 ${h-12}시`;
+    const tfm=h===SC_CAL_START?'translateY(2px)':'translateY(-50%)';
+    timeCol+=`<div class="sc-time-label" style="top:${y}px;transform:${tfm}">${lbl}</div>`;
+  }
+  timeCol+=`<div style="position:absolute;top:${TOTAL}px;width:1px;height:1px"></div></div>`;
+
+  // 예약 중 PT 세션 오프셋 계산 (trainer-dash와 동일 방식)
+  const _scPtSorted=scData.filter(s=>s.type==='PT'&&s.status==='scheduled'&&s.pt_product_id)
+    .sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
+  const _scPtOffsetMap=new Map();
+  const _scPtCnt={};
+  _scPtSorted.forEach(s=>{const k=s.pt_product_id;if(!_scPtCnt[k])_scPtCnt[k]=0;_scPtOffsetMap.set(s.id,_scPtCnt[k]++);});
+
+  // 날짜 컬럼
+  const dayCols=days.map(d=>{
+    const ymd=scYMD(d),isT=ymd===todayISO;
+    const dayEvents=scData.filter(s=>s.sched_date===ymd&&s.status!=='cancelled');
+    let col=`<div class="sc-day-col" style="height:${TOTAL}px">`;
+    // 그리드 라인
+    for(let h=SC_CAL_START;h<=SC_CAL_END;h++){
+      const y0=scTimeToY(h,0),y30=scTimeToY(h,30);
+      col+=`<div class="sc-gridline-hr" style="top:${y0}px"></div>`;
+      col+=`<div class="sc-gridline-half" style="top:${y30}px"></div>`;
+    }
+    col+=`<div class="sc-gridline-hr" style="top:${TOTAL}px"></div>`;
+    // 이벤트
+    dayEvents.forEach(s=>{
+      const[sh,sm]=s.start_time.split(':').map(Number);
+      let eh,em;if(s.end_time){[eh,em]=s.end_time.split(':').map(Number);}else{eh=sh+1;em=sm;}
+      const top=scTimeToY(sh,sm);
+      const dur=(eh-sh)+(em-sm)/60;
+      const height=Math.max(dur*SC_CAL_PX,22);
+      const sType=s.type||'PT';
+      let evBg,evOp='1',evExtra='';
+      if(s.status==='noshow'){evBg='#f59e0b';evOp='0.5';evExtra='<div style="position:absolute;top:2px;right:4px;font-size:9px;opacity:.8">✓</div>';}
+      else if(s.status==='completed'){evBg=SC_TC[sType]||'#6c63ff';evOp='0.45';evExtra='<div style="position:absolute;top:2px;right:4px;font-size:9px;opacity:.8">✓</div>';}
+      else{evBg=SC_TC[sType]||'#6c63ff';}
+      const memName=s.members?.name||'';
+      const trainerName=s.trainers?.name||'';
+      let stxt='';
+      if(sType==='PT'&&s.pt_products){const u=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);const offset=s.status==='scheduled'?(_scPtOffsetMap.get(s.id)||0):0;stxt=`${u+offset}/${s.pt_products.total_sessions||0}`;}
+      const line1=memName||sType;
+      // PT: 항상 회차 표시. 전체 트레이너 시 트레이너명 앞에 붙임
+      let line2='';
+      if(sType==='PT'&&stxt){line2=scTrainerId?`PT ${stxt}`:(trainerName?`${trainerName} ${stxt}`:stxt);}
+      else{line2=scTrainerId?'':(trainerName||'');}
+      const sid=s.id;
+      col+=`<div class="sc-event" style="background:${evBg}dd;opacity:${evOp};top:${top}px;height:${height}px;" onclick="event.stopPropagation();scOpenInfo(scData.find(x=>x.id==='${sid}'))">${evExtra}<div class="sc-ev-title">${line1}</div>${line2?`<div class="sc-ev-sub">${line2}</div>`:''}</div>`;
+    });
+    // 현재 시각 표시선
+    if(isT){const ny=scTimeToY(nowH,nowM);if(ny>=0&&ny<=TOTAL)col+=`<div class="sc-now-line" style="top:${ny}px"></div>`;}
+    col+='</div>';
+    return col;
+  }).join('');
+
+  document.getElementById('scGrid').innerHTML=timeCol+dayCols;
+  const scroll=document.getElementById('scGridScroll');
+  if(scroll.scrollTop===0)setTimeout(()=>{scroll.scrollTop=Math.max(0,scTimeToY(Math.max(SC_CAL_START,nowH-1),0));},80);
+}
+
+function scRenderList(){
+  const body=document.getElementById('scListBody');
+  const visible=scData.filter(s=>s.status!=='cancelled'||scTrainerId);// 전체 보기시 cancelled 포함
+  if(!visible.length){body.innerHTML='<div class="empty">해당 기간 예약 없음</div>';return;}
+  const groups={};
+  visible.forEach(s=>{if(!groups[s.sched_date])groups[s.sched_date]=[];groups[s.sched_date].push(s);});
+  let html='';
+  Object.keys(groups).sort().forEach(dk=>{
+    const d=new Date(dk+'T00:00:00');
+    html+=`<div class="sc-dg"><div class="sc-dg-label">${d.getMonth()+1}월 ${d.getDate()}일 (${SC_DAY[d.getDay()]})</div>`;
+    groups[dk].sort((a,b)=>a.start_time.localeCompare(b.start_time)).forEach(s=>{
+      const tStr=s.start_time?s.start_time.slice(0,5):'--:--';
+      const dur=scDurMin(s.start_time,s.end_time);
+      const sType=s.type||'PT';
+      let stxt='';if(sType==='PT'&&s.pt_products){const u=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);stxt=` ${u}/${s.pt_products.total_sessions||0}`;}
+      const memberLine=s.members?.name?`${s.members.name} <span class="sc-card-dur">${sType}${stxt} (${dur}분)</span>`:`<span class="sc-card-dur">${sType} (${dur}분)</span>`;
+      html+=`<div class="sc-card">
+        <div class="sc-card-top">
+          <span class="sc-card-time">${tStr}</span>
+          <span class="sc-card-trainer">${s.trainers?.name||'-'}</span>
+          <span class="sc-st ${SC_SC[s.status]||''}">${SC_SL[s.status]||s.status}</span>
+        </div>
+        <div class="sc-card-member">${memberLine}</div>
+        ${s.notes?`<div style="font-size:12px;color:#555;margin-top:6px;padding-top:6px;border-top:1px solid #2a251833;">${s.notes}</div>`:''}
+        <div class="sc-card-acts">${scBuildActBtns(s)}</div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  body.innerHTML=html;
+}
+
+function scBuildActBtns(s){
+  const id=s.id;const isPtSpt=(s.type==='PT'||s.type==='SPT');let b='';
+  if(s.status==='scheduled'){
+    if(isPtSpt){
+      b+=`<button class="sc-btn sc-btn-green" onclick="scOpenInfo(scData.find(x=>x.id==='${id}'))">완료</button>`;
+      b+=`<button class="sc-btn sc-btn-amber" onclick="scOpenInfo(scData.find(x=>x.id==='${id}'))">노쇼</button>`;
+    }
+    b+=`<button class="sc-btn sc-btn-red" onclick="scOpenInfo(scData.find(x=>x.id==='${id}'))">취소</button>`;
+  }
+  if(isPtSpt&&s.status==='completed')b+=`<button class="sc-btn sc-btn-gold" onclick="scOpenInfo(scData.find(x=>x.id==='${id}'))">완료 롤백</button>`;
+  if(isPtSpt&&s.status==='noshow')b+=`<button class="sc-btn sc-btn-gold" onclick="scOpenInfo(scData.find(x=>x.id==='${id}'))">노쇼 롤백</button>`;
+  return b;
+}
+
+function scOpenInfo(sched){
+  if(!sched)return;
+  scTarget=sched;scPendingAction=null;
+  const[y,mo,d]=sched.sched_date.split('-').map(Number);
+  const dateObj=new Date(y,mo-1,d);
+  const tStr=sched.start_time?sched.start_time.slice(0,5):'--:--';
+  const dur=scDurMin(sched.start_time,sched.end_time);
+  document.getElementById('scInfoMember').textContent=sched.members?.name||(sched.type||'일정');
+  const sc=sched.status;const scColor={scheduled:'#a5a0ff',completed:'#4ade80',noshow:'#fbbf24',cancelled:'#666'};
+  const scBg={scheduled:'#6c63ff22',completed:'#22c55e22',noshow:'#f59e0b22',cancelled:'#33333322'};
+  document.getElementById('scInfoStatus').innerHTML=`<span style="background:${scBg[sc]||'#22222222'};border:1px solid ${scColor[sc]||'#666'}44;color:${scColor[sc]||'#666'};padding:3px 12px;border-radius:99px;font-size:12px;font-weight:700;">${SC_SL[sc]||sc}</span>`;
+  let sessTxt='-';
+  if(sched.pt_products){
+    const u=(sched.pt_products.total_sessions||0)-(sched.pt_products.remaining_sessions||0);
+    let infoOffset=0;
+    if(sched.status==='scheduled'&&sched.type==='PT'&&sched.pt_product_id){
+      const ptSorted=scData.filter(x=>x.type==='PT'&&x.status==='scheduled'&&x.pt_product_id===sched.pt_product_id)
+        .sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
+      infoOffset=ptSorted.findIndex(x=>x.id===sched.id);
+      if(infoOffset<0)infoOffset=0;
+    }
+    sessTxt=`${u+infoOffset}/${sched.pt_products.total_sessions||0}회 사용`;
+  }
+  document.getElementById('scInfoDetail').innerHTML=`
+    <div class="sc-dr"><span class="sc-dl">날짜/시간</span><span class="sc-dv">${mo}/${d}(${SC_DAY[dateObj.getDay()]}) ${tStr} (${dur}분)</span></div>
+    <div class="sc-dr"><span class="sc-dl">트레이너</span><span class="sc-dv">${sched.trainers?.name||'-'}</span></div>
+    <div class="sc-dr"><span class="sc-dl">유형</span><span class="sc-dv">${sched.type||'PT'}</span></div>
+    ${sched.type==='PT'?`<div class="sc-dr"><span class="sc-dl">PT 회차</span><span class="sc-dv">${sessTxt}</span></div>`:''}
+    ${sched.notes?`<div class="sc-dr"><span class="sc-dl">메모</span><span class="sc-dv" style="color:#666;">${sched.notes}</span></div>`:''}`;
+  document.getElementById('scInfoErr').style.display='none';
+  document.getElementById('scInfoWarn').style.display='none';
+  document.getElementById('scConfirmArea').style.display='none';
+  scRenderInfoActions();
+  document.getElementById('scInfoModal').classList.add('open');
+}
+
+function scRenderInfoActions(){
+  const s=scTarget;const acts=document.getElementById('scInfoActions');
+  const isPtSpt=(s.type==='PT'||s.type==='SPT');
+  let b=`<button class="btn-cancel" style="flex:1;" onclick="closeModal('scInfoModal')">닫기</button>`;
+  if(s.status==='scheduled'){
+    if(isPtSpt){
+      b+=`<button class="sc-btn sc-btn-green" style="flex:1;" onclick="scAskConfirm('complete')">완료 처리</button>`;
+      b+=`<button class="sc-btn sc-btn-amber" style="flex:1;" onclick="scAskConfirm('noshow')">노쇼 처리</button>`;
+    }
+    b+=`<button class="sc-btn sc-btn-red" style="flex:1;" onclick="scAskConfirm('cancel')">예약 취소</button>`;
+  }
+  if(isPtSpt&&s.status==='completed')b+=`<button class="sc-btn sc-btn-gold" style="flex:1;" onclick="scAskConfirm('rollback')">완료 롤백</button>`;
+  if(isPtSpt&&s.status==='noshow')b+=`<button class="sc-btn sc-btn-gold" style="flex:1;" onclick="scAskConfirm('rollback')">노쇼 롤백</button>`;
+  acts.innerHTML=b;acts.style.display='flex';
+}
+
+const SC_CFG={
+  complete:{msg:'수업을 <strong>완료 처리</strong>합니다.\nPT 1회 차감 + 수업일지 자동 생성',btn:'완료 처리',bg:'#22c55e',warn:null},
+  noshow:  {msg:'수업을 <strong>노쇼 처리</strong>합니다.\nPT 1회 차감 + 수업일지(노쇼) 생성',btn:'노쇼 처리',bg:'#f59e0b',warn:null},
+  cancel:  {msg:'수업을 <strong>취소</strong>합니다.\nscheduled → 바로 취소 / completed·noshow → 회차 복구 후 취소',btn:'취소 확인',bg:'#f87171',warn:'completed/noshow 상태는 회차를 복구한 뒤 취소 처리됩니다.'},
+  rollback:{msg:'수업을 <strong>예약 상태로 롤백</strong>합니다.\n연결된 수업일지가 삭제됩니다.',btn:'롤백 실행',bg:'#c9a84c',warn:'수업일지(workout_log)가 소프트 삭제됩니다. 되돌릴 수 없습니다.'}
+};
+
+function scAskConfirm(action){
+  scPendingAction=action;
+  const cfg=SC_CFG[action];
+  document.getElementById('scInfoActions').style.display='none';
+  const warn=document.getElementById('scInfoWarn');
+  if(cfg.warn){warn.textContent=cfg.warn;warn.style.display='block';}else{warn.style.display='none';}
+  document.getElementById('scConfirmMsg').innerHTML=cfg.msg.replace('\n','<br><span style="font-size:12px;color:#666;">');
+  const btn=document.getElementById('scConfirmExec');
+  btn.textContent=cfg.btn;btn.style.background=cfg.bg+'33';btn.style.border=`1px solid ${cfg.bg}66`;btn.style.color=cfg.bg;btn.disabled=false;
+  document.getElementById('scConfirmArea').style.display='block';
+}
+function scCancelConfirm(){
+  scPendingAction=null;
+  document.getElementById('scInfoWarn').style.display='none';
+  document.getElementById('scConfirmArea').style.display='none';
+  scRenderInfoActions();
+}
+
+async function scExecAction(){
+  const btn=document.getElementById('scConfirmExec');btn.disabled=true;
+  const err=document.getElementById('scInfoErr');err.style.display='none';
+  try{
+    const s=scTarget;const action=scPendingAction;
+    if(action==='complete'||action==='noshow'){
+      const pAction=action==='complete'?'completed':'noshow';
+      const{data,error}=await db.rpc('process_session',{p_schedule_id:s.id,p_action:pAction});
+      if(error||!data?.ok)throw new Error(error?.message||data?.error||`${action} 처리 실패`);
+    }else if(action==='cancel'){
+      if(s.status==='scheduled'){
+        const{error}=await db.from('schedules').update({status:'cancelled'}).eq('id',s.id);
+        if(error)throw new Error('취소 실패: '+error.message);
+      }else{
+        const{data,error}=await db.rpc('rollback_session',{p_schedule_id:s.id});
+        if(error||!data?.ok)throw new Error(error?.message||data?.error||'롤백 실패');
+        const{error:e2}=await db.from('schedules').update({status:'cancelled'}).eq('id',s.id);
+        if(e2)throw new Error('취소 변경 실패: '+e2.message);
+      }
+    }else if(action==='rollback'){
+      const{data,error}=await db.rpc('rollback_session',{p_schedule_id:s.id});
+      if(error||!data?.ok)throw new Error(error?.message||data?.error||'롤백 실패');
+    }
+    closeModal('scInfoModal');
+    showToast({complete:'완료 처리됐습니다',noshow:'노쇼 처리됐습니다',cancel:'취소 처리됐습니다',rollback:'롤백 완료됐습니다'}[action]);
+    await scRefresh();
+  }catch(e){
+    err.textContent=e.message;err.style.display='block';btn.disabled=false;
+  }
 }
 
 async function doLogout() {

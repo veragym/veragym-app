@@ -122,6 +122,34 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#141f35; color:#60a5fa; border:1px solid #3b82f644; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; }
 .spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; margin-right:6px; vertical-align:middle; }
 @keyframes spin { to{transform:rotate(360deg)} }
+
+/* ──── 일정 탭 (Google Calendar Grid) ─────── */
+#tab-schedule{padding:0;overflow:hidden}
+.cal-wrap{display:flex;flex-direction:column}
+.cal-date-row{display:flex;background:#0d1525;border-bottom:2px solid #1e3a5f66;padding:4px 0;position:sticky;top:0;z-index:10}
+.cal-gutter{width:52px;flex-shrink:0;border-right:1px solid #1e3a5f44}
+.cal-day-hdr{flex:1;text-align:center;padding:4px 2px}
+.cal-dhdr-name{font-size:10px;color:#4a6580;margin-bottom:1px;text-transform:uppercase}
+.cal-dhdr-num{font-size:18px;font-weight:700;color:#c0c8d8;display:inline-block;width:34px;height:34px;line-height:34px;text-align:center;border-radius:50%}
+.cal-day-hdr.today .cal-dhdr-num{color:#fff;background:#6c63ff}
+.cal-day-hdr.past .cal-dhdr-name{color:#2a3a4a}
+.cal-day-hdr.past .cal-dhdr-num{color:#3a5060}
+.cal-grid-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;height:calc(100svh - 165px)}
+.cal-grid{display:grid;grid-template-columns:52px repeat(4,1fr)}
+/* ── 30분 절대위치 그리드 ── */
+.cal-time-col{position:relative}
+.cal-time-label{position:absolute;font-size:10px;font-weight:500;color:#6a88a8;text-align:right;right:6px;transform:translateY(-50%);line-height:1.2;pointer-events:none;white-space:nowrap}
+.cal-day-col-body{position:relative;border-left:1px solid #1e3a5f33}
+.cal-gridline-hr{position:absolute;left:0;right:0;height:1px;background:#1e3a5f44;pointer-events:none}
+.cal-gridline-half{position:absolute;left:4px;right:0;height:0;border-top:1px dashed #1e3a5f22;pointer-events:none}
+.cal-click-zone{position:absolute;left:0;right:0;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.cal-click-zone:active{background:#1a2a3a55}
+.cal-click-zone.past{background:#080c1422;cursor:default}
+.cal-now-line{position:absolute;left:0;right:0;height:2px;background:#6c63ff;z-index:3;pointer-events:none}
+.cal-now-line::before{content:'';position:absolute;left:-3px;top:-3px;width:8px;height:8px;background:#6c63ff;border-radius:50%}
+.cal-event{position:absolute;left:2px;right:2px;border-radius:6px;padding:3px 4px;overflow:hidden;cursor:pointer;z-index:2;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cal-event-title{font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4;width:100%;text-align:center}
+.cal-event-sub{font-size:10px;color:rgba(255,255,255,0.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;font-weight:600}
 </style>
 </head>
 <body>
@@ -141,6 +169,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <button class="tab-btn" id="nav-logs" onclick="switchTab('logs',this)">수업일지</button>
   <button class="tab-btn" id="nav-requests" onclick="switchTab('requests',this)">요청사항</button>
   <button class="tab-btn" onclick="location.href='exercise-library.html'">운동DB</button>
+  <button class="tab-btn" id="nav-schedule" onclick="switchTab('schedule',this)">일정</button>
 </div>
 
 <!-- ── Tab: 회원 ───────────────────────────────────────────── -->
@@ -149,7 +178,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <div id="view-member-list">
     <div class="sec-header">
       <div><span class="sec-title">내 회원</span><span class="sec-count" id="memberCount"></span></div>
-      <button class="btn-add" onclick="openAddMember()">+ 회원 추가</button>
     </div>
     <div id="memberList"><div class="loading">불러오는 중...</div></div>
   </div>
@@ -178,6 +206,46 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <div id="logList"><div class="loading">불러오는 중...</div></div>
 </div>
 
+<!-- ── Tab: 일정 ─────────────────────────────────────────── -->
+<div id="tab-schedule" class="tab-content">
+  <div class="cal-wrap">
+    <div class="cal-date-row" id="calDateRow">
+      <div class="cal-gutter"></div>
+    </div>
+    <div class="cal-grid-scroll" id="calGridScroll">
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 전체 시간표 모달 ───────────────────────────────────── -->
+<div id="branchSchedModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.7);flex-direction:column;align-items:center;justify-content:center;" onclick="if(event.target===this)closeBranchSchedModal()">
+  <div style="background:#0d1525;border-radius:16px;width:96vw;max-width:520px;max-height:92dvh;display:flex;flex-direction:column;overflow:hidden;">
+    <!-- 헤더 -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #1e3a5f44;flex-shrink:0;">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;">전체 시간표</div>
+        <div style="font-size:11px;color:#6a88a8;margin-top:2px;" id="bsSubtitle"></div>
+      </div>
+      <button onclick="closeBranchSchedModal()" style="background:none;border:none;color:#6a88a8;font-size:20px;cursor:pointer;padding:4px;">✕</button>
+    </div>
+    <!-- 날짜 선택 (오늘/내일) -->
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid #1e3a5f33;flex-shrink:0;">
+      <button id="bsBtnToday" onclick="onBsDay(0)" style="flex:1;background:#6c63ff;border:none;color:#fff;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">오늘</button>
+      <button id="bsBtnTomorrow" onclick="onBsDay(1)" style="flex:1;background:#1e3a5f;border:1px solid #2a5a8f55;color:#7fb3d3;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">내일</button>
+      <input type="hidden" id="bsDatePicker" value="">
+    </div>
+    <!-- 캔버스 영역 -->
+    <div style="overflow:auto;-webkit-overflow-scrolling:touch;flex:1;display:flex;align-items:flex-start;justify-content:flex-start;background:#f4f4f4;" id="bsCanvasWrap">
+      <canvas id="bsCanvas" style="display:block;"></canvas>
+    </div>
+    <!-- 저장/공유 버튼 -->
+    <div style="padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #1e3a5f33;flex-shrink:0;">
+      <button onclick="downloadBranchSched()" style="width:100%;background:linear-gradient(135deg,#6c63ff,#4a43cc);border:none;color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">📥 저장 / 공유</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Tab: 요청사항 ────────────────────────────────────────── -->
 <div id="tab-requests" class="tab-content">
   <div class="sec-header">
@@ -197,28 +265,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <!-- ══════════════════════════════════════════════════════════
      MODALS
 ═══════════════════════════════════════════════════════════ -->
-
-<!-- 회원 추가 모달 -->
-<div id="addMemberModal" class="modal-bg" onclick="closeModal('addMemberModal',event)">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">회원 추가</div>
-    <div class="err-box" id="memberErr"></div>
-    <div class="field">
-      <label>이름 <span style="color:#f87171">*</span></label>
-      <input id="mName" type="text" placeholder="홍길동" autocomplete="off">
-    </div>
-
-    <div class="field">
-      <label>메모 (선택)</label>
-      <textarea id="mNotes" placeholder="특이사항, 목표 등" rows="2"></textarea>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('addMemberModal')">취소</button>
-      <button class="btn-save" id="btnAddMember" onclick="addMember()">추가</button>
-    </div>
-  </div>
-</div>
 
 
 <!-- 요청사항 추가 모달 -->
@@ -308,7 +354,7 @@ function switchTab(id, btn) {
 async function loadMembers() {
   const { data, error } = await db.from('members')
     .select('*').eq('trainer_id', me.id).order('name');
-  if (error) { showToast('회원 불러오기 실패'); return; }
+  if (await handleDbError(error, '회원 불러오기 실패')) return;
   myMembers = data || [];
   document.getElementById('memberCount').textContent = `(${myMembers.length}명)`;
   renderMemberList();
@@ -344,35 +390,6 @@ function renderMemberList() {
   wrap.innerHTML = html;
 }
 
-function openAddMember() {
-  document.getElementById('mName').value = '';
-  document.getElementById('mNotes').value = '';
-  document.getElementById('memberErr').style.display = 'none';
-  openModal('addMemberModal');
-}
-
-async function addMember() {
-  const name  = document.getElementById('mName').value.trim();
-  const notes = document.getElementById('mNotes').value.trim();
-  const btn   = document.getElementById('btnAddMember');
-
-  document.getElementById('memberErr').style.display = 'none';
-  if (!name) { showModalErr('memberErr', '이름을 입력해주세요'); return; }
-
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>추가 중...';
-  const { error } = await db.from('members').insert({
-    name, gym_location: me.gym_location, notes: notes || null, trainer_id: me.id, is_active: true
-  });
-
-  if (error) {
-    showModalErr('memberErr', '추가 실패: ' + error.message);
-  } else {
-    closeModal('addMemberModal');
-    showToast(`${name} 회원 추가 완료!`);
-    loadMembers();
-  }
-  btn.disabled = false; btn.textContent = '추가';
-}
 
 // ── 회원 상세 ──────────────────────────────────────────────
 async function showMemberDetail(memberId) {
@@ -446,10 +463,10 @@ async function loadLogs() {
 
   // ① 로그 기본정보 먼저 로드 (빠름 ~200ms) → 즉시 렌더
   const { data: logs, error } = await db.from('workout_logs')
-    .select('id,session_date,notes,member_id,members(name)')
+    .select('id,session_date,notes,member_id,is_noshow,members(name)')
     .eq('trainer_id', me.id).eq('is_deleted', false)
     .order('session_date', { ascending: false }).limit(50);
-  if (error) { showToast('수업 일지 불러오기 실패'); return; }
+  if (await handleDbError(error, '수업일지 불러오기 실패')) return;
 
   const cnt = logs?.length || 0;
   document.getElementById('logCount').textContent = cnt ? `(${cnt}개)` : '';
@@ -484,23 +501,28 @@ function renderLogCards(containerId, logs, showMember) {
 
   wrap.innerHTML = logs.map(log => {
     const exs = log.workout_log_exercises || [];
+    const isNoshow = log.is_noshow === true;
     const dateStr = new Date(log.session_date).toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'short' });
     return `
-      <div class="log-card">
+      <div class="log-card" style="${isNoshow ? 'opacity:0.6;border-color:#f59e0b44;' : ''}">
         <div class="log-header">
           <span class="log-date">${dateStr}</span>
+          ${isNoshow ? `<span style="background:#f59e0b22;border:1px solid #f59e0b66;color:#f59e0b;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;margin-left:6px;">노쇼</span>` : ''}
           ${showMember ? `<span class="log-member">${log.members?.name || '-'}</span>` : ''}
         </div>
-        ${exs.length ? `<div class="log-exercises">${exs.map(e => {
-          const nm = e.custom_name || '운동';
-          const setInfo = e.sets_data?.length
-            ? `${e.sets_data.length}세트`
-            : (e.sets ? `${e.sets}×${e.reps}` : '');
-          return `<span class="ex-tag">${nm}${setInfo ? ' ' + setInfo : ''}</span>`;
-        }).join('')}</div>` : ''}
+        ${isNoshow
+          ? `<div style="color:#6a6a8a;font-size:13px;padding:6px 0;">운동 내용 없음</div>`
+          : (exs.length ? `<div class="log-exercises">${exs.map(e => {
+              const nm = e.custom_name || '운동';
+              const setInfo = e.sets_data?.length
+                ? `${e.sets_data.length}세트`
+                : (e.sets ? `${e.sets}×${e.reps}` : '');
+              return `<span class="ex-tag">${nm}${setInfo ? ' ' + setInfo : ''}</span>`;
+            }).join('')}</div>` : '')
+        }
         ${log.notes ? `<div class="log-notes" style="margin-top:8px">${log.notes}</div>` : ''}
         <div class="log-actions">
-          <button class="btn-sm" onclick="location.href='session-write.html?log=${log.id}'">수정</button>
+          ${isNoshow ? '' : `<button class="btn-sm" onclick="location.href='session-write.html?log=${log.id}'">수정</button>`}
           <button class="btn-sm btn-danger" onclick="deleteLog('${log.id}')">삭제</button>
         </div>
       </div>`;
@@ -531,7 +553,7 @@ async function checkPendingReqs() {
 async function loadRequests() {
   const { data, error } = await db.from('requests')
     .select('*').eq('trainer_id', me.id).order('created_at', { ascending: false });
-  if (error) { showToast('불러오기 실패'); return; }
+  if (await handleDbError(error, '요청사항 불러오기 실패')) return;
 
   const pending = data?.filter(r => r.status === 'pending') || [];
   document.getElementById('reqCount').textContent = pending.length ? `(미처리 ${pending.length})` : `(${data?.length || 0}건)`;
@@ -609,6 +631,588 @@ init();
 window.addEventListener('pageshow', (e) => {
   if (e.persisted && !me) init();
 });
+
+// ══════════ 일정 탭 – 구글캘린더 그리드 (오늘~3일 후, 고정) ══════════
+const CAL_START_H=6,CAL_END_H=23,CAL_SLOT_PX=56;
+let scheduleData=[],myMembersForSched=[],_schedEditId=null,_midnightTimer=null;
+const TYPE_COLORS={PT:'#6c63ff',SPT:'#4fc3f7',업무:'#ffb74d',청소:'#66bb6a',홍보:'#f06292',식사:'#ffd54f'};
+const DAY_KO=['일','월','화','수','목','금','토'];
+// 로컬 타임존 기준 YYYY-MM-DD (toISOString은 UTC → KST +9 시차 버그)
+function toYMD(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function fromYMD(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function toHM(t){return t?t.slice(0,5):'';}
+function getCalDates(){
+  const t=new Date();t.setHours(0,0,0,0);
+  // 어제(-1), 오늘(0), 내일(+1), 내일모레(+2)
+  return[-1,0,1,2].map(i=>{const d=new Date(t);d.setDate(d.getDate()+i);return d;});
+}
+async function loadScheduleView(){
+  const dates=getCalDates();
+  if(!myMembersForSched.length&&me){
+    const{data:mems}=await db.from('members').select('id,name').eq('trainer_id',me.id).eq('is_active',true).order('name');
+    myMembersForSched=mems||[];
+  }
+  const{data,error}=await db.from('schedules')
+    .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,color,pt_product_id,pt_products(remaining_sessions,total_sessions)')
+    .eq('trainer_id',me.id)
+    .gte('sched_date',toYMD(dates[0])).lte('sched_date',toYMD(dates[3])).order('start_time');
+  if(error){await handleDbError(error,'일정 불러오기 실패');scheduleData=[];}
+  else scheduleData=data||[];
+  renderCalGrid(dates);
+  scheduleMidnightRefresh();
+}
+// 시간(hh,mm) → 픽셀 Y 좌표 (캘린더 시작 기준)
+function timeToY(hh,mm){return((hh-CAL_START_H)+mm/60)*CAL_SLOT_PX;}
+function renderCalGrid(dates){
+  const todayYMD=toYMD(new Date()),now=new Date(),nowH=now.getHours(),nowM=now.getMinutes();
+  const TOTAL_PX=(CAL_END_H-CAL_START_H+1)*CAL_SLOT_PX; // 전체 높이
+  // ── 날짜 헤더 ──
+  // gutter에 시간표 버튼 삽입
+  document.getElementById('calDateRow').innerHTML=
+    '<div class="cal-gutter" onclick="openBranchSchedModal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none;border:1px solid #6c63ff55;border-radius:6px;margin:3px;">'+
+    '<span style="font-size:9px;color:#6c63ff;font-weight:700;line-height:1.5;text-align:center;">전체</span>'+
+    '<span style="font-size:9px;color:#6c63ff;font-weight:700;line-height:1.5;text-align:center;">시간표</span>'+
+    '</div>'+
+    dates.map(d=>{
+      const isToday=toYMD(d)===todayYMD;
+      const isPast=toYMD(d)<todayYMD;
+      return`<div class="cal-day-hdr${isToday?' today':isPast?' past':''}"><div class="cal-dhdr-name">${DAY_KO[d.getDay()]}</div><div class="cal-dhdr-num">${d.getDate()}</div></div>`;
+    }).join('');
+  // ── 시간 레이블 컬럼 (absolute) ──
+  let timeCol=`<div class="cal-time-col" style="height:${TOTAL_PX}px">`;
+  for(let h=CAL_START_H;h<=CAL_END_H;h++){
+    const y=timeToY(h,0);
+    const lbl=h<12?`오전 ${h}시`:h===12?`오후 12시`:`오후 ${h-12}시`;
+    // 첫 레이블(y=0)은 translateY(-50%)시 위로 잘리므로 top:0에서 내리지 않음
+    const transform=h===CAL_START_H?'translateY(2px)':'translateY(-50%)';
+    timeCol+=`<div class="cal-time-label" style="top:${y}px;transform:${transform}">${lbl}</div>`;
+  }
+  // 마지막 라인 표시용 더미
+  timeCol+=`<div style="position:absolute;top:${TOTAL_PX}px;width:1px;height:1px"></div></div>`;
+  // ── 예약 중 PT 세션 오프셋 계산 (같은 pt_product_id의 scheduled 건을 시간순 정렬 후 +1씩) ──
+  const _ptSorted=scheduleData
+    .filter(s=>s.type==='PT'&&s.status==='scheduled'&&s.pt_product_id)
+    .sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
+  const _ptOffsetMap=new Map();
+  const _ptCnt={};
+  _ptSorted.forEach(s=>{const k=s.pt_product_id;if(!_ptCnt[k])_ptCnt[k]=0;_ptOffsetMap.set(s.id,_ptCnt[k]++);});
+
+  // ── 날짜 컬럼 (absolute 이벤트 포지셔닝) ──
+  const dayCols=dates.map(d=>{
+    const ymd=toYMD(d),isToday=ymd===todayYMD;
+    let col=`<div class="cal-day-col-body" style="height:${TOTAL_PX}px">`;
+    // 그리드라인 + 30분 클릭존
+    for(let h=CAL_START_H;h<=CAL_END_H;h++){
+      const y0=timeToY(h,0),y30=timeToY(h,30);
+      const t00=`${String(h).padStart(2,'0')}:00`,t30=`${String(h).padStart(2,'0')}:30`;
+      const past00=isToday&&(h<nowH||(h===nowH&&nowM>=60));
+      const past30=isToday&&(h<nowH||(h===nowH&&nowM>=30));
+      col+=`<div class="cal-gridline-hr" style="top:${y0}px"></div>`;
+      col+=`<div class="cal-click-zone${past00?' past':''}" style="top:${y0}px;height:${CAL_SLOT_PX/2}px" onclick="openSchedModal(null,'${ymd}','${t00}')"></div>`;
+      col+=`<div class="cal-gridline-half" style="top:${y30}px"></div>`;
+      col+=`<div class="cal-click-zone${past30?' past':''}" style="top:${y30}px;height:${CAL_SLOT_PX/2}px" onclick="openSchedModal(null,'${ymd}','${t30}')"></div>`;
+    }
+    col+=`<div class="cal-gridline-hr" style="top:${TOTAL_PX}px"></div>`;
+    // ── 이벤트 블록 (픽셀 정확 위치) ──
+    scheduleData.filter(s=>s.sched_date===ymd&&s.status!=='cancelled').forEach(s=>{
+      const[sh,sm]=s.start_time.split(':').map(Number);
+      let eh,em;
+      if(s.end_time){[eh,em]=s.end_time.split(':').map(Number);}else{eh=sh+1;em=sm;}
+      const top=timeToY(sh,sm);
+      const dur=(eh-sh)+(em-sm)/60;
+      const height=Math.max(dur*CAL_SLOT_PX,20);
+      const mem=myMembersForSched.find(m=>m.id===s.member_id);
+      const sType=s.type||'PT';
+      const memName=mem?mem.name:'';
+      // 상태별 색상/스타일 처리
+      let evBg,evOpacity='1',evExtra='';
+      if(s.status==='noshow'){
+        evBg='#f59e0b';// 노쇼: 황색 고정 + 어둡게 + 체크
+        evOpacity='0.5';
+        evExtra='<div style="position:absolute;top:2px;right:4px;font-size:10px;opacity:0.9">✓</div>';
+      }else if(s.status==='completed'){
+        evBg=TYPE_COLORS[sType]||'#6c63ff';
+        evOpacity='0.45';// 완료: 원래 색상 어둡게 + 체크
+        evExtra='<div style="position:absolute;top:2px;right:4px;font-size:10px;opacity:0.9">✓</div>';
+      }else{
+        evBg=TYPE_COLORS[sType]||'#6c63ff';// scheduled: 기본
+      }
+      let sessionTxt='';
+      if(sType==='PT'&&s.pt_products){
+        const used=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
+        const offset=s.status==='scheduled'?(_ptOffsetMap.get(s.id)||0):0;
+        sessionTxt=` ${used+offset}/${s.pt_products.total_sessions||0}`;
+      }
+      let evLine1,evLine2;
+      if(sType==='PT'){
+        evLine1=memName||'PT';
+        evLine2=memName?`PT${sessionTxt}`:'';
+      }else if(sType==='SPT'){
+        evLine1='SPT';
+        evLine2=s.notes||'';
+      }else if(sType==='업무'){
+        evLine1='업무';
+        evLine2=s.notes||'';
+      }else{
+        evLine1=sType;
+        evLine2='';
+      }
+      col+=`<div class="cal-event" style="background:${evBg}dd;opacity:${evOpacity};top:${top}px;height:${height}px;position:absolute;" onclick="event.stopPropagation();openSchedInfo('${s.id}')">${evExtra}<div class="cal-event-title">${evLine1}</div>${evLine2?`<div class="cal-event-sub">${evLine2}</div>`:''}</div>`;
+    });
+    // 현재 시간 표시선
+    if(isToday){const ny=timeToY(nowH,nowM);if(ny>=0&&ny<=TOTAL_PX)col+=`<div class="cal-now-line" style="top:${ny}px"></div>`;}
+    col+='</div>';
+    return col;
+  }).join('');
+  document.getElementById('calGrid').innerHTML=timeCol+dayCols;
+  // 현재 시간으로 스크롤 (1시간 여유)
+  document.getElementById('calGridScroll').scrollTop=Math.max(0,timeToY(Math.max(CAL_START_H,nowH-1),0));
+}
+// ── 자정 자동갱신 ────────────────────────────────────────────
+function scheduleMidnightRefresh(){
+  if(_midnightTimer)clearTimeout(_midnightTimer);
+  const now=new Date(),midnight=new Date(now);
+  midnight.setHours(24,0,10,0);
+  _midnightTimer=setTimeout(async()=>{
+    // 자동완료는 DB cron job(auto_complete_old_sessions)이 처리
+    myMembersForSched=[];
+    await loadScheduleView();
+  },midnight-now);
+}
+
+// ── 에러 공통 처리 ──────────────────────────────────────────
+async function handleDbError(error, fallbackMsg) {
+  if (!error) return false;
+  const msg = error.message || '';
+  // JWT 만료 또는 인증 에러 → 재로그인
+  if (msg.includes('JWT') || msg.includes('expired') || msg.includes('Invalid token') || error.status === 401) {
+    await db.auth.signOut();
+    location.replace('trainer-login.html');
+    return true;
+  }
+  showToast((fallbackMsg || '오류') + ': ' + msg.slice(0, 40));
+  return true;
+}
+const _origSwitchTab=switchTab;
+switchTab=function(id,btn){_origSwitchTab(id,btn);if(id==='schedule')loadScheduleView();};
+
+// ══════════ 전체 시간표 이미지 기능 (스프레드시트 형식) ══════════
+const BS_DAYS=['일','월','화','수','목','금','토'];
+let _bsTrainers=[],_bsSchedules=[],_bsCurrentDate='';
+
+function closeBranchSchedModal(){
+  document.getElementById('branchSchedModal').style.display='none';
+}
+
+// 오늘/내일 버튼 토글 상태 반영
+function _bsSetDayBtn(offset){
+  document.getElementById('bsBtnToday').style.background=offset===0?'#6c63ff':'#1e3a5f';
+  document.getElementById('bsBtnToday').style.color=offset===0?'#fff':'#7fb3d3';
+  document.getElementById('bsBtnTomorrow').style.background=offset===1?'#6c63ff':'#1e3a5f';
+  document.getElementById('bsBtnTomorrow').style.color=offset===1?'#fff':'#7fb3d3';
+}
+
+async function onBsDay(offset){
+  _bsSetDayBtn(offset);
+  const d=new Date();d.setDate(d.getDate()+offset);
+  _bsCurrentDate=toYMD(d);
+  document.getElementById('bsDatePicker').value=_bsCurrentDate;
+  document.getElementById('bsSubtitle').textContent='불러오는 중...';
+  await _bsLoadDay(_bsCurrentDate);
+  drawBranchCanvas(_bsCurrentDate);
+}
+
+async function openBranchSchedModal(){
+  document.getElementById('branchSchedModal').style.display='flex';
+  _bsSetDayBtn(0);
+  const today=toYMD(new Date());
+  _bsCurrentDate=today;
+  document.getElementById('bsDatePicker').value=today;
+  document.getElementById('bsSubtitle').textContent='불러오는 중...';
+  // 같은 지점 트레이너 목록
+  const gym=me?.gym_location||'';
+  const{data:trainerList}=await db.from('trainers')
+    .select('id,name').eq('gym_location',gym).eq('is_active',true).eq('is_admin',false).order('name');
+  _bsTrainers=trainerList||[];
+  await _bsLoadDay(today);
+  drawBranchCanvas(today);
+}
+
+async function _bsLoadDay(dateStr){
+  if(!_bsTrainers.length)return;
+  const ids=_bsTrainers.map(t=>t.id);
+  const{data}=await db.from('schedules')
+    .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,pt_product_id,members(name),pt_products(total_sessions,remaining_sessions)')
+    .in('trainer_id',ids).eq('sched_date',dateStr).neq('status','cancelled').order('start_time');
+  _bsSchedules=data||[];
+}
+
+/* ── 스프레드시트형 캔버스 렌더링 (단일 테이블 6~23시) ── */
+function drawBranchCanvas(dateStr){
+  const canvas=document.getElementById('bsCanvas');
+  const ctx=canvas.getContext('2d');
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+
+  // ── A4 가로 고정 (1240×877, 비율 297:210) ──
+  const CANVAS_W=1240,CANVAS_H=877;
+  const T_START=6,T_END=23,NUM_COLS=T_END-T_START+1; // 18열
+  const LABEL_W=80,SUM_W=46,SUM_N=4,TOTAL_SUM_W=SUM_W*SUM_N; // 184
+  const COL_W=Math.floor((CANVAS_W-LABEL_W-TOTAL_SUM_W)/NUM_COLS); // ~54
+  const ACTUAL_TIME_W=COL_W*NUM_COLS;
+  const TITLE_H=52,SUB_H=22,TH=28,FOOTER_H=44;
+
+  // 트레이너 최대 10명 + 빈칸 1행
+  const trainers=_bsTrainers.slice(0,10);
+  const nRows=trainers.length+1; // +1 empty
+  const ROW_H=Math.floor((CANVAS_H-TITLE_H-SUB_H-TH-FOOTER_H)/nRows);
+  const TABLE_H=TH+nRows*ROW_H;
+
+  canvas.width=CANVAS_W*dpr;canvas.height=CANVAS_H*dpr;
+  canvas.style.width=CANVAS_W+'px';canvas.style.height=CANVAS_H+'px';
+  ctx.scale(dpr,dpr);
+
+  // 날짜 파싱
+  const[yr,mo,da]=dateStr.split('-').map(Number);
+  const dow=new Date(yr,mo-1,da).getDay();
+  const gymLoc=me?.gym_location||''; // DB에 이미 "점" 포함 (미사점)
+  const dateLabel=`${mo}/${da}(${BS_DAYS[dow]})`;
+  document.getElementById('bsSubtitle').textContent=`${gymLoc} · ${dateLabel} · 트레이너 ${trainers.length}명`;
+
+  const CELL_BG={SPT:'#ede8ff',업무:'#ddeeff',청소:'#e4ffe4',홍보:'#ffe4f0',식사:'#ffd6d6'};
+  const FONT=`'Apple SD Gothic Neo','Noto Sans KR',sans-serif`;
+  function cleanName(raw){return(raw||'').replace(/\d+$/,'').trim().slice(0,3);}
+
+  // ── 흰 배경 ──
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
+
+  // ── 제목 (gymLoc 그대로, "점" 중복 방지) ──
+  ctx.fillStyle='#111';ctx.font=`bold 20px ${FONT}`;ctx.textAlign='center';
+  ctx.fillText(`베라짐 ${gymLoc} ${dateLabel} PT팀 데일리차트`,CANVAS_W/2,TITLE_H-10);
+  ctx.fillStyle='#666';ctx.font=`10px ${FONT}`;
+  ctx.fillText('업무 우선순위 : 미팅 → 수업 → 식사 → 청소 → 홍보 → PT',CANVAS_W/2,TITLE_H+8);
+
+  const tableY=TITLE_H+SUB_H;
+
+  // ── 헤더 배경 ──
+  ctx.fillStyle='#f0f0f0';ctx.fillRect(0,tableY,LABEL_W,TH);
+  ctx.fillStyle='#f5f5f5';ctx.fillRect(LABEL_W,tableY,ACTUAL_TIME_W,TH);
+
+  const timeEndX=LABEL_W+ACTUAL_TIME_W;
+  // 트레이너 행 높이 (비고 행 제외) — 시간 헤더 루프보다 먼저 정의
+  const trainerRowsH=TH+trainers.length*ROW_H;
+
+  // ── 시간 헤더 + 얇은 세로선 (요약열선보다 얇게) ──
+  for(let i=0;i<NUM_COLS;i++){
+    const h=T_START+i;
+    const x=LABEL_W+i*COL_W;
+    ctx.fillStyle='#333';ctx.font=`bold 10px ${FONT}`;ctx.textAlign='center';
+    ctx.fillText(`${h}시`,x+COL_W/2,tableY+TH/2+4);
+    // 얇은 실선 (시간 사이, 트레이너 행까지만)
+    ctx.strokeStyle='#ccc';ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(x,tableY);ctx.lineTo(x,tableY+trainerRowsH);ctx.stroke();
+  }
+  // 시간영역↔요약열 경계선 (굵게)
+  ctx.strokeStyle='#888';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(timeEndX,tableY);ctx.lineTo(timeEndX,tableY+trainerRowsH);ctx.stroke();
+
+  // ── 요약열 헤더 ──
+  const sumLabels=['SPT','PT','NS','PT합계'];
+  const sumBgs=['#e8d5ff','#c8e0ff','#ffd5d5','#ffeb9c'];
+  const sumFg=['#5b21b6','#1e40af','#b91c1c','#374151'];
+  sumLabels.forEach((lbl,si)=>{
+    const sx=timeEndX+si*SUM_W;
+    ctx.fillStyle=sumBgs[si];ctx.fillRect(sx,tableY,SUM_W,TH);
+    ctx.fillStyle=sumFg[si];ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';
+    ctx.fillText(lbl,sx+SUM_W/2,tableY+TH/2+4);
+    // 요약열 세로선 (트레이너 행 + 비고 행 전체)
+    ctx.strokeStyle='#888';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(sx,tableY);ctx.lineTo(sx,tableY+TABLE_H);ctx.stroke();
+  });
+  ctx.beginPath();ctx.moveTo(CANVAS_W,tableY);ctx.lineTo(CANVAS_W,tableY+TABLE_H);ctx.stroke();
+
+  // ── 트레이너 행 (최대 10명) ──
+  trainers.forEach((trainer,ti)=>{
+    const rowY=tableY+TH+ti*ROW_H;
+    ctx.fillStyle=ti%2===0?'#fafafa':'#f3f5f9';
+    ctx.fillRect(0,rowY,timeEndX,ROW_H);
+    ctx.fillStyle='#ffffff';ctx.fillRect(timeEndX,rowY,TOTAL_SUM_W,ROW_H);
+    ctx.strokeStyle='#ccc';ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(0,rowY+ROW_H);ctx.lineTo(CANVAS_W,rowY+ROW_H);ctx.stroke();
+
+    // 트레이너 이름 (수직 가운데)
+    ctx.fillStyle='#111';ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';
+    ctx.fillText(trainer.name,LABEL_W/2,rowY+ROW_H/2+4);
+
+    // 세션 셀
+    for(let i=0;i<NUM_COLS;i++){
+      const h=T_START+i;
+      const cellX=LABEL_W+i*COL_W;
+      const sess=_bsSchedules.find(s=>s.trainer_id===trainer.id&&parseInt(s.start_time)===h);
+      if(!sess)continue;
+
+      if(sess.type!=='PT'){
+        ctx.fillStyle=CELL_BG[sess.type]||'#f0f0f0';
+        ctx.fillRect(cellX+1,rowY+1,COL_W-2,ROW_H-2);
+      }
+
+      ctx.textAlign='center';
+      if(sess.type==='PT'||sess.type==='SPT'){
+        const name=cleanName(sess.members?.name||'');
+        const used=(sess.pt_products?.total_sessions||0)-(sess.pt_products?.remaining_sessions||0);
+        const total=sess.pt_products?.total_sessions||0;
+        // 위아래 가운데 정렬
+        const line1Y=rowY+ROW_H/2-6;
+        const line2Y=rowY+ROW_H/2+9;
+        ctx.fillStyle='#111';ctx.font=`bold 11px ${FONT}`;
+        ctx.fillText(name||sess.type,cellX+COL_W/2,line1Y);
+        ctx.fillStyle='#444';ctx.font=`9px ${FONT}`;
+        ctx.fillText(`PT${used}/${total}`,cellX+COL_W/2,line2Y);
+      }else{
+        ctx.fillStyle='#333';ctx.font=`bold 10px ${FONT}`;
+        ctx.fillText(sess.type,cellX+COL_W/2,rowY+ROW_H/2+4);
+      }
+    }
+
+    // 요약열 세로선 재그리기
+    sumLabels.forEach((_,si)=>{
+      const sx=timeEndX+si*SUM_W;
+      ctx.strokeStyle='#888';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(sx,rowY);ctx.lineTo(sx,rowY+ROW_H);ctx.stroke();
+    });
+    ctx.beginPath();ctx.moveTo(CANVAS_W,rowY);ctx.lineTo(CANVAS_W,rowY+ROW_H);ctx.stroke();
+  });
+
+  // ── 비고 행: │비고│──공란──│SPT│PT│NS│합계│ ──
+  const emptyRowY=tableY+trainerRowsH;
+  // 비고 라벨셀 (회색 배경)
+  ctx.fillStyle='#f0f0f0';ctx.fillRect(0,emptyRowY,LABEL_W,ROW_H);
+  ctx.fillStyle='#555';ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';
+  ctx.fillText('비고',LABEL_W/2,emptyRowY+ROW_H/2+4);
+  // 시간 영역 — 합친 흰 공백 (세로선 없음)
+  ctx.fillStyle='#ffffff';ctx.fillRect(LABEL_W,emptyRowY,ACTUAL_TIME_W,ROW_H);
+  // 시간영역↔요약열 경계선 (비고 행)
+  ctx.strokeStyle='#888';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(timeEndX,emptyRowY);ctx.lineTo(timeEndX,emptyRowY+ROW_H);ctx.stroke();
+  // 요약열 4칸 — 각각 흰 공란 (수기 작성용, 세로선은 위에서 전체로 그려짐)
+  sumLabels.forEach((_,si)=>{
+    const sx=timeEndX+si*SUM_W;
+    ctx.fillStyle='#ffffff';ctx.fillRect(sx,emptyRowY,SUM_W,ROW_H);
+  });
+
+  // ── 외곽선 & 라벨열 오른쪽 선 & 헤더 하단선 ──
+  ctx.strokeStyle='#888';ctx.lineWidth=1.5;
+  ctx.strokeRect(0,tableY,CANVAS_W,TABLE_H);
+  ctx.beginPath();ctx.moveTo(LABEL_W,tableY);ctx.lineTo(LABEL_W,tableY+TABLE_H);ctx.stroke();
+  ctx.strokeStyle='#999';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,tableY+TH);ctx.lineTo(CANVAS_W,tableY+TH);ctx.stroke();
+
+  // ── 예고 메모 (footer) ──
+  const footerY=tableY+TABLE_H+8;
+  const scheduled=_bsSchedules.filter(s=>s.status==='scheduled'&&(s.type==='PT'||s.type==='SPT'));
+  if(scheduled.length){
+    const byTrainer=trainers.map(t=>{
+      const tS=scheduled.filter(s=>s.trainer_id===t.id);
+      if(!tS.length)return null;
+      const parts=tS.map(s=>{
+        const h=parseInt(s.start_time);
+        const used=(s.pt_products?.total_sessions||0)-(s.pt_products?.remaining_sessions||0);
+        const tot=s.pt_products?.total_sessions||0;
+        return`${h}시 ${cleanName(s.members?.name||'')}PT${used}/${tot}`;
+      });
+      return`${t.name} - ${parts.join(', ')}`;
+    }).filter(Boolean);
+    ctx.fillStyle='#444';ctx.font=`10px ${FONT}`;ctx.textAlign='center';
+    const half=Math.ceil(byTrainer.length/2);
+    ctx.fillText(byTrainer.slice(0,half).join(' | '),CANVAS_W/2,footerY+14);
+    if(byTrainer.length>half)ctx.fillText(byTrainer.slice(half).join(' | '),CANVAS_W/2,footerY+28);
+  }
+}
+
+async function downloadBranchSched(){
+  const canvas=document.getElementById('bsCanvas');
+  const dateStr=_bsCurrentDate||toYMD(new Date());
+  const[yr,mo,da]=dateStr.split('-');
+  const fname=`베라짐_시간표_${yr}${mo}${da}.jpg`;
+  try{
+    const blob=await new Promise(res=>canvas.toBlob(res,'image/jpeg',0.93));
+    const file=new File([blob],fname,{type:'image/jpeg'});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:'베라짐 시간표'});return;
+    }
+  }catch(e){if(e.name==='AbortError')return;}
+  const url=canvas.toDataURL('image/jpeg',0.93);
+  const a=document.createElement('a');
+  a.href=url;a.download=fname;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>document.body.removeChild(a),200);
+  if(/iPhone|iPad/i.test(navigator.userAgent)){
+    setTimeout(()=>{const w=window.open();if(w){w.document.write(`<img src="${url}" style="max-width:100%;display:block;">`);w.document.title='시간표';}},500);
+  }
+}
+
+
+// ══════════ 일정 상세/액션 모달 ══════════
+const SI_STATUS_COLOR={scheduled:'#6c63ff',completed:'#22c55e',noshow:'#f59e0b',cancelled:'#6b7280'};
+const SI_STATUS_LABEL={scheduled:'예약됨',completed:'완료',noshow:'노쇼',cancelled:'취소됨'};
+let _siTarget=null,_siActionPending=null;
+
+function calcDurMin(start,end){if(!start||!end)return 60;const[sh,sm]=start.split(':').map(Number);const[eh,em]=end.split(':').map(Number);const d=(eh*60+em)-(sh*60+sm);return d>0?d:60;}
+
+function openSchedInfo(schedId){
+  _siTarget=scheduleData.find(s=>s.id===schedId);
+  if(!_siTarget)return;
+  _siActionPending=null;
+  const s=_siTarget;
+  const mem=myMembersForSched.find(m=>m.id===s.member_id);
+  // 헤더: PT=회원명, SPT/업무=notes, 기타=유형명
+  let siHeaderName;
+  if(s.type==='PT') siHeaderName=mem?.name||(s.type||'일정');
+  else if(s.type==='SPT'||s.type==='업무') siHeaderName=s.notes||(s.type||'일정');
+  else siHeaderName=s.type||'일정';
+  document.getElementById('siMember').textContent=siHeaderName;
+  const sc=SI_STATUS_COLOR[s.status]||'#666';
+  document.getElementById('siStatus').innerHTML=`<span style="background:${sc}33;border:1px solid ${sc}66;color:${sc};padding:3px 12px;border-radius:99px;font-size:12px;font-weight:700;">${SI_STATUS_LABEL[s.status]||s.status}</span>`;
+  // 상세
+  const[y,mo,d]=s.sched_date.split('-').map(Number);
+  const dateObj=new Date(y,mo-1,d);
+  const DAY_KO2=['일','월','화','수','목','금','토'];
+  const timeStr=s.start_time?s.start_time.slice(0,5):'--:--';
+  const dur=calcDurMin(s.start_time,s.end_time);
+  document.getElementById('siDateTime').textContent=`${mo}/${d}(${DAY_KO2[dateObj.getDay()]}) ${timeStr} (${dur}분)`;
+  document.getElementById('siType').textContent=s.type||'PT';
+  // PT 회차
+  const sessRow=document.getElementById('siSessionRow');
+  if(s.type==='PT'){
+    sessRow.style.display='flex';
+    if(s.pt_products){
+      const u=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
+      // scheduled 상태면 같은 pt_product 중 앞에 있는 예약 수만큼 +N 표시
+      const ptSorted=scheduleData.filter(x=>x.type==='PT'&&x.status==='scheduled'&&x.pt_product_id===s.pt_product_id).sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
+      const offset=s.status==='scheduled'?ptSorted.findIndex(x=>x.id===s.id):0;
+      document.getElementById('siSession').textContent=`${u+(offset>=0?offset:0)}/${s.pt_products.total_sessions||0}회 사용`;
+    }
+    else document.getElementById('siSession').textContent='-';
+  }else{sessRow.style.display='none';}
+  document.getElementById('siErr').style.display='none';
+  renderSiActions();
+  document.getElementById('schedInfoModal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function renderSiActions(){
+  if(!_siTarget)return;
+  const s=_siTarget;
+  const acts=document.getElementById('siActions');
+  const isPtSpt=(s.type==='PT'||s.type==='SPT');
+  if(s.status==='scheduled'){
+    if(isPtSpt){
+      acts.innerHTML=`
+        <button id="siBtnComplete" onclick="siAction('complete')" style="width:100%;background:#22c55e22;border:1.5px solid #22c55e55;color:#4ade80;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">완료 처리</button>
+        <button id="siBtnNoshow" onclick="siAction('noshow')" style="width:100%;background:#f59e0b22;border:1.5px solid #f59e0b55;color:#fbbf24;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">노쇼 처리</button>
+        <div style="display:flex;gap:10px;">
+          <button id="siBtnCancel" onclick="siAction('cancel')" style="flex:1;background:#ff4d4f22;border:1.5px solid #ff4d4f55;color:#ff4d4f;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">예약 취소</button>
+          <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)" style="flex:1;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">수정</button>
+        </div>`;
+    }else{
+      // 업무/청소/홍보/식사: 완료 버튼 추가 (세션 차감 없이 상태만 변경)
+      acts.innerHTML=`
+        <button id="siBtnComplete" onclick="siAction('complete')" style="width:100%;background:#22c55e22;border:1.5px solid #22c55e55;color:#4ade80;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">완료 처리</button>
+        <div style="display:flex;gap:10px;">
+          <button id="siBtnCancel" onclick="siAction('cancel')" style="flex:1;background:#ff4d4f22;border:1.5px solid #ff4d4f55;color:#ff4d4f;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">예약 취소</button>
+          <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)" style="flex:1;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">수정</button>
+        </div>`;
+    }
+  }else if(s.status==='completed'||s.status==='noshow'){
+    // 완료/노쇼: 롤백 버튼 제공
+    acts.innerHTML=`
+      <button id="siBtnRollback" onclick="siRollback()" style="width:100%;background:#6c63ff22;border:1.5px solid #6c63ff55;color:#a5b4fc;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">수업 롤백 (예약 상태로 복원)</button>
+      <button onclick="closeSchedInfo()" style="width:100%;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">닫기</button>`;
+  }else{
+    acts.innerHTML=`<button onclick="closeSchedInfo()" style="width:100%;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">닫기</button>`;
+  }
+}
+
+async function siAction(action){
+  if(!_siTarget)return;
+  const errEl=document.getElementById('siErr');
+  errEl.style.display='none';
+  // 1차 탭: 확인 요청
+  if(_siActionPending!==action){
+    _siActionPending=action;
+    const ids={complete:'siBtnComplete',noshow:'siBtnNoshow',cancel:'siBtnCancel'};
+    const labels={complete:'완료 처리 — 한 번 더 탭해서 확인',noshow:'노쇼 처리 — 한 번 더 탭해서 확인',cancel:'취소 — 한 번 더 탭해서 확인'};
+    const btn=document.getElementById(ids[action]);
+    if(btn){btn.textContent=labels[action];}
+    setTimeout(()=>{if(_siActionPending===action){_siActionPending=null;renderSiActions();}},3000);
+    return;
+  }
+  // 2차 탭: 실행
+  _siActionPending=null;
+  document.getElementById('siActions').querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+    if(action==='complete'||action==='noshow'){
+      const targetId=_siTarget.id;
+      const memberId=_siTarget.member_id;
+      const schedDate=_siTarget.sched_date;
+      const schedType=_siTarget.type;
+      const _mem=myMembersForSched.find(m=>m.id===memberId);
+      const memberName=_mem?.name||'회원';
+      const{data,error}=await db.rpc('process_session',{p_schedule_id:_siTarget.id,p_action:action==='complete'?'completed':'noshow'});
+      if(error||!data?.ok)throw new Error(error?.message||data?.error||'처리 실패');
+      closeSchedInfo();
+      showToast(action==='complete'?'수업 완료 처리되었습니다':'노쇼 처리되었습니다');
+      await loadScheduleView();
+      // 수업일지 연결 모달: PT 완료 시에만 (SPT·기타는 개인 일지 없음)
+      if(action==='complete'&&schedType==='PT'&&memberId){
+        await openLinkLogModal(targetId,memberId,schedDate,memberName);
+      }
+    }else if(action==='cancel'){
+      const{error}=await db.from('schedules').update({status:'cancelled'}).eq('id',_siTarget.id);
+      if(error)throw new Error('취소 실패: '+error.message);
+      closeSchedInfo();
+      showToast('예약이 취소되었습니다');
+      await loadScheduleView();
+    }
+  }catch(e){
+    errEl.textContent=e.message;errEl.style.display='block';
+    document.getElementById('siActions').querySelectorAll('button').forEach(b=>b.disabled=false);
+    renderSiActions();
+  }
+}
+
+// ── 수업 롤백 ─────────────────────────────────────────────────
+let _siRollbackPending=false;
+async function siRollback(){
+  if(!_siTarget)return;
+  const btn=document.getElementById('siBtnRollback');
+  const errEl=document.getElementById('siErr');
+  errEl.style.display='none';
+  if(!_siRollbackPending){
+    _siRollbackPending=true;
+    if(btn)btn.textContent='롤백 — 한 번 더 탭해서 확인';
+    setTimeout(()=>{if(_siRollbackPending){_siRollbackPending=false;renderSiActions();}},3000);
+    return;
+  }
+  _siRollbackPending=false;
+  if(btn)btn.disabled=true;
+  try{
+    const{data,error}=await db.rpc('rollback_session',{p_schedule_id:_siTarget.id});
+    if(error||!data?.ok)throw new Error(error?.message||data?.error||'롤백 실패');
+    closeSchedInfo();
+    showToast('수업이 예약 상태로 복원됐습니다');
+    await loadScheduleView();
+  }catch(e){
+    errEl.textContent=e.message;errEl.style.display='block';
+    if(btn)btn.disabled=false;
+    renderSiActions();
+  }
+}
+
+function closeSchedInfo(){
+  document.getElementById('schedInfoModal').style.display='none';
+  document.body.style.overflow='';
+  _siTarget=null;_siActionPending=null;
+}
 </script>
 <script>
 if ('serviceWorker' in navigator) {
@@ -617,5 +1221,305 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<!-- ===== 일정 모달 ===== -->
+<div id="schedModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
+  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:16px 16px 0 0;padding:24px 20px 32px;box-sizing:border-box;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 id="schedModalTitle" style="margin:0;font-size:17px;font-weight:700;color:#fff;">일정 추가</h3>
+      <button onclick="closeSchedModal()" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;">&times;</button>
+    </div>
+    <div id="schedModalErr" style="display:none;background:#ff4d4f22;color:#ff4d4f;border:1px solid #ff4d4f55;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px;"></div>
+    <div style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">날짜</label>
+      <input id="schedDate" type="date" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;"></div>
+    <div style="margin-bottom:8px;">
+      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">시작 시간 <span style="font-size:10px;color:#6c63ff;font-weight:600">탭하여 조정 ▼</span></label>
+      <div id="schedStartDisplay" onclick="toggleTimePicker()" style="width:100%;background:#241850;border:1.5px solid #6c63ff;border-radius:8px;color:#fff;padding:11px 14px;font-size:16px;font-weight:700;cursor:pointer;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;-webkit-tap-highlight-color:transparent;">
+        <span id="schedStartLabel">오전 9:00</span>
+        <span style="font-size:11px;color:#9d8fdb;font-weight:400">변경 ▼</span>
+      </div>
+      <input id="schedStart" type="hidden" value="09:00">
+      <div id="timePickerDrop" style="display:none;background:#1a1a2e;border:1px solid #3a3a5c;border-radius:8px;max-height:168px;overflow-y:auto;margin-top:4px;position:relative;z-index:50;-webkit-overflow-scrolling:touch;"></div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">종료 시간 <span style="font-size:10px;color:#2a4060">시작 +60분 자동</span></label>
+      <div id="schedEndDisplay" style="width:100%;background:#141f35;border:1px solid #1e3a5f44;border-radius:8px;color:#4a6580;padding:11px 14px;font-size:16px;font-weight:700;box-sizing:border-box;">오전 10:00</div>
+      <input id="schedEnd" type="hidden" value="10:00">
+    </div>
+    <div style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">유형</label>
+      <div style="position:relative;">
+        <select id="schedType" onchange="onSchedTypeChange()" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 40px 10px 12px;font-size:14px;box-sizing:border-box;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;">
+          <option value="PT">PT</option>
+          <option value="SPT">SPT</option>
+          <option value="업무">업무</option>
+          <option value="청소">청소</option>
+          <option value="홍보">홍보</option>
+          <option value="식사">식사</option>
+        </select>
+        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:#aaa;font-size:12px;">▼</span>
+      </div></div>
+    <div id="schedMemberRow" style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">회원 (선택)</label>
+      <select id="schedMember" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;-webkit-appearance:none;">
+        <option value="">-- 회원 없음 --</option></select></div>
+    <div id="schedMemberTextRow" style="display:none;margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">회원</label>
+      <input id="schedMemberText" type="text" placeholder="회원명을 입력해주세요" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;font-family:inherit;"></div>
+    <div id="schedNotesRow" style="margin-bottom:20px;display:none;"><label id="schedNotesLabel" style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">내용</label>
+      <textarea id="schedNotes" rows="3" placeholder="" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;resize:vertical;font-family:inherit;"></textarea></div>
+    <div style="display:flex;gap:10px;">
+      <button id="schedDeleteBtn" onclick="deleteSchedule()" style="display:none;flex:1;background:#3a1a1a;border:1px solid #ff4d4f55;color:#ff4d4f;border-radius:10px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;">삭제</button>
+      <button id="schedSaveBtn" onclick="saveSchedule()" style="flex:2;background:#6c63ff;border:none;color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 일정 상세/액션 모달 ===== -->
+<div id="schedInfoModal" style="display:none;position:fixed;inset:0;z-index:1001;background:rgba(0,0,0,0.55);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeSchedInfo()">
+  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:0 20px calc(28px + env(safe-area-inset-bottom));box-sizing:border-box;max-height:85dvh;overflow-y:auto;animation:slideUp .22s ease;">
+    <div style="width:36px;height:4px;background:#3a3a5c;border-radius:99px;margin:14px auto 20px;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div id="siMember" style="font-size:18px;font-weight:800;color:#fff;"></div>
+      <div id="siStatus"></div>
+    </div>
+    <div style="background:#141428;border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2a2a3c;">
+        <span style="font-size:12px;color:#6a6a8a;">날짜/시간</span>
+        <span id="siDateTime" style="font-size:13px;color:#fff;font-weight:600;"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2a2a3c;">
+        <span style="font-size:12px;color:#6a6a8a;">유형</span>
+        <span id="siType" style="font-size:13px;color:#fff;font-weight:600;"></span>
+      </div>
+      <div id="siSessionRow" style="display:flex;justify-content:space-between;padding:5px 0;">
+        <span style="font-size:12px;color:#6a6a8a;">PT 회차</span>
+        <span id="siSession" style="font-size:13px;color:#fff;font-weight:600;"></span>
+      </div>
+    </div>
+    <div id="siErr" style="display:none;background:#ff4d4f22;color:#ff4d4f;border:1px solid #ff4d4f55;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:10px;"></div>
+    <div id="siActions" style="display:flex;flex-direction:column;gap:10px;margin-top:14px;"></div>
+  </div>
+</div>
+
+<script>
+// ── 유형 변경 시 회원 행 show/hide ──────────────────────────
+function onSchedTypeChange(){
+  const t=document.getElementById('schedType').value;
+  // PT: 회원 드롭다운 표시 / SPT: 텍스트 입력 표시 / 기타: 둘 다 숨김
+  document.getElementById('schedMemberRow').style.display=(t==='PT')?'':'none';
+  document.getElementById('schedMemberTextRow').style.display=(t==='SPT')?'':'none';
+  // 내용 칸: PT·SPT 제외 유형에서 표시 (SPT는 schedMemberTextRow가 notes 역할)
+  const notesRow=document.getElementById('schedNotesRow');
+  const notesLabel=document.getElementById('schedNotesLabel');
+  const notesTA=document.getElementById('schedNotes');
+  const notesMap={업무:'어떤 업무인지 입력해주세요',청소:'청소 범위/내용을 입력해주세요',홍보:'홍보 내용을 입력해주세요',식사:'메모를 입력해주세요'};
+  if(t==='PT'||t==='SPT'){notesRow.style.display='none';}
+  else{notesRow.style.display='';notesLabel.textContent='내용';notesTA.placeholder=notesMap[t]||'내용을 입력해주세요';}
+}
+// ── 커스텀 타임픽커 (30분 단위) ──────────────────────────────
+function formatKorTime(t){
+  if(!t)return'--:--';
+  const[hh,mm]=t.split(':').map(Number);
+  const p=hh<12?'오전':'오후';const h=hh%12||12;
+  return`${p} ${h}:${String(mm).padStart(2,'0')}`;
+}
+function calcEndTime(t){
+  const[hh,mm]=t.split(':').map(Number);
+  const tot=hh*60+mm+60;
+  return`${String(Math.floor(tot/60)%24).padStart(2,'0')}:${String(tot%60).padStart(2,'0')}`;
+}
+function setStartTime(t){
+  document.getElementById('schedStart').value=t;
+  document.getElementById('schedStartLabel').textContent=formatKorTime(t);
+  const et=calcEndTime(t);
+  document.getElementById('schedEnd').value=et;
+  document.getElementById('schedEndDisplay').textContent=formatKorTime(et);
+}
+function toggleTimePicker(){
+  const drop=document.getElementById('timePickerDrop');
+  if(drop.style.display!=='none'){drop.style.display='none';return;}
+  const cur=document.getElementById('schedStart').value||'09:00';
+  const opts=[];
+  for(let h=CAL_START_H;h<24;h++){
+    opts.push(`${String(h).padStart(2,'0')}:00`);
+    opts.push(`${String(h).padStart(2,'0')}:30`);
+  }
+  drop.innerHTML=opts.map(t=>{
+    const isSel=t===cur;
+    return`<div onclick="selectSchedTime('${t}')" style="padding:10px 14px;font-size:15px;color:${isSel?'#6c63ff':'#ccc'};background:${isSel?'#1e1040':'transparent'};cursor:pointer;border-bottom:1px solid #2a2a3c22;font-weight:${isSel?700:400};-webkit-tap-highlight-color:transparent">${formatKorTime(t)}</div>`;
+  }).join('');
+  drop.style.display='block';
+  const idx=opts.indexOf(cur);
+  if(idx>=0)setTimeout(()=>drop.scrollTop=Math.max(0,(idx-2)*42),30);
+}
+function selectSchedTime(t){
+  setStartTime(t);
+  document.getElementById('timePickerDrop').style.display='none';
+}
+// ── 모달 열기/닫기 ───────────────────────────────────────────
+function openSchedModal(schedId,date,time){
+  const sel=document.getElementById('schedMember');
+  sel.innerHTML='<option value="">-- 회원 없음 --</option>';
+  (myMembersForSched||[]).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.name;sel.appendChild(o);});
+  document.getElementById('timePickerDrop').style.display='none';
+  if(schedId){
+    db.from('schedules').select('*').eq('id',schedId).single().then(({data})=>{
+      if(!data)return;
+      document.getElementById('schedDate').value=data.sched_date;
+      const st=toHM(data.start_time);
+      setStartTime(st);
+      // 수정 시 종료 시간은 DB 값 유지 (사용자가 설정한 값)
+      const et=toHM(data.end_time)||calcEndTime(st);
+      document.getElementById('schedEnd').value=et;
+      document.getElementById('schedEndDisplay').textContent=formatKorTime(et);
+      document.getElementById('schedType').value=data.type||'PT';
+      if(data.type==='SPT'){
+        // SPT: notes는 schedMemberText(회원/내용 텍스트 입력)에 세팅
+        document.getElementById('schedMemberText').value=data.notes||'';
+        document.getElementById('schedNotes').value='';
+      }else{
+        document.getElementById('schedMemberText').value='';
+        document.getElementById('schedNotes').value=data.notes||'';
+      }
+      sel.value=data.member_id||'';
+      onSchedTypeChange();
+      document.getElementById('schedDeleteBtn').style.display='block';
+      document.getElementById('schedModalTitle').textContent='일정 수정';
+    });
+  }else{
+    document.getElementById('schedDate').value='';
+    document.getElementById('schedNotes').value='';
+    document.getElementById('schedMemberText').value='';
+    document.getElementById('schedType').value='PT';
+    sel.value='';document.getElementById('schedDeleteBtn').style.display='none';
+    document.getElementById('schedDate').value=date||'';
+    setStartTime(time||'09:00');
+    onSchedTypeChange();
+    document.getElementById('schedModalTitle').textContent='일정 추가';
+  }
+  _schedEditId=schedId||null;
+  document.getElementById('schedModalErr').style.display='none';
+  document.getElementById('schedModal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeSchedModal(){
+  document.getElementById('schedModal').style.display='none';
+  document.getElementById('timePickerDrop').style.display='none';
+  document.body.style.overflow='';_schedEditId=null;
+}
+async function saveSchedule(){
+  const btn=document.getElementById('schedSaveBtn'),errEl=document.getElementById('schedModalErr');
+  const date=document.getElementById('schedDate').value.trim();
+  const start=document.getElementById('schedStart').value.trim();
+  errEl.style.display='none';
+  if(!date){errEl.textContent='날짜를 입력해주세요.';errEl.style.display='block';return;}
+  if(!start){errEl.textContent='시작 시간을 입력해주세요.';errEl.style.display='block';return;}
+  btn.disabled=true;btn.textContent='저장 중...';
+  const selType=document.getElementById('schedType').value||'PT';
+  // PT만 드롭다운 회원 연결 / SPT·기타는 member_id 없음
+  const selMember=(selType==='PT')?document.getElementById('schedMember').value||null:null;
+  // PT 유형 + 회원 선택 시 active pt_product 자동 연결
+  let ptProductId=null;
+  if(selType==='PT'&&selMember){
+    const{data:prod}=await db.from('pt_products').select('id').eq('member_id',selMember).eq('status','active').maybeSingle();
+    ptProductId=prod?.id||null;
+  }
+  // notes: SPT는 schedMemberText(회원/내용 입력칸)에서 읽음, 나머지는 schedNotes에서 읽음
+  const notesVal = selType==='SPT'
+    ? document.getElementById('schedMemberText').value.trim()||null
+    : selType==='PT' ? null
+    : document.getElementById('schedNotes').value.trim()||null;
+  const payload={trainer_id:me.id,sched_date:date,start_time:start,end_time:document.getElementById('schedEnd').value||null,type:selType,notes:notesVal,color:TYPE_COLORS[selType]||'#6c63ff',member_id:selMember,pt_product_id:ptProductId};
+  let error;
+  if(_schedEditId){({error}=await db.from('schedules').update(payload).eq('id',_schedEditId));}
+  else{({error}=await db.from('schedules').insert({...payload,status:'scheduled'}));}
+  btn.disabled=false;btn.textContent='저장';
+  if(error){errEl.textContent=error.message;errEl.style.display='block';return;}
+  closeSchedModal();showToast(_schedEditId?'일정 수정 완료':'일정 추가 완료');await loadScheduleView();
+}
+let _deleteConfirmPending = false;
+async function deleteSchedule(){
+  if(!_schedEditId) return;
+  const btn = document.getElementById('schedDeleteBtn');
+  if(!_deleteConfirmPending){
+    _deleteConfirmPending = true;
+    btn.textContent = '정말 삭제?';
+    btn.style.background = '#ff4d4f';
+    btn.style.borderColor = '#ff4d4f';
+    btn.style.color = '#fff';
+    setTimeout(()=>{ if(_deleteConfirmPending){ _deleteConfirmPending=false; btn.textContent='삭제'; btn.style.background='#3a1a1a'; btn.style.borderColor='#ff4d4f55'; btn.style.color='#ff4d4f'; }}, 3000);
+    return;
+  }
+  _deleteConfirmPending = false;
+  const{error}=await db.from('schedules').delete().eq('id',_schedEditId);
+  if(error){showToast('삭제 실패: '+error.message);return;}
+  closeSchedModal();showToast('일정 삭제 완료');await loadScheduleView();
+}
+</script>
+
+
+<!-- ── 수업일지 연결 모달 ───────────────────────────────────── -->
+<div id="linkLogModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.7);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)linkLogSkip()">
+  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:0 20px calc(28px + env(safe-area-inset-bottom));box-sizing:border-box;max-height:80dvh;overflow-y:auto;animation:slideUp .22s ease;">
+    <div style="width:36px;height:4px;background:#3a3a5c;border-radius:99px;margin:14px auto 18px;"></div>
+    <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px;">수업일지 연결</div>
+    <div id="linkLogSubtitle" style="font-size:12px;color:#6a6a8a;margin-bottom:16px;"></div>
+    <div id="linkLogList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;"></div>
+    <div style="display:flex;gap:10px;padding-bottom:4px;">
+      <button onclick="linkLogWrite()" style="flex:1;background:#3b82f622;border:1.5px solid #3b82f655;color:#60a5fa;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">지금 작성</button>
+      <button onclick="linkLogSkip()" style="flex:1;background:#ffffff11;border:1.5px solid #ffffff22;color:#888;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">나중에</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 수업일지 연결 모달 ────────────────────────────────────────
+let _linkLogScheduleId=null,_linkLogMemberId=null,_linkLogDate=null,_linkLogMemberName=null;
+
+async function openLinkLogModal(scheduleId,memberId,schedDate,memberName){
+  _linkLogScheduleId=scheduleId;_linkLogMemberId=memberId;
+  _linkLogDate=schedDate;_linkLogMemberName=memberName;
+  document.getElementById('linkLogSubtitle').textContent=`${memberName||'회원'} · ${schedDate}`;
+  const listEl=document.getElementById('linkLogList');
+  listEl.innerHTML='<div style="color:#6a6a8a;font-size:13px;text-align:center;padding:12px;">불러오는 중...</div>';
+  document.getElementById('linkLogModal').style.display='flex';
+  document.body.style.overflow='hidden';
+  const{data:drafts,error}=await db.from('workout_logs')
+    .select('id,session_date,notes,workout_log_exercises(custom_name)')
+    .eq('member_id',memberId).eq('trainer_id',me.id)
+    .is('schedule_id',null).eq('is_deleted',false).eq('is_noshow',false)
+    .order('created_at',{ascending:false});
+  if(error||!drafts?.length){
+    listEl.innerHTML='<div style="color:#6a6a8a;font-size:13px;text-align:center;padding:12px;">미연결 수업일지가 없어요</div>';
+    return;
+  }
+  listEl.innerHTML=drafts.map(d=>{
+    const exNames=(d.workout_log_exercises||[]).slice(0,2).map(e=>e.custom_name).join(', ');
+    return`<button onclick="selectLinkLog('${d.id}')" style="background:#141428;border:1px solid #2a2a4a;border-radius:12px;padding:12px 14px;text-align:left;color:#fff;cursor:pointer;font-family:inherit;width:100%;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:3px;">${d.session_date||'날짜 미정'}</div>
+      <div style="font-size:11px;color:#6a6a8a;">${exNames||d.notes||'내용 없음'}</div>
+    </button>`;
+  }).join('');
+}
+
+async function selectLinkLog(logId){
+  const{error}=await db.from('workout_logs')
+    .update({schedule_id:_linkLogScheduleId,session_date:_linkLogDate})
+    .eq('id',logId);
+  if(error){showToast('연결 실패: '+error.message);return;}
+  document.getElementById('linkLogModal').style.display='none';
+  document.body.style.overflow='';
+  showToast('수업일지가 연결됐어요 ✓');
+}
+
+function linkLogWrite(){
+  document.getElementById('linkLogModal').style.display='none';
+  document.body.style.overflow='';
+  location.href=`session-write.html?member=${_linkLogMemberId}&schedule=${_linkLogScheduleId}&date=${_linkLogDate}`;
+}
+function linkLogSkip(){
+  document.getElementById('linkLogModal').style.display='none';
+  document.body.style.overflow='';
+}
+</script>
+
 </body>
 </html>
