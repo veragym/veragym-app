@@ -1,8 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=trainer-login.html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERA GYM</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'Pretendard',sans-serif; background:#080d08; color:#fff; min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; }
+.logo-ring { width:100px; height:100px; border-radius:50%; border:3px solid #c9a84c; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
+.logo-text { font-size:36px; font-weight:900; color:#c9a84c; letter-spacing:-1px; }
+h1 { font-size:24px; font-weight:800; letter-spacing:2px; margin-bottom:6px; text-align:center; }
+h1 span { color:#c9a84c; }
+.sub { font-size:13px; color:#555; text-align:center; margin-bottom:48px; }
+.card { width:100%; max-width:360px; background:#111; border:1px solid #222; border-radius:20px; padding:20px; margin-bottom:14px; cursor:pointer; transition:all 0.18s; display:block; text-decoration:none; }
+.card:hover { border-color:#333; transform:translateY(-2px); }
+.card-inner { display:flex; align-items:center; gap:16px; }
+.card-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.card-icon.gold { background:#c9a84c22; border:1px solid #c9a84c44; }
+.card-icon.blue { background:#3b82f622; border:1px solid #3b82f644; }
+.card-icon.green { background:#22c55e22; border:1px solid #22c55e44; }
+.card-title { font-size:16px; font-weight:700; margin-bottom:3px; }
+.card-desc { font-size:12px; color:#555; }
+.card.gold .card-title { color:#c9a84c; }
+.card.blue .card-title { color:#3b82f6; }
+.card.green .card-title { color:#22c55e; }
+</style>
 </head>
-<body></body>
+<body>
+<div class="logo-ring"><div class="logo-text">VG</div></div>
+<h1>VERA <span>GYM</span></h1>
+<p class="sub">Personal Training Management</p>
+
+<a class="card gold" href="admin-login.html">
+  <div class="card-inner">
+    <div class="card-icon gold"></div>
+    <div>
+      <div class="card-title">관리자 앱</div>
+      <div class="card-desc">트레이너 관리 · 회원 현황 · 운동DB</div>
+    </div>
+  </div>
+</a>
+
+<a class="card blue" href="trainer-login.html">
+  <div class="card-inner">
+    <div class="card-icon blue"></div>
+    <div>
+      <div class="card-title">트레이너 앱</div>
+      <div class="card-desc">수업 일지 · 회원 관리 · 운동 선택</div>
+    </div>
+  </div>
+</a>
+
+<a class="card green" href="member-view.html">
+  <div class="card-inner">
+    <div class="card-icon green"></div>
+    <div>
+      <div class="card-title">회원 앱</div>
+      <div class="card-desc">내 수업 기록 · 운동 자세 확인</div>
+    </div>
+  </div>
+</a>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/veragym-app/service-worker.js').catch(()=>{});
+  });
+}
+</script>
+</body>
 </html>
