@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>베라짐 트레이너 앱 — 구조 한눈에 보기</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'Pretendard', sans-serif;
+    background: #0a0a0a; color: #e0e0e0;
+    padding: 32px 20px 60px;
+    min-height: 100vh;
+  }
+
+  h1 { text-align: center; font-size: 22px; color: #4ade80; margin-bottom: 6px; letter-spacing: -0.5px; }
+  .subtitle { text-align: center; font-size: 13px; color: #555; margin-bottom: 36px; }
+
+  /* ─── 섹션 타이틀 ─── */
+  .sec-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    color: #555; text-transform: uppercase;
+    margin-bottom: 14px; padding-left: 2px;
+  }
+
+  /* ─── 역할별 접근 ─── */
+  .roles-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 36px;
+  }
+  .role-card {
+    border-radius: 16px; padding: 20px 16px;
+    border: 1px solid;
+  }
+  .role-card.admin  { background: #1a1205; border-color: #78350f55; }
+  .role-card.trainer{ background: #0f1a0f; border-color: #14532d55; }
+  .role-card.member { background: #0f0f1a; border-color: #1e1b4b55; }
+  .role-icon { font-size: 26px; margin-bottom: 8px; }
+  .role-name { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+  .role-card.admin  .role-name { color: #fbbf24; }
+  .role-card.trainer .role-name { color: #4ade80; }
+  .role-card.member  .role-name { color: #818cf8; }
+  .role-pages { display: flex; flex-direction: column; gap: 6px; }
+  .page-item {
+    background: #ffffff08; border-radius: 8px;
+    padding: 7px 10px; font-size: 12px; color: #aaa;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .page-item .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .admin  .dot { background: #fbbf24; }
+  .trainer .dot { background: #4ade80; }
+  .member  .dot { background: #818cf8; }
+  .page-item .file { font-size: 10px; color: #555; margin-left: auto; }
+
+  /* ─── 페이지 목록 ─── */
+  .pages-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 10px; margin-bottom: 36px;
+  }
+  .page-card {
+    background: #141414; border: 1px solid #222;
+    border-radius: 14px; padding: 16px;
+  }
+  .page-card-head {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+  }
+  .page-icon { font-size: 20px; }
+  .page-filename { font-size: 13px; font-weight: 700; color: #fff; }
+  .page-status {
+    margin-left: auto; font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 20px;
+  }
+  .status-done { background: #1f3a26; color: #4ade80; }
+  .status-wait { background: #2a2a1a; color: #fbbf24; }
+  .page-desc { font-size: 12px; color: #666; line-height: 1.6; }
+  .page-features { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .feat-tag {
+    background: #1e1e1e; border: 1px solid #2a2a2a;
+    border-radius: 6px; padding: 2px 8px;
+    font-size: 10px; color: #888;
+  }
+
+  /* ─── DB 테이블 ─── */
+  .db-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-bottom: 36px;
+  }
+  .db-card {
+    background: #111; border: 1px solid #1e2a1e;
+    border-radius: 12px; padding: 14px;
+  }
+  .db-name { font-size: 12px; font-weight: 700; color: #4ade80; margin-bottom: 8px; font-family: monospace; }
+  .db-cols { display: flex; flex-direction: column; gap: 3px; }
+  .db-col { font-size: 11px; color: #555; font-family: monospace; }
+  .db-col .col-name { color: #aaa; }
+  .db-col .col-key { color: #fbbf24; font-size: 10px; }
+  .db-col .col-new { color: #4ade80; font-size: 10px; }
+
+  /* ─── 흐름도 ─── */
+  .flow-wrap {
+    background: #111; border: 1px solid #222;
+    border-radius: 16px; padding: 24px;
+    margin-bottom: 36px;
+  }
+  .flow-row {
+    display: flex; align-items: center;
+    gap: 8px; margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .flow-box {
+    background: #1a1a1a; border: 1px solid #2a2a2a;
+    border-radius: 10px; padding: 8px 14px;
+    font-size: 12px; font-weight: 600; color: #ccc;
+    white-space: nowrap;
+  }
+  .flow-box.green { border-color: #4ade8033; color: #4ade80; background: #0f2a1a; }
+  .flow-box.yellow{ border-color: #fbbf2433; color: #fbbf24; background: #1a1205; }
+  .flow-box.blue  { border-color: #60a5fa33; color: #60a5fa; background: #0a1a2a; }
+  .flow-arrow { color: #444; font-size: 16px; }
+  .flow-label { font-size: 10px; color: #555; }
+
+  /* ─── 대기 중 ─── */
+  .pending-list {
+    background: #1a1205; border: 1px solid #78350f33;
+    border-radius: 14px; padding: 16px 20px;
+  }
+  .pending-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid #ffffff08;
+    font-size: 13px; color: #aaa;
+  }
+  .pending-item:last-child { border-bottom: none; }
+  .pending-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #2a1a05; border: 1px solid #78350f55;
+    color: #fbbf24; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 600px) {
+    .roles-row  { grid-template-columns: 1fr; }
+    .pages-grid { grid-template-columns: 1fr; }
+    .db-grid    { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<h1>VERAGYM 트레이너 앱</h1>
+<p class="subtitle">시스템 구조 한눈에 보기 · 2026.03</p>
+
+<!-- ① 역할별 접근 -->
+<div class="sec-title">역할별 접근 화면</div>
+<div class="roles-row">
+  <!-- 관리자 -->
+  <div class="role-card admin">
+    <div class="role-name">관리자</div>
+    <div class="role-pages">
+      <div class="page-item"><span class="dot"></span>로그인<span class="file">trainer-login</span></div>
+      <div class="page-item"><span class="dot"></span>대시보드<span class="file">trainer-dash</span></div>
+      <div class="page-item"><span class="dot"></span>운동 라이브러리<span class="file">exercise-library</span></div>
+      <div class="page-item"><span class="dot"></span>수업 일지 작성<span class="file">session-write</span></div>
+      <div class="page-item"><span class="dot"></span>관리자 페이지<span class="file">admin</span></div>
+    </div>
+  </div>
+
+  <!-- 트레이너 -->
+  <div class="role-card trainer">
+    <div class="role-name">트레이너</div>
+    <div class="role-pages">
+      <div class="page-item"><span class="dot"></span>로그인<span class="file">trainer-login</span></div>
+      <div class="page-item"><span class="dot"></span>대시보드<span class="file">trainer-dash</span></div>
+      <div class="page-item"><span class="dot"></span>운동 라이브러리<span class="file">exercise-library</span></div>
+      <div class="page-item"><span class="dot"></span>수업 일지 작성<span class="file">session-write</span></div>
+    </div>
+  </div>
+
+  <!-- 회원 -->
+  <div class="role-card member">
+    <div class="role-icon">회원</div>
+    <div class="role-name">회원</div>
+    <div class="role-pages">
+      <div class="page-item"><span class="dot"></span>내 수업 일지<span class="file">member-view</span></div>
+      <div class="page-item" style="color:#444"><span class="dot" style="background:#333"></span>로그인 불필요</div>
+      <div class="page-item" style="color:#444"><span class="dot" style="background:#333"></span>토큰 링크로 접근</div>
+    </div>
+  </div>
+</div>
+
+<!-- ② 페이지 목록 -->
+<div class="sec-title">페이지 현황</div>
+<div class="pages-grid">
+
+  <div class="page-card">
+    <div class="page-card-head">
+      <span class="page-filename">trainer-login.html</span>
+      <span class="page-status status-done">완료</span>
+    </div>
+    <div class="page-desc">트레이너 이메일/비밀번호 로그인</div>
+    <div class="page-features">
+      <span class="feat-tag">Supabase Auth</span>
+      <span class="feat-tag">is_active 체크</span>
+      <span class="feat-tag">localStorage 저장</span>
+    </div>
+  </div>
+
+  <div class="page-card">
+    <div class="page-card-head">
+      <span class="page-filename">trainer-dash.html</span>
+      <span class="page-status status-done">완료</span>
+    </div>
+    <div class="page-desc">오늘 수업 / 내 회원 / 수업 기록 + 퀵 메뉴</div>
+    <div class="page-features">
+      <span class="feat-tag">오늘 수업</span>
+      <span class="feat-tag">회원 추가</span>
+      <span class="feat-tag">토큰 링크</span>
+      <span class="feat-tag">운동 라이브러리 바로가기</span>
+    </div>
+  </div>
+
+  <div class="page-card">
+    <div class="page-card-head">
+      <span class="page-filename">exercise-library.html</span>
+      <span class="page-status status-done">완료</span>
+    </div>
+    <div class="page-desc">공용 운동 DB 브라우징 + 내 수업 목록 관리</div>
+    <div class="page-features">
+      <span class="feat-tag">부위/기구/난이도 필터</span>
+      <span class="feat-tag">수업에 사용 토글</span>
+      <span class="feat-tag">실시간 중복 검색</span>
+      <span class="feat-tag">새 운동 추가</span>
+    </div>
+  </div>
+
+  <div class="page-card">
+    <div class="page-card-head">
+      <span class="page-filename">session-write.html</span>
+      <span class="page-status status-done">완료</span>
+    </div>
+    <div class="page-desc">수업 일지 작성 — 운동 추가/세트/무게/횟수</div>
+    <div class="page-features">
+      <span class="feat-tag">부위/기구 필터</span>
+      <span class="feat-tag">★ 즐겨찾기</span>
+      <span class="feat-tag">사진 업로드</span>
+      <span class="feat-tag">세트 관리</span>
+    </div>
+  </div>
+
+  <div class="page-card">
+    <div class="page-card-head">
+      <span class="page-filename">admin.html</span>
+      <span class="page-status status-done">완료</span>
+    </div>
+    <div class="page-desc">트레이너 추가/비활성화, 전체 회원, 운동 레퍼런스</div>
+    <div class="page-features">
+      <span class="feat-tag">트레이너 관리</span>
+      <span class="feat-tag">is_admin 접근 제한</span>
+      <span class="feat-tag">전체 회원</span>
+    </div>
+  </div>
+
+  <div class="page-card">
+    <div class="page-card-head">
+      <span class="page-filename">member-view.html</span>
+      <span class="page-status status-done">완료</span>
+    </div>
+    <div class="page-desc">회원 전용 수업 일지 열람 (로그인 없이 토큰 접근)</div>
+    <div class="page-features">
+      <span class="feat-tag">토큰 인증</span>
+      <span class="feat-tag">수업 기록</span>
+      <span class="feat-tag">운동 상세</span>
+      <span class="feat-tag">통계</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ③ DB 테이블 -->
+<div class="sec-title">데이터베이스 테이블 (Supabase)</div>
+<div class="db-grid">
+
+  <div class="db-card">
+    <div class="db-name">trainers</div>
+    <div class="db-cols">
+      <div class="db-col"><span class="col-key">PK </span><span class="col-name">id</span></div>
+      <div class="db-col"><span class="col-name">auth_id</span> → auth.users</div>
+      <div class="db-col"><span class="col-name">name, email</span></div>
+      <div class="db-col"><span class="col-name">gym_location</span></div>
+      <div class="db-col"><span class="col-name">is_admin, is_active</span></div>
+    </div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-name">members</div>
+    <div class="db-cols">
+      <div class="db-col"><span class="col-key">PK </span><span class="col-name">id</span></div>
+      <div class="db-col"><span class="col-name">name, phone</span></div>
+      <div class="db-col"><span class="col-name">token</span> (회원 링크용)</div>
+      <div class="db-col"><span class="col-name">trainer_id</span> → trainers</div>
+      <div class="db-col"><span class="col-name">is_active</span></div>
+    </div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-name">exercise_refs</div>
+    <div class="db-cols">
+      <div class="db-col"><span class="col-key">PK </span><span class="col-name">id</span></div>
+      <div class="db-col"><span class="col-name">name_en, name_ko</span></div>
+      <div class="db-col"><span class="col-new">NEW </span><span class="col-name">body_part</span></div>
+      <div class="db-col"><span class="col-new">NEW </span><span class="col-name">equipment</span></div>
+      <div class="db-col"><span class="col-new">NEW </span><span class="col-name">difficulty</span></div>
+      <div class="db-col" style="color:#4ade8077">← 공용 운동 DB (436개+)</div>
+    </div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-name">exercises_lib</div>
+    <div class="db-cols">
+      <div class="db-col"><span class="col-key">PK </span><span class="col-name">id</span></div>
+      <div class="db-col"><span class="col-name">trainer_id</span> → trainers</div>
+      <div class="db-col"><span class="col-new">NEW </span><span class="col-name">ref_id</span> → exercise_refs</div>
+      <div class="db-col"><span class="col-name">name, body_part, category</span></div>
+      <div class="db-col"><span class="col-name">is_favorite, use_count</span></div>
+      <div class="db-col"><span class="col-name">image_url_1/2</span></div>
+    </div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-name">pt_sessions</div>
+    <div class="db-cols">
+      <div class="db-col"><span class="col-key">PK </span><span class="col-name">id</span></div>
+      <div class="db-col"><span class="col-name">member_id, trainer_id</span></div>
+      <div class="db-col"><span class="col-name">session_date</span></div>
+      <div class="db-col"><span class="col-name">session_number</span></div>
+      <div class="db-col"><span class="col-name">notes</span></div>
+    </div>
+  </div>
+
+  <div class="db-card">
+    <div class="db-name">session_exs</div>
+    <div class="db-cols">
+      <div class="db-col"><span class="col-key">PK </span><span class="col-name">id</span></div>
+      <div class="db-col"><span class="col-name">session_id</span> → pt_sessions</div>
+      <div class="db-col"><span class="col-name">exercise_name</span> (스냅샷)</div>
+      <div class="db-col"><span class="col-name">sets</span> (JSONB)</div>
+      <div class="db-col"><span class="col-name">image_url_1/2</span></div>
+      <div class="db-col"><span class="col-name">trainer_comment</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ④ 핵심 흐름 -->
+<div class="sec-title">핵심 사용 흐름</div>
+<div class="flow-wrap">
+
+  <div style="font-size:11px;color:#555;margin-bottom:16px">트레이너 수업 흐름</div>
+  <div class="flow-row">
+    <div class="flow-box">로그인</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">대시보드</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box green">운동 라이브러리<br><span style="font-size:10px;font-weight:400">수업에 사용 설정</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">수업 추가</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box green">수업 일지 작성<br><span style="font-size:10px;font-weight:400">운동·세트·무게</span></div>
+  </div>
+
+  <div style="font-size:11px;color:#555;margin:20px 0 12px">회원 접근 흐름</div>
+  <div class="flow-row">
+    <div class="flow-box yellow">트레이너<br>토큰 링크 전송</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box blue">회원<br>링크 클릭</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box blue">내 수업 일지<br>열람 (로그인 없음)</div>
+  </div>
+
+  <div style="font-size:11px;color:#555;margin:20px 0 12px">운동 DB 흐름</div>
+  <div class="flow-row">
+    <div class="flow-box">exercise_refs<br><span style="font-size:10px;font-weight:400">공용 전체 DB</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box green">수업에 사용 클릭</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">exercises_lib<br><span style="font-size:10px;font-weight:400">트레이너 활성 목록</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box green">★ 즐겨찾기<br><span style="font-size:10px;font-weight:400">자주 쓰는 거 상단 노출</span></div>
+  </div>
+</div>
+
+<!-- ⑤ 대기 중 -->
+<div class="sec-title">남은 작업</div>
+<div class="pending-list">
+  <div class="pending-item">
+    <span class="pending-num">1</span>
+    운동 데이터 파싱 완료 → <code style="color:#4ade80;background:#0f2a1a;padding:2px 6px;border-radius:4px;font-size:11px">insert-exercise-refs.sql</code> 실행 (436개+ → exercise_refs)
+  </div>
+  <div class="pending-item">
+    <span class="pending-num">2</span>
+    exercise-library.html 실제 데이터로 테스트 (필터·수업에 사용 동작 확인)
+  </div>
+  <div class="pending-item">
+    <span class="pending-num">3</span>
+    부위/기구 한글화 여부 결정 → 드롭다운 확정
+  </div>
+  <div class="pending-item">
+    <span class="pending-num">4</span>
+    수업 실제 진행 후 전체 플로우 테스트 (수업 생성 → 운동 추가 → 저장 → 회원 열람)
+  </div>
+</div>
+
+</body>
+</html>

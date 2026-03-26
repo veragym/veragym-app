@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="베라짐 트레이너">
+<meta name="theme-color" content="#3b82f6">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VERA GYM | 일정</title>
+<style>
+/* ── Reset & Base ──────────────────────────────────────────── */
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; padding-bottom:80px; overscroll-behavior:none; }
+
+/* ── Header ────────────────────────────────────────────────── */
+.header { background:#0d1525; border-bottom:1px solid #1e3a5f44; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.header-title { font-size:16px; font-weight:800; }
+.header-title span { color:#3b82f6; }
+.header-sub { font-size:11px; color:#4a6580; }
+
+/* ── Day Tabs ──────────────────────────────────────────────── */
+.day-tabs { display:flex; gap:6px; padding:12px 14px; background:#080e1a; position:sticky; top:53px; z-index:90; border-bottom:1px solid #1e3a5f22; }
+.day-tab { flex:1; text-align:center; padding:9px 4px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; border:1.5px solid #1e3a5f66; background:#141f35; color:#4a6580; transition:all 0.15s; }
+.day-tab .tab-day { font-size:10px; color:#3a5878; margin-bottom:2px; }
+.day-tab .tab-date { font-size:13px; font-weight:800; }
+.day-tab.active { background:#3b82f6; border-color:#3b82f6; color:#fff; }
+.day-tab.active .tab-day { color:#bfdbfe; }
+.day-tab.today-dot::after { content:''; display:block; width:4px; height:4px; border-radius:50%; background:#3b82f6; margin:3px auto 0; }
+.day-tab.active.today-dot::after { background:#fff; }
+
+/* ── Date Label ────────────────────────────────────────────── */
+.date-label { padding:14px 16px 6px; font-size:13px; color:#3a5878; font-weight:600; }
+
+/* ── Session List ──────────────────────────────────────────── */
+.session-list { padding:6px 14px 16px; }
+.session-card { background:#0d1525; border:1px solid #1e3a5f44; border-radius:14px; padding:14px 16px; margin-bottom:10px; }
+.session-card.completed { border-color:#22c55e33; }
+.session-card.no_show   { border-color:#f8717133; }
+.session-card.cancelled { opacity:0.5; }
+
+.session-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.session-time { font-size:16px; font-weight:800; color:#3b82f6; }
+.session-status-badge { font-size:10px; font-weight:700; padding:3px 9px; border-radius:99px; }
+.status-completed { background:#22c55e22; border:1px solid #22c55e44; color:#4ade80; }
+.status-no_show   { background:#f8717122; border:1px solid #f8717144; color:#f87171; }
+.status-cancelled { background:#44444422; border:1px solid #44444444; color:#888; }
+.status-scheduled { background:#3b82f622; border:1px solid #3b82f644; color:#60a5fa; }
+
+.session-member { font-size:15px; font-weight:700; margin-bottom:2px; }
+.session-pt { font-size:12px; color:#4a6580; }
+.session-pt strong { color:#60a5fa; }
+
+.session-actions { display:flex; gap:7px; margin-top:12px; padding-top:10px; border-top:1px solid #1e3a5f22; }
+.act-btn { flex:1; padding:9px 4px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; border:1.5px solid; transition:all 0.15s; }
+.act-btn:active { opacity:0.7; }
+.act-complete { background:#22c55e18; border-color:#22c55e44; color:#4ade80; }
+.act-noshow   { background:#f8717118; border-color:#f8717144; color:#f87171; }
+.act-cancel   { background:#44444418; border-color:#44444444; color:#888; }
+
+/* ── Empty State ────────────────────────────────────────────── */
+.empty-state { text-align:center; padding:50px 20px; color:#2a4060; }
+.empty-state .empty-icon { font-size:40px; margin-bottom:12px; }
+.empty-state p { font-size:14px; }
+
+/* ── FAB ────────────────────────────────────────────────────── */
+.fab { position:fixed; bottom:90px; right:20px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; border:none; border-radius:16px; padding:14px 20px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 4px 20px #3b82f640; z-index:80; display:flex; align-items:center; gap:7px; }
+.fab:active { opacity:0.85; transform:scale(0.97); }
+.fab.hidden { display:none; }
+
+/* ── Bottom Navigation ──────────────────────────────────────── */
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:#0d1525; border-top:1px solid #1e3a5f44; display:flex; z-index:100; padding:8px 8px calc(8px + env(safe-area-inset-bottom)); gap:6px; }
+.nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:52px; border:1.5px solid #1e3a5f66; border-radius:8px; background:#141f35; color:#4a6580; cursor:pointer; transition:all 0.15s; font-size:12px; font-weight:700; }
+.nav-btn.active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
+
+/* ── Modal ──────────────────────────────────────────────────── */
+.modal-overlay { display:none; position:fixed; inset:0; background:#000a; z-index:200; align-items:flex-end; }
+.modal-overlay.open { display:flex; }
+.modal { background:#0d1525; border-radius:20px 20px 0 0; padding:20px 16px; width:100%; max-height:85dvh; overflow-y:auto; border-top:1px solid #1e3a5f66; }
+.modal-handle { width:36px; height:4px; border-radius:2px; background:#1e3a5f; margin:0 auto 16px; }
+.modal-title { font-size:16px; font-weight:800; margin-bottom:16px; }
+
+/* ── Booking Steps ──────────────────────────────────────────── */
+.step { display:none; }
+.step.active { display:block; }
+.step-label { font-size:11px; color:#3a5878; font-weight:600; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
+
+.time-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; max-height:280px; overflow-y:auto; }
+.time-slot { padding:10px 4px; border-radius:10px; font-size:12px; font-weight:700; text-align:center; cursor:pointer; border:1.5px solid #1e3a5f44; background:#141f35; color:#60a5fa; transition:all 0.15s; }
+.time-slot:active { opacity:0.7; }
+.time-slot.booked   { background:#1e3a5f22; color:#2a4060; cursor:not-allowed; border-color:#1e3a5f22; font-size:10px; }
+.time-slot.selected { background:#3b82f6; border-color:#3b82f6; color:#fff; }
+
+.member-pick-list { display:flex; flex-direction:column; gap:6px; max-height:320px; overflow-y:auto; }
+.member-pick-item { padding:12px 14px; border-radius:12px; background:#141f35; border:1.5px solid #1e3a5f44; cursor:pointer; transition:all 0.15s; }
+.member-pick-item:active { opacity:0.7; }
+.member-pick-item.selected { border-color:#3b82f6; background:#3b82f618; }
+.member-pick-name { font-size:14px; font-weight:700; }
+.member-pick-pt { font-size:11px; color:#4a6580; margin-top:2px; }
+.member-pick-pt .pt-hi { color:#60a5fa; font-weight:700; }
+
+.confirm-card { background:#141f35; border:1.5px solid #3b82f644; border-radius:14px; padding:16px; margin-bottom:16px; }
+.confirm-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid #1e3a5f22; }
+.confirm-row:last-child { border-bottom:none; }
+.confirm-label { font-size:12px; color:#3a5878; }
+.confirm-value { font-size:14px; font-weight:700; }
+
+.modal-actions { display:flex; gap:8px; margin-top:16px; }
+.btn-primary   { flex:1; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; }
+.btn-secondary { background:#141f35; color:#60a5fa; border:1.5px solid #1e3a5f44; border-radius:12px; padding:14px 16px; font-size:15px; font-weight:700; cursor:pointer; }
+.btn-primary:active, .btn-secondary:active { opacity:0.7; }
+.btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+
+.loading { text-align:center; padding:30px; color:#2a4060; font-size:13px; }
+.spinner { display:inline-block; width:16px; height:16px; border:2px solid #1e3a5f; border-top-color:#3b82f6; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+#toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#333; color:#fff; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity 0.3s; z-index:9999; white-space:nowrap; }
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<div class="header">
+  <div>
+    <div class="header-title">VERA <span>GYM</span></div>
+    <div class="header-sub" id="hdrTrainer">트레이너 앱</div>
+  </div>
+</div>
+
+<!-- 4일 탭 -->
+<div class="day-tabs" id="dayTabs"></div>
+
+<!-- 날짜 레이블 -->
+<div class="date-label" id="dateLabel"></div>
+
+<!-- 수업 목록 -->
+<div class="session-list" id="sessionList">
+  <div class="loading"><span class="spinner"></span>불러오는 중...</div>
+</div>
+
+<!-- 예약 추가 FAB -->
+<button class="fab" id="fabAdd" onclick="openBookingModal()">
+  <span style="font-size:18px">＋</span> 예약 추가
+</button>
+
+<!-- 하단 네비게이션 -->
+<nav class="bottom-nav">
+  <button class="nav-btn" onclick="location.href='trainer-dash.html'">내 회원</button>
+  <button class="nav-btn" onclick="location.href='trainer-dash.html'">수업일지</button>
+  <button class="nav-btn active">📅 일정</button>
+  <button class="nav-btn" onclick="location.href='exercise-library.html'">운동DB</button>
+</nav>
+
+<!-- ── 예약 추가 모달 ─────────────────────────────── -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="bookingTitle">예약 추가</div>
+
+    <!-- Step 1: 시간 선택 -->
+    <div class="step active" id="step1">
+      <div class="step-label">시간 선택 (06:00 – 23:00)</div>
+      <div class="time-grid" id="timeGrid"></div>
+      <div class="modal-actions" style="margin-top:14px">
+        <button class="btn-secondary" onclick="closeBookingModal()">취소</button>
+        <button class="btn-primary" id="btnStep1Next" onclick="goStep2()" disabled>다음</button>
+      </div>
+    </div>
+
+    <!-- Step 2: 회원 선택 -->
+    <div class="step" id="step2">
+      <div class="step-label">회원 선택</div>
+      <div class="member-pick-list" id="memberPickList"></div>
+      <div class="modal-actions" style="margin-top:14px">
+        <button class="btn-secondary" onclick="goStep1()">이전</button>
+        <button class="btn-primary" id="btnStep2Next" onclick="goStep3()" disabled>다음</button>
+      </div>
+    </div>
+
+    <!-- Step 3: 확인 -->
+    <div class="step" id="step3">
+      <div class="step-label">예약 확인</div>
+      <div class="confirm-card" id="confirmCard"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="goStep2()">이전</button>
+        <button class="btn-primary" id="btnConfirm" onclick="confirmBooking()">예약 확정</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 상태 변경 확인 모달 ─────────────────────────── -->
+<div class="modal-overlay" id="statusModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="statusModalTitle">수업 처리</div>
+    <div id="statusModalBody" style="font-size:14px;color:#8ba4c0;margin-bottom:20px;line-height:1.6"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeStatusModal()">취소</button>
+      <button class="btn-primary" id="btnStatusConfirm">확인</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+// ════════════════════════════════════════════════
+// 전역 상태
+// ════════════════════════════════════════════════
+let me = null;
+let selectedDayOffset = 0;   // -1=어제, 0=오늘, 1=내일, 2=모레
+let sessions   = [];
+let myMembers  = [];          // 활성 계약 포함 담당 회원
+let bookedTimes = new Set();  // 이미 예약된 시간 HH:MM
+
+let booking = { time:null, memberId:null, contractId:null };
+
+const DAY_KO = { '-1':'어제', '0':'오늘', '1':'내일', '2':'모레' };
+
+// ════════════════════════════════════════════════
+// 초기화
+// ════════════════════════════════════════════════
+(async () => {
+  db = init_db();
+  me = await requireTrainer();
+  if (!me) return;
+  document.getElementById('hdrTrainer').textContent = me.name + ' 트레이너';
+  renderDayTabs();
+  await Promise.all([loadSessions(), loadMyMembers()]);
+})();
+
+// ════════════════════════════════════════════════
+// 날짜 유틸
+// ════════════════════════════════════════════════
+function dateByOffset(n) { const d=new Date(); d.setDate(d.getDate()+n); return d; }
+function toYMD(d) { return d.toISOString().slice(0,10); }
+function fmtFull(d) { return d.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'}); }
+function fmtMD(d)   { return `${d.getMonth()+1}/${d.getDate()}`; }
+
+// ════════════════════════════════════════════════
+// 4일 탭
+// ════════════════════════════════════════════════
+function renderDayTabs() {
+  document.getElementById('dayTabs').innerHTML = [-1,0,1,2].map(n => {
+    const d = dateByOffset(n);
+    return `<div class="day-tab ${n===selectedDayOffset?'active':''} ${n===0?'today-dot':''}"
+                 onclick="selectDay(${n})">
+              <div class="tab-day">${DAY_KO[n]}</div>
+              <div class="tab-date">${fmtMD(d)}</div>
+            </div>`;
+  }).join('');
+}
+
+async function selectDay(n) {
+  selectedDayOffset = n;
+  renderDayTabs();
+  document.getElementById('fabAdd').classList.toggle('hidden', n === -1);
+  await loadSessions();
+}
+
+// ════════════════════════════════════════════════
+// 수업 목록 로드
+// ════════════════════════════════════════════════
+async function loadSessions() {
+  const d = dateByOffset(selectedDayOffset);
+  const dateStr = toYMD(d);
+  document.getElementById('dateLabel').textContent =
+    fmtFull(d) + (selectedDayOffset===0 ? ' (오늘)' : '');
+  document.getElementById('sessionList').innerHTML =
+    '<div class="loading"><span class="spinner"></span>불러오는 중...</div>';
+
+  const { data, error } = await db
+    .from('pt_sessions')
+    .select('*, members(id,name), pt_contracts(id,total_sessions,used_sessions)')
+    .eq('trainer_id', me.id)
+    .eq('scheduled_date', dateStr)
+    .neq('status', 'cancelled')
+    .order('scheduled_time', { ascending:true });
+
+  if (error) {
+    document.getElementById('sessionList').innerHTML =
+      `<div class="empty-state"><p>로드 실패: ${error.message}</p></div>`;
+    return;
+  }
+  sessions = data || [];
+  bookedTimes = new Set(sessions.map(s => s.scheduled_time.slice(0,5)));
+  renderSessions();
+}
+
+// ════════════════════════════════════════════════
+// 수업 목록 렌더링
+// ════════════════════════════════════════════════
+function renderSessions() {
+  const wrap = document.getElementById('sessionList');
+  if (!sessions.length) {
+    wrap.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <p>${DAY_KO[selectedDayOffset]} 예약된 수업이 없습니다</p>
+    </div>`;
+    return;
+  }
+
+  // B안: 같은 날 이전 시간의 completed/no_show 수 동적 계산
+  function prevDone(time) {
+    return sessions.filter(s =>
+      s.scheduled_time.slice(0,5) < time &&
+      ['completed','no_show'].includes(s.status)
+    ).length;
+  }
+
+  const statusLabel = { scheduled:'예약', completed:'완료', no_show:'노쇼', cancelled:'취소' };
+
+  wrap.innerHTML = sessions.map(s => {
+    const time = s.scheduled_time.slice(0,5);
+    const c    = s.pt_contracts;
+    const usedNow = c ? c.used_sessions + prevDone(time) : '?';
+    const total   = c ? c.total_sessions : '?';
+    const isScheduled = s.status === 'scheduled';
+
+    return `<div class="session-card ${s.status}" id="sc-${s.id}">
+      <div class="session-top">
+        <div class="session-time">${time}</div>
+        <span class="session-status-badge status-${s.status}">${statusLabel[s.status]||s.status}</span>
+      </div>
+      <div class="session-member">${s.members?.name||'—'}</div>
+      <div class="session-pt">PT <strong>${usedNow}/${total}</strong>회차</div>
+      ${isScheduled ? `
+      <div class="session-actions">
+        <button class="act-btn act-complete" onclick="openStatusModal('${s.id}','completed')">✓ 완료</button>
+        <button class="act-btn act-noshow"   onclick="openStatusModal('${s.id}','no_show')">노쇼</button>
+        <button class="act-btn act-cancel"   onclick="openStatusModal('${s.id}','cancelled')">취소</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+// 담당 회원 + 활성 계약 로드
+// ════════════════════════════════════════════════
+async function loadMyMembers() {
+  const { data } = await db
+    .from('pt_contracts')
+    .select('id,total_sessions,used_sessions,registration_count,members(id,name)')
+    .eq('class_trainer_id', me.id)
+    .eq('is_active', true)
+    .order('created_at', { ascending:true });
+  myMembers = data || [];
+}
+
+// ════════════════════════════════════════════════
+// 상태 변경 모달
+// ════════════════════════════════════════════════
+function openStatusModal(sessionId, newStatus) {
+  const s = sessions.find(x => x.id === sessionId);
+  if (!s) return;
+  const labels = { completed:'완료', no_show:'노쇼', cancelled:'취소' };
+  const time = s.scheduled_time.slice(0,5);
+  const name = s.members?.name || '';
+
+  document.getElementById('statusModalTitle').textContent =
+    `${time} ${name} — ${labels[newStatus]} 처리`;
+  document.getElementById('statusModalBody').innerHTML =
+    newStatus === 'completed'
+      ? '수업을 <strong style="color:#4ade80">완료</strong> 처리합니다.<br>완료 후 수업 일지 작성 화면으로 이동합니다.'
+      : newStatus === 'no_show'
+      ? '회원이 <strong style="color:#f87171">노쇼</strong>로 처리됩니다.<br>PT 횟수 1회가 차감됩니다.'
+      : '예약을 <strong style="color:#888">취소</strong>합니다.<br>PT 횟수는 차감되지 않습니다.';
+
+  document.getElementById('btnStatusConfirm').onclick = () => processStatus(sessionId, newStatus, s);
+  document.getElementById('statusModal').classList.add('open');
+}
+
+function closeStatusModal() {
+  document.getElementById('statusModal').classList.remove('open');
+}
+
+async function processStatus(sessionId, newStatus, session) {
+  const btn = document.getElementById('btnStatusConfirm');
+  btn.disabled = true; btn.textContent = '처리 중...';
+
+  let workoutLogId = null;
+
+  // 완료: 수업일지 생성
+  if (newStatus === 'completed') {
+    const dateStr = toYMD(dateByOffset(selectedDayOffset));
+    const { data:log, error:logErr } = await db
+      .from('workout_logs')
+      .insert({ trainer_id:me.id, member_id:session.member_id, session_date:dateStr })
+      .select('id').single();
+    if (!logErr && log) workoutLogId = log.id;
+  }
+
+  const updatePayload = { status:newStatus };
+  if (workoutLogId) updatePayload.workout_log_id = workoutLogId;
+
+  const { error } = await db.from('pt_sessions').update(updatePayload).eq('id', sessionId);
+
+  btn.disabled = false; btn.textContent = '확인';
+  closeStatusModal();
+
+  if (error) { showToast('처리 실패: ' + error.message); return; }
+
+  showToast(newStatus==='completed' ? '완료 처리됐습니다!' :
+            newStatus==='no_show'   ? '노쇼 처리됐습니다' : '예약이 취소됐습니다');
+
+  // 완료 → 수업일지 화면으로 이동
+  if (newStatus === 'completed' && workoutLogId) {
+    setTimeout(() =>
+      location.href = `session-write.html?logId=${workoutLogId}&memberId=${session.member_id}`,
+    700);
+    return;
+  }
+  await loadSessions();
+}
+
+// ════════════════════════════════════════════════
+// 예약 추가 모달
+// ════════════════════════════════════════════════
+function openBookingModal() {
+  booking = { time:null, memberId:null, contractId:null };
+  document.getElementById('btnStep1Next').disabled = true;
+  document.getElementById('btnStep2Next').disabled = true;
+  goStep1();
+  document.getElementById('bookingModal').classList.add('open');
+}
+function closeBookingModal() {
+  document.getElementById('bookingModal').classList.remove('open');
+}
+
+// ── Step 1: 시간 ─────────────────────────────────
+function goStep1() {
+  showStep('step1');
+  document.getElementById('bookingTitle').textContent = '예약 추가 · 시간 선택';
+  renderTimeGrid();
+}
+
+function renderTimeGrid() {
+  const slots = [];
+  for (let h=6; h<=23; h++)
+    for (let m=0; m<60; m+=30)
+      slots.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+
+  document.getElementById('timeGrid').innerHTML = slots.map(t => {
+    const taken    = bookedTimes.has(t);
+    const selected = booking.time === t;
+    return `<div class="time-slot ${taken?'booked':''} ${selected?'selected':''}"
+                 onclick="${taken?'':  `selectTime('${t}')`}">
+              ${t}${taken?'<br><span style="font-size:9px">예약됨</span>':''}
+            </div>`;
+  }).join('');
+}
+
+function selectTime(t) {
+  booking.time = t;
+  document.getElementById('btnStep1Next').disabled = false;
+  renderTimeGrid();
+}
+
+// ── Step 2: 회원 ─────────────────────────────────
+function goStep2() {
+  if (!booking.time) return;
+  showStep('step2');
+  document.getElementById('bookingTitle').textContent = `${booking.time} · 회원 선택`;
+  renderMemberPick();
+}
+
+function renderMemberPick() {
+  const wrap = document.getElementById('memberPickList');
+  if (!myMembers.length) {
+    wrap.innerHTML = '<div style="color:#2a4060;font-size:13px;padding:20px 0">담당 회원이 없거나 활성 계약이 없습니다</div>';
+    return;
+  }
+  wrap.innerHTML = myMembers.map(c => {
+    const remaining = c.total_sessions - c.used_sessions;
+    const selected  = booking.memberId === c.members.id;
+    return `<div class="member-pick-item ${selected?'selected':''}"
+                 onclick="selectMember('${c.members.id}','${c.id}')">
+              <div class="member-pick-name">${c.members.name}</div>
+              <div class="member-pick-pt">
+                PT <span class="pt-hi">${c.used_sessions}/${c.total_sessions}</span>회
+                &nbsp;·&nbsp;잔여 <span class="pt-hi">${remaining}</span>회
+              </div>
+            </div>`;
+  }).join('');
+}
+
+function selectMember(memberId, contractId) {
+  booking.memberId   = memberId;
+  booking.contractId = contractId;
+  document.getElementById('btnStep2Next').disabled = false;
+  renderMemberPick();
+}
+
+// ── Step 3: 확인 ─────────────────────────────────
+function goStep3() {
+  if (!booking.memberId) return;
+  showStep('step3');
+  document.getElementById('bookingTitle').textContent = '예약 확인';
+
+  const c = myMembers.find(x => x.id === booking.contractId);
+  const d = dateByOffset(selectedDayOffset);
+
+  document.getElementById('confirmCard').innerHTML = `
+    <div class="confirm-row">
+      <span class="confirm-label">날짜</span>
+      <span class="confirm-value">${fmtFull(d)}</span>
+    </div>
+    <div class="confirm-row">
+      <span class="confirm-label">시간</span>
+      <span class="confirm-value" style="color:#3b82f6">${booking.time}</span>
+    </div>
+    <div class="confirm-row">
+      <span class="confirm-label">회원</span>
+      <span class="confirm-value">${c?.members?.name||'—'}</span>
+    </div>
+    <div class="confirm-row">
+      <span class="confirm-label">PT 회차 (예정)</span>
+      <span class="confirm-value">${c ? c.used_sessions+1 : '?'} / ${c?.total_sessions||'?'}회</span>
+    </div>`;
+}
+
+async function confirmBooking() {
+  const btn = document.getElementById('btnConfirm');
+  btn.disabled = true; btn.textContent = '예약 중...';
+
+  const { error } = await db.from('pt_sessions').insert({
+    pt_contract_id: booking.contractId,
+    trainer_id:     me.id,
+    member_id:      booking.memberId,
+    scheduled_date: toYMD(dateByOffset(selectedDayOffset)),
+    scheduled_time: booking.time + ':00',
+    status:         'scheduled'
+  });
+
+  btn.disabled = false; btn.textContent = '예약 확정';
+  closeBookingModal();
+
+  if (error) {
+    showToast(error.code==='23505' ? '이미 그 시간에 예약이 있습니다' : '예약 실패: '+error.message);
+    return;
+  }
+  showToast('예약이 완료됐습니다!');
+  await Promise.all([loadSessions(), loadMyMembers()]);
+}
+
+// ── 공통 ─────────────────────────────────────────
+function showStep(id) {
+  ['step1','step2','step3'].forEach(s =>
+    document.getElementById(s).classList.toggle('active', s===id));
+}
+</script>
+</body>
+</html>

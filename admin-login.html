@@ -10,144 +10,167 @@
 <meta name="theme-color" content="#c9a84c">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VERA GYM | 관리자 로그인</title>
+<title>VERA GYM Admin | 로그인</title>
 <style>
-* { box-sizing:border-box; margin:0; padding:0; }
-body {
-  font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif;
-  background:#0a0a0a; color:#fff;
-  min-height:100dvh; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; padding:24px;
-}
-.logo-wrap { text-align:center; margin-bottom:32px; }
-.logo-title { font-size:22px; font-weight:900; letter-spacing:3px; }
-.logo-title span { color:#c9a84c; }
-.logo-sub { font-size:11px; color:#444; margin-top:4px; letter-spacing:2px; }
-
-.card {
-  width:100%; max-width:380px;
-  background:#111108; border:1px solid #2a2518;
-  border-radius:20px; padding:28px 24px;
-}
-.field { margin-bottom:16px; }
-.field label { display:block; font-size:12px; color:#888; margin-bottom:7px; font-weight:500; }
-.field input {
-  width:100%; background:#0a0a08; border:1.5px solid #2a2518;
-  border-radius:10px; padding:13px 14px; font-size:15px; color:#fff;
-  outline:none; font-family:inherit; transition:border-color 0.2s;
-}
-.field input:focus { border-color:#c9a84c; }
-.field input::placeholder { color:#383530; }
-.btn-login {
-  width:100%; background:linear-gradient(135deg,#c9a84c,#a8893a);
-  color:#000; border:none; border-radius:12px; padding:15px;
-  font-size:16px; font-weight:700; cursor:pointer; transition:opacity 0.15s;
-}
-.btn-login:disabled { opacity:0.45; cursor:default; }
-.btn-login:hover:not(:disabled) { opacity:0.88; }
-.err-box {
-  background:#2d1212; border:1px solid #5a2020; border-radius:8px;
-  padding:10px 14px; font-size:13px; color:#f87171;
-  margin-bottom:14px; display:none;
-}
-.spinner {
-  display:inline-block; width:14px; height:14px;
-  border:2px solid rgba(0,0,0,0.25); border-top-color:#000;
-  border-radius:50%; animation:spin 0.7s linear infinite;
-  vertical-align:middle; margin-right:6px;
-}
-@keyframes spin { to { transform:rotate(360deg) } }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#0a0a0a; color:#fff; min-height:100dvh; display:flex; align-items:center; justify-content:center; }
+  .wrap { width:100%; max-width:400px; padding:40px 24px; }
+  .logo-area { text-align:center; margin-bottom:40px; }
+  .logo-img { width:68px; height:68px; object-fit:contain; margin-bottom:14px; border-radius:16px; }
+  .app-name { font-size:12px; font-weight:700; letter-spacing:3px; color:#c9a84c; text-transform:uppercase; margin-bottom:4px; }
+  .gym-name { font-size:26px; font-weight:800; }
+  .sub { font-size:13px; color:#555; margin-top:6px; }
+  .card { background:#161610; border-radius:20px; padding:28px 24px; border:1px solid #2a2518; }
+  .card h2 { font-size:17px; font-weight:700; margin-bottom:6px; }
+  .card p { font-size:12px; color:#555; margin-bottom:22px; line-height:1.5; }
+  .field { margin-bottom:14px; }
+  .field label { display:block; font-size:12px; color:#888; margin-bottom:6px; font-weight:500; }
+  .field input { width:100%; background:#0a0a08; border:1.5px solid #2a2518; border-radius:10px; padding:14px 16px; font-size:15px; color:#fff; outline:none; transition:border-color 0.2s; font-family:inherit; }
+  .field input:focus { border-color:#c9a84c; }
+  .field input::placeholder { color:#444; }
+  .hint-text { font-size:11px; color:#444; margin-top:5px; }
+  .err-msg { background:#2d1212; border:1px solid #5a2020; border-radius:8px; padding:10px 14px; font-size:13px; color:#f87171; margin-bottom:14px; display:none; }
+  .err-msg.show { display:block; }
+  .btn-login { width:100%; background:linear-gradient(135deg,#c9a84c,#a8893a); color:#000; border:none; border-radius:12px; padding:16px; font-size:16px; font-weight:800; cursor:pointer; transition:opacity 0.2s; margin-top:6px; }
+  .btn-login:disabled { opacity:0.5; cursor:default; }
+.version { text-align:center; margin-top:28px; font-size:11px; color:#2a2518; letter-spacing:1px; }
+  .spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,0.2); border-top-color:#000; border-radius:50%; animation:spin 0.7s linear infinite; margin-right:6px; vertical-align:middle; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  /* 역할 탭 */
+  .role-tabs { display:flex; background:#111108; border-radius:12px; padding:4px; margin-bottom:20px; gap:4px; }
+  .role-tab { flex:1; padding:9px 0; font-size:13px; font-weight:600; color:#555; background:none; border:none; border-radius:9px; cursor:pointer; transition:all 0.2s; }
+  .role-tab.active { background:#c9a84c22; color:#c9a84c; border:1px solid #c9a84c33; }
 </style>
 </head>
 <body>
-
-<div class="logo-wrap">
-  <div class="logo-title">VERA <span>GYM</span></div>
-  <div class="logo-sub">ADMIN</div>
-</div>
-
-<div class="card">
-  <div id="errBox" class="err-box"></div>
-
-  <div class="field">
-    <label>아이디</label>
-    <input id="inpId" type="text" placeholder="아이디 입력" autocomplete="off"
-           onkeydown="if(event.key==='Enter')document.getElementById('inpPw').focus()">
+<div class="wrap">
+  <div class="logo-area">
+    <img class="logo-img" src="icons/icon-192.png" alt="VERA GYM">
+    <div class="app-name">Admin</div>
+    <div class="gym-name">VERA GYM</div>
+    <div class="sub">관리자 전용 시스템</div>
   </div>
-  <div class="field">
-    <label>비밀번호</label>
-    <input id="inpPw" type="password" placeholder="비밀번호 입력" autocomplete="current-password"
-           onkeydown="if(event.key==='Enter')doLogin()">
+
+  <div class="card">
+    <!-- 역할 탭 -->
+    <div class="role-tabs">
+      <button class="role-tab active" id="tabSuper" onclick="switchRole('super')">최고 관리자</button>
+      <button class="role-tab" id="tabSub" onclick="switchRole('sub')">지점 관리자</button>
+    </div>
+
+    <div class="err-msg" id="errMsg"></div>
+
+    <!-- 최고 관리자: 이메일 -->
+    <div id="fieldSuper">
+      <div class="field">
+        <label>이메일</label>
+        <input id="inpEmail" type="email" placeholder="veragym@naver.com" autocomplete="email">
+      </div>
+    </div>
+
+    <!-- 지점 관리자: 이름 -->
+    <div id="fieldSub" style="display:none">
+      <div class="field">
+        <label>이름</label>
+        <input id="inpName" type="text" placeholder="홍길동" autocomplete="name">
+        <div class="hint-text">최고 관리자가 등록한 이름으로 로그인</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>비밀번호</label>
+      <input id="inpPw" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">로그인</button>
   </div>
-  <button class="btn-login" id="btnLogin" onclick="doLogin()">로그인</button>
+
+  <div class="version">VERA GYM ADMIN v0.1</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
 init_db();
-preventBackExit();
 
-// 이미 로그인된 경우 자동 이동
-(async () => {
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) return;
-  const ok = await checkAdminSession(session);
-  if (!ok) await db.auth.signOut();
+// PWA 뒤로가기 방지
+(function() {
+  history.pushState(null, '', location.href);
+  window.addEventListener('popstate', function() { history.pushState(null, '', location.href); });
 })();
 
-async function checkAdminSession(session) {
-  if (session.user.email === SUPER_ADMIN_EMAIL) {
-    location.replace('admin.html'); return true;
-  }
-  const { data: t } = await db.from('trainers')
-    .select('is_admin,is_active').eq('auth_id', session.user.id).single();
-  if (t?.is_admin && t?.is_active) { location.replace('admin.html'); return true; }
-  return false;
+let currentRole = 'super';
+
+function switchRole(role) {
+  currentRole = role;
+  document.getElementById('tabSuper').classList.toggle('active', role === 'super');
+  document.getElementById('tabSub').classList.toggle('active', role === 'sub');
+  document.getElementById('fieldSuper').style.display = role === 'super' ? '' : 'none';
+  document.getElementById('fieldSub').style.display   = role === 'sub'   ? '' : 'none';
+  document.getElementById('errMsg').classList.remove('show');
 }
 
+// 이미 로그인된 관리자면 바로 이동
+(async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    const { data } = await db.from('trainers').select('is_admin,is_active').eq('auth_id', session.user.id).single();
+    if (data?.is_admin && data?.is_active !== false) location.replace('admin.html');
+  }
+})();
+
 async function doLogin() {
-  const id  = document.getElementById('inpId').value.trim();
   const pw  = document.getElementById('inpPw').value;
   const btn = document.getElementById('btnLogin');
-  const err = document.getElementById('errBox');
-  err.style.display = 'none';
+  const err = document.getElementById('errMsg');
+  err.classList.remove('show');
 
-  if (!id || !pw) { err.textContent = '아이디와 비밀번호를 입력해주세요'; err.style.display = 'block'; return; }
+  let loginEmail;
 
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>로그인 중...';
+  if (currentRole === 'super') {
+    const email = document.getElementById('inpEmail').value.trim();
+    if (!email || !pw) { showErr('이메일과 비밀번호를 입력해주세요'); return; }
+    loginEmail = email;
+  } else {
+    const name = document.getElementById('inpName').value.trim();
+    if (!name || !pw) { showErr('이름과 비밀번호를 입력해주세요'); return; }
+    // 이름 → 내부 이메일 조회 (is_admin=true만)
+    const { data: emailData } = await db.rpc('get_admin_login_email', { p_name: name });
+    if (!emailData) { showErr('등록된 지점 관리자 이름이 아닙니다'); return; }
+    loginEmail = emailData;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>로그인 중...';
 
   try {
-    let email;
-
-    // 마스터 관리자 (id: veragym)
-    if (id === 'veragym') {
-      email = SUPER_ADMIN_EMAIL;
-    } else {
-      // 지점 관리자 — 이름으로 이메일 조회
-      const { data: found, error: rpcErr } = await db.rpc('get_admin_login_email', { p_name: id });
-      if (rpcErr || !found) {
-        throw new Error('등록되지 않은 아이디입니다');
-      }
-      email = found;
-    }
-
-    const { error } = await db.auth.signInWithPassword({ email, password: pw });
+    const { data, error } = await db.auth.signInWithPassword({ email: loginEmail, password: pw });
     if (error) throw new Error('비밀번호가 올바르지 않습니다');
 
+    // 관리자 권한 확인
+    const { data: trainer, error: tErr } = await db.from('trainers').select('*').eq('auth_id', data.user.id).single();
+    if (tErr || !trainer)       throw new Error('계정 정보를 찾을 수 없습니다');
+    if (!trainer.is_admin)      throw new Error('관리자 권한이 없는 계정입니다');
+    if (trainer.is_active === false) throw new Error('비활성화된 계정입니다. 최고 관리자에게 문의하세요');
+
+    localStorage.setItem('vg_admin', JSON.stringify(trainer));
     location.replace('admin.html');
   } catch(e) {
-    err.textContent = e.message; err.style.display = 'block';
-  } finally {
+    showErr(e.message);
     btn.disabled = false; btn.textContent = '로그인';
   }
 }
+
+function showErr(msg) {
+  const el = document.getElementById('errMsg');
+  el.textContent = msg; el.classList.add('show');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 </script>
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/veragym-app/service-worker.js').catch(()=>{});
-  });
+  window.addEventListener('load', () => { navigator.serviceWorker.register('/trainer/service-worker.js').catch(()=>{}); });
 }
 </script>
 </body>
