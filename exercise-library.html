@@ -36,7 +36,7 @@ body {
 /* ── Top Tab Navigation ──────────────────────────────── */
 .tabs { display:flex; background:#0d1525; border-bottom:1px solid #1e3a5f44; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
 .tabs::-webkit-scrollbar { display:none; }
-.tab-btn { flex:1; min-width:70px; padding:13px 8px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
+.tab-btn { flex:none; min-width:70px; padding:13px 16px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
 .tab-btn.active { color:#3b82f6; border-bottom-color:#3b82f6; }
 
 /* ── 검색 + 필터 영역 ─────────────────────────────────── */
@@ -236,9 +236,10 @@ body {
 <div class="tabs" id="topTabs">
   <button class="tab-btn" onclick="location.href='trainer-dash.html'">내 회원</button>
   <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=logs'">수업일지</button>
-  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=requests'">요청사항</button>
-  <button class="tab-btn active" onclick="location.href='exercise-library.html'">운동DB</button>
   <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=schedule'">일정</button>
+  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=revenue'">매출관리</button>
+  <button class="tab-btn active" onclick="location.href='exercise-library.html'">운동DB</button>
+  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=requests'">요청사항</button>
 </div>
 
 <!-- 수업작성에서 온 경우: 돌아가기 바 (JS로 표시) -->
