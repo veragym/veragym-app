@@ -1012,16 +1012,17 @@ function drawBranchCanvas(dateStr){
   // 시간영역↔요약열 경계선
   ctx.strokeStyle='#888';ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(timeEndX,totalRowY);ctx.lineTo(timeEndX,totalRowY+ROW_H);ctx.stroke();
-  // 요약열 4칸 — 색+라벨 수기 작성칸
+  // 요약열 4칸 — 헤더와 동일한 셀 경계선 방식 (색+라벨)
   const sumCellBgs=['#ede8ff','#ddeeff','#ffd5d5','#ffeb9c'];
   const sumCellFgs=['#5b21b6','#1e40af','#b91c1c','#7c5c00'];
   sumLabels.forEach((lbl,si)=>{
     const sx=timeEndX+si*SUM_W;
     ctx.fillStyle=sumCellBgs[si];
-    ctx.fillRect(sx+1,totalRowY+1,SUM_W-2,ROW_H-2);
-    ctx.strokeStyle='#aaa';ctx.lineWidth=1;
-    ctx.strokeRect(sx+2,totalRowY+2,SUM_W-4,ROW_H-4);
-    ctx.fillStyle=sumCellFgs[si];ctx.font=`bold 8px ${FONT}`;ctx.textAlign='center';
+    ctx.fillRect(sx,totalRowY,SUM_W,ROW_H);
+    // 셀 왼쪽 세로선 (헤더와 동일 스타일)
+    ctx.strokeStyle='#888';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(sx,totalRowY);ctx.lineTo(sx,totalRowY+ROW_H);ctx.stroke();
+    ctx.fillStyle=sumCellFgs[si];ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';
     ctx.fillText(lbl,sx+SUM_W/2,totalRowY+ROW_H/2+3);
   });
 
