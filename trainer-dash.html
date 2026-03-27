@@ -862,9 +862,9 @@ function drawBranchCanvas(dateStr){
   const ACTUAL_TIME_W=COL_W*NUM_COLS;
   const TITLE_H=52,SUB_H=22,TH=28,FOOTER_H=44;
 
-  // 트레이너 최대 10명 + 빈칸 1행
+  // 트레이너 최대 10명 + 비고 1행 + 합계 1행
   const trainers=_bsTrainers.slice(0,10);
-  const nRows=trainers.length+1; // +1 empty
+  const nRows=trainers.length+2; // +1 비고, +1 합계
   const ROW_H=Math.floor((CANVAS_H-TITLE_H-SUB_H-TH-FOOTER_H)/nRows);
   const TABLE_H=TH+nRows*ROW_H;
 
@@ -984,30 +984,45 @@ function drawBranchCanvas(dateStr){
     ctx.beginPath();ctx.moveTo(CANVAS_W,rowY);ctx.lineTo(CANVAS_W,rowY+ROW_H);ctx.stroke();
   });
 
-  // ── 합계 행: │합계│ SPT │ PT │ NS │ PT합계 │ (수기 작성용 큰 칸 4개) ──
+  // ── 비고 행: │비고│──공란──│SPT│PT│NS│합계│ ──
   const emptyRowY=tableY+trainerRowsH;
-  // 합계 라벨셀 (회색 배경)
+  // 비고 라벨셀 (회색 배경)
   ctx.fillStyle='#f0f0f0';ctx.fillRect(0,emptyRowY,LABEL_W,ROW_H);
   ctx.fillStyle='#555';ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';
-  ctx.fillText('합계',LABEL_W/2,emptyRowY+ROW_H/2+4);
-  // 4개 큰 수기 작성 칸 (시간영역 + 요약열 전체 폭 사용)
-  const totalSumW=CANVAS_W-LABEL_W;
-  const bigCellW=Math.floor(totalSumW/4);
-  const bigCellLabels=['SPT','PT','NS','PT합계'];
-  const bigCellBgs=['#ede8ff','#ddeeff','#ffd5d5','#ffeb9c'];
-  const bigCellFgs=['#5b21b6','#1e40af','#b91c1c','#7c5c00'];
-  bigCellLabels.forEach((lbl,i)=>{
-    const bx=LABEL_W+i*bigCellW;
-    const bw=(i===3)?(CANVAS_W-LABEL_W-bigCellW*3):bigCellW;
-    ctx.fillStyle=bigCellBgs[i];
-    ctx.fillRect(bx+2,emptyRowY+2,bw-4,ROW_H-4);
+  ctx.fillText('비고',LABEL_W/2,emptyRowY+ROW_H/2+4);
+  // 시간 영역 — 합친 흰 공백 (세로선 없음)
+  ctx.fillStyle='#ffffff';ctx.fillRect(LABEL_W,emptyRowY,ACTUAL_TIME_W,ROW_H);
+  // 시간영역↔요약열 경계선 (비고 행)
+  ctx.strokeStyle='#888';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(timeEndX,emptyRowY);ctx.lineTo(timeEndX,emptyRowY+ROW_H);ctx.stroke();
+  // 요약열 4칸 — 각각 흰 공란 (수기 작성용, 세로선은 위에서 전체로 그려짐)
+  sumLabels.forEach((_,si)=>{
+    const sx=timeEndX+si*SUM_W;
+    ctx.fillStyle='#ffffff';ctx.fillRect(sx,emptyRowY,SUM_W,ROW_H);
+  });
+
+  // ── 합계 행: │합계│──공란──│SPT칸│PT칸│NS칸│PT합계칸│ (비고 구조 동일, 오른쪽 4칸만 색/라벨) ──
+  const totalRowY=emptyRowY+ROW_H;
+  // 합계 라벨셀 (회색 배경)
+  ctx.fillStyle='#f0f0f0';ctx.fillRect(0,totalRowY,LABEL_W,ROW_H);
+  ctx.fillStyle='#555';ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';
+  ctx.fillText('합계',LABEL_W/2,totalRowY+ROW_H/2+4);
+  // 시간 영역 — 흰 공백
+  ctx.fillStyle='#ffffff';ctx.fillRect(LABEL_W,totalRowY,ACTUAL_TIME_W,ROW_H);
+  // 시간영역↔요약열 경계선
+  ctx.strokeStyle='#888';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(timeEndX,totalRowY);ctx.lineTo(timeEndX,totalRowY+ROW_H);ctx.stroke();
+  // 요약열 4칸 — 색+라벨 수기 작성칸
+  const sumCellBgs=['#ede8ff','#ddeeff','#ffd5d5','#ffeb9c'];
+  const sumCellFgs=['#5b21b6','#1e40af','#b91c1c','#7c5c00'];
+  sumLabels.forEach((lbl,si)=>{
+    const sx=timeEndX+si*SUM_W;
+    ctx.fillStyle=sumCellBgs[si];
+    ctx.fillRect(sx+1,totalRowY+1,SUM_W-2,ROW_H-2);
     ctx.strokeStyle='#aaa';ctx.lineWidth=1;
-    ctx.strokeRect(bx+2,emptyRowY+2,bw-4,ROW_H-4);
-    ctx.fillStyle=bigCellFgs[i];ctx.font=`bold 10px ${FONT}`;ctx.textAlign='left';
-    ctx.fillText(lbl,bx+7,emptyRowY+13);
-    // 쓰기선
-    ctx.strokeStyle='#ccc';ctx.lineWidth=0.5;
-    ctx.beginPath();ctx.moveTo(bx+8,emptyRowY+ROW_H-10);ctx.lineTo(bx+bw-8,emptyRowY+ROW_H-10);ctx.stroke();
+    ctx.strokeRect(sx+2,totalRowY+2,SUM_W-4,ROW_H-4);
+    ctx.fillStyle=sumCellFgs[si];ctx.font=`bold 8px ${FONT}`;ctx.textAlign='center';
+    ctx.fillText(lbl,sx+SUM_W/2,totalRowY+ROW_H/2+3);
   });
 
   // ── 외곽선 & 라벨열 오른쪽 선 & 헤더 하단선 ──
