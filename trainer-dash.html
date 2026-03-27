@@ -862,9 +862,9 @@ function drawBranchCanvas(dateStr){
   const ACTUAL_TIME_W=COL_W*NUM_COLS;
   const TITLE_H=52,SUB_H=22,TH=28,FOOTER_H=44;
 
-  // 트레이너 최대 10명 + 비고 1행 + 합계 1행
+  // 트레이너 최대 10명 + 빈칸 1행
   const trainers=_bsTrainers.slice(0,10);
-  const nRows=trainers.length+2; // +1 비고, +1 합계
+  const nRows=trainers.length+1; // +1 empty
   const ROW_H=Math.floor((CANVAS_H-TITLE_H-SUB_H-TH-FOOTER_H)/nRows);
   const TABLE_H=TH+nRows*ROW_H;
 
@@ -1001,30 +1001,6 @@ function drawBranchCanvas(dateStr){
     ctx.fillStyle='#ffffff';ctx.fillRect(sx,emptyRowY,SUM_W,ROW_H);
   });
 
-  // ── 합계 행: │합계│──공란──│SPT칸│PT칸│NS칸│PT합계칸│ (비고 구조 동일, 오른쪽 4칸만 색/라벨) ──
-  const totalRowY=emptyRowY+ROW_H;
-  // 합계 라벨셀 (회색 배경)
-  ctx.fillStyle='#f0f0f0';ctx.fillRect(0,totalRowY,LABEL_W,ROW_H);
-  ctx.fillStyle='#555';ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';
-  ctx.fillText('합계',LABEL_W/2,totalRowY+ROW_H/2+4);
-  // 시간 영역 — 흰 공백
-  ctx.fillStyle='#ffffff';ctx.fillRect(LABEL_W,totalRowY,ACTUAL_TIME_W,ROW_H);
-  // 시간영역↔요약열 경계선
-  ctx.strokeStyle='#888';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(timeEndX,totalRowY);ctx.lineTo(timeEndX,totalRowY+ROW_H);ctx.stroke();
-  // 요약열 4칸 — 헤더와 동일한 셀 경계선 방식 (색+라벨)
-  const sumCellBgs=['#ede8ff','#ddeeff','#ffd5d5','#ffeb9c'];
-  const sumCellFgs=['#5b21b6','#1e40af','#b91c1c','#7c5c00'];
-  sumLabels.forEach((lbl,si)=>{
-    const sx=timeEndX+si*SUM_W;
-    ctx.fillStyle=sumCellBgs[si];
-    ctx.fillRect(sx,totalRowY,SUM_W,ROW_H);
-    // 셀 왼쪽 세로선 (헤더와 동일 스타일)
-    ctx.strokeStyle='#888';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(sx,totalRowY);ctx.lineTo(sx,totalRowY+ROW_H);ctx.stroke();
-    ctx.fillStyle=sumCellFgs[si];ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';
-    ctx.fillText(lbl,sx+SUM_W/2,totalRowY+ROW_H/2+3);
-  });
 
   // ── 외곽선 & 라벨열 오른쪽 선 & 헤더 하단선 ──
   ctx.strokeStyle='#888';ctx.lineWidth=1.5;
