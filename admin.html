@@ -22,7 +22,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .btn-logout:hover { border-color:#c9a84c44; color:#c9a84c; }
 .tabs { display:flex; background:#111108; border-bottom:1px solid #2a2518; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
 .tabs::-webkit-scrollbar { display:none; }
-.tab-btn { flex:1; min-width:70px; padding:13px 8px; font-size:12px; font-weight:600; color:#555; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+.tab-btn { flex:none; min-width:70px; padding:13px 16px; font-size:12px; font-weight:600; color:#555; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
 .tab-btn.active { color:#c9a84c; border-bottom-color:#c9a84c; }
 .tab-content { display:none; padding:20px 16px; }
 .tab-content.active { display:block; }
@@ -256,9 +256,10 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('trainers',this)">트레이너</button>
   <button class="tab-btn"        onclick="switchTab('members',this)">전체 회원</button>
-  <button class="tab-btn"        onclick="switchTab('exercise',this)">운동DB</button>
-  <button class="tab-btn"        onclick="switchTab('requests',this)">요청사항</button>
   <button class="tab-btn"        onclick="switchTab('schedule',this)">일정</button>
+  <button class="tab-btn"        onclick="switchTab('revenue',this)">매출관리</button>
+  <button class="tab-btn"        onclick="switchTab('requests',this)">요청사항</button>
+  <button class="tab-btn"        onclick="switchTab('exercise',this)">운동DB</button>
 </div>
 
 <!-- 트레이너 관리 -->
@@ -319,6 +320,11 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 </div>
 
 <!-- ── 일정 탭 ─────────────────────────────────────────── -->
+<!-- 매출관리 (추후 구성 예정) -->
+<div id="tab-revenue" class="tab-content">
+  <div style="display:flex;align-items:center;justify-content:center;height:200px;color:#888;font-size:14px;">매출관리 기능 준비 중입니다.</div>
+</div>
+
 <div id="tab-schedule" class="tab-content">
   <!-- 필터 + 날짜이동 (한 줄로 통합) -->
   <div class="sc-ctrl">

@@ -32,7 +32,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 /* ── Top Tab Navigation ──────────────────────────────────── */
 .tabs { display:flex; background:#0d1525; border-bottom:1px solid #1e3a5f44; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
 .tabs::-webkit-scrollbar { display:none; }
-.tab-btn { flex:1; min-width:70px; padding:13px 8px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
+.tab-btn { flex:none; min-width:70px; padding:13px 16px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
 .tab-btn.active { color:#3b82f6; border-bottom-color:#3b82f6; }
 
 /* ── Tab Content ─────────────────────────────────────────── */
@@ -167,9 +167,10 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <div class="tabs">
   <button class="tab-btn active" id="nav-members" onclick="switchTab('members',this)">내 회원</button>
   <button class="tab-btn" id="nav-logs" onclick="switchTab('logs',this)">수업일지</button>
-  <button class="tab-btn" id="nav-requests" onclick="switchTab('requests',this)">요청사항</button>
-  <button class="tab-btn" onclick="location.href='exercise-library.html'">운동DB</button>
   <button class="tab-btn" id="nav-schedule" onclick="switchTab('schedule',this)">일정</button>
+  <button class="tab-btn" id="nav-revenue" onclick="switchTab('revenue',this)">매출관리</button>
+  <button class="tab-btn" onclick="location.href='exercise-library.html'">운동DB</button>
+  <button class="tab-btn" id="nav-requests" onclick="switchTab('requests',this)">요청사항</button>
 </div>
 
 <!-- ── Tab: 회원 ───────────────────────────────────────────── -->
@@ -244,6 +245,11 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
       <button onclick="downloadBranchSched()" style="width:100%;background:linear-gradient(135deg,#6c63ff,#4a43cc);border:none;color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">📥 저장 / 공유</button>
     </div>
   </div>
+</div>
+
+<!-- ── Tab: 매출관리 (추후 구성 예정) ──────────────────────── -->
+<div id="tab-revenue" class="tab-content">
+  <div style="display:flex;align-items:center;justify-content:center;height:200px;color:#4a6580;font-size:14px;">매출관리 기능 준비 중입니다.</div>
 </div>
 
 <!-- ── Tab: 요청사항 ────────────────────────────────────────── -->
