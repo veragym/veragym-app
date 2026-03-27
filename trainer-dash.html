@@ -739,9 +739,9 @@ function renderCalGrid(dates){
       }
       let sessionTxt='';
       if(sType==='PT'&&s.pt_products){
-        const used=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
+        const remaining=(s.pt_products.remaining_sessions||0);
         const offset=s.status==='scheduled'?(_ptOffsetMap.get(s.id)||0):0;
-        sessionTxt=` ${used+offset}/${s.pt_products.total_sessions||0}`;
+        sessionTxt=` ${remaining-offset}/${s.pt_products.total_sessions||0}`;
       }
       let evLine1,evLine2;
       if(sType==='PT'){
@@ -958,7 +958,7 @@ function drawBranchCanvas(dateStr){
       ctx.textAlign='center';
       if(sess.type==='PT'||sess.type==='SPT'){
         const name=cleanName(sess.members?.name||'');
-        const used=(sess.pt_products?.total_sessions||0)-(sess.pt_products?.remaining_sessions||0);
+        const remSess=(sess.pt_products?.remaining_sessions||0);
         const total=sess.pt_products?.total_sessions||0;
         // 위아래 가운데 정렬
         const line1Y=rowY+ROW_H/2-6;
@@ -966,7 +966,7 @@ function drawBranchCanvas(dateStr){
         ctx.fillStyle='#111';ctx.font=`bold 11px ${FONT}`;
         ctx.fillText(name||sess.type,cellX+COL_W/2,line1Y);
         ctx.fillStyle='#444';ctx.font=`9px ${FONT}`;
-        ctx.fillText(`PT${used}/${total}`,cellX+COL_W/2,line2Y);
+        ctx.fillText(`PT${remSess}/${total}`,cellX+COL_W/2,line2Y);
       }else{
         ctx.fillStyle='#333';ctx.font=`bold 10px ${FONT}`;
         ctx.fillText(sess.type,cellX+COL_W/2,rowY+ROW_H/2+4);
@@ -1015,9 +1015,9 @@ function drawBranchCanvas(dateStr){
       if(!tS.length)return null;
       const parts=tS.map(s=>{
         const h=parseInt(s.start_time);
-        const used=(s.pt_products?.total_sessions||0)-(s.pt_products?.remaining_sessions||0);
+        const remTod=(s.pt_products?.remaining_sessions||0);
         const tot=s.pt_products?.total_sessions||0;
-        return`${h}시 ${cleanName(s.members?.name||'')}PT${used}/${tot}`;
+        return`${h}시 ${cleanName(s.members?.name||'')}PT${remTod}/${tot}`;
       });
       return`${t.name} - ${parts.join(', ')}`;
     }).filter(Boolean);
@@ -1085,11 +1085,11 @@ function openSchedInfo(schedId){
   if(s.type==='PT'){
     sessRow.style.display='flex';
     if(s.pt_products){
-      const u=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
-      // scheduled 상태면 같은 pt_product 중 앞에 있는 예약 수만큼 +N 표시
+      const rem=(s.pt_products.remaining_sessions||0);
+      // scheduled 상태면 같은 pt_product 중 앞에 있는 예약 수만큼 -N 표시
       const ptSorted=scheduleData.filter(x=>x.type==='PT'&&x.status==='scheduled'&&x.pt_product_id===s.pt_product_id).sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
       const offset=s.status==='scheduled'?ptSorted.findIndex(x=>x.id===s.id):0;
-      document.getElementById('siSession').textContent=`${u+(offset>=0?offset:0)}/${s.pt_products.total_sessions||0}회 사용`;
+      document.getElementById('siSession').textContent=`${rem-(offset>=0?offset:0)}/${s.pt_products.total_sessions||0}회 남음`;
     }
     else document.getElementById('siSession').textContent='-';
   }else{sessRow.style.display='none';}
