@@ -133,6 +133,53 @@
   .error-screen .icon { font-size: 60px; margin-bottom: 20px; }
   .error-screen h2 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
   .error-screen p { font-size: 14px; color: #666; line-height: 1.6; }
+
+  /* ─── 사진 버튼 ─── */
+  .mv-photo-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #0f2a1a; border: 1px solid #4ade8044;
+    border-radius: 8px; padding: 7px 12px;
+    font-size: 12px; font-weight: 600; color: #4ade80;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.15s;
+  }
+  .mv-photo-btn:hover { background: #1a3a2a; }
+
+  /* ─── 사진 뷰어 모달 ─── */
+  .mv-viewer-bg {
+    display: none; position: fixed; inset: 0;
+    background: #000000f2; z-index: 500;
+    flex-direction: column; align-items: center; justify-content: center;
+    padding: 20px 16px calc(env(safe-area-inset-bottom) + 20px);
+  }
+  .mv-viewer-bg.open { display: flex; }
+  .mv-viewer-title {
+    font-size: 14px; font-weight: 700; color: #fff;
+    margin-bottom: 14px; text-align: center; flex-shrink: 0;
+  }
+  .mv-viewer-imgs {
+    display: flex; gap: 10px; width: 100%; max-width: 440px;
+    flex: 1; min-height: 0;
+  }
+  .mv-photo-slot {
+    flex: 1; min-width: 0; background: #111; border-radius: 12px;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .mv-photo-slot img {
+    width: 100%; height: auto; display: block;
+    max-height: calc(100dvh - 140px); object-fit: contain;
+    flex: 1;
+  }
+  .mv-photo-label {
+    font-size: 11px; color: #555; padding: 5px 6px;
+    text-align: center; flex-shrink: 0;
+  }
+  .mv-viewer-close {
+    flex-shrink: 0; margin-top: 14px; width: 100%; max-width: 440px;
+    background: #1a1a1a; border: 1px solid #333; border-radius: 10px;
+    padding: 13px; font-size: 14px; font-weight: 600; color: #aaa;
+    cursor: pointer; font-family: inherit;
+  }
 </style>
 </head>
 <body>
@@ -178,6 +225,13 @@
 <!-- 로딩 화면 -->
 <div id="loadingScreen" class="error-screen">
   <h2 style="color:#555">로딩 중...</h2>
+</div>
+
+<!-- 사진 뷰어 모달 -->
+<div id="memberPhotoViewer" class="mv-viewer-bg" onclick="if(event.target===this)closeMemberPhotoViewer()">
+  <div class="mv-viewer-title" id="memberViewerTitle">자세 사진</div>
+  <div class="mv-viewer-imgs" id="memberViewerImgs"></div>
+  <button class="mv-viewer-close" onclick="closeMemberPhotoViewer()">닫기</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -300,10 +354,11 @@ async function toggleSess(i, logId) {
   // 로딩 표시
   detailEl.innerHTML = '<div class="loading" style="padding:16px">불러오는 중...</div>';
 
-  const { data: exs, error } = await db.rpc('member_get_log_detail', {
-    p_token: _memberToken,
-    p_log_id: logId
-  });
+  // 운동 상세 + 사진 경로 병렬 조회
+  const [{ data: exs, error }, { data: photos }] = await Promise.all([
+    db.rpc('member_get_log_detail', { p_token: _memberToken, p_log_id: logId }),
+    db.rpc('member_get_log_photos',  { p_token: _memberToken, p_log_id: logId }),
+  ]);
 
   detailEl.dataset.loaded = '1';
 
@@ -312,12 +367,17 @@ async function toggleSess(i, logId) {
     return;
   }
 
+  // order_index → 사진 경로 맵
+  const photoMap = {};
+  (photos || []).forEach(p => { photoMap[p.order_idx ?? 0] = p; });
+
   detailEl.innerHTML = exs
     .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
     .map(ex => {
       const name     = ex.name_ko || ex.custom_name || '운동';
       const category = [ex.part_unified, ex.tool_unified].filter(Boolean).join(' · ');
       const sets     = Array.isArray(ex.sets_data) ? ex.sets_data : [];
+      const photo    = photoMap[ex.order_index ?? 0];
 
       const setsHtml = sets.length ? `
         <table class="sets-table">
@@ -332,6 +392,15 @@ async function toggleSess(i, logId) {
         </table>
       ` : '<div style="font-size:12px;color:#444;padding:4px 0">세트 정보 없음</div>';
 
+      // 사진이 하나라도 있으면 버튼 표시
+      const photoBtn = (photo?.start_path || photo?.end_path) ? `
+        <div style="margin-top:10px">
+          <button class="mv-photo-btn"
+            onclick="viewMemberPhotos(${JSON.stringify(photo.start_path||null)}, ${JSON.stringify(photo.end_path||null)}, ${JSON.stringify(name)})">
+            📷 자세 사진 보기
+          </button>
+        </div>` : '';
+
       return `
         <div class="ex-item">
           <div class="ex-item-head">
@@ -341,9 +410,48 @@ async function toggleSess(i, logId) {
             </div>
           </div>
           ${setsHtml}
+          ${photoBtn}
         </div>
       `;
     }).join('');
+}
+
+// ─── 사진 뷰어 ───
+async function viewMemberPhotos(startPath, endPath, exName) {
+  const viewer = document.getElementById('memberPhotoViewer');
+  const imgs   = document.getElementById('memberViewerImgs');
+  document.getElementById('memberViewerTitle').textContent = exName + ' — 자세 사진';
+  imgs.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#555;font-size:13px">불러오는 중...</div>';
+  viewer.classList.add('open');
+
+  const labels = ['시작 자세', '끝 자세'];
+  const paths  = [startPath, endPath];
+
+  const slots = await Promise.all(paths.map(async (path, i) => {
+    if (!path) {
+      return `<div class="mv-photo-slot">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;color:#444;font-size:12px">미촬영</div>
+        <div class="mv-photo-label">${labels[i]}</div>
+      </div>`;
+    }
+    const { data } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
+    const url = data?.signedUrl;
+    if (!url) {
+      return `<div class="mv-photo-slot">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;color:#f87171;font-size:12px">로드 실패</div>
+        <div class="mv-photo-label">${labels[i]}</div>
+      </div>`;
+    }
+    return `<div class="mv-photo-slot">
+      <img src="${url}" alt="${labels[i]}">
+      <div class="mv-photo-label">${labels[i]}</div>
+    </div>`;
+  }));
+  imgs.innerHTML = slots.join('');
+}
+
+function closeMemberPhotoViewer() {
+  document.getElementById('memberPhotoViewer').classList.remove('open');
 }
 
 // ─── 에러 화면 ───
@@ -358,7 +466,7 @@ init();
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/trainer/service-worker.js')
+    navigator.serviceWorker.register('/veragym-app/service-worker.js')
       .catch(() => {});
   });
 }

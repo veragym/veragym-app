@@ -353,7 +353,7 @@ function switchTab(id, btn) {
 // ══════════════════════════════════════════════════════════════
 async function loadMembers() {
   const { data, error } = await db.from('members')
-    .select('*').eq('trainer_id', me.id).order('name');
+    .select('id,name,gym_location,notes,is_active,token').eq('trainer_id', me.id).order('name');
   if (await handleDbError(error, '회원 불러오기 실패')) return;
   myMembers = data || [];
   document.getElementById('memberCount').textContent = `(${myMembers.length}명)`;
@@ -552,7 +552,7 @@ async function checkPendingReqs() {
 
 async function loadRequests() {
   const { data, error } = await db.from('requests')
-    .select('*').eq('trainer_id', me.id).order('created_at', { ascending: false });
+    .select('id,type,content,status,admin_note,created_at').eq('trainer_id', me.id).order('created_at', { ascending: false });
   if (await handleDbError(error, '요청사항 불러오기 실패')) return;
 
   const pending = data?.filter(r => r.status === 'pending') || [];
@@ -1361,7 +1361,7 @@ function openSchedModal(schedId,date,time){
   (myMembersForSched||[]).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.name;sel.appendChild(o);});
   document.getElementById('timePickerDrop').style.display='none';
   if(schedId){
-    db.from('schedules').select('*').eq('id',schedId).single().then(({data})=>{
+    db.from('schedules').select('id,sched_date,start_time,end_time,type,notes,member_id,status,color,pt_product_id').eq('id',schedId).single().then(({data})=>{
       if(!data)return;
       document.getElementById('schedDate').value=data.sched_date;
       const st=toHM(data.start_time);

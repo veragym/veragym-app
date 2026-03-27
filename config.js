@@ -1,12 +1,12 @@
 // ============================================================
-// VERA GYM APP - config.js [TEST 환경]
-// ⚠️ 테스트 DB 연결 — 운영 데이터와 분리됨
+// VERA GYM APP - config.js [운영 환경]
+// ✅ 운영 DB 연결
 // ============================================================
 
 const SUPABASE_URL      = 'https://lrzffwawpoidimlrbfxe.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_BpDPrt2x48OiZNKuGWlBig_-DtnqepE';
 const SUPER_ADMIN_EMAIL = 'veragym@naver.com';
-const EDGE_BASE         = 'https://jpfgcwlhitzwjoppszzl.supabase.co/functions/v1';
+const EDGE_BASE         = 'https://lrzffwawpoidimlrbfxe.supabase.co/functions/v1';
 
 let db;
 function init_db() {

@@ -109,6 +109,32 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .memo-meta { font-size:12px; color:#666; margin-bottom:18px; }
 .memo-body { font-size:14px; color:#ccc; line-height:1.7; background:#0f0f0a; border-radius:10px; padding:14px; min-height:60px; }
 .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#2a2518; color:#c9a84c; border:1px solid #c9a84c44; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity 0.3s; z-index:9999; white-space:nowrap; }
+/* 아코디언 */
+.acc-block { border:1px solid #2a2518; border-radius:12px; margin-bottom:8px; overflow:hidden; }
+.acc-header { display:flex; align-items:center; justify-content:space-between; padding:13px 16px; cursor:pointer; transition:background 0.15s; user-select:none; }
+.acc-header:hover { background:#1e1c10; }
+.acc-header.open { background:#1a1908; }
+.acc-header-left { display:flex; align-items:center; gap:10px; }
+.acc-header-title { font-size:13px; font-weight:700; }
+.acc-header-count { font-size:11px; color:#666; }
+.acc-arrow { font-size:13px; color:#555; transition:transform 0.2s; }
+.acc-arrow.open { transform:rotate(90deg); color:#c9a84c; }
+.acc-body { display:none; border-top:1px solid #1e1c10; padding:10px 10px 6px; background:#0f0f0a; }
+.acc-body.open { display:block; }
+/* 트레이너 서브 아코디언 */
+.acc-sub-block { border:1px solid #242418; border-radius:10px; margin-bottom:6px; overflow:hidden; }
+.acc-sub-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; cursor:pointer; transition:background 0.15s; user-select:none; }
+.acc-sub-header:hover { background:#1a1908; }
+.acc-sub-header.open { background:#171710; }
+.acc-sub-title { font-size:12px; font-weight:700; color:#ccc; }
+.acc-sub-count { font-size:11px; color:#555; margin-left:6px; }
+.acc-sub-body { display:none; border-top:1px solid #1e1c10; padding:8px 8px 4px; background:#0a0a08; }
+.acc-sub-body.open { display:block; }
+/* 회원 행 (아코디언 내부) */
+.member-row { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-radius:9px; cursor:pointer; transition:background 0.15s; }
+.member-row:hover { background:#1e1c10; }
+.member-row-name { font-size:13px; font-weight:600; }
+.member-row-arrow { font-size:12px; color:#444; }
 .spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(0,0,0,0.2); border-top-color:#000; border-radius:50%; animation:spin 0.7s linear infinite; margin-right:6px; vertical-align:middle; }
 @keyframes spin { to{transform:rotate(360deg)} }
 /* ── PT 상품 카드 ── */
@@ -429,7 +455,23 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
       <div class="modal-title" id="detailMemberName" style="margin-bottom:0"></div>
       <button class="btn-add" style="font-size:12px;padding:6px 12px" onclick="openAddPtProduct()">+ PT 상품</button>
     </div>
-    <div id="detailMemberMeta" style="font-size:12px;color:#666;margin-bottom:18px"></div>
+    <div id="detailMemberMeta" style="font-size:12px;color:#666;margin-bottom:14px"></div>
+
+    <!-- 회원 상태 수동 변경 -->
+    <div style="background:#0f0f0a;border:1px solid #2a2518;border-radius:10px;padding:12px 14px;margin-bottom:16px">
+      <div style="font-size:11px;color:#888;font-weight:600;letter-spacing:1.2px;margin-bottom:10px">회원 상태</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <select id="statusOverrideSelect" style="flex:1;background:#0a0a08;border:1.5px solid #2a2518;border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;outline:none;font-family:inherit">
+          <option value="">자동 계산</option>
+          <option value="active">🟢 유효</option>
+          <option value="long_absent">🟡 장기미방문</option>
+          <option value="expired">🔴 만료</option>
+        </select>
+        <button id="statusOverrideBtn" onclick="adminSetStatus()" style="background:linear-gradient(135deg,#c9a84c,#a8893a);border:none;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:700;color:#000;cursor:pointer;white-space:nowrap">변경</button>
+      </div>
+      <div id="statusOverrideNote" style="font-size:10px;color:#666;margin-top:6px"></div>
+    </div>
+
     <div style="font-size:11px;color:#888;letter-spacing:1.2px;margin-bottom:10px;font-weight:600">PT 상품 목록</div>
     <div id="ptProductList"></div>
     <button class="btn-cancel" style="margin-top:16px;width:100%" onclick="closeModal('memberDetailModal')">닫기</button>
@@ -603,7 +645,7 @@ async function init() {
 // ── 트레이너 목록 ────────────────────────────────────────────
 async function loadTrainers() {
   const { data, error } = await db.from('trainers')
-    .select('*').order('is_admin', { ascending: false }).order('created_at');
+    .select('id,name,gym_location,is_admin,is_active,created_at').order('is_admin', { ascending: false }).order('created_at');
   if (error) { showToast('불러오기 실패'); return; }
 
   const admins   = data.filter(t => t.is_admin);
@@ -761,7 +803,7 @@ let _allMembers  = [];
 async function loadMembers() {
   const [trRes, mbRes] = await Promise.all([
     db.from('trainers').select('id,name,gym_location,is_active,is_admin').order('name'),
-    db.from('members').select('id,name,gym_location,notes,is_active,trainer_id').order('name'),
+    db.from('members').select('id,name,gym_location,notes,is_active,member_status,status_override,trainer_id,phone').order('name'),
   ]);
   if (trRes.error || mbRes.error) { showToast('불러오기 실패'); return; }
   _allTrainers = trRes.data || [];
@@ -837,21 +879,104 @@ function showBranch(branch) {
   ]);
   const wrap = document.getElementById('memberList');
   if (!branchMembers.length) { wrap.innerHTML = '<div class="empty">등록된 회원이 없어요</div>'; return; }
-  const active   = branchMembers.filter(m => m.is_active);
-  const inactive = branchMembers.filter(m => !m.is_active);
-  let html = active.map(m => memberRow(m)).join('');
-  if (inactive.length) html += `<div class="group-label" style="margin-top:14px">비활성 (${inactive.length})</div>` + inactive.map(m => memberRow(m)).join('');
-  wrap.innerHTML = html;
+
+  const STATUS_CONFIG = [
+    { key: 'active',       label: '유효 회원',    color: '#22c55e', dot: '🟢' },
+    { key: 'long_absent',  label: '장기미방문',    color: '#f59e0b', dot: '🟡' },
+    { key: 'expired',      label: '만료',          color: '#f87171', dot: '🔴' },
+  ];
+
+  let html = '';
+
+  STATUS_CONFIG.forEach(sc => {
+    const statusMembers = branchMembers.filter(m =>
+      sc.key === 'expired'
+        ? (m.member_status === 'expired' || !m.member_status)
+        : m.member_status === sc.key
+    );
+    if (!statusMembers.length) return;
+
+    // 트레이너별 그룹핑
+    const trainerOrder = [];
+    const trainerMap = {};
+    statusMembers.forEach(m => {
+      const key = m.trainer_id || '__unassigned__';
+      if (!trainerMap[key]) { trainerMap[key] = []; trainerOrder.push(key); }
+      trainerMap[key].push(m);
+    });
+    trainerOrder.sort((a, b) => {
+      if (a === '__unassigned__') return 1;
+      if (b === '__unassigned__') return -1;
+      const tA = _allTrainers.find(t => t.id === a);
+      const tB = _allTrainers.find(t => t.id === b);
+      if (tA?.is_active && !tB?.is_active) return -1;
+      if (!tA?.is_active && tB?.is_active) return 1;
+      return (tA?.name || '').localeCompare(tB?.name || '');
+    });
+
+    // 트레이너 서브 아코디언 생성
+    let trainerAccs = '';
+    trainerOrder.forEach(tKey => {
+      const tMembers = trainerMap[tKey];
+      const trainer  = _allTrainers.find(t => t.id === tKey);
+      const tName    = trainer ? trainer.name : '미배정';
+      const accId    = `acc-${sc.key}-${tKey}`;
+      const memberRows = tMembers.map(m => memberRow(m)).join('');
+      trainerAccs += `
+        <div class="acc-sub-block">
+          <div class="acc-sub-header" onclick="toggleAcc('${accId}')">
+            <span>
+              <span class="acc-sub-title">${tName}</span>
+              <span class="acc-sub-count">${tMembers.length}명</span>
+            </span>
+            <span class="acc-arrow" id="${accId}-arrow">›</span>
+          </div>
+          <div class="acc-sub-body" id="${accId}">${memberRows}</div>
+        </div>`;
+    });
+
+    const statusId = `acc-status-${branch.replace(/\s/g,'_')}-${sc.key}`;
+    html += `
+      <div class="acc-block">
+        <div class="acc-header" onclick="toggleAcc('${statusId}')" id="${statusId}-header">
+          <div class="acc-header-left">
+            <span style="font-size:15px">${sc.dot}</span>
+            <span class="acc-header-title" style="color:${sc.color}">${sc.label}</span>
+            <span class="acc-header-count">${statusMembers.length}명</span>
+          </div>
+          <span class="acc-arrow" id="${statusId}-arrow">›</span>
+        </div>
+        <div class="acc-body" id="${statusId}">${trainerAccs}</div>
+      </div>`;
+  });
+
+  wrap.innerHTML = html || '<div class="empty">등록된 회원이 없어요</div>';
+}
+
+function toggleAcc(id) {
+  const body  = document.getElementById(id);
+  const arrow = document.getElementById(id + '-arrow');
+  const header = document.getElementById(id + '-header');
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if (arrow)  arrow.classList.toggle('open', !isOpen);
+  if (header) header.classList.toggle('open', !isOpen);
 }
 
 function memberRow(m) {
-  const trainer = _allTrainers.find(t => t.id === m.trainer_id);
-  return `<div class="hier-row" onclick="showMemberDetail('${m.id}')">
-    <div class="hier-info">
-      <div class="hier-name">${m.name}${!m.is_active ? ' <span style="font-size:10px;color:#f87171">비활성</span>' : ''}</div>
-      <div class="hier-sub">담당: ${trainer?.name || '미배정'}</div>
+  const statusBadge = m.member_status === 'long_absent'
+    ? '<span style="font-size:9px;color:#f59e0b;background:#2a1f00;padding:1px 5px;border-radius:4px;margin-left:5px">장기미방문</span>'
+    : m.member_status === 'expired' || !m.member_status
+      ? '<span style="font-size:9px;color:#f87171;background:#2a1010;padding:1px 5px;border-radius:4px;margin-left:5px">만료</span>'
+      : '';
+  const sub = m.phone || (m.notes ? m.notes.slice(0, 24) : '');
+  return `<div class="member-row" onclick="showMemberDetail('${m.id}')">
+    <div>
+      <div class="member-row-name">${m.name}${statusBadge}</div>
+      ${sub ? `<div style="font-size:10px;color:#555;margin-top:2px">${sub}</div>` : ''}
     </div>
-    <div class="hier-arrow">›</div>
+    <div class="member-row-arrow">›</div>
   </div>`;
 }
 
@@ -862,12 +987,72 @@ async function showMemberDetail(memberId) {
   if (!m) return;
   _currentMemberId = memberId;
   const trainer = _allTrainers.find(t => t.id === m.trainer_id);
+
   document.getElementById('detailMemberName').textContent = m.name;
   document.getElementById('detailMemberMeta').textContent =
     `${m.gym_location || ''} · 담당: ${trainer?.name || '미배정'}`;
+
+  // 상태 override 셀렉트 초기화
+  const sel = document.getElementById('statusOverrideSelect');
+  sel.value = m.status_override || '';
+  const note = document.getElementById('statusOverrideNote');
+  if (m.status_override) {
+    note.textContent = '⚠️ 수동 설정 중 — 자동 계산 일시 중지';
+    note.style.color = '#f59e0b';
+  } else {
+    const statusLabel = {active:'🟢 유효', long_absent:'🟡 장기미방문', expired:'🔴 만료'}[m.member_status] || m.member_status;
+    note.textContent = `현재: ${statusLabel} (자동)`;
+    note.style.color = '#555';
+  }
+
   document.getElementById('ptProductList').innerHTML = '<div class="loading" style="padding:20px;font-size:13px">불러오는 중...</div>';
   openModal('memberDetailModal');
   await loadPtProducts(memberId);
+}
+
+async function adminSetStatus() {
+  const memberId = _currentMemberId;
+  if (!memberId) return;
+  const sel   = document.getElementById('statusOverrideSelect');
+  const value = sel.value || null;  // '' → null (자동복귀)
+  const btn   = document.getElementById('statusOverrideBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+
+  const { data, error } = await db.rpc('admin_set_member_status', {
+    p_member_id: memberId,
+    p_status:    value
+  });
+
+  btn.disabled = false;
+  btn.textContent = '변경';
+
+  if (error || !data?.ok) {
+    showToast('변경 실패: ' + (data?.error || error?.message));
+    return;
+  }
+
+  // 로컬 캐시 업데이트
+  const m = _allMembers.find(x => x.id === memberId);
+  if (m) {
+    m.status_override = value;
+    m.member_status   = data.member_status || value || m.member_status;
+  }
+
+  const note = document.getElementById('statusOverrideNote');
+  if (value) {
+    note.textContent = '⚠️ 수동 설정 중 — 자동 계산 일시 중지';
+    note.style.color = '#f59e0b';
+    showToast('상태가 수동으로 변경됐어요');
+  } else {
+    const statusLabel = {active:'🟢 유효', long_absent:'🟡 장기미방문', expired:'🔴 만료'}[m?.member_status] || '';
+    note.textContent = `현재: ${statusLabel} (자동)`;
+    note.style.color = '#555';
+    showToast('자동 계산으로 복귀했어요');
+  }
+
+  // 목록도 새로고침
+  await loadMembers();
 }
 
 async function loadPtProducts(memberId) {
@@ -1263,7 +1448,7 @@ async function exportExerciseExcel() {
 // ── 요청사항 ─────────────────────────────────────────────────
 async function loadRequests() {
   const { data, error } = await db.from('requests')
-    .select('*, trainers(name)')
+    .select('id,type,content,status,created_at,trainers(name)')
     .order('created_at', { ascending: false });
   if (error) { showToast('불러오기 실패'); return; }
 

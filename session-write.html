@@ -661,9 +661,9 @@ function renderExercises() {
             : ''}
         </div>
         <div class="ex-photo-area">
-          <button class="btn-photo ${hasBoth ? 'done' : ''}"
-                  onclick="${hasBoth ? `viewPhotos(${i})` : `openPhotoModal(${i})`}">
-            ${hasBoth ? '사진보기' : '사진'}
+          <button class="btn-photo ${hasAny ? 'done' : ''}"
+                  onclick="${hasAny ? `viewPhotos(${i})` : `openPhotoModal(${i})`}">
+            ${hasAny ? '사진보기' : '사진'}
           </button>
           <span class="photo-dot ${ex.photos?.start ? 'taken' : 'empty'}">●</span>
           <span class="photo-dot ${ex.photos?.end   ? 'taken' : 'empty'}">●</span>

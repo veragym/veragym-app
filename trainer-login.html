@@ -93,7 +93,7 @@ async function doLogin() {
   const { data: trainer } = await db.from('trainers')
     .select('id, name, gym_location').eq('auth_id', authData.user.id).single();
   if (trainer) {
-    localStorage.setItem('vg_trainer', JSON.stringify({ id: trainer.id, name: trainer.name, gym_location: trainer.gym_location }));
+    localStorage.setItem('vg_trainer', JSON.stringify({ id: trainer.id, name: trainer.name, gym_location: trainer.gym_location, auth_id: authData.user.id }));
   }
   location.replace('trainer-dash.html');
 }
