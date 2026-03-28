@@ -1128,7 +1128,7 @@ async function adminSetStatus() {
 async function loadPtProducts(memberId) {
   const { data, error } = await db
     .from('pt_products')
-    .select('id,contract_date,total_sessions,remaining_sessions,contract_trainer_id,notes,is_active')
+    .select('id,contract_date,total_sessions,remaining_sessions,contract_trainer_id,price_per_session,notes,is_active')
     .eq('member_id', memberId)
     .order('created_at', { ascending: false });
   const wrap = document.getElementById('ptProductList');
@@ -1140,14 +1140,22 @@ async function loadPtProducts(memberId) {
     const at = _allTrainers.find(t => t.id === curMember?.trainer_id);
     const active = p.is_active && p.remaining_sessions > 0;
     const cId = p.contract_trainer_id || '';
+    const pps = p.price_per_session || 0;
+    const payAmt = pps * p.total_sessions;
     return `<div class="pt-card">
       <div class="pt-card-header">
         <div>
+          <span class="pt-sessions-label">${p.total_sessions}회 / </span>
           <span class="pt-sessions">${p.remaining_sessions}</span>
-          <span class="pt-sessions-label"> / ${p.total_sessions}회 남음</span>
+          <span class="pt-sessions-label">회 남음</span>
         </div>
         <span class="${active ? 'pt-badge-active' : 'pt-badge-done'}">${active ? '진행중' : '종료'}</span>
       </div>
+      ${pps ? `<div style="display:flex;gap:8px;font-size:12px;color:#888;margin:6px 0 2px;padding:0 4px">
+        <span>세션단가 <span style="color:#c9a84c">${pps.toLocaleString()}원</span></span>
+        <span>·</span>
+        <span>결제금액 <span style="color:#c9a84c;font-weight:700">${payAmt.toLocaleString()}원</span></span>
+      </div>` : ''}
       <div class="pt-meta">
         계약일 ${p.contract_date}<br>
         계약 ${ct?.name || '미지정'} · 담당 <span style="color:#c9a84c">${at?.name || '미배정'}</span>
@@ -1164,7 +1172,7 @@ async function loadPtProducts(memberId) {
 async function loadPaymentRecords(memberName) {
   const { data, error } = await db
     .from('payment_records')
-    .select('payment_date,payment_amount,net_amount,trainer_name,notes')
+    .select('payment_date,payment_amount,net_amount,price_per_session,total_sessions,trainer_name')
     .eq('member_name', memberName)
     .order('payment_date', { ascending: false });
   const wrap = document.getElementById('paymentHistoryList');
@@ -1175,18 +1183,17 @@ async function loadPaymentRecords(memberName) {
   }
   wrap.innerHTML = data.map(r => {
     const amt = r.payment_amount != null ? r.payment_amount.toLocaleString() + '원' : '-';
-    const net = r.net_amount != null ? r.net_amount.toLocaleString() + '원' : '-';
+    const pps = r.price_per_session ? r.price_per_session.toLocaleString() + '원' : null;
+    const sess = r.total_sessions || '';
     return `<div class="pt-card">
       <div class="pt-card-header">
         <div style="font-size:13px;font-weight:700;color:#c9a84c">${amt}</div>
         <span style="font-size:11px;color:#888">${r.payment_date || '-'}</span>
       </div>
       <div class="pt-meta">
-        실매출 ${net} · 트레이너 ${r.trainer_name || '미지정'}
-        ${r.notes ? `<br><span style="color:#666">${r.notes}</span>` : ''}
+        ${pps ? `단가 ${pps} × ${sess}회 · ` : ''}트레이너 ${r.trainer_name || '미지정'}
       </div>
     </div>`;
-  }).join('');
 }
 
 // ── 담당트레이너 변경 ─────────────────────────────────────────
