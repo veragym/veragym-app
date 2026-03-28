@@ -1965,7 +1965,7 @@ async function _bsLoadDay(dateStr){
   if(!_bsTrainers.length)return;
   const ids=_bsTrainers.map(t=>t.id);
   const{data}=await db.from('schedules')
-    .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,pt_product_id,members(name),pt_products(total_sessions,remaining_sessions)')
+    .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,pt_product_id,members(name),pt_products(total_sessions,remaining_sessions)')
     .in('trainer_id',ids).eq('sched_date',dateStr).neq('status','cancelled').order('start_time');
   _bsSchedules=data||[];
 }
@@ -2047,7 +2047,7 @@ function drawBranchCanvas(dateStr){
       ctx.fillStyle=bg;ctx.fillRect(cellX+1,rowY+1,COL_W-2,ROW_H-2);
       ctx.fillStyle='#222';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';
       if(sType==='PT'||sType==='SPT'){
-        const name=cleanName(sess.members?.name||'');
+        const name=cleanName(sess.members?.name||sess.notes||'');
         const usedM=(sess.pt_products?.total_sessions||0)-(sess.pt_products?.remaining_sessions||0);
         const total=sess.pt_products?.total_sessions||0;
         const num=sess.status==='scheduled'?usedM+1:usedM;
