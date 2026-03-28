@@ -24,6 +24,12 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .tabs::-webkit-scrollbar { display:none; }
 .tab-btn { flex:none; min-width:70px; padding:13px 16px; font-size:12px; font-weight:600; color:#555; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
 .tab-btn.active { color:#c9a84c; border-bottom-color:#c9a84c; }
+.rev-month-btn { background:#1a1a14;border:1px solid #2a2518;border-radius:8px;padding:6px 14px;font-size:12px;color:#888;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s }
+.rev-month-btn.active { background:#c9a84c22;color:#c9a84c;border-color:#c9a84c55 }
+.adm-trainer-card { background:#0f0f0a;border:1px solid #2a2518;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s }
+.adm-trainer-card:active { transform:scale(.98) }
+.adm-fc-item { background:#0a0a08;border:1px solid #1a1510;border-radius:8px;padding:8px 10px;margin-top:6px }
+.adm-fc-item.unreg { border-color:#7f1d1d44;background:#1a0a0a }
 .tab-content { display:none; padding:20px 16px; }
 .tab-content.active { display:block; }
 .sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
@@ -341,9 +347,42 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 </div>
 
 <!-- ── 일정 탭 ─────────────────────────────────────────── -->
-<!-- 매출관리 (추후 구성 예정) -->
+<!-- 매출관리 -->
 <div id="tab-revenue" class="tab-content">
-  <div style="display:flex;align-items:center;justify-content:center;height:200px;color:#888;font-size:14px;">매출관리 기능 준비 중입니다.</div>
+
+  <!-- <1> 지점 선택 -->
+  <div style="margin-bottom:12px">
+    <select id="revGymSelect" onchange="loadAdminRevenue()" style="background:#0a0a08;border:1.5px solid #2a2518;border-radius:10px;padding:10px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;width:100%">
+      <option value="미사점">미사점</option>
+      <option value="동탄점">동탄점</option>
+    </select>
+  </div>
+
+  <!-- <2> 예상/달성 매출 -->
+  <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;color:#888;font-weight:600">당월 총 예상매출</span>
+      <span id="adminRevForecast" style="font-size:18px;font-weight:700;color:#fff">0원</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:600">당월 달성매출</span>
+      <span id="adminRevAchieved" style="font-size:18px;font-weight:700;color:#4ade80">0원</span>
+    </div>
+  </div>
+
+  <!-- <3> 트레이너별 예상매출 -->
+  <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-size:13px;color:#888;font-weight:600">트레이너별 예상매출</span>
+      <div style="display:flex;gap:4px">
+        <button id="adminRevCur" class="rev-month-btn active" onclick="switchAdminRevMonth('cur')">당월</button>
+        <button id="adminRevNext" class="rev-month-btn" onclick="switchAdminRevMonth('next')">다음 달</button>
+      </div>
+    </div>
+    <div id="adminRevTrainerList" style="display:flex;flex-direction:column;gap:8px">
+      <div style="text-align:center;color:#555;font-size:13px;padding:20px 0">불러오는 중...</div>
+    </div>
+  </div>
 </div>
 
 <div id="tab-schedule" class="tab-content">
@@ -454,7 +493,17 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
       </div>
       <div class="field" style="flex:1">
         <label>횟수</label>
-        <input id="mSessions" type="number" min="1" placeholder="예: 30">
+        <input id="mSessions" type="number" min="1" placeholder="예: 30" oninput="calcPaymentAmount()">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <div class="field" style="flex:1">
+        <label>세션단가</label>
+        <input id="mPricePerSession" type="number" min="0" placeholder="예: 55000" oninput="calcPaymentAmount()">
+      </div>
+      <div class="field" style="flex:1">
+        <label>결제금액</label>
+        <input id="mPaymentAmount" type="number" min="0" placeholder="자동계산" readonly style="color:#c9a84c">
       </div>
     </div>
     <div class="modal-btns">
@@ -491,6 +540,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 
     <div style="font-size:11px;color:#888;letter-spacing:1.2px;margin-bottom:10px;font-weight:600">PT 상품 목록</div>
     <div id="ptProductList"></div>
+    <div style="font-size:11px;color:#888;letter-spacing:1.2px;margin:16px 0 10px;font-weight:600">결제 내역</div>
+    <div id="paymentHistoryList"></div>
     <button class="btn-cancel" style="margin-top:16px;width:100%" onclick="closeModal('memberDetailModal')">닫기</button>
   </div>
 </div>
@@ -1023,8 +1074,10 @@ async function showMemberDetail(memberId) {
   }
 
   document.getElementById('ptProductList').innerHTML = '<div class="loading" style="padding:20px;font-size:13px">불러오는 중...</div>';
+  document.getElementById('paymentHistoryList').innerHTML = '<div class="loading" style="padding:20px;font-size:13px">불러오는 중...</div>';
   openModal('memberDetailModal');
   await loadPtProducts(memberId);
+  await loadPaymentRecords(m.name);
 }
 
 async function adminSetStatus() {
@@ -1103,6 +1156,34 @@ async function loadPtProducts(memberId) {
       <div style="margin-top:8px">
         <button class="btn-sm" style="font-size:11px"
           onclick="openChangeTrainer('${p.id}','${cId}')">담당 트레이너 변경</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadPaymentRecords(memberName) {
+  const { data, error } = await db
+    .from('payment_records')
+    .select('payment_date,payment_amount,net_amount,trainer_name,notes')
+    .eq('member_name', memberName)
+    .order('payment_date', { ascending: false });
+  const wrap = document.getElementById('paymentHistoryList');
+  if (error) { wrap.innerHTML = '<div class="empty">불러오기 실패</div>'; return; }
+  if (!data || !data.length) {
+    wrap.innerHTML = '<div style="text-align:center;padding:20px;color:#444;font-size:13px">결제 내역이 없어요</div>';
+    return;
+  }
+  wrap.innerHTML = data.map(r => {
+    const amt = r.payment_amount != null ? r.payment_amount.toLocaleString() + '원' : '-';
+    const net = r.net_amount != null ? r.net_amount.toLocaleString() + '원' : '-';
+    return `<div class="pt-card">
+      <div class="pt-card-header">
+        <div style="font-size:13px;font-weight:700;color:#c9a84c">${amt}</div>
+        <span style="font-size:11px;color:#888">${r.payment_date || '-'}</span>
+      </div>
+      <div class="pt-meta">
+        실매출 ${net} · 트레이너 ${r.trainer_name || '미지정'}
+        ${r.notes ? `<br><span style="color:#666">${r.notes}</span>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -1254,6 +1335,12 @@ function onMemberNameInput() {
 }
 
 
+function calcPaymentAmount() {
+  const pps = parseInt(document.getElementById('mPricePerSession').value) || 0;
+  const cnt = parseInt(document.getElementById('mSessions').value) || 0;
+  document.getElementById('mPaymentAmount').value = pps && cnt ? pps * cnt : '';
+}
+
 async function addMember() {
   const rawName      = document.getElementById('mName').value.trim();
   const suffix       = document.getElementById('mSuffix').value.trim();
@@ -1263,6 +1350,8 @@ async function addMember() {
   const contractTrId = document.getElementById('mContractTrainer').value || null;
   const contractDate = document.getElementById('mContractDate').value;
   const sessions     = parseInt(document.getElementById('mSessions').value) || 0;
+  const pricePerSess = parseInt(document.getElementById('mPricePerSession').value) || 0;
+  const paymentAmt   = parseInt(document.getElementById('mPaymentAmount').value) || 0;
   const gym          = document.getElementById('mGym').value;
   const btn          = document.getElementById('btnAddMember');
   const errBox       = document.getElementById('memberErr');
@@ -1292,15 +1381,32 @@ async function addMember() {
 
     // 2. PT 상품 추가 (날짜와 횟수 모두 입력된 경우)
     if (contractDate && sessions > 0) {
-      const { error: e2 } = await db.from('pt_products').insert({
+      const ptInsert = {
         member_id: newMember.id,
         contract_date: contractDate,
         total_sessions: sessions,
         remaining_sessions: sessions,
         contract_trainer_id: contractTrId,
         is_active: true,
-      });
+      };
+      if (pricePerSess > 0) ptInsert.price_per_session = pricePerSess;
+      const { error: e2 } = await db.from('pt_products').insert(ptInsert);
       if (e2) throw e2;
+
+      // 결제 기록도 자동 생성
+      if (paymentAmt > 0) {
+        const trainerRow = _allTrainers.find(t => t.id === (contractTrId || trainerId));
+        await db.from('payment_records').insert({
+          payment_date: contractDate,
+          member_name: name,
+          total_sessions: sessions,
+          payment_amount: paymentAmt,
+          net_amount: Math.round(paymentAmt * 0.909),
+          price_per_session: pricePerSess || null,
+          trainer_id: contractTrId || trainerId,
+          trainer_name: trainerRow ? trainerRow.name : null,
+        });
+      }
     }
 
     closeModal('addMemberModal');
@@ -1521,6 +1627,7 @@ function switchTab(id, btn) {
   if (id === 'exercise') loadExercise();
   if (id === 'requests') loadRequests();
   if (id === 'schedule') loadScheduleTab();
+  if (id === 'revenue')  loadAdminRevenue();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2052,7 +2159,7 @@ function drawBranchCanvas(dateStr){
         const total=sess.pt_products?.total_sessions||0;
         const num=sess.status==='scheduled'?usedM+1:usedM;
         ctx.fillText(name||sType,cellX+COL_W/2,rowY+ROW_H/2-3);
-        ctx.font=`8px ${FONT}`;ctx.fillText(sType==='SPT'?'SPT':(total>0?`PT${num}/${total}`:'PT'),cellX+COL_W/2,rowY+ROW_H/2+8);
+        ctx.fillStyle='#111';ctx.font=`9px ${FONT}`;ctx.fillText(sType==='SPT'?'SPT':(total>0?`PT${num}/${total}`:'PT'),cellX+COL_W/2,rowY+ROW_H/2+8);
         if(sType==='SPT')cntSPT++;else cntPT++;
       }else{
         ctx.fillText(sType,cellX+COL_W/2,rowY+ROW_H/2+4);
@@ -2101,6 +2208,128 @@ async function downloadBranchSched(){
   if(/iPhone|iPad/i.test(navigator.userAgent)){
     setTimeout(()=>{const w=window.open();if(w){w.document.write(`<img src="${url}" style="max-width:100%;display:block;">`);w.document.title='시간표';}},500);
   }
+}
+
+// ══════════ 매출관리 (Admin Revenue) ══════════
+let _admRevForecasts = [];
+let _admRevPayments = [];
+let _admRevTrainers = [];
+let _admRevMonthMode = 'cur';
+
+function _admCurMonth() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function _admNextMonth() {
+  const d = new Date();
+  d.setMonth(d.getMonth()+1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function _admFmtWon(n) {
+  return (n||0).toLocaleString('ko-KR') + '원';
+}
+
+async function loadAdminRevenue() {
+  const gym = document.getElementById('revGymSelect').value;
+  try {
+    const { data: trainers } = await db.from('trainers').select('id,name,gym_location,is_active,is_admin').eq('gym_location', gym).eq('is_active', true).order('name');
+    _admRevTrainers = (trainers || []).filter(t => !t.is_admin);
+    const trainerIds = _admRevTrainers.map(t => t.id);
+
+    if (!trainerIds.length) {
+      document.getElementById('adminRevForecast').textContent = '0원';
+      document.getElementById('adminRevAchieved').textContent = '0원';
+      document.getElementById('adminRevTrainerList').innerHTML = '<div style="text-align:center;color:#555;font-size:13px;padding:20px 0">해당 지점에 활성 트레이너가 없습니다.</div>';
+      return;
+    }
+
+    const [fRes, pRes] = await Promise.all([
+      db.from('sales_forecasts').select('*').in('trainer_id', trainerIds).order('created_at'),
+      db.from('payment_records').select('payment_date,payment_amount,trainer_id').in('trainer_id', trainerIds)
+    ]);
+    _admRevForecasts = fRes.data || [];
+    _admRevPayments = pRes.data || [];
+
+    renderAdminRevSummary();
+    renderAdminTrainerList();
+  } catch(e) { console.error('loadAdminRevenue', e); }
+}
+
+function renderAdminRevSummary() {
+  const cm = _admCurMonth();
+  const forecastTotal = _admRevForecasts
+    .filter(f => f.forecast_month === cm)
+    .reduce((s,f) => s + (f.price_per_session * f.session_count), 0);
+  document.getElementById('adminRevForecast').textContent = _admFmtWon(forecastTotal);
+
+  const achieved = _admRevPayments
+    .filter(p => p.payment_date.slice(0,7) === cm)
+    .reduce((s,p) => s + p.payment_amount, 0);
+  document.getElementById('adminRevAchieved').textContent = _admFmtWon(achieved);
+}
+
+function switchAdminRevMonth(mode) {
+  _admRevMonthMode = mode;
+  document.getElementById('adminRevCur').classList.toggle('active', mode==='cur');
+  document.getElementById('adminRevNext').classList.toggle('active', mode==='next');
+  renderAdminTrainerList();
+}
+
+function renderAdminTrainerList() {
+  const month = _admRevMonthMode === 'cur' ? _admCurMonth() : _admNextMonth();
+  const el = document.getElementById('adminRevTrainerList');
+
+  if (!_admRevTrainers.length) {
+    el.innerHTML = '<div style="text-align:center;color:#555;font-size:13px;padding:20px 0">트레이너가 없습니다.</div>';
+    return;
+  }
+
+  el.innerHTML = _admRevTrainers.map(t => {
+    const forecasts = _admRevForecasts.filter(f => f.trainer_id === t.id && f.forecast_month === month);
+    const fcTotal = forecasts.reduce((s,f) => s + (f.price_per_session * f.session_count), 0);
+    const fcCount = forecasts.length;
+
+    return `<div class="adm-trainer-card" onclick="toggleAdminTrainerDetail(this,'${t.id}','${month}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:14px;font-weight:600;color:#fff">${t.name}</span>
+        <div style="text-align:right">
+          <div style="font-size:14px;font-weight:700;color:#c9a84c">${_admFmtWon(fcTotal)}</div>
+          <div style="font-size:11px;color:#666">${fcCount}건</div>
+        </div>
+      </div>
+      <div class="adm-trainer-detail" style="display:none"></div>
+    </div>`;
+  }).join('');
+}
+
+function toggleAdminTrainerDetail(card, trainerId, month) {
+  const detail = card.querySelector('.adm-trainer-detail');
+  if (detail.style.display !== 'none') {
+    detail.style.display = 'none';
+    return;
+  }
+  const forecasts = _admRevForecasts.filter(f => f.trainer_id === trainerId && f.forecast_month === month);
+  if (!forecasts.length) {
+    detail.innerHTML = '<div style="text-align:center;color:#555;font-size:12px;padding:10px 0;margin-top:8px">등록된 예상매출이 없습니다.</div>';
+  } else {
+    detail.innerHTML = forecasts.map(f => {
+      const amt = f.price_per_session * f.session_count;
+      const unreg = !f.is_registered;
+      return `<div class="adm-fc-item${unreg?' unreg':''}">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:13px;font-weight:600;color:${unreg?'#f87171':'#ddd'}">${f.member_name}</span>
+          <span style="font-size:11px;padding:2px 6px;border-radius:4px;font-weight:600;${unreg?'background:#7f1d1d44;color:#f87171':'background:#16a34a33;color:#4ade80'}">${unreg?'미등록':'등록'}</span>
+        </div>
+        <div style="display:flex;gap:10px;font-size:11px;color:#888;margin-top:4px">
+          <span>단가 ${(f.price_per_session||0).toLocaleString()}</span>
+          <span>${f.session_count}회</span>
+          <span style="color:#c9a84c">${_admFmtWon(amt)}</span>
+        </div>
+        ${f.memo?`<div style="font-size:10px;color:#666;margin-top:3px">${f.memo}</div>`:''}
+      </div>`;
+    }).join('');
+  }
+  detail.style.display = 'block';
 }
 </script>
 

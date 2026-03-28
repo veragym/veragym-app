@@ -34,6 +34,11 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .tabs::-webkit-scrollbar { display:none; }
 .tab-btn { flex:none; min-width:70px; padding:13px 16px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
 .tab-btn.active { color:#3b82f6; border-bottom-color:#3b82f6; }
+.rev-month-btn { background:#1a1a14;border:1px solid #2a2518;border-radius:8px;padding:6px 14px;font-size:12px;color:#888;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s }
+.rev-month-btn.active { background:#c9a84c22;color:#c9a84c;border-color:#c9a84c55 }
+.fc-card { background:#0f0f0a;border:1px solid #2a2518;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s }
+.fc-card:active { transform:scale(.98) }
+.fc-card.unregistered { border-color:#7f1d1d55;background:#1a0a0a }
 
 /* ── Tab Content ─────────────────────────────────────────── */
 .tab-content { display:none; padding:16px 14px; }
@@ -247,9 +252,95 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   </div>
 </div>
 
-<!-- ── Tab: 매출관리 (추후 구성 예정) ──────────────────────── -->
+<!-- ── Tab: 매출관리 ──────────────────────── -->
 <div id="tab-revenue" class="tab-content">
-  <div style="display:flex;align-items:center;justify-content:center;height:200px;color:#4a6580;font-size:14px;">매출관리 기능 준비 중입니다.</div>
+
+  <!-- <1> 평균매출 섹션 -->
+  <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-size:13px;color:#888;font-weight:600">총 평균매출 (월)</span>
+      <span id="revAvgAll" style="font-size:18px;font-weight:700;color:#c9a84c">0원</span>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <select id="revYear" style="background:#0a0a08;border:1px solid #2a2518;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none" onchange="updateRevPeriodUI()"></select>
+      <select id="revPeriodType" style="background:#0a0a08;border:1px solid #2a2518;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none" onchange="updateRevPeriodUI()">
+        <option value="year">연</option>
+        <option value="half">반기</option>
+        <option value="quarter">분기</option>
+      </select>
+      <select id="revPeriodSub" style="background:#0a0a08;border:1px solid #2a2518;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none;display:none" onchange="calcRevPeriod()"></select>
+      <span style="font-size:11px;color:#666;margin-left:4px">:</span>
+      <span id="revAvgPeriod" style="font-size:16px;font-weight:700;color:#fff">0원</span>
+    </div>
+  </div>
+
+  <!-- <2> 목표/예상/달성 매출 -->
+  <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;color:#888;font-weight:600">당월 목표매출</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input id="revTargetInput" type="number" min="0" placeholder="0" style="width:120px;background:#0a0a08;border:1px solid #2a2518;border-radius:8px;padding:6px 10px;font-size:15px;color:#c9a84c;text-align:right;outline:none;font-weight:700" onchange="saveTarget()">
+        <span style="font-size:13px;color:#c9a84c;font-weight:700">원</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;color:#888;font-weight:600">당월 예상매출</span>
+      <span id="revForecastTotal" style="font-size:16px;font-weight:700;color:#fff">0원</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:600">당월 달성매출</span>
+      <span id="revAchieved" style="font-size:16px;font-weight:700;color:#4ade80">0원</span>
+    </div>
+  </div>
+
+  <!-- <3> 예상매출 목록 -->
+  <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="display:flex;gap:4px">
+        <button id="revMonthCur" class="rev-month-btn active" onclick="switchRevMonth('cur')">당월</button>
+        <button id="revMonthNext" class="rev-month-btn" onclick="switchRevMonth('next')">다음 달</button>
+      </div>
+      <button onclick="openForecastModal()" style="background:linear-gradient(135deg,#c9a84c,#a8893a);border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;color:#000;cursor:pointer">+ 예상매출 등록</button>
+    </div>
+    <div id="revForecastList" style="display:flex;flex-direction:column;gap:8px">
+      <div style="text-align:center;color:#555;font-size:13px;padding:20px 0">등록된 예상매출이 없습니다.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 예상매출 등록 모달 -->
+<div id="forecastModal" class="modal-bg" style="display:none" onclick="closeModal('forecastModal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">예상매출 등록</div>
+    <div class="err-box" id="forecastErr"></div>
+    <div class="field">
+      <label>회원명</label>
+      <input id="fcName" type="text" placeholder="임의로 입력" autocomplete="off">
+    </div>
+    <div style="display:flex;gap:10px">
+      <div class="field" style="flex:1">
+        <label>세션단가</label>
+        <input id="fcPPS" type="number" min="0" placeholder="55000" oninput="calcFcAmount()">
+      </div>
+      <div class="field" style="flex:1">
+        <label>세션 수</label>
+        <input id="fcCount" type="number" min="1" placeholder="30" oninput="calcFcAmount()">
+      </div>
+    </div>
+    <div class="field">
+      <label>예상금액</label>
+      <input id="fcAmount" type="text" readonly style="color:#c9a84c;font-weight:700" value="0원">
+    </div>
+    <div class="field">
+      <label>매출계획</label>
+      <textarea id="fcMemo" placeholder="메모 입력" rows="2" style="width:100%;background:#0a0a08;border:1.5px solid #2a2518;border-radius:10px;padding:12px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;resize:none"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('forecastModal')">취소</button>
+      <button class="btn-save" id="btnSaveForecast" onclick="saveForecast()">등록</button>
+    </div>
+  </div>
 </div>
 
 <!-- ── Tab: 요청사항 ────────────────────────────────────────── -->
@@ -801,7 +892,245 @@ async function handleDbError(error, fallbackMsg) {
   return true;
 }
 const _origSwitchTab=switchTab;
-switchTab=function(id,btn){_origSwitchTab(id,btn);if(id==='schedule')loadScheduleView();};
+switchTab=function(id,btn){_origSwitchTab(id,btn);if(id==='schedule')loadScheduleView();if(id==='revenue')loadRevenue();};
+
+// ══════════ 매출관리 (Revenue) ══════════
+let _revPayments = [];
+let _revForecasts = [];
+let _revTarget = null;
+let _revMonthMode = 'cur';
+let _revLoaded = false;
+
+function _curMonth() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function _nextMonth() {
+  const d = new Date();
+  d.setMonth(d.getMonth()+1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function _fmtWon(n) {
+  return (n||0).toLocaleString('ko-KR') + '원';
+}
+
+async function loadRevenue() {
+  if (!me) return;
+  try {
+    const [pRes, fRes, tRes] = await Promise.all([
+      db.from('payment_records').select('payment_date,payment_amount,trainer_id').eq('trainer_id', me.id),
+      db.from('sales_forecasts').select('*').eq('trainer_id', me.id).order('created_at'),
+      db.from('sales_targets').select('*').eq('trainer_id', me.id)
+    ]);
+    _revPayments = pRes.data || [];
+    _revForecasts = fRes.data || [];
+    const targets = tRes.data || [];
+    _revTarget = targets.find(t => t.target_month === _curMonth()) || null;
+    _revLoaded = true;
+
+    renderRevAvg();
+    renderRevSummary();
+    renderForecasts();
+  } catch(e) { console.error('loadRevenue', e); }
+}
+
+function renderRevAvg() {
+  if (!_revPayments.length) {
+    document.getElementById('revAvgAll').textContent = '0원';
+    document.getElementById('revAvgPeriod').textContent = '0원';
+    return;
+  }
+  const byMonth = {};
+  _revPayments.forEach(p => {
+    const m = p.payment_date.slice(0,7);
+    byMonth[m] = (byMonth[m]||0) + p.payment_amount;
+  });
+  const months = Object.keys(byMonth).sort();
+  const totalAmt = Object.values(byMonth).reduce((a,b)=>a+b,0);
+  const avgAll = months.length ? Math.round(totalAmt / months.length) : 0;
+  document.getElementById('revAvgAll').textContent = _fmtWon(avgAll);
+
+  const years = [...new Set(months.map(m=>m.slice(0,4)))].sort();
+  const sel = document.getElementById('revYear');
+  const curYVal = sel.value;
+  sel.innerHTML = years.map(y=>`<option value="${y}">${y}년</option>`).join('');
+  if (curYVal && years.includes(curYVal)) sel.value = curYVal;
+  else sel.value = years[years.length-1] || new Date().getFullYear();
+
+  updateRevPeriodUI();
+}
+
+function updateRevPeriodUI() {
+  const type = document.getElementById('revPeriodType').value;
+  const subSel = document.getElementById('revPeriodSub');
+  if (type === 'year') {
+    subSel.style.display = 'none';
+  } else if (type === 'half') {
+    subSel.style.display = '';
+    subSel.innerHTML = '<option value="1">상반기</option><option value="2">하반기</option>';
+  } else {
+    subSel.style.display = '';
+    subSel.innerHTML = '<option value="1">1분기</option><option value="2">2분기</option><option value="3">3분기</option><option value="4">4분기</option>';
+  }
+  calcRevPeriod();
+}
+
+function calcRevPeriod() {
+  const year = document.getElementById('revYear').value;
+  const type = document.getElementById('revPeriodType').value;
+  const sub = parseInt(document.getElementById('revPeriodSub').value) || 1;
+
+  let startM, endM;
+  if (type === 'year') { startM = 1; endM = 12; }
+  else if (type === 'half') { startM = sub === 1 ? 1 : 7; endM = sub === 1 ? 6 : 12; }
+  else { startM = (sub-1)*3+1; endM = sub*3; }
+
+  const byMonth = {};
+  _revPayments.forEach(p => {
+    const m = p.payment_date.slice(0,7);
+    byMonth[m] = (byMonth[m]||0) + p.payment_amount;
+  });
+
+  let total = 0, cnt = 0;
+  for (let m = startM; m <= endM; m++) {
+    const key = `${year}-${String(m).padStart(2,'0')}`;
+    if (byMonth[key] !== undefined) { total += byMonth[key]; cnt++; }
+  }
+  const avg = cnt ? Math.round(total / (endM - startM + 1)) : 0;
+  document.getElementById('revAvgPeriod').textContent = _fmtWon(avg);
+}
+
+function renderRevSummary() {
+  const cm = _curMonth();
+  document.getElementById('revTargetInput').value = _revTarget ? _revTarget.target_amount : '';
+
+  const achieved = _revPayments
+    .filter(p => p.payment_date.slice(0,7) === cm)
+    .reduce((s,p) => s + p.payment_amount, 0);
+  document.getElementById('revAchieved').textContent = _fmtWon(achieved);
+
+  updateForecastTotal();
+}
+
+function updateForecastTotal() {
+  const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
+  const total = _revForecasts
+    .filter(f => f.forecast_month === month)
+    .reduce((s,f) => s + (f.price_per_session * f.session_count), 0);
+  document.getElementById('revForecastTotal').textContent = _fmtWon(total);
+}
+
+async function saveTarget() {
+  const val = parseInt(document.getElementById('revTargetInput').value) || 0;
+  const cm = _curMonth();
+  try {
+    if (_revTarget) {
+      await db.from('sales_targets').update({ target_amount: val, updated_at: new Date().toISOString() }).eq('id', _revTarget.id);
+      _revTarget.target_amount = val;
+    } else {
+      const { data } = await db.from('sales_targets').insert({ trainer_id: me.id, target_month: cm, target_amount: val }).select().single();
+      _revTarget = data;
+    }
+    showToast('목표매출 저장!');
+  } catch(e) { showToast('저장 실패'); }
+}
+
+function switchRevMonth(mode) {
+  _revMonthMode = mode;
+  document.getElementById('revMonthCur').classList.toggle('active', mode==='cur');
+  document.getElementById('revMonthNext').classList.toggle('active', mode==='next');
+  renderForecasts();
+  updateForecastTotal();
+}
+
+function renderForecasts() {
+  const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
+  const list = _revForecasts.filter(f => f.forecast_month === month);
+  const el = document.getElementById('revForecastList');
+
+  if (!list.length) {
+    el.innerHTML = '<div style="text-align:center;color:#555;font-size:13px;padding:20px 0">등록된 예상매출이 없습니다.</div>';
+    return;
+  }
+
+  el.innerHTML = list.map(f => {
+    const amt = f.price_per_session * f.session_count;
+    const unreg = !f.is_registered;
+    return `<div class="fc-card${unreg?' unregistered':''}" onclick="toggleForecast('${f.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:14px;font-weight:600;color:${unreg?'#f87171':'#fff'}">${f.member_name}</span>
+        <span style="font-size:11px;padding:3px 8px;border-radius:6px;font-weight:600;${unreg?'background:#7f1d1d44;color:#f87171':'background:#16a34a33;color:#4ade80'}">${unreg?'미등록':'등록'}</span>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:6px;font-size:12px;color:#888">
+        <span>단가 ${(f.price_per_session||0).toLocaleString()}</span>
+        <span>${f.session_count}회</span>
+        <span style="color:#c9a84c;font-weight:600">${_fmtWon(amt)}</span>
+      </div>
+      ${f.memo?`<div style="font-size:11px;color:#666;margin-top:4px">${f.memo}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function toggleForecast(id) {
+  const f = _revForecasts.find(x=>x.id===id);
+  if (!f) return;
+  const newVal = !f.is_registered;
+  try {
+    await db.from('sales_forecasts').update({ is_registered: newVal, updated_at: new Date().toISOString() }).eq('id', id);
+    f.is_registered = newVal;
+    renderForecasts();
+    updateForecastTotal();
+    showToast(newVal ? '등록 처리됨' : '미등록 처리됨');
+  } catch(e) { showToast('변경 실패'); }
+}
+
+function openForecastModal() {
+  document.getElementById('fcName').value = '';
+  document.getElementById('fcPPS').value = '';
+  document.getElementById('fcCount').value = '';
+  document.getElementById('fcAmount').value = '0원';
+  document.getElementById('fcMemo').value = '';
+  document.getElementById('forecastErr').style.display = 'none';
+  document.getElementById('forecastModal').style.display = 'flex';
+}
+function calcFcAmount() {
+  const pps = parseInt(document.getElementById('fcPPS').value)||0;
+  const cnt = parseInt(document.getElementById('fcCount').value)||0;
+  document.getElementById('fcAmount').value = _fmtWon(pps*cnt);
+}
+async function saveForecast() {
+  const name = document.getElementById('fcName').value.trim();
+  const pps = parseInt(document.getElementById('fcPPS').value)||0;
+  const cnt = parseInt(document.getElementById('fcCount').value)||0;
+  const memo = document.getElementById('fcMemo').value.trim();
+  const errBox = document.getElementById('forecastErr');
+
+  if (!name) { errBox.textContent='회원명을 입력해주세요'; errBox.style.display='block'; return; }
+  if (!pps || !cnt) { errBox.textContent='세션단가와 세션 수를 입력해주세요'; errBox.style.display='block'; return; }
+
+  const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
+  const btn = document.getElementById('btnSaveForecast');
+  btn.disabled = true;
+  try {
+    const { data, error } = await db.from('sales_forecasts').insert({
+      trainer_id: me.id,
+      forecast_month: month,
+      member_name: name,
+      price_per_session: pps,
+      session_count: cnt,
+      memo: memo || null
+    }).select().single();
+    if (error) throw error;
+    _revForecasts.push(data);
+    closeModal('forecastModal');
+    renderForecasts();
+    updateForecastTotal();
+    showToast('예상매출 등록 완료!');
+  } catch(e) {
+    errBox.textContent = '등록 실패: '+e.message; errBox.style.display='block';
+  }
+  btn.disabled = false;
+}
 
 // ══════════ 전체 시간표 이미지 기능 (스프레드시트 형식) ══════════
 const BS_DAYS=['일','월','화','수','목','금','토'];
@@ -975,7 +1304,7 @@ function drawBranchCanvas(dateStr){
         const line2Y=rowY+ROW_H/2+9;
         ctx.fillStyle='#111';ctx.font=`bold 11px ${FONT}`;
         ctx.fillText(name||sType,cellX+COL_W/2,line1Y);
-        ctx.fillStyle='#444';ctx.font=`9px ${FONT}`;
+        ctx.fillStyle='#111';ctx.font=`10px ${FONT}`;
         ctx.fillText(sType==='SPT'?'SPT':(total>0?`PT${sessionNumM}/${total}`:'PT'),cellX+COL_W/2,line2Y);
         if(sType==='SPT')cntSPT++;else cntPT++;
       }else{
