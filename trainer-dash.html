@@ -836,10 +836,10 @@ async function openBranchSchedModal(){
   _bsCurrentDate=today;
   document.getElementById('bsDatePicker').value=today;
   document.getElementById('bsSubtitle').textContent='불러오는 중...';
-  // 같은 지점 트레이너 목록 (관리자 포함 전체)
+  // 같은 지점 비관리자 트레이너 목록
   const gym=me?.gym_location||'';
   const{data:trainerList}=await db.from('trainers')
-    .select('id,name').eq('gym_location',gym).eq('is_active',true).order('name');
+    .select('id,name').eq('gym_location',gym).eq('is_active',true).eq('is_admin',false).order('name');
   _bsTrainers=trainerList||[];
   await _bsLoadDay(today);
   drawBranchCanvas(today);
@@ -957,10 +957,9 @@ function drawBranchCanvas(dateStr){
       const sess=_bsSchedules.find(s=>s.trainer_id===trainer.id&&parseInt(s.start_time)===h);
       if(!sess)continue;
 
-      if(sess.type!=='PT'){
-        ctx.fillStyle=CELL_BG[sess.type]||'#f0f0f0';
-        ctx.fillRect(cellX+1,rowY+1,COL_W-2,ROW_H-2);
-      }
+      // 모든 세션 타입에 배경색 칠하기 (PT 포함)
+      ctx.fillStyle=CELL_BG[sess.type]||(sess.type==='PT'?'#e8e4ff':'#f0f0f0');
+      ctx.fillRect(cellX+1,rowY+1,COL_W-2,ROW_H-2);
 
       ctx.textAlign='center';
       if(sess.type==='PT'||sess.type==='SPT'){
