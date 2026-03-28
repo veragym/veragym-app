@@ -2062,9 +2062,10 @@ function drawBranchCanvas(dateStr){
     });
 
     [cntSPT,cntPT,cntNS,cntSPT+cntPT].forEach((v,si)=>{
+      if(!v)return;
       const sx=timeEndX+si*SUM_W;
       ctx.fillStyle=sumFg[si];ctx.font=`bold 12px ${FONT}`;ctx.textAlign='center';
-      ctx.fillText(v>0?String(v):'-',sx+SUM_W/2,rowY+ROW_H/2+4);
+      ctx.fillText(String(v),sx+SUM_W/2,rowY+ROW_H/2+4);
     });
   });
   // 비고 행
