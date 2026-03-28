@@ -1979,7 +1979,7 @@ function drawBranchCanvas(dateStr){
   const LABEL_W=80,SUM_W=46,SUM_N=4,TOTAL_SUM_W=SUM_W*SUM_N;
   const COL_W=Math.floor((CANVAS_W-LABEL_W-TOTAL_SUM_W)/NUM_COLS);
   const ACTUAL_TIME_W=COL_W*NUM_COLS;
-  const TITLE_H=52,SUB_H=22,TH=28,FOOTER_H=44;
+  const TITLE_H=52,SUB_H=22,TH=28,FOOTER_H=0;
   const trainers=_bsTrainers.slice(0,10);
   const nRows=trainers.length+1;
   const ROW_H=Math.floor((CANVAS_H-TITLE_H-SUB_H-TH-FOOTER_H)/nRows);
@@ -2066,19 +2066,13 @@ function drawBranchCanvas(dateStr){
   // 외곽선
   ctx.strokeStyle='#999';ctx.lineWidth=1.5;
   ctx.strokeRect(0,tableY,CANVAS_W,TABLE_H);
-  // 푸터
-  const footerY=tableY+TABLE_H+4;
-  ctx.fillStyle='#555';ctx.font=`9px ${FONT}`;ctx.textAlign='left';
-  ctx.fillText(`생성: ${new Date().toLocaleString('ko-KR',{hour12:false})}`,8,footerY+14);
-  const byTrainer=trainers.map(t=>{
-    const ts=_bsSchedules.filter(s=>s.trainer_id===t.id);
-    const spt=ts.filter(s=>s.type==='SPT').length,pt=ts.filter(s=>s.type==='PT').length;
-    return`${t.name}(SPT${spt}/PT${pt})`;
-  });
-  const half=Math.ceil(byTrainer.length/2);
-  ctx.textAlign='center';
-  ctx.fillText(byTrainer.slice(0,half).join(' | '),CANVAS_W/2,footerY+14);
-  if(byTrainer.length>half)ctx.fillText(byTrainer.slice(half).join(' | '),CANVAS_W/2,footerY+28);
+  // ── 첫 세션 시간으로 자동 스크롤 ──
+  if(_bsSchedules.length){
+    const T_START_VAL=6;
+    const minH=_bsSchedules.reduce((m,s)=>Math.min(m,parseInt(s.start_time)),23);
+    const scrollX=Math.max(0,LABEL_W+(minH-T_START_VAL-1)*COL_W);
+    setTimeout(()=>{const wrap=document.getElementById('bsCanvasWrap');if(wrap)wrap.scrollLeft=scrollX;},60);
+  }
 }
 
 async function downloadBranchSched(){

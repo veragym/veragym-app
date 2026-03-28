@@ -866,7 +866,7 @@ function drawBranchCanvas(dateStr){
   const LABEL_W=80,SUM_W=46,SUM_N=4,TOTAL_SUM_W=SUM_W*SUM_N; // 184
   const COL_W=Math.floor((CANVAS_W-LABEL_W-TOTAL_SUM_W)/NUM_COLS); // ~54
   const ACTUAL_TIME_W=COL_W*NUM_COLS;
-  const TITLE_H=52,SUB_H=22,TH=28,FOOTER_H=44;
+  const TITLE_H=52,SUB_H=22,TH=28,FOOTER_H=0;
 
   // 트레이너 최대 10명 + 빈칸 1행
   const trainers=_bsTrainers.slice(0,10);
@@ -1015,24 +1015,11 @@ function drawBranchCanvas(dateStr){
   ctx.beginPath();ctx.moveTo(0,tableY+TH);ctx.lineTo(CANVAS_W,tableY+TH);ctx.stroke();
 
   // ── 예고 메모 (footer) ──
-  const footerY=tableY+TABLE_H+8;
-  const scheduled=_bsSchedules.filter(s=>s.status==='scheduled'&&(s.type==='PT'||s.type==='SPT'));
-  if(scheduled.length){
-    const byTrainer=trainers.map(t=>{
-      const tS=scheduled.filter(s=>s.trainer_id===t.id);
-      if(!tS.length)return null;
-      const parts=tS.map(s=>{
-        const h=parseInt(s.start_time);
-        const usedT=(s.pt_products?.total_sessions||0)-(s.pt_products?.remaining_sessions||0);
-        const tot=s.pt_products?.total_sessions||0;
-        return`${h}시 ${cleanName(s.members?.name||'')}PT${usedT+1}/${tot}`;
-      });
-      return`${t.name} - ${parts.join(', ')}`;
-    }).filter(Boolean);
-    ctx.fillStyle='#444';ctx.font=`10px ${FONT}`;ctx.textAlign='center';
-    const half=Math.ceil(byTrainer.length/2);
-    ctx.fillText(byTrainer.slice(0,half).join(' | '),CANVAS_W/2,footerY+14);
-    if(byTrainer.length>half)ctx.fillText(byTrainer.slice(half).join(' | '),CANVAS_W/2,footerY+28);
+  // ── 첫 세션 시간으로 자동 스크롤 ──
+  if(_bsSchedules.length){
+    const minH=_bsSchedules.reduce((m,s)=>Math.min(m,parseInt(s.start_time)),T_END);
+    const scrollX=Math.max(0,LABEL_W+(minH-T_START-1)*COL_W);
+    setTimeout(()=>{const wrap=document.getElementById('bsCanvasWrap');if(wrap)wrap.scrollLeft=scrollX;},60);
   }
 }
 
