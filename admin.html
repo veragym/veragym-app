@@ -2052,7 +2052,7 @@ function drawBranchCanvas(dateStr){
         const total=sess.pt_products?.total_sessions||0;
         const num=sess.status==='scheduled'?usedM+1:usedM;
         ctx.fillText(name||sType,cellX+COL_W/2,rowY+ROW_H/2-3);
-        if(total>0){ctx.font=`8px ${FONT}`;ctx.fillText(`${sType}${num}/${total}`,cellX+COL_W/2,rowY+ROW_H/2+8);}
+        ctx.font=`8px ${FONT}`;ctx.fillText(sType==='SPT'?'SPT':(total>0?`PT${num}/${total}`:'PT'),cellX+COL_W/2,rowY+ROW_H/2+8);
         if(sType==='SPT')cntSPT++;else cntPT++;
       }else{
         ctx.fillText(sType,cellX+COL_W/2,rowY+ROW_H/2+4);

@@ -975,7 +975,8 @@ function drawBranchCanvas(dateStr){
         const line2Y=rowY+ROW_H/2+9;
         ctx.fillStyle='#111';ctx.font=`bold 11px ${FONT}`;
         ctx.fillText(name||sType,cellX+COL_W/2,line1Y);
-        if(total>0){ctx.fillStyle='#444';ctx.font=`9px ${FONT}`;ctx.fillText(`${sType}${sessionNumM}/${total}`,cellX+COL_W/2,line2Y);}
+        ctx.fillStyle='#444';ctx.font=`9px ${FONT}`;
+        ctx.fillText(sType==='SPT'?'SPT':(total>0?`PT${sessionNumM}/${total}`:'PT'),cellX+COL_W/2,line2Y);
         if(sType==='SPT')cntSPT++;else cntPT++;
       }else{
         ctx.fillStyle='#333';ctx.font=`bold 10px ${FONT}`;
