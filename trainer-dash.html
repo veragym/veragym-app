@@ -883,7 +883,7 @@ function drawBranchCanvas(dateStr){
   const dow=new Date(yr,mo-1,da).getDay();
   const gymLoc=me?.gym_location||''; // DB에 이미 "점" 포함 (미사점)
   const dateLabel=`${mo}/${da}(${BS_DAYS[dow]})`;
-  document.getElementById('bsSubtitle').textContent=`${gymLoc} · ${dateLabel} · 트레이너 ${trainers.length}명`;
+  document.getElementById('bsSubtitle').textContent=`${gymLoc} · ${dateLabel} · 트레이너 ${trainers.length}명 · ${_bsSchedules.length}건`;
 
   const CELL_BG={SPT:'#ede8ff',업무:'#ddeeff',청소:'#e4ffe4',홍보:'#ffe4f0',식사:'#ffd6d6'};
   const FONT=`'Apple SD Gothic Neo','Noto Sans KR',sans-serif`;
@@ -950,35 +950,47 @@ function drawBranchCanvas(dateStr){
     ctx.fillStyle='#111';ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';
     ctx.fillText(trainer.name,LABEL_W/2,rowY+ROW_H/2+4);
 
-    // 세션 셀
-    for(let i=0;i<NUM_COLS;i++){
-      const h=T_START+i;
-      const cellX=LABEL_W+i*COL_W;
-      const sess=_bsSchedules.find(s=>s.trainer_id===trainer.id&&parseInt(s.start_time)===h);
-      if(!sess)continue;
+    // 이 트레이너의 세션들 (trainer_id 문자열 비교로 안전하게)
+    const tId=String(trainer.id);
+    const trainerSess=_bsSchedules.filter(s=>String(s.trainer_id)===tId);
+    let cntSPT=0,cntPT=0,cntNS=0;
 
-      // 모든 세션 타입에 배경색 칠하기 (PT 포함)
-      ctx.fillStyle=CELL_BG[sess.type]||(sess.type==='PT'?'#e8e4ff':'#f0f0f0');
+    trainerSess.forEach(sess=>{
+      const h=parseInt(String(sess.start_time));
+      if(isNaN(h)||h<T_START||h>T_END)return;
+      const cellX=LABEL_W+(h-T_START)*COL_W;
+      const sType=sess.type||'PT';
+
+      // 셀 배경
+      ctx.fillStyle=CELL_BG[sType]||(sType==='PT'?'#e8e4ff':'#f0f0f0');
       ctx.fillRect(cellX+1,rowY+1,COL_W-2,ROW_H-2);
 
       ctx.textAlign='center';
-      if(sess.type==='PT'||sess.type==='SPT'){
+      if(sType==='PT'||sType==='SPT'){
         const name=cleanName(sess.members?.name||'');
         const usedM=(sess.pt_products?.total_sessions||0)-(sess.pt_products?.remaining_sessions||0);
         const total=sess.pt_products?.total_sessions||0;
         const sessionNumM=sess.status==='scheduled'?usedM+1:usedM;
-        // 위아래 가운데 정렬
         const line1Y=rowY+ROW_H/2-6;
         const line2Y=rowY+ROW_H/2+9;
         ctx.fillStyle='#111';ctx.font=`bold 11px ${FONT}`;
-        ctx.fillText(name||sess.type,cellX+COL_W/2,line1Y);
+        ctx.fillText(name||sType,cellX+COL_W/2,line1Y);
         ctx.fillStyle='#444';ctx.font=`9px ${FONT}`;
         ctx.fillText(`PT${sessionNumM}/${total}`,cellX+COL_W/2,line2Y);
+        if(sType==='SPT')cntSPT++;else cntPT++;
       }else{
         ctx.fillStyle='#333';ctx.font=`bold 10px ${FONT}`;
-        ctx.fillText(sess.type,cellX+COL_W/2,rowY+ROW_H/2+4);
+        ctx.fillText(sType,cellX+COL_W/2,rowY+ROW_H/2+4);
+        if(sType==='NS')cntNS++;
       }
-    }
+    });
+
+    // 요약열 값
+    [cntSPT,cntPT,cntNS,cntSPT+cntPT].forEach((v,si)=>{
+      const sx=timeEndX+si*SUM_W;
+      ctx.fillStyle=sumFg[si];ctx.font=`bold 12px ${FONT}`;ctx.textAlign='center';
+      ctx.fillText(v>0?String(v):'-',sx+SUM_W/2,rowY+ROW_H/2+4);
+    });
 
     // 요약열 세로선 재그리기
     sumLabels.forEach((_,si)=>{

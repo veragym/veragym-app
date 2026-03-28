@@ -2033,23 +2033,35 @@ function drawBranchCanvas(dateStr){
     ctx.beginPath();ctx.moveTo(0,rowY+ROW_H);ctx.lineTo(CANVAS_W,rowY+ROW_H);ctx.stroke();
     ctx.fillStyle='#111';ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';
     ctx.fillText(trainer.name,LABEL_W/2,rowY+ROW_H/2+4);
+
+    const tId=String(trainer.id);
+    const trainerSess=_bsSchedules.filter(s=>String(s.trainer_id)===tId);
     let cntSPT=0,cntPT=0,cntNS=0;
-    for(let i=0;i<NUM_COLS;i++){
-      const h=T_START+i,cellX=LABEL_W+i*COL_W;
-      const sess=_bsSchedules.find(s=>s.trainer_id===trainer.id&&parseInt(s.start_time)===h);
-      if(sess){
-        const sType=sess.type||'PT';
-        const bg=CELL_BG[sType]||(sType==='PT'?'#e8e4ff':'#fff9e6');
-        ctx.fillStyle=bg;ctx.fillRect(cellX+1,rowY+1,COL_W-2,ROW_H-2);
-        ctx.fillStyle='#222';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';
-        ctx.fillText(sType==='PT'?cleanName(sess.members?.name||''):sType,cellX+COL_W/2,rowY+ROW_H/2+1);
-        if(sType==='SPT')cntSPT++;
-        else if(sType==='PT')cntPT++;
-        else if(sType==='NS')cntNS++;
+
+    trainerSess.forEach(sess=>{
+      const h=parseInt(String(sess.start_time));
+      if(isNaN(h)||h<T_START||h>T_END)return;
+      const cellX=LABEL_W+(h-T_START)*COL_W;
+      const sType=sess.type||'PT';
+      const bg=CELL_BG[sType]||(sType==='PT'?'#e8e4ff':'#fff9e6');
+      ctx.fillStyle=bg;ctx.fillRect(cellX+1,rowY+1,COL_W-2,ROW_H-2);
+      ctx.fillStyle='#222';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';
+      if(sType==='PT'||sType==='SPT'){
+        const name=cleanName(sess.members?.name||'');
+        const usedM=(sess.pt_products?.total_sessions||0)-(sess.pt_products?.remaining_sessions||0);
+        const total=sess.pt_products?.total_sessions||0;
+        const num=sess.status==='scheduled'?usedM+1:usedM;
+        ctx.fillText(name||sType,cellX+COL_W/2,rowY+ROW_H/2-3);
+        ctx.font=`8px ${FONT}`;
+        ctx.fillText(`PT${num}/${total}`,cellX+COL_W/2,rowY+ROW_H/2+8);
+        if(sType==='SPT')cntSPT++;else cntPT++;
+      }else{
+        ctx.fillText(sType,cellX+COL_W/2,rowY+ROW_H/2+4);
+        if(sType==='NS')cntNS++;
       }
-    }
-    const sumVals=[cntSPT,cntPT,cntNS,cntSPT+cntPT];
-    sumVals.forEach((v,si)=>{
+    });
+
+    [cntSPT,cntPT,cntNS,cntSPT+cntPT].forEach((v,si)=>{
       const sx=timeEndX+si*SUM_W;
       ctx.fillStyle=sumFg[si];ctx.font=`bold 12px ${FONT}`;ctx.textAlign='center';
       ctx.fillText(v>0?String(v):'-',sx+SUM_W/2,rowY+ROW_H/2+4);
