@@ -1039,14 +1039,16 @@ async function saveTarget() {
   const cm = _curMonth();
   try {
     if (_revTarget) {
-      await db.from('sales_targets').update({ target_amount: val, updated_at: new Date().toISOString() }).eq('id', _revTarget.id);
+      const { error } = await db.from('sales_targets').update({ target_amount: val, updated_at: new Date().toISOString() }).eq('id', _revTarget.id);
+      if (error) throw error;
       _revTarget.target_amount = val;
     } else {
-      const { data } = await db.from('sales_targets').insert({ trainer_id: me.id, target_month: cm, target_amount: val }).select().single();
+      const { data, error } = await db.from('sales_targets').insert({ trainer_id: me.id, target_month: cm, target_amount: val }).select().single();
+      if (error) throw error;
       _revTarget = data;
     }
     showToast('목표매출 저장!');
-  } catch(e) { showToast('저장 실패'); }
+  } catch(e) { showToast('저장 실패: ' + (e.message||'')); }
 }
 
 // ── <3> 예상매출 목록 ──
@@ -1091,12 +1093,13 @@ async function toggleForecast(id) {
   if (!f) return;
   const newVal = !f.is_registered;
   try {
-    await db.from('sales_forecasts').update({ is_registered: newVal, updated_at: new Date().toISOString() }).eq('id', id);
+    const { error } = await db.from('sales_forecasts').update({ is_registered: newVal, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) throw error;
     f.is_registered = newVal;
     renderForecasts();
     updateForecastTotal();
     showToast(newVal ? '등록 처리됨' : '미등록 처리됨');
-  } catch(e) { showToast('변경 실패'); }
+  } catch(e) { showToast('변경 실패: ' + (e.message||'')); }
 }
 
 // ── 예상매출 등록 모달 ──

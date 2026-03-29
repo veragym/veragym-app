@@ -78,24 +78,28 @@ async function doLogin() {
 
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>로그인 중...';
 
-  const { data: email, error: rpcErr } = await db.rpc('get_trainer_login_email', { p_name: name });
-  if (rpcErr || !email) {
-    err.textContent='등록되지 않은 이름입니다'; err.style.display='block';
-    btn.disabled=false; btn.textContent='로그인'; return;
-  }
+  try {
+    const { data: email, error: rpcErr } = await db.rpc('get_trainer_login_email', { p_name: name });
+    if (rpcErr || !email) {
+      throw new Error('등록되지 않은 이름입니다');
+    }
 
-  const { data: authData, error: signErr } = await db.auth.signInWithPassword({ email, password: pw });
-  if (signErr) {
-    err.textContent='비밀번호가 올바르지 않습니다'; err.style.display='block';
-    btn.disabled=false; btn.textContent='로그인'; return;
-  }
+    const { data: authData, error: signErr } = await db.auth.signInWithPassword({ email, password: pw });
+    if (signErr) {
+      throw new Error('비밀번호가 올바르지 않습니다');
+    }
 
-  const { data: trainer } = await db.from('trainers')
-    .select('id, name, gym_location').eq('auth_id', authData.user.id).single();
-  if (trainer) {
-    localStorage.setItem('vg_trainer', JSON.stringify({ id: trainer.id, name: trainer.name, gym_location: trainer.gym_location, auth_id: authData.user.id }));
+    const { data: trainer } = await db.from('trainers')
+      .select('id, name, gym_location').eq('auth_id', authData.user.id).single();
+    if (trainer) {
+      localStorage.setItem('vg_trainer', JSON.stringify({ id: trainer.id, name: trainer.name, gym_location: trainer.gym_location, auth_id: authData.user.id }));
+    }
+    location.replace('trainer-dash.html');
+  } catch(e) {
+    err.textContent = e.message; err.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = '로그인';
   }
-  location.replace('trainer-dash.html');
 }
 </script>
 <script>

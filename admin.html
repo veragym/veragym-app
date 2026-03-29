@@ -1481,12 +1481,14 @@ async function addMember() {
   }
 
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>추가 중...';
+  let newMemberId = null;
   try {
     // 1. 회원 추가
     const { data: newMember, error: e1 } = await db.from('members')
       .insert({ name, gym_location: gym, notes: notes || null, trainer_id: trainerId, is_active: true })
       .select('id').single();
     if (e1) throw e1;
+    newMemberId = newMember.id;
 
     // 2. PT 상품 추가 (날짜와 횟수 모두 입력된 경우)
     if (contractDate && sessions > 0) {
@@ -1505,7 +1507,7 @@ async function addMember() {
       // 결제 기록도 자동 생성
       if (paymentAmt > 0) {
         const trainerRow = _allTrainers.find(t => t.id === (contractTrId || trainerId));
-        await db.from('payment_records').insert({
+        const { error: e3 } = await db.from('payment_records').insert({
           payment_date: contractDate,
           member_name: name,
           member_id: newMember.id,
@@ -1514,6 +1516,7 @@ async function addMember() {
           trainer_id: contractTrId || trainerId,
           trainer_name: trainerRow ? trainerRow.name : null,
         });
+        if (e3) throw e3;
       }
     }
 
@@ -1521,6 +1524,12 @@ async function addMember() {
     showToast(`${name} 회원 추가 완료!`);
     loadMembers();
   } catch(e) {
+    // 롤백: 중간 실패 시 생성된 회원과 관련 데이터 정리
+    if (newMemberId) {
+      await db.from('payment_records').delete().eq('member_id', newMemberId);
+      await db.from('pt_products').delete().eq('member_id', newMemberId);
+      await db.from('members').delete().eq('id', newMemberId);
+    }
     errBox.textContent = '추가 실패: ' + e.message;
     errBox.style.display = 'block';
   }

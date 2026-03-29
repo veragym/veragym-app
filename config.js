@@ -94,7 +94,9 @@ function closeModal(id, e) {
 // ── PWA 뒤로가기 앱 종료 방지 ────────────────────────────────
 function preventBackExit() {
   history.pushState(null, '', location.href);
-  window.addEventListener('popstate', () => {
-    history.pushState(null, '', location.href);
-  });
+  const handler = () => history.pushState(null, '', location.href);
+  window.addEventListener('popstate', handler);
+  window.addEventListener('beforeunload', () => {
+    window.removeEventListener('popstate', handler);
+  }, { once: true });
 }
