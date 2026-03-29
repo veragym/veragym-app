@@ -30,6 +30,36 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .adm-trainer-card:active { transform:scale(.98) }
 .adm-fc-item { background:#0a0a08;border:1px solid #1a1510;border-radius:8px;padding:8px 10px;margin-top:6px }
 .adm-fc-item.unreg { border-color:#7f1d1d44;background:#1a0a0a }
+/* 매출관리 서브탭 */
+.rev-sub-tabs { display:flex;gap:4px;margin-bottom:14px;background:#0a0a08;border:1px solid #2a2518;border-radius:10px;padding:4px }
+.rev-sub-btn { flex:1;padding:8px 0;font-size:12px;font-weight:600;color:#666;background:none;border:none;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit }
+.rev-sub-btn.active { background:#c9a84c22;color:#c9a84c }
+.rev-sub-panel { display:none }
+.rev-sub-panel.active { display:block }
+/* 결제내역 */
+.pay-filters { display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap }
+.pay-filter-sel { background:#0a0a08;border:1px solid #2a2518;border-radius:8px;padding:7px 10px;font-size:12px;color:#fff;font-family:inherit;outline:none }
+.pay-search { background:#0a0a08;border:1px solid #2a2518;border-radius:8px;padding:7px 10px;font-size:12px;color:#fff;font-family:inherit;outline:none;flex:1;min-width:100px }
+.pay-summary { display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px }
+.pay-stat-box { background:#111;border:1px solid #2a2518;border-radius:10px;padding:10px;text-align:center }
+.pay-stat-label { font-size:10px;color:#888;font-weight:600 }
+.pay-stat-val { font-size:16px;font-weight:700;color:#fff;margin-top:2px }
+.pay-list { display:flex;flex-direction:column;gap:6px;max-height:55vh;overflow-y:auto }
+.pay-item { background:#111;border:1px solid #2a2518;border-radius:10px;padding:12px 14px }
+.pay-item-top { display:flex;justify-content:space-between;align-items:center }
+.pay-item-name { font-size:14px;font-weight:600;color:#fff }
+.pay-item-amt { font-size:14px;font-weight:700;color:#c9a84c }
+.pay-item-sub { display:flex;gap:10px;font-size:11px;color:#666;margin-top:4px }
+/* 매출통계 */
+.stat-section { background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px;margin-bottom:12px }
+.stat-section-title { font-size:13px;color:#888;font-weight:600;margin-bottom:12px }
+.stat-chart { display:flex;align-items:flex-end;gap:6px;height:140px;padding-top:8px }
+.stat-bar-wrap { flex:1;display:flex;flex-direction:column;align-items:center;gap:4px }
+.stat-bar { width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#c9a84c,#a8893a);min-height:2px;transition:height .3s }
+.stat-bar-label { font-size:9px;color:#666;white-space:nowrap }
+.stat-bar-val { font-size:9px;color:#c9a84c;font-weight:600;white-space:nowrap }
+.stat-trainer-row { display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a1510 }
+.stat-trainer-row:last-child { border-bottom:none }
 .tab-content { display:none; padding:20px 16px; }
 .tab-content.active { display:block; }
 .sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
@@ -350,39 +380,110 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <!-- 매출관리 -->
 <div id="tab-revenue" class="tab-content">
 
-  <!-- <1> 지점 선택 -->
-  <div style="margin-bottom:12px">
-    <select id="revGymSelect" onchange="loadAdminRevenue()" style="background:#0a0a08;border:1.5px solid #2a2518;border-radius:10px;padding:10px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;width:100%">
-      <option value="미사점">미사점</option>
-      <option value="동탄점">동탄점</option>
-    </select>
+  <!-- 서브탭 네비게이션 -->
+  <div class="rev-sub-tabs">
+    <button class="rev-sub-btn active" onclick="switchRevSub('forecast',this)">예측/실적</button>
+    <button class="rev-sub-btn" onclick="switchRevSub('payments',this)">결제내역</button>
+    <button class="rev-sub-btn" onclick="switchRevSub('stats',this)">매출통계</button>
   </div>
 
-  <!-- <2> 예상/달성 매출 -->
-  <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px;margin-bottom:12px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:13px;color:#888;font-weight:600">당월 총 예상매출</span>
-      <span id="adminRevForecast" style="font-size:18px;font-weight:700;color:#fff">0원</span>
+  <!-- ── 서브탭1: 예측/실적 (기존 내용) ── -->
+  <div id="revSub-forecast" class="rev-sub-panel active">
+    <!-- <1> 지점 선택 -->
+    <div style="margin-bottom:12px">
+      <select id="revGymSelect" onchange="loadAdminRevenue()" style="background:#0a0a08;border:1.5px solid #2a2518;border-radius:10px;padding:10px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;width:100%">
+        <option value="미사점">미사점</option>
+        <option value="동탄점">동탄점</option>
+      </select>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:13px;color:#888;font-weight:600">당월 달성매출</span>
-      <span id="adminRevAchieved" style="font-size:18px;font-weight:700;color:#4ade80">0원</span>
-    </div>
-  </div>
 
-  <!-- <3> 트레이너별 예상매출 -->
-  <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <span style="font-size:13px;color:#888;font-weight:600">트레이너별 예상매출</span>
-      <div style="display:flex;gap:4px">
-        <button id="adminRevCur" class="rev-month-btn active" onclick="switchAdminRevMonth('cur')">당월</button>
-        <button id="adminRevNext" class="rev-month-btn" onclick="switchAdminRevMonth('next')">다음 달</button>
+    <!-- <2> 예상/달성 매출 -->
+    <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:13px;color:#888;font-weight:600">당월 총 예상매출</span>
+        <span id="adminRevForecast" style="font-size:18px;font-weight:700;color:#fff">0원</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#888;font-weight:600">당월 달성매출</span>
+        <span id="adminRevAchieved" style="font-size:18px;font-weight:700;color:#4ade80">0원</span>
       </div>
     </div>
-    <div id="adminRevTrainerList" style="display:flex;flex-direction:column;gap:8px">
-      <div style="text-align:center;color:#555;font-size:13px;padding:20px 0">불러오는 중...</div>
+
+    <!-- <3> 트레이너별 예상매출 -->
+    <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:13px;color:#888;font-weight:600">트레이너별 예상매출</span>
+        <div style="display:flex;gap:4px">
+          <button id="adminRevCur" class="rev-month-btn active" onclick="switchAdminRevMonth('cur')">당월</button>
+          <button id="adminRevNext" class="rev-month-btn" onclick="switchAdminRevMonth('next')">다음 달</button>
+        </div>
+      </div>
+      <div id="adminRevTrainerList" style="display:flex;flex-direction:column;gap:8px">
+        <div style="text-align:center;color:#555;font-size:13px;padding:20px 0">불러오는 중...</div>
+      </div>
     </div>
   </div>
+
+  <!-- ── 서브탭2: 결제내역 ── -->
+  <div id="revSub-payments" class="rev-sub-panel">
+    <!-- 필터 영역 -->
+    <div class="pay-filters">
+      <select id="payMonthSel" class="pay-filter-sel" onchange="renderPayList()">
+        <option value="">전체 기간</option>
+      </select>
+      <select id="payTrainerSel" class="pay-filter-sel" onchange="renderPayList()">
+        <option value="">전체 트레이너</option>
+      </select>
+      <input type="text" id="paySearchInput" class="pay-search" placeholder="회원명 검색" oninput="renderPayList()">
+    </div>
+    <!-- 요약 카드 -->
+    <div class="pay-summary">
+      <div class="pay-stat-box">
+        <div class="pay-stat-label">건수</div>
+        <div class="pay-stat-val" id="payTotalCount">0</div>
+      </div>
+      <div class="pay-stat-box">
+        <div class="pay-stat-label">총 결제액</div>
+        <div class="pay-stat-val" id="payTotalAmt" style="font-size:13px">0원</div>
+      </div>
+      <div class="pay-stat-box">
+        <div class="pay-stat-label">순매출</div>
+        <div class="pay-stat-val" id="payTotalNet" style="font-size:13px;color:#4ade80">0원</div>
+      </div>
+    </div>
+    <!-- 결제 목록 -->
+    <div id="payListWrap" class="pay-list">
+      <div style="text-align:center;color:#555;font-size:13px;padding:30px 0">결제내역 탭을 선택하면 데이터를 불러옵니다.</div>
+    </div>
+  </div>
+
+  <!-- ── 서브탭3: 매출통계 ── -->
+  <div id="revSub-stats" class="rev-sub-panel">
+    <!-- 기간 선택 -->
+    <div style="margin-bottom:12px">
+      <select id="statPeriodSel" class="pay-filter-sel" style="width:100%" onchange="renderStats()">
+        <option value="6">최근 6개월</option>
+        <option value="12">최근 12개월</option>
+        <option value="3">최근 3개월</option>
+      </select>
+    </div>
+    <!-- 월별 매출 차트 -->
+    <div class="stat-section">
+      <div class="stat-section-title">월별 매출 추이 (순매출)</div>
+      <div id="statMonthChart" class="stat-chart"></div>
+    </div>
+    <!-- 트레이너별 매출 순위 -->
+    <div class="stat-section">
+      <div class="stat-section-title">트레이너별 매출 (당월 순매출)</div>
+      <div id="statTrainerRank"></div>
+    </div>
+    <!-- 주요 지표 -->
+    <div class="stat-section">
+      <div class="stat-section-title">주요 지표</div>
+      <div id="statKeyMetrics" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+    </div>
+  </div>
+
 </div>
 
 <div id="tab-schedule" class="tab-content">
@@ -2223,6 +2324,155 @@ let _admRevForecasts = [];
 let _admRevPayments = [];
 let _admRevTrainers = [];
 let _admRevMonthMode = 'cur';
+let _allPayments = []; // 전체 결제내역 캐시
+let _allTrainersList = []; // 전체 트레이너 목록
+let _payDataLoaded = false;
+
+// ── 서브탭 전환 ──
+function switchRevSub(sub, btn) {
+  document.querySelectorAll('.rev-sub-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.rev-sub-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('revSub-' + sub).classList.add('active');
+  btn.classList.add('active');
+  if (sub === 'payments' && !_payDataLoaded) loadAllPayments();
+  if (sub === 'stats') { loadAllPayments().then(() => renderStats()); }
+}
+
+// ── 전체 결제내역 로드 ──
+async function loadAllPayments() {
+  if (_payDataLoaded) return;
+  try {
+    const [pRes, tRes] = await Promise.all([
+      db.from('payment_records').select('*').order('payment_date', { ascending: false }),
+      db.from('trainers').select('id,name,gym_location').eq('is_active', true).order('name')
+    ]);
+    _allPayments = pRes.data || [];
+    _allTrainersList = tRes.data || [];
+    _payDataLoaded = true;
+    buildPayFilters();
+    renderPayList();
+  } catch(e) { console.error('loadAllPayments', e); }
+}
+
+// ── 필터 옵션 생성 ──
+function buildPayFilters() {
+  // 월 목록
+  const months = [...new Set(_allPayments.map(p => p.payment_date.slice(0,7)))].sort().reverse();
+  const mSel = document.getElementById('payMonthSel');
+  mSel.innerHTML = '<option value="">전체 기간</option>' + months.map(m => `<option value="${m}">${m.replace('-','년 ')}월</option>`).join('');
+  // 트레이너 목록
+  const tSel = document.getElementById('payTrainerSel');
+  tSel.innerHTML = '<option value="">전체 트레이너</option>' + _allTrainersList.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+}
+
+// ── 결제내역 렌더링 ──
+function renderPayList() {
+  const month = document.getElementById('payMonthSel').value;
+  const trainer = document.getElementById('payTrainerSel').value;
+  const search = document.getElementById('paySearchInput').value.trim().toLowerCase();
+
+  let filtered = _allPayments;
+  if (month) filtered = filtered.filter(p => p.payment_date.slice(0,7) === month);
+  if (trainer) filtered = filtered.filter(p => p.trainer_id === trainer);
+  if (search) filtered = filtered.filter(p => (p.member_name||'').toLowerCase().includes(search));
+
+  // 요약 업데이트
+  document.getElementById('payTotalCount').textContent = filtered.length.toLocaleString();
+  document.getElementById('payTotalAmt').textContent = _admFmtWon(filtered.reduce((s,p) => s + (p.payment_amount||0), 0));
+  document.getElementById('payTotalNet').textContent = _admFmtWon(filtered.reduce((s,p) => s + (p.net_amount||0), 0));
+
+  const wrap = document.getElementById('payListWrap');
+  if (!filtered.length) {
+    wrap.innerHTML = '<div style="text-align:center;color:#555;font-size:13px;padding:30px 0">해당 조건의 결제내역이 없습니다.</div>';
+    return;
+  }
+
+  wrap.innerHTML = filtered.slice(0, 100).map(p => {
+    const date = p.payment_date || '';
+    return `<div class="pay-item">
+      <div class="pay-item-top">
+        <span class="pay-item-name">${p.member_name||'-'}</span>
+        <span class="pay-item-amt">${_admFmtWon(p.payment_amount)}</span>
+      </div>
+      <div class="pay-item-sub">
+        <span>${date}</span>
+        <span>${p.trainer_name||'-'}</span>
+        <span>${p.total_sessions||0}회</span>
+        <span>순매출 ${_admFmtWon(p.net_amount)}</span>
+      </div>
+    </div>`;
+  }).join('') + (filtered.length > 100 ? `<div style="text-align:center;color:#666;font-size:11px;padding:10px 0">외 ${filtered.length - 100}건 더...</div>` : '');
+}
+
+// ── 매출통계 렌더링 ──
+function renderStats() {
+  const period = parseInt(document.getElementById('statPeriodSel').value) || 6;
+  const now = new Date();
+
+  // 기간별 월 목록 생성
+  const months = [];
+  for (let i = period - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+  }
+
+  // 월별 순매출 계산
+  const monthlyData = months.map(m => {
+    const total = _allPayments.filter(p => p.payment_date.slice(0,7) === m).reduce((s,p) => s + (p.net_amount||0), 0);
+    return { month: m, total };
+  });
+  const maxVal = Math.max(...monthlyData.map(d => d.total), 1);
+
+  // 월별 차트 렌더
+  document.getElementById('statMonthChart').innerHTML = monthlyData.map(d => {
+    const pct = Math.max((d.total / maxVal) * 100, 1);
+    const label = d.month.slice(5) + '월';
+    return `<div class="stat-bar-wrap">
+      <div class="stat-bar-val">${d.total >= 10000000 ? (d.total/10000000).toFixed(1)+'천만' : d.total >= 10000 ? Math.round(d.total/10000)+'만' : _admFmtWon(d.total)}</div>
+      <div class="stat-bar" style="height:${pct}%"></div>
+      <div class="stat-bar-label">${label}</div>
+    </div>`;
+  }).join('');
+
+  // 트레이너별 당월 매출 순위
+  const cm = _admCurMonth();
+  const cmPayments = _allPayments.filter(p => p.payment_date.slice(0,7) === cm);
+  const trainerMap = {};
+  cmPayments.forEach(p => {
+    if (!p.trainer_id) return;
+    if (!trainerMap[p.trainer_id]) trainerMap[p.trainer_id] = { name: p.trainer_name||'미지정', total: 0, count: 0 };
+    trainerMap[p.trainer_id].total += (p.net_amount||0);
+    trainerMap[p.trainer_id].count++;
+  });
+  const trainerRank = Object.values(trainerMap).sort((a,b) => b.total - a.total);
+
+  document.getElementById('statTrainerRank').innerHTML = trainerRank.length
+    ? trainerRank.map((t, i) => `<div class="stat-trainer-row">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;font-weight:700;color:${i<3?'#c9a84c':'#666'};width:18px">${i+1}</span>
+          <span style="font-size:13px;font-weight:600;color:#ddd">${t.name}</span>
+          <span style="font-size:11px;color:#555">${t.count}건</span>
+        </div>
+        <span style="font-size:13px;font-weight:700;color:#c9a84c">${_admFmtWon(t.total)}</span>
+      </div>`).join('')
+    : '<div style="text-align:center;color:#555;font-size:13px;padding:20px 0">당월 결제 데이터가 없습니다.</div>';
+
+  // 주요 지표
+  const allTimeNet = _allPayments.reduce((s,p) => s + (p.net_amount||0), 0);
+  const cmNet = cmPayments.reduce((s,p) => s + (p.net_amount||0), 0);
+  const avgPerSession = _allPayments.length ? Math.round(allTimeNet / _allPayments.reduce((s,p) => s + (p.total_sessions||0), 0)) : 0;
+  const avgMonthly = monthlyData.length ? Math.round(monthlyData.reduce((s,d) => s + d.total, 0) / monthlyData.length) : 0;
+
+  document.getElementById('statKeyMetrics').innerHTML = [
+    { label: '당월 순매출', val: _admFmtWon(cmNet), color: '#4ade80' },
+    { label: '월평균 순매출', val: _admFmtWon(avgMonthly), color: '#c9a84c' },
+    { label: '총 결제 건수', val: _allPayments.length.toLocaleString() + '건', color: '#fff' },
+    { label: '회당 평균 단가', val: _admFmtWon(avgPerSession), color: '#fff' }
+  ].map(m => `<div class="pay-stat-box">
+    <div class="pay-stat-label">${m.label}</div>
+    <div class="pay-stat-val" style="color:${m.color};font-size:14px">${m.val}</div>
+  </div>`).join('');
+}
 
 function _admCurMonth() {
   const d = new Date();
