@@ -895,10 +895,10 @@ const _origSwitchTab=switchTab;
 switchTab=function(id,btn){_origSwitchTab(id,btn);if(id==='schedule')loadScheduleView();if(id==='revenue')loadRevenue();};
 
 // ══════════ 매출관리 (Revenue) ══════════
-let _revPayments = [];
-let _revForecasts = [];
-let _revTarget = null;
-let _revMonthMode = 'cur';
+let _revPayments = [];        // payment_records for this trainer
+let _revForecasts = [];       // sales_forecasts
+let _revTarget = null;        // sales_targets row
+let _revMonthMode = 'cur';    // 'cur' or 'next'
 let _revLoaded = false;
 
 function _curMonth() {
@@ -917,6 +917,7 @@ function _fmtWon(n) {
 async function loadRevenue() {
   if (!me) return;
   try {
+    // 병렬 로드
     const [pRes, fRes, tRes] = await Promise.all([
       db.from('payment_records').select('payment_date,net_amount,trainer_id').eq('trainer_id', me.id),
       db.from('sales_forecasts').select('*').eq('trainer_id', me.id).order('created_at'),
@@ -934,12 +935,14 @@ async function loadRevenue() {
   } catch(e) { console.error('loadRevenue', e); }
 }
 
+// ── <1> 총 평균매출 ──
 function renderRevAvg() {
   if (!_revPayments.length) {
     document.getElementById('revAvgAll').textContent = '0원';
     document.getElementById('revAvgPeriod').textContent = '0원';
     return;
   }
+  // 총 평균: 전체 기간의 월평균
   const byMonth = {};
   _revPayments.forEach(p => {
     const m = p.payment_date.slice(0,7);
@@ -950,6 +953,7 @@ function renderRevAvg() {
   const avgAll = months.length ? Math.round(totalAmt / months.length) : 0;
   document.getElementById('revAvgAll').textContent = _fmtWon(avgAll);
 
+  // 년도 드롭다운 채우기
   const years = [...new Set(months.map(m=>m.slice(0,4)))].sort();
   const sel = document.getElementById('revYear');
   const curYVal = sel.value;
@@ -981,9 +985,15 @@ function calcRevPeriod() {
   const sub = parseInt(document.getElementById('revPeriodSub').value) || 1;
 
   let startM, endM;
-  if (type === 'year') { startM = 1; endM = 12; }
-  else if (type === 'half') { startM = sub === 1 ? 1 : 7; endM = sub === 1 ? 6 : 12; }
-  else { startM = (sub-1)*3+1; endM = sub*3; }
+  if (type === 'year') {
+    startM = 1; endM = 12;
+  } else if (type === 'half') {
+    startM = sub === 1 ? 1 : 7;
+    endM = sub === 1 ? 6 : 12;
+  } else {
+    startM = (sub-1)*3+1;
+    endM = sub*3;
+  }
 
   const byMonth = {};
   _revPayments.forEach(p => {
@@ -1000,15 +1010,19 @@ function calcRevPeriod() {
   document.getElementById('revAvgPeriod').textContent = _fmtWon(avg);
 }
 
+// ── <2> 목표/예상/달성 ──
 function renderRevSummary() {
   const cm = _curMonth();
+  // 목표
   document.getElementById('revTargetInput').value = _revTarget ? _revTarget.target_amount : '';
 
+  // 달성 (당월 payment_records)
   const achieved = _revPayments
     .filter(p => p.payment_date.slice(0,7) === cm)
     .reduce((s,p) => s + p.net_amount, 0);
   document.getElementById('revAchieved').textContent = _fmtWon(achieved);
 
+  // 예상 합계 (당월 forecasts)
   updateForecastTotal();
 }
 
@@ -1035,6 +1049,7 @@ async function saveTarget() {
   } catch(e) { showToast('저장 실패'); }
 }
 
+// ── <3> 예상매출 목록 ──
 function switchRevMonth(mode) {
   _revMonthMode = mode;
   document.getElementById('revMonthCur').classList.toggle('active', mode==='cur');
@@ -1084,6 +1099,7 @@ async function toggleForecast(id) {
   } catch(e) { showToast('변경 실패'); }
 }
 
+// ── 예상매출 등록 모달 ──
 function openForecastModal() {
   document.getElementById('fcName').value = '';
   document.getElementById('fcPPS').value = '';

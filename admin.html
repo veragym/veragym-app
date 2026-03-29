@@ -2240,6 +2240,7 @@ function _admFmtWon(n) {
 async function loadAdminRevenue() {
   const gym = document.getElementById('revGymSelect').value;
   try {
+    // 해당 지점 트레이너 목록
     const { data: trainers } = await db.from('trainers').select('id,name,gym_location,is_active,is_admin').eq('gym_location', gym).eq('is_active', true).order('name');
     _admRevTrainers = (trainers || []).filter(t => !t.is_admin);
     const trainerIds = _admRevTrainers.map(t => t.id);
@@ -2251,6 +2252,7 @@ async function loadAdminRevenue() {
       return;
     }
 
+    // 병렬: 예상매출 + 결제기록
     const [fRes, pRes] = await Promise.all([
       db.from('sales_forecasts').select('*').in('trainer_id', trainerIds).order('created_at'),
       db.from('payment_records').select('payment_date,net_amount,trainer_id').in('trainer_id', trainerIds)
@@ -2265,11 +2267,13 @@ async function loadAdminRevenue() {
 
 function renderAdminRevSummary() {
   const cm = _admCurMonth();
+  // 당월 총 예상매출 (모든 트레이너 forecasts)
   const forecastTotal = _admRevForecasts
     .filter(f => f.forecast_month === cm)
     .reduce((s,f) => s + (f.price_per_session * f.session_count), 0);
   document.getElementById('adminRevForecast').textContent = _admFmtWon(forecastTotal);
 
+  // 당월 달성매출 (payment_records)
   const achieved = _admRevPayments
     .filter(p => p.payment_date.slice(0,7) === cm)
     .reduce((s,p) => s + p.net_amount, 0);
