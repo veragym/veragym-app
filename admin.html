@@ -1194,6 +1194,7 @@ async function loadPaymentRecords(memberName) {
         ${pps ? `단가 ${pps} × ${sess}회 · ` : ''}트레이너 ${r.trainer_name || '미지정'}
       </div>
     </div>`;
+  }).join('');
 }
 
 // ── 담당트레이너 변경 ─────────────────────────────────────────
@@ -2252,7 +2253,7 @@ async function loadAdminRevenue() {
 
     const [fRes, pRes] = await Promise.all([
       db.from('sales_forecasts').select('*').in('trainer_id', trainerIds).order('created_at'),
-      db.from('payment_records').select('payment_date,payment_amount,trainer_id').in('trainer_id', trainerIds)
+      db.from('payment_records').select('payment_date,net_amount,trainer_id').in('trainer_id', trainerIds)
     ]);
     _admRevForecasts = fRes.data || [];
     _admRevPayments = pRes.data || [];
@@ -2271,7 +2272,7 @@ function renderAdminRevSummary() {
 
   const achieved = _admRevPayments
     .filter(p => p.payment_date.slice(0,7) === cm)
-    .reduce((s,p) => s + p.payment_amount, 0);
+    .reduce((s,p) => s + p.net_amount, 0);
   document.getElementById('adminRevAchieved').textContent = _admFmtWon(achieved);
 }
 

@@ -34,9 +34,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .tabs::-webkit-scrollbar { display:none; }
 .tab-btn { flex:none; min-width:70px; padding:13px 16px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
 .tab-btn.active { color:#3b82f6; border-bottom-color:#3b82f6; }
-.rev-month-btn { background:#1a1a14;border:1px solid #2a2518;border-radius:8px;padding:6px 14px;font-size:12px;color:#888;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s }
-.rev-month-btn.active { background:#c9a84c22;color:#c9a84c;border-color:#c9a84c55 }
-.fc-card { background:#0f0f0a;border:1px solid #2a2518;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s }
+.rev-month-btn { background:#0f1a2e;border:1px solid #3b82f633;border-radius:8px;padding:6px 14px;font-size:12px;color:#888;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s }
+.rev-month-btn.active { background:#3b82f622;color:#60a5fa;border-color:#3b82f655 }
+.fc-card { background:#0a1525;border:1px solid #3b82f622;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s }
 .fc-card:active { transform:scale(.98) }
 .fc-card.unregistered { border-color:#7f1d1d55;background:#1a0a0a }
 
@@ -256,31 +256,31 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <div id="tab-revenue" class="tab-content">
 
   <!-- <1> 평균매출 섹션 -->
-  <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px;margin-bottom:12px">
+  <div style="background:#0d1520;border:1px solid #3b82f622;border-radius:12px;padding:16px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
       <span style="font-size:13px;color:#888;font-weight:600">총 평균매출 (월)</span>
-      <span id="revAvgAll" style="font-size:18px;font-weight:700;color:#c9a84c">0원</span>
+      <span id="revAvgAll" style="font-size:18px;font-weight:700;color:#60a5fa">0원</span>
     </div>
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-      <select id="revYear" style="background:#0a0a08;border:1px solid #2a2518;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none" onchange="updateRevPeriodUI()"></select>
-      <select id="revPeriodType" style="background:#0a0a08;border:1px solid #2a2518;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none" onchange="updateRevPeriodUI()">
+      <select id="revYear" style="background:#0a1525;border:1px solid #3b82f633;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none" onchange="updateRevPeriodUI()"></select>
+      <select id="revPeriodType" style="background:#0a1525;border:1px solid #3b82f633;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none" onchange="updateRevPeriodUI()">
         <option value="year">연</option>
         <option value="half">반기</option>
         <option value="quarter">분기</option>
       </select>
-      <select id="revPeriodSub" style="background:#0a0a08;border:1px solid #2a2518;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none;display:none" onchange="calcRevPeriod()"></select>
+      <select id="revPeriodSub" style="background:#0a1525;border:1px solid #3b82f633;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none;display:none" onchange="calcRevPeriod()"></select>
       <span style="font-size:11px;color:#666;margin-left:4px">:</span>
       <span id="revAvgPeriod" style="font-size:16px;font-weight:700;color:#fff">0원</span>
     </div>
   </div>
 
   <!-- <2> 목표/예상/달성 매출 -->
-  <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px;margin-bottom:12px">
+  <div style="background:#0d1520;border:1px solid #3b82f622;border-radius:12px;padding:16px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <span style="font-size:13px;color:#888;font-weight:600">당월 목표매출</span>
       <div style="display:flex;align-items:center;gap:6px">
-        <input id="revTargetInput" type="number" min="0" placeholder="0" style="width:120px;background:#0a0a08;border:1px solid #2a2518;border-radius:8px;padding:6px 10px;font-size:15px;color:#c9a84c;text-align:right;outline:none;font-weight:700" onchange="saveTarget()">
-        <span style="font-size:13px;color:#c9a84c;font-weight:700">원</span>
+        <input id="revTargetInput" type="number" min="0" placeholder="0" style="width:120px;background:#0a1525;border:1px solid #3b82f633;border-radius:8px;padding:6px 10px;font-size:15px;color:#60a5fa;text-align:right;outline:none;font-weight:700" onchange="saveTarget()">
+        <span style="font-size:13px;color:#60a5fa;font-weight:700">원</span>
       </div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -294,13 +294,13 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   </div>
 
   <!-- <3> 예상매출 목록 -->
-  <div style="background:#111;border:1px solid #2a2518;border-radius:12px;padding:16px">
+  <div style="background:#0d1520;border:1px solid #3b82f622;border-radius:12px;padding:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="display:flex;gap:4px">
         <button id="revMonthCur" class="rev-month-btn active" onclick="switchRevMonth('cur')">당월</button>
         <button id="revMonthNext" class="rev-month-btn" onclick="switchRevMonth('next')">다음 달</button>
       </div>
-      <button onclick="openForecastModal()" style="background:linear-gradient(135deg,#c9a84c,#a8893a);border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;color:#000;cursor:pointer">+ 예상매출 등록</button>
+      <button onclick="openForecastModal()" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">+ 예상매출 등록</button>
     </div>
     <div id="revForecastList" style="display:flex;flex-direction:column;gap:8px">
       <div style="text-align:center;color:#555;font-size:13px;padding:20px 0">등록된 예상매출이 없습니다.</div>
@@ -309,7 +309,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 </div>
 
 <!-- 예상매출 등록 모달 -->
-<div id="forecastModal" class="modal-bg" style="display:none" onclick="closeModal('forecastModal',event)">
+<div id="forecastModal" class="modal-bg" onclick="closeModal('forecastModal',event)">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">예상매출 등록</div>
@@ -330,11 +330,11 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     </div>
     <div class="field">
       <label>예상금액</label>
-      <input id="fcAmount" type="text" readonly style="color:#c9a84c;font-weight:700" value="0원">
+      <input id="fcAmount" type="text" readonly style="color:#60a5fa;font-weight:700" value="0원">
     </div>
     <div class="field">
       <label>매출계획</label>
-      <textarea id="fcMemo" placeholder="메모 입력" rows="2" style="width:100%;background:#0a0a08;border:1.5px solid #2a2518;border-radius:10px;padding:12px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;resize:none"></textarea>
+      <textarea id="fcMemo" placeholder="메모 입력" rows="2" style="width:100%;background:#080e1a;border:1.5px solid #1e3a5f44;border-radius:10px;padding:12px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;resize:none"></textarea>
     </div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('forecastModal')">취소</button>
@@ -918,7 +918,7 @@ async function loadRevenue() {
   if (!me) return;
   try {
     const [pRes, fRes, tRes] = await Promise.all([
-      db.from('payment_records').select('payment_date,payment_amount,trainer_id').eq('trainer_id', me.id),
+      db.from('payment_records').select('payment_date,net_amount,trainer_id').eq('trainer_id', me.id),
       db.from('sales_forecasts').select('*').eq('trainer_id', me.id).order('created_at'),
       db.from('sales_targets').select('*').eq('trainer_id', me.id)
     ]);
@@ -943,7 +943,7 @@ function renderRevAvg() {
   const byMonth = {};
   _revPayments.forEach(p => {
     const m = p.payment_date.slice(0,7);
-    byMonth[m] = (byMonth[m]||0) + p.payment_amount;
+    byMonth[m] = (byMonth[m]||0) + p.net_amount;
   });
   const months = Object.keys(byMonth).sort();
   const totalAmt = Object.values(byMonth).reduce((a,b)=>a+b,0);
@@ -988,7 +988,7 @@ function calcRevPeriod() {
   const byMonth = {};
   _revPayments.forEach(p => {
     const m = p.payment_date.slice(0,7);
-    byMonth[m] = (byMonth[m]||0) + p.payment_amount;
+    byMonth[m] = (byMonth[m]||0) + p.net_amount;
   });
 
   let total = 0, cnt = 0;
@@ -1006,7 +1006,7 @@ function renderRevSummary() {
 
   const achieved = _revPayments
     .filter(p => p.payment_date.slice(0,7) === cm)
-    .reduce((s,p) => s + p.payment_amount, 0);
+    .reduce((s,p) => s + p.net_amount, 0);
   document.getElementById('revAchieved').textContent = _fmtWon(achieved);
 
   updateForecastTotal();
@@ -1064,7 +1064,7 @@ function renderForecasts() {
       <div style="display:flex;gap:12px;margin-top:6px;font-size:12px;color:#888">
         <span>단가 ${(f.price_per_session||0).toLocaleString()}</span>
         <span>${f.session_count}회</span>
-        <span style="color:#c9a84c;font-weight:600">${_fmtWon(amt)}</span>
+        <span style="color:#60a5fa;font-weight:600">${_fmtWon(amt)}</span>
       </div>
       ${f.memo?`<div style="font-size:11px;color:#666;margin-top:4px">${f.memo}</div>`:''}
     </div>`;
@@ -1091,7 +1091,7 @@ function openForecastModal() {
   document.getElementById('fcAmount').value = '0원';
   document.getElementById('fcMemo').value = '';
   document.getElementById('forecastErr').style.display = 'none';
-  document.getElementById('forecastModal').style.display = 'flex';
+  openModal('forecastModal');
 }
 function calcFcAmount() {
   const pps = parseInt(document.getElementById('fcPPS').value)||0;
