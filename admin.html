@@ -1508,10 +1508,9 @@ async function addMember() {
         await db.from('payment_records').insert({
           payment_date: contractDate,
           member_name: name,
+          member_id: newMember.id,
           total_sessions: sessions,
           payment_amount: paymentAmt,
-          net_amount: Math.round(paymentAmt * 0.909),
-          price_per_session: pricePerSess || null,
           trainer_id: contractTrId || trainerId,
           trainer_name: trainerRow ? trainerRow.name : null,
         });
