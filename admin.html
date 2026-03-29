@@ -659,13 +659,21 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     </div>
     <div class="field">
       <label>횟수 <span style="color:#f87171">*</span></label>
-      <input id="ptSessions" type="number" min="1" placeholder="예: 30">
+      <input id="ptSessions" type="number" min="1" placeholder="예: 30" oninput="calcPtPayment()">
     </div>
     <div class="field">
       <label>계약 트레이너 <span style="color:#f87171">*</span></label>
       <select id="ptContractTrainer">
         <option value="">-- 선택 --</option>
       </select>
+    </div>
+    <div class="field">
+      <label>세션단가</label>
+      <input id="ptPricePerSession" type="number" min="0" placeholder="예: 55000" oninput="calcPtPayment()">
+    </div>
+    <div class="field">
+      <label>결제금액</label>
+      <input id="ptPaymentAmount" type="number" min="0" placeholder="자동계산" readonly style="color:#c9a84c">
     </div>
     <div class="field">
       <label>메모 (선택)</label>
@@ -1349,6 +1357,8 @@ function openAddPtProduct() {
   document.getElementById('ptErr').style.display = 'none';
   document.getElementById('ptDate').value = new Date().toISOString().slice(0, 10);
   document.getElementById('ptSessions').value = '';
+  document.getElementById('ptPricePerSession').value = '';
+  document.getElementById('ptPaymentAmount').value = '';
   document.getElementById('ptNotes').value = '';
 
   const trainers = _allTrainers
@@ -1359,10 +1369,18 @@ function openAddPtProduct() {
   openModal('addPtModal');
 }
 
+function calcPtPayment() {
+  const pps = parseInt(document.getElementById('ptPricePerSession').value) || 0;
+  const cnt = parseInt(document.getElementById('ptSessions').value) || 0;
+  document.getElementById('ptPaymentAmount').value = pps && cnt ? pps * cnt : '';
+}
+
 async function addPtProduct() {
   const date       = document.getElementById('ptDate').value;
   const sessions   = parseInt(document.getElementById('ptSessions').value);
   const contractTr = document.getElementById('ptContractTrainer').value;
+  const pricePerSess = parseInt(document.getElementById('ptPricePerSession').value) || 0;
+  const paymentAmt   = parseInt(document.getElementById('ptPaymentAmount').value) || 0;
   const notes      = document.getElementById('ptNotes').value.trim();
   const btn        = document.getElementById('btnAddPt');
   const errBox     = document.getElementById('ptErr');
@@ -1372,23 +1390,52 @@ async function addPtProduct() {
   if (!sessions || sessions < 1){ errBox.textContent = '횟수를 입력해주세요';           errBox.style.display = 'block'; return; }
   if (!contractTr)             { errBox.textContent = '계약 트레이너를 선택해주세요'; errBox.style.display = 'block'; return; }
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>추가 중...';
-  const { error } = await db.from('pt_products').insert({
-    member_id: _currentMemberId,
-    contract_date: date,
-    total_sessions: sessions,
-    remaining_sessions: sessions,
-    contract_trainer_id: contractTr,
-    notes: notes || null,
-    is_active: true,
-  });
 
-  if (error) {
-    errBox.textContent = '추가 실패: ' + error.message;
-    errBox.style.display = 'block';
-  } else {
+  let ptProductId = null;
+  try {
+    // 1. PT 상품 추가
+    const ptInsert = {
+      member_id: _currentMemberId,
+      contract_date: date,
+      total_sessions: sessions,
+      remaining_sessions: sessions,
+      contract_trainer_id: contractTr,
+      notes: notes || null,
+      is_active: true,
+    };
+    if (pricePerSess > 0) ptInsert.price_per_session = pricePerSess;
+    const { data: ptData, error: e1 } = await db.from('pt_products').insert(ptInsert).select('id').single();
+    if (e1) throw e1;
+    ptProductId = ptData.id;
+
+    // 2. 결제 기록 자동 생성 (결제금액 입력 시)
+    if (paymentAmt > 0) {
+      const member = _allMembers.find(x => x.id === _currentMemberId);
+      const trainerRow = _allTrainers.find(t => t.id === contractTr);
+      const { error: e2 } = await db.from('payment_records').insert({
+        payment_date: date,
+        member_name: member?.name || '',
+        member_id: _currentMemberId,
+        total_sessions: sessions,
+        payment_amount: paymentAmt,
+        trainer_id: contractTr,
+        trainer_name: trainerRow ? trainerRow.name : null,
+        pt_product_id: ptProductId,
+      });
+      if (e2) throw e2;
+    }
+
     closeModal('addPtModal');
     showToast('PT 상품이 추가됐어요!');
     await loadPtProducts(_currentMemberId);
+  } catch(e) {
+    // 롤백: PT상품만 생성되고 결제 실패 시 정리
+    if (ptProductId) {
+      await db.from('payment_records').delete().eq('pt_product_id', ptProductId);
+      await db.from('pt_products').delete().eq('id', ptProductId);
+    }
+    errBox.textContent = '추가 실패: ' + e.message;
+    errBox.style.display = 'block';
   }
   btn.disabled = false; btn.textContent = '추가';
 }
