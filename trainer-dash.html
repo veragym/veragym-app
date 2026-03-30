@@ -317,7 +317,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <div id="forecastModal" class="modal-bg" onclick="closeModal('forecastModal',event)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">예상매출 등록</div>
+    <div class="modal-title" id="forecastModalTitle">예상매출 등록</div>
     <div class="err-box" id="forecastErr"></div>
     <div class="field">
       <label>회원명</label>
@@ -336,6 +336,10 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div class="field">
       <label>예상금액</label>
       <input id="fcAmount" type="text" readonly style="color:#60a5fa;font-weight:700" value="0원">
+    </div>
+    <div class="field">
+      <label>결제예정일</label>
+      <input id="fcDueDate" type="date" style="color-scheme:dark">
     </div>
     <div class="field">
       <label>매출계획</label>
@@ -902,6 +906,7 @@ switchTab=function(id,btn){_origSwitchTab(id,btn);if(id==='schedule')loadSchedul
 // ══════════ 매출관리 (Revenue) ══════════
 let _revPayments = [];        // payment_records for this trainer
 let _revForecasts = [];       // sales_forecasts
+let _fcEditId = null;         // 수정 중인 forecast id (null=신규)
 let _revTarget = null;        // sales_targets row
 let _revMonthMode = 'cur';    // 'cur' or 'next'
 let _revLoaded = false;
@@ -1084,19 +1089,22 @@ function copyForecastText() {
   const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
   const list = _revForecasts.filter(f => f.forecast_month === month);
   const [y, m] = month.split('-');
-  const weekNum = Math.ceil(new Date().getDate() / 7);
+  const weekNum = _revMonthMode === 'cur' ? Math.ceil(new Date().getDate() / 7) : 1;
 
   const registered   = list.filter(f =>  f.is_registered);
   const unregistered = list.filter(f => !f.is_registered);
 
+  const targetVal = parseInt(document.getElementById('revTargetInput').value) || 0;
+
   const lines = [];
   lines.push(`${me?.name || ''} ${Number(m)}월 ${weekNum}주차 매출계획`);
+  lines.push(`목표매출: ${_fmtWon(targetVal)}`);
   lines.push('');
 
   lines.push('등록매출');
   registered.forEach(f => {
     const amt = (f.price_per_session || 0) * f.session_count;
-    lines.push(`${f.member_name} | ${(f.price_per_session||0).toLocaleString()} × ${f.session_count}회 | ${_fmtWon(amt)}`);
+    lines.push(`${f.member_name} | ${(f.price_per_session||0).toLocaleString()} × ${f.session_count}회 | ${_fmtWon(amt)}${f.payment_due_date ? ' | ' + f.payment_due_date : ''}`);
     if (f.memo) lines.push(`-${f.memo}`);
   });
   const regTotal = registered.reduce((s, f) => s + (f.price_per_session||0) * f.session_count, 0);
@@ -1107,7 +1115,7 @@ function copyForecastText() {
   lines.push('예상매출');
   unregistered.forEach(f => {
     const amt = (f.price_per_session || 0) * f.session_count;
-    lines.push(`${f.member_name} | ${(f.price_per_session||0).toLocaleString()} × ${f.session_count}회 | ${_fmtWon(amt)}`);
+    lines.push(`${f.member_name} | ${(f.price_per_session||0).toLocaleString()} × ${f.session_count}회 | ${_fmtWon(amt)}${f.payment_due_date ? ' | ' + f.payment_due_date : ''}`);
     if (f.memo) lines.push(`-${f.memo}`);
   });
   const unregTotal = unregistered.reduce((s, f) => s + (f.price_per_session||0) * f.session_count, 0);
@@ -1156,10 +1164,12 @@ function renderForecasts() {
         <span>${f.session_count}회</span>
         <span style="color:#60a5fa;font-weight:600">${_fmtWon(amt)}</span>
       </div>
-      ${f.memo?`<div style="font-size:11px;color:#666;margin-top:4px">${f.memo}</div>`:''}
+      ${f.payment_due_date?`<div style="font-size:11px;color:#60a5fa88;margin-top:4px">결제예정일 ${f.payment_due_date}</div>`:''}
+      ${f.memo?`<div style="font-size:11px;color:#666;margin-top:2px">${f.memo}</div>`:''}
       <div class="log-actions" style="margin-top:10px;padding-top:10px;border-top:1px solid #1e3a5f22">
         <button class="btn-sm" style="color:#4ade80;border-color:#16a34a44" onclick="setForecastStatus('${f.id}',true)">등록</button>
         <button class="btn-sm" style="color:#f87171;border-color:#7f1d1d44" onclick="setForecastStatus('${f.id}',false)">미등록</button>
+        <button class="btn-sm" style="color:#60a5fa;border-color:#3b82f633" onclick="editForecast('${f.id}')">수정</button>
         <button class="btn-sm btn-danger" onclick="deleteForecast('${f.id}')">삭제</button>
       </div>
     </div>`;
@@ -1191,13 +1201,32 @@ async function deleteForecast(id) {
   } catch(e) { showToast('삭제 실패: ' + (e.message||'')); }
 }
 
-// ── 예상매출 등록 모달 ──
+// ── 예상매출 등록/수정 모달 ──
 function openForecastModal() {
+  _fcEditId = null;
+  document.getElementById('forecastModalTitle').textContent = '예상매출 등록';
+  document.getElementById('btnSaveForecast').textContent = '등록';
   document.getElementById('fcName').value = '';
   document.getElementById('fcPPS').value = '';
   document.getElementById('fcCount').value = '';
   document.getElementById('fcAmount').value = '0원';
+  document.getElementById('fcDueDate').value = '';
   document.getElementById('fcMemo').value = '';
+  document.getElementById('forecastErr').style.display = 'none';
+  openModal('forecastModal');
+}
+function editForecast(id) {
+  const f = _revForecasts.find(x => x.id === id);
+  if (!f) return;
+  _fcEditId = id;
+  document.getElementById('forecastModalTitle').textContent = '예상매출 수정';
+  document.getElementById('btnSaveForecast').textContent = '저장';
+  document.getElementById('fcName').value = f.member_name || '';
+  document.getElementById('fcPPS').value = f.price_per_session || '';
+  document.getElementById('fcCount').value = f.session_count || '';
+  document.getElementById('fcAmount').value = _fmtWon((f.price_per_session||0) * (f.session_count||0));
+  document.getElementById('fcDueDate').value = f.payment_due_date || '';
+  document.getElementById('fcMemo').value = f.memo || '';
   document.getElementById('forecastErr').style.display = 'none';
   openModal('forecastModal');
 }
@@ -1210,32 +1239,48 @@ async function saveForecast() {
   const name = document.getElementById('fcName').value.trim();
   const pps = parseInt(document.getElementById('fcPPS').value)||0;
   const cnt = parseInt(document.getElementById('fcCount').value)||0;
+  const dueDate = document.getElementById('fcDueDate').value || null;
   const memo = document.getElementById('fcMemo').value.trim();
   const errBox = document.getElementById('forecastErr');
 
   if (!name) { errBox.textContent='회원명을 입력해주세요'; errBox.style.display='block'; return; }
   if (!pps || !cnt) { errBox.textContent='세션단가와 세션 수를 입력해주세요'; errBox.style.display='block'; return; }
 
-  const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
   const btn = document.getElementById('btnSaveForecast');
   btn.disabled = true;
   try {
-    const { data, error } = await db.from('sales_forecasts').insert({
-      trainer_id: me.id,
-      forecast_month: month,
-      member_name: name,
-      price_per_session: pps,
-      session_count: cnt,
-      memo: memo || null
-    }).select().single();
-    if (error) throw error;
-    _revForecasts.push(data);
-    closeModal('forecastModal');
-    renderForecasts();
-    updateForecastTotal();
-    showToast('예상매출 등록 완료!');
+    if (_fcEditId) {
+      // ── 수정 모드
+      const payload = { member_name: name, price_per_session: pps, session_count: cnt, payment_due_date: dueDate, memo: memo || null, updated_at: new Date().toISOString() };
+      const { data, error } = await db.from('sales_forecasts').update(payload).eq('id', _fcEditId).select().single();
+      if (error) throw error;
+      const idx = _revForecasts.findIndex(x => x.id === _fcEditId);
+      if (idx !== -1) _revForecasts[idx] = data;
+      closeModal('forecastModal');
+      renderForecasts();
+      updateForecastTotal();
+      showToast('수정 완료!');
+    } else {
+      // ── 신규 등록
+      const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
+      const { data, error } = await db.from('sales_forecasts').insert({
+        trainer_id: me.id,
+        forecast_month: month,
+        member_name: name,
+        price_per_session: pps,
+        session_count: cnt,
+        payment_due_date: dueDate,
+        memo: memo || null
+      }).select().single();
+      if (error) throw error;
+      _revForecasts.push(data);
+      closeModal('forecastModal');
+      renderForecasts();
+      updateForecastTotal();
+      showToast('예상매출 등록 완료!');
+    }
   } catch(e) {
-    errBox.textContent = '등록 실패: '+e.message; errBox.style.display='block';
+    errBox.textContent = (_fcEditId ? '수정' : '등록') + ' 실패: '+e.message; errBox.style.display='block';
   }
   btn.disabled = false;
 }
