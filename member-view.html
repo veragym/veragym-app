@@ -255,7 +255,8 @@ const _logDetailCache = {};
 // ─── 초기화 ───
 async function init() {
   // URL 토큰 우선, 없으면 저장된 토큰 사용 (PWA 홈화면 재방문 대응)
-  let token = new URLSearchParams(location.search).get('token');
+  const _params = new URLSearchParams(location.search);
+  let token = _params.get('token') || _params.get('t'); // ?token= 또는 기존 ?t= 모두 허용
   if (token) {
     localStorage.setItem('vg_member_token', token); // 기기에 저장
   } else {
