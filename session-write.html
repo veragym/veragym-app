@@ -775,15 +775,19 @@ async function saveSession() {
   try {
     // ── PT 노트 사진 처리 ──────────────────────────────────
     let notePhotoPath = _notePhotoExistingPath;
-    if (_notePhotoRemoved && _notePhotoExistingPath) {
+
+    // 기존 사진 삭제: 삭제 버튼 눌렀거나 새 사진으로 교체하는 경우
+    if (_notePhotoExistingPath && (_notePhotoRemoved || _notePhotoFile)) {
       await db.storage.from('session-photos').remove([_notePhotoExistingPath]);
       notePhotoPath = null;
     }
+
+    // 새 사진 업로드 (기존 파일 먼저 지웠으므로 upsert 불필요)
     if (_notePhotoFile) {
-      const ext  = _notePhotoFile.name.split('.').pop() || 'jpg';
+      const ext   = _notePhotoFile.name.split('.').pop() || 'jpg';
       const tmpId = logId || crypto.randomUUID();
-      const path = `${trainer.id}/pt-notes/${tmpId}.${ext}`;
-      const { error: upErr } = await db.storage.from('session-photos').upload(path, _notePhotoFile, { upsert: true });
+      const path  = `${trainer.id}/pt-notes/${tmpId}.${ext}`;
+      const { error: upErr } = await db.storage.from('session-photos').upload(path, _notePhotoFile);
       if (!upErr) notePhotoPath = path;
     }
     // ───────────────────────────────────────────────────────
