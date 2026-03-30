@@ -457,7 +457,7 @@ async function loadLogs(token) {
         </div>
         <div class="sess-body" id="sessBody${i}">
           ${s.notes ? `<div style="padding:14px 18px 0"><div class="sess-notes"><div class="sess-notes-label">트레이너 총평</div>${s.notes}</div></div>` : ''}
-          ${s.note_photo_path ? `<div style="padding:10px 18px 0"><button class="mv-photo-btn" onclick="viewNotePhotoMember('${s.note_photo_path}')">📓 PT 노트 사진 보기</button></div>` : ''}
+          ${s.note_photo_path ? `<div style="padding:10px 18px 0"><button class="mv-photo-btn" onclick="viewNotePhotoMember('${s.note_photo_path}')">PT 노트 사진 보기</button></div>` : ''}
           <div id="sessDetail${i}"></div>
         </div>
       </div>`;

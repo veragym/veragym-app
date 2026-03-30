@@ -634,8 +634,8 @@ function renderLogCards(containerId, logs, showMember) {
         ${log.notes ? `<div class="log-notes" style="margin-top:8px">${log.notes}</div>` : ''}
         <div class="log-actions">
           ${isNoshow ? '' : `<button class="btn-sm" onclick="location.href='session-write.html?log=${log.id}'">수정</button>`}
-          ${log.note_photo_path ? `<button class="btn-sm" onclick="viewNotePhoto('${log.note_photo_path}')">📓 노트</button>` : ''}
-          ${canShare ? `<button class="btn-sm" style="color:#4ade80;border-color:#16a34a44" onclick="generateWorkoutCard('${log.id}')">📊 이미지</button>` : ''}
+          ${log.note_photo_path ? `<button class="btn-sm" onclick="viewNotePhoto('${log.note_photo_path}')">노트 사진</button>` : ''}
+          ${canShare ? `<button class="btn-sm" style="color:#4ade80;border-color:#16a34a44" onclick="generateWorkoutCard('${log.id}')">이미지 저장</button>` : ''}
           <button class="btn-sm btn-danger" onclick="deleteLog('${log.id}')">삭제</button>
         </div>
       </div>`;
@@ -871,7 +871,7 @@ async function generateWorkoutCard(logId) {
     ctx.fillStyle = '#0d1a2e'; rRect(PAD, y, COL, notesH - 8, 12); ctx.fill();
     ctx.font = 'bold 22px -apple-system, "Apple SD Gothic Neo", sans-serif';
     ctx.fillStyle = '#3b82f6';
-    ctx.fillText('📝  트레이너 메모', PAD + 18, y + 32);
+    ctx.fillText('트레이너 메모', PAD + 18, y + 32);
     ctx.font = '21px -apple-system, "Apple SD Gothic Neo", sans-serif';
     ctx.fillStyle = '#8ba4c0';
     wrapText(notesText, PAD + 18, y + 62, COL - 36, 30);
@@ -895,7 +895,7 @@ async function generateWorkoutCard(logId) {
       a.href = url; a.download = `veragym_${sessionDate || 'workout'}.png`;
       document.body.appendChild(a); a.click();
       document.body.removeChild(a); URL.revokeObjectURL(url);
-      showToast('이미지 저장 완료 📥');
+      showToast('이미지 저장 완료');
     }, 'image/png');
   } catch (e) {
     // 이미지 CORS 오염 시 이미지 없이 재시도
