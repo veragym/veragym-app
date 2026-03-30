@@ -2398,7 +2398,7 @@ async function loadAllPayments() {
   if (_payDataLoaded) return;
   try {
     const [pRes, tRes] = await Promise.all([
-      db.from('payment_records').select('*').order('payment_date', { ascending: false }),
+      db.from('payment_records').select('payment_date,member_name,payment_amount,net_amount,price_per_session,total_sessions,trainer_name,trainer_id').order('payment_date', { ascending: false }),
       db.from('trainers').select('id,name,gym_location').eq('is_active', true).order('name')
     ]);
     _allPayments = pRes.data || [];
@@ -2515,7 +2515,7 @@ function renderStats() {
   // 주요 지표
   const allTimeNet = _allPayments.reduce((s,p) => s + (p.net_amount||0), 0);
   const cmNet = cmPayments.reduce((s,p) => s + (p.net_amount||0), 0);
-  const avgPerSession = _allPayments.length ? Math.round(allTimeNet / _allPayments.reduce((s,p) => s + (p.total_sessions||0), 0)) : 0;
+  const avgPerSession = _allPayments.length ? Math.round(_allPayments.reduce((s,p) => s + (p.price_per_session||0), 0) / _allPayments.length) : 0;
   const avgMonthly = monthlyData.length ? Math.round(monthlyData.reduce((s,d) => s + d.total, 0) / monthlyData.length) : 0;
 
   document.getElementById('statKeyMetrics').innerHTML = [
