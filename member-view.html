@@ -457,6 +457,7 @@ async function loadLogs(token) {
         </div>
         <div class="sess-body" id="sessBody${i}">
           ${s.notes ? `<div style="padding:14px 18px 0"><div class="sess-notes"><div class="sess-notes-label">트레이너 총평</div>${s.notes}</div></div>` : ''}
+          ${s.note_photo_path ? `<div style="padding:10px 18px 0"><button class="mv-photo-btn" onclick="viewNotePhotoMember('${s.note_photo_path}')">📓 PT 노트 사진 보기</button></div>` : ''}
           <div id="sessDetail${i}"></div>
         </div>
       </div>`;
@@ -700,6 +701,20 @@ async function viewMemberPhotos(startPath, endPath, exName) {
   imgs.innerHTML = slots.join('');
 }
 function closeMemberPhotoViewer() { document.getElementById('memberPhotoViewer').classList.remove('open'); }
+
+async function viewNotePhotoMember(path) {
+  const viewer = document.getElementById('memberPhotoViewer');
+  const imgs   = document.getElementById('memberViewerImgs');
+  document.getElementById('memberViewerTitle').textContent = 'PT 노트 사진';
+  imgs.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#555;font-size:13px">불러오는 중...</div>';
+  viewer.classList.add('open');
+  const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
+  if (error || !data?.signedUrl) {
+    imgs.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#f87171;font-size:13px">사진을 불러올 수 없습니다</div>';
+    return;
+  }
+  imgs.innerHTML = `<div class="mv-photo-slot" style="flex:none;width:100%"><img src="${data.signedUrl}" alt="PT 노트" style="max-height:65vh;width:auto;max-width:100%;object-fit:contain;"><div class="mv-photo-label">PT 노트</div></div>`;
+}
 
 // ── 에러 / 날짜 포맷 ──────────────────────────────────────────
 function showError() {

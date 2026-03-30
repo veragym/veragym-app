@@ -522,7 +522,7 @@ async function showMemberDetail(memberId) {
   // 해당 회원 수업 기록 (필요 필드만 선택)
   document.getElementById('memberLogs').innerHTML = '<div class="loading">불러오는 중...</div>';
   const { data: logs } = await db.from('workout_logs')
-    .select('id,session_date,notes,member_id,workout_log_exercises(custom_name,sets_data,sets,reps)')
+    .select('id,session_date,notes,member_id,note_photo_path,workout_log_exercises(custom_name,sets_data,sets,reps)')
     .eq('member_id', memberId)
     .eq('is_deleted', false)
     .order('session_date', { ascending: false })
@@ -569,7 +569,7 @@ async function loadLogs() {
 
   // ① 로그 기본정보 먼저 로드 (빠름 ~200ms) → 즉시 렌더
   const { data: logs, error } = await db.from('workout_logs')
-    .select('id,session_date,notes,member_id,is_noshow,members(name)')
+    .select('id,session_date,notes,member_id,is_noshow,note_photo_path,members(name)')
     .eq('trainer_id', me.id).eq('is_deleted', false)
     .order('session_date', { ascending: false }).limit(50);
   if (await handleDbError(error, '수업일지 불러오기 실패')) return;
@@ -629,6 +629,7 @@ function renderLogCards(containerId, logs, showMember) {
         ${log.notes ? `<div class="log-notes" style="margin-top:8px">${log.notes}</div>` : ''}
         <div class="log-actions">
           ${isNoshow ? '' : `<button class="btn-sm" onclick="location.href='session-write.html?log=${log.id}'">수정</button>`}
+          ${log.note_photo_path ? `<button class="btn-sm" onclick="viewNotePhoto('${log.note_photo_path}')">📓 노트</button>` : ''}
           <button class="btn-sm btn-danger" onclick="deleteLog('${log.id}')">삭제</button>
         </div>
       </div>`;
@@ -643,6 +644,25 @@ async function deleteLog(id) {
   showToast('삭제됐습니다');
   _tabCache.logs = 0;
   loadLogs();
+}
+
+async function viewNotePhoto(path) {
+  // Supabase Storage signed URL 생성 (1시간 유효)
+  const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
+  if (error || !data?.signedUrl) { showToast('사진을 불러올 수 없습니다'); return; }
+
+  // 전체화면 오버레이로 표시
+  const overlay = document.createElement('div');
+  overlay.id = 'notePhotoOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#000000ee;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `
+    <button onclick="document.getElementById('notePhotoOverlay').remove()"
+      style="position:absolute;top:16px;right:16px;background:#1e3a5f;border:none;border-radius:50%;width:40px;height:40px;font-size:22px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1">✕</button>
+    <img src="${data.signedUrl}" alt="PT 노트"
+      style="max-width:96vw;max-height:92dvh;object-fit:contain;border-radius:10px;box-shadow:0 0 40px #00000088;">
+  `;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
 }
 
 // ══════════════════════════════════════════════════════════════
