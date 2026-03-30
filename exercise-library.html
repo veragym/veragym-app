@@ -335,6 +335,9 @@ async function init() {
         .header-sub { color:#3a5840 !important; }
         .btn-logout { border-color:#1a3a1a44 !important; color:#3a5840 !important; }
         .btn-logout:hover { border-color:#4ade8044 !important; color:#4ade80 !important; }
+        .tabs { background:#0d1a0d !important; border-bottom-color:#1a3a1a44 !important; }
+        .tab-btn { color:#3a5840 !important; border-bottom-color:transparent !important; }
+        .tab-btn.active { color:#4ade80 !important; border-bottom-color:#4ade80 !important; }
         .search-area { background:#080e08 !important; }
         .ex-search { background:#0d1a0d !important; border-color:#1a3a1a55 !important; }
         .ex-search:focus { border-color:#4ade80 !important; }
@@ -357,15 +360,18 @@ async function init() {
         .empty, .loading { color:#2a4a2a !important; }
       `;
       document.head.appendChild(memberStyle);
-      // 회원 모드 UI 전환
-      document.getElementById('topTabs').style.display = 'none';
+      // 회원 모드 UI: 헤더 텍스트 교체, 로그아웃 버튼 숨김
+      document.querySelector('.header-title').innerHTML = 'VERA<span>GYM</span>';
+      document.getElementById('trainerInfo').textContent = '운동 라이브러리';
+      document.querySelector('.btn-logout').style.display = 'none';
+      // 탭을 회원용으로 교체, 내 운동 탭 숨김
+      document.getElementById('topTabs').innerHTML = `
+        <button class="tab-btn" onclick="location.href='member-view.html'">수업일지</button>
+        <button class="tab-btn" onclick="location.href='member-view.html#schedule'">일정</button>
+        <button class="tab-btn active">운동DB</button>
+        <button class="tab-btn" onclick="location.href='member-view.html#anatomy'">해부도</button>
+      `;
       document.getElementById('tabMine').style.display = 'none';
-      document.querySelector('.header').innerHTML = `
-        <div>
-          <div class="header-title">VERA<span style="color:#4ade80">GYM</span></div>
-          <div class="header-sub" style="color:#3a5840">운동 라이브러리</div>
-        </div>
-        <button class="btn-logout" onclick="history.back()">← 돌아가기</button>`;
       await loadAllExercises();
       buildFilters();
       renderList();
