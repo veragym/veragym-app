@@ -1,5 +1,7 @@
 // VERA GYM App - Service Worker
-const CACHE_NAME = 'veragym-app-v2';
+const CACHE_NAME = 'veragym-app-v3';
+const IMG_CACHE  = 'veragym-app-img-v1'; // 운동 이미지 전용 캐시 (별도 관리)
+
 const STATIC = [
   '/veragym-app/',
   '/veragym-app/index.html',
@@ -24,9 +26,10 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
+  const KEEP = new Set([CACHE_NAME, IMG_CACHE]);
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => !KEEP.has(k)).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
@@ -34,14 +37,31 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = e.request.url;
 
-  // Supabase API: 네트워크 전용 (캐시 불가)
+  // ── Supabase Storage 이미지: 캐시 우선 → 없으면 네트워크 + 저장 ──
+  // 한번 본 운동 이미지는 기기 캐시에 저장되어 오프라인/느린 네트워크에서도 즉시 표시
+  if (url.includes('supabase.co/storage/v1/object/')) {
+    e.respondWith(
+      caches.open(IMG_CACHE).then(imgCache =>
+        imgCache.match(e.request).then(cached => {
+          if (cached) return cached; // 캐시 히트 → 즉시 반환
+          // 캐시 미스 → 네트워크에서 가져오고 캐시에 저장
+          return fetch(e.request).then(res => {
+            if (res.ok) imgCache.put(e.request, res.clone());
+            return res;
+          }).catch(() => new Response('', { status: 503 }));
+        })
+      )
+    );
+    return;
+  }
+
+  // ── 나머지 Supabase API (REST/Auth/Functions/RPC): 네트워크 전용 ──
   if (url.includes('supabase.co')) {
     e.respondWith(fetch(e.request).catch(() => new Response('offline', { status: 503 })));
     return;
   }
 
-  // HTML + JS: 네트워크 우선 → 항상 최신 버전 보장, 오프라인 시 캐시 폴백
-  // (매번 캐시 버전을 올리지 않아도 코드 변경이 즉시 반영됨)
+  // ── HTML + JS: 네트워크 우선 → 항상 최신 버전 보장, 오프라인 시 캐시 폴백 ──
   const isHtmlOrJs = url.includes('/veragym-app/') &&
     (url.endsWith('.html') || url.endsWith('.js') || url.endsWith('/veragym-app/'));
 
@@ -60,7 +80,7 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // 아이콘·매니페스트: 캐시 우선 (거의 변경 없음)
+  // ── 아이콘·매니페스트: 캐시 우선 ──
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
