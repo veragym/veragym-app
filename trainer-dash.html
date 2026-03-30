@@ -598,6 +598,8 @@ async function loadLogs() {
   _cacheSet('logs');
 }
 
+const _logDataMap = {}; // logId → { date, member, notes }
+
 function renderLogCards(containerId, logs, showMember) {
   const wrap = document.getElementById(containerId);
   if (!logs?.length) {
@@ -609,6 +611,9 @@ function renderLogCards(containerId, logs, showMember) {
     const exs = log.workout_log_exercises || [];
     const isNoshow = log.is_noshow === true;
     const dateStr = new Date(log.session_date).toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'short' });
+    // 이미지 생성용 데이터 저장
+    _logDataMap[log.id] = { date: log.session_date, member: log.members?.name || '', notes: log.notes || '' };
+    const canShare = !isNoshow && exs.length > 0;
     return `
       <div class="log-card" style="${isNoshow ? 'opacity:0.6;border-color:#f59e0b44;' : ''}">
         <div class="log-header">
@@ -630,6 +635,7 @@ function renderLogCards(containerId, logs, showMember) {
         <div class="log-actions">
           ${isNoshow ? '' : `<button class="btn-sm" onclick="location.href='session-write.html?log=${log.id}'">수정</button>`}
           ${log.note_photo_path ? `<button class="btn-sm" onclick="viewNotePhoto('${log.note_photo_path}')">📓 노트</button>` : ''}
+          ${canShare ? `<button class="btn-sm" style="color:#4ade80;border-color:#16a34a44" onclick="generateWorkoutCard('${log.id}')">📊 이미지</button>` : ''}
           <button class="btn-sm btn-danger" onclick="deleteLog('${log.id}')">삭제</button>
         </div>
       </div>`;
@@ -663,6 +669,241 @@ async function viewNotePhoto(path) {
   `;
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   document.body.appendChild(overlay);
+}
+
+// ══════════════════════════════════════════════════════════════
+// 운동 카드 이미지 생성 (Canvas 기반, PNG 저장)
+// ══════════════════════════════════════════════════════════════
+async function generateWorkoutCard(logId) {
+  const meta = _logDataMap[logId] || {};
+  showToast('이미지 생성 중...');
+
+  // 운동 상세 + exercise_refs 정보 조회
+  const { data: exs, error } = await db.from('workout_log_exercises')
+    .select('custom_name,sets_data,sets,reps,order_index,exercise_refs(name_ko,image_url,part_unified,tool_unified)')
+    .eq('log_id', logId)
+    .order('order_index');
+  if (error || !exs?.length) { showToast('운동 기록이 없어요'); return; }
+
+  // ── 상수 ─────────────────────────────────────────────────────
+  const W = 1080, PAD = 52;
+  const COL = W - PAD * 2;
+  const HEADER_H = 116, FOOTER_H = 72;
+  const EX_TOP = 56, NAME_H = 70, SET_HDR = 38, SET_ROW = 38, EX_SEP = 28;
+  const notesText = meta.notes || '';
+  const memberName = meta.member || '';
+  const sessionDate = meta.date || '';
+
+  // 운동 이미지 로드 시도 (CORS 실패 시 null)
+  const imgMap = {};
+  await Promise.all(exs.map(async (ex, i) => {
+    const url = ex.exercise_refs?.image_url;
+    if (!url) return;
+    imgMap[i] = await new Promise(resolve => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload  = () => resolve(img);
+      img.onerror = () => resolve(null);
+      setTimeout(() => resolve(null), 4000);
+      img.src = url;
+    });
+  }));
+
+  // ── 높이 계산 ──────────────────────────────────────────────────
+  let totalH = HEADER_H + EX_TOP;
+  exs.forEach((ex, i) => {
+    const sets = ex.sets_data?.length || (ex.sets ? parseInt(ex.sets) || 0 : 0);
+    const hasImg = !!imgMap[i];
+    if (hasImg) totalH += Math.round(COL * 9 / 16); // 16:9 비율
+    totalH += NAME_H + (sets > 0 ? SET_HDR + sets * SET_ROW : 32);
+    if (i < exs.length - 1) totalH += EX_SEP + 24; // separator
+    else totalH += EX_SEP;
+  });
+  const notesH = notesText ? 100 : 0;
+  totalH += notesH + FOOTER_H + 20;
+
+  // ── 캔버스 생성 ────────────────────────────────────────────────
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = totalH;
+  const ctx = canvas.getContext('2d');
+
+  // ── Helper: 둥근 사각형 ───────────────────────────────────────
+  function rRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  // ── Helper: 긴 텍스트 줄 바꿈 ──────────────────────────────────
+  function wrapText(text, x, y, maxW, lh) {
+    let line = '', lines = [];
+    for (const ch of text) {
+      if (ctx.measureText(line + ch).width > maxW && line) { lines.push(line); line = ch; }
+      else line += ch;
+    }
+    if (line) lines.push(line);
+    lines.slice(0, 3).forEach((l, i) => ctx.fillText(l, x, y + i * lh));
+    return Math.min(lines.length, 3) * lh;
+  }
+
+  // ── 배경 ──────────────────────────────────────────────────────
+  ctx.fillStyle = '#080e1a'; ctx.fillRect(0, 0, W, totalH);
+
+  // ── 헤더 ──────────────────────────────────────────────────────
+  ctx.fillStyle = '#0d1525'; ctx.fillRect(0, 0, W, HEADER_H);
+  ctx.fillStyle = '#1e3a5f44'; ctx.fillRect(0, HEADER_H - 1, W, 1);
+
+  // 로고
+  ctx.font = 'bold 44px -apple-system, "Apple SD Gothic Neo", sans-serif';
+  ctx.fillStyle = '#ffffff'; ctx.fillText('VERA', PAD, 68);
+  const vW = ctx.measureText('VERA').width;
+  ctx.fillStyle = '#3b82f6'; ctx.fillText('GYM', PAD + vW + 6, 68);
+
+  // 날짜
+  const dateFmt = sessionDate
+    ? new Date(sessionDate + 'T00:00:00').toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' })
+    : '';
+  ctx.font = '26px -apple-system, "Apple SD Gothic Neo", sans-serif';
+  ctx.fillStyle = '#4a6580';
+  const dtW = ctx.measureText(dateFmt).width;
+  ctx.fillText(dateFmt, W - PAD - dtW, 68);
+
+  // 회원명
+  if (memberName) {
+    ctx.font = '24px -apple-system, "Apple SD Gothic Neo", sans-serif';
+    ctx.fillStyle = '#3b82f688';
+    ctx.fillText(memberName + '님', PAD, 100);
+  }
+
+  // ── 운동 목록 ──────────────────────────────────────────────────
+  let y = HEADER_H + EX_TOP;
+
+  for (let i = 0; i < exs.length; i++) {
+    const ex = exs[i];
+    const ref = ex.exercise_refs;
+    const name = ref?.name_ko || ex.custom_name || '운동';
+    const cat  = [ref?.part_unified, ref?.tool_unified].filter(Boolean).join(' · ');
+    const setsData = Array.isArray(ex.sets_data) ? ex.sets_data : [];
+
+    // 운동 사진 (CORS 성공 시)
+    const img = imgMap[i];
+    if (img) {
+      const imgH = Math.round(COL * 9 / 16);
+      rRect(PAD, y, COL, imgH, 14); ctx.save(); ctx.clip();
+      // 이미지 contain 방식으로 그리기
+      const scale = Math.min(COL / img.naturalWidth, imgH / img.naturalHeight);
+      const iW = img.naturalWidth * scale, iH = img.naturalHeight * scale;
+      ctx.fillStyle = '#0d1a2e'; ctx.fillRect(PAD, y, COL, imgH);
+      ctx.drawImage(img, PAD + (COL - iW) / 2, y + (imgH - iH) / 2, iW, iH);
+      ctx.restore();
+      y += imgH + 16;
+    }
+
+    // 번호 + 이름
+    ctx.font = 'bold 30px -apple-system, "Apple SD Gothic Neo", sans-serif';
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillText(`${i + 1}.`, PAD, y + 30);
+    const numW = ctx.measureText(`${i + 1}. `).width + 2;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(name, PAD + numW, y + 30);
+
+    // 카테고리
+    if (cat) {
+      ctx.font = '22px -apple-system, "Apple SD Gothic Neo", sans-serif';
+      ctx.fillStyle = '#4a6580';
+      ctx.fillText(cat, PAD + numW, y + 56);
+    }
+    y += NAME_H;
+
+    // 세트 표
+    const colW = COL / 3;
+    if (setsData.length > 0) {
+      // 헤더
+      ctx.fillStyle = '#0a1525'; rRect(PAD, y, COL, SET_HDR, 8); ctx.fill();
+      ctx.font = '20px -apple-system, "Apple SD Gothic Neo", sans-serif';
+      ctx.fillStyle = '#3a5878'; ctx.textAlign = 'center';
+      ctx.fillText('세트', PAD + colW * 0.5, y + 25);
+      ctx.fillText('무게 (kg)', PAD + colW * 1.5, y + 25);
+      ctx.fillText('횟수', PAD + colW * 2.5, y + 25);
+      ctx.textAlign = 'left';
+      y += SET_HDR;
+
+      setsData.forEach((set, si) => {
+        ctx.fillStyle = si % 2 === 0 ? '#0d1a2e' : '#091422';
+        ctx.fillRect(PAD, y, COL, SET_ROW);
+        ctx.textAlign = 'center';
+        ctx.font = '22px -apple-system, "Apple SD Gothic Neo", sans-serif';
+        ctx.fillStyle = '#5a7898'; ctx.fillText(String(si + 1), PAD + colW * 0.5, y + 26);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(set.weight != null ? String(set.weight) : '─', PAD + colW * 1.5, y + 26);
+        ctx.fillText(set.reps   != null ? String(set.reps)   : '─', PAD + colW * 2.5, y + 26);
+        ctx.textAlign = 'left';
+        y += SET_ROW;
+      });
+    } else if (ex.sets) {
+      ctx.font = '24px -apple-system, "Apple SD Gothic Neo", sans-serif';
+      ctx.fillStyle = '#60a5fa';
+      ctx.fillText(`${ex.sets}세트 × ${ex.reps || 0}회`, PAD, y + 26);
+      y += 38;
+    }
+
+    // 구분선 (마지막 제외)
+    if (i < exs.length - 1) {
+      y += 16;
+      ctx.fillStyle = '#1e3a5f33'; ctx.fillRect(PAD, y, COL, 1);
+      y += EX_SEP;
+    } else {
+      y += EX_SEP;
+    }
+  }
+
+  // ── 메모 ─────────────────────────────────────────────────────
+  if (notesText) {
+    y += 8;
+    ctx.fillStyle = '#0d1a2e'; rRect(PAD, y, COL, notesH - 8, 12); ctx.fill();
+    ctx.font = 'bold 22px -apple-system, "Apple SD Gothic Neo", sans-serif';
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillText('📝  트레이너 메모', PAD + 18, y + 32);
+    ctx.font = '21px -apple-system, "Apple SD Gothic Neo", sans-serif';
+    ctx.fillStyle = '#8ba4c0';
+    wrapText(notesText, PAD + 18, y + 62, COL - 36, 30);
+    y += notesH;
+  }
+
+  // ── 푸터 ─────────────────────────────────────────────────────
+  const fy = totalH - FOOTER_H;
+  ctx.fillStyle = '#1e3a5f22'; ctx.fillRect(0, fy, W, 1);
+  ctx.font = '22px -apple-system, "Apple SD Gothic Neo", sans-serif';
+  ctx.fillStyle = '#2a4060'; ctx.textAlign = 'center';
+  ctx.fillText('VERA GYM | 트레이너 수업 기록', W / 2, fy + 44);
+  ctx.textAlign = 'left';
+
+  // ── 이미지 저장 ───────────────────────────────────────────────
+  try {
+    canvas.toBlob(blob => {
+      if (!blob) { showToast('이미지 생성 실패'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `veragym_${sessionDate || 'workout'}.png`;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+      showToast('이미지 저장 완료 📥');
+    }, 'image/png');
+  } catch (e) {
+    // 이미지 CORS 오염 시 이미지 없이 재시도
+    showToast('이미지 재생성 중 (사진 제외)...');
+    Object.keys(imgMap).forEach(k => { imgMap[k] = null; });
+    // 재귀 대신 간단히 사용자에게 안내
+    showToast('운동 이미지 로드 실패 — 사진 없이 다시 눌러주세요');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
