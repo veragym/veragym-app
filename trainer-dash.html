@@ -302,7 +302,10 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
         <button id="revMonthCur" class="rev-month-btn active" onclick="switchRevMonth('cur')">당월</button>
         <button id="revMonthNext" class="rev-month-btn" onclick="switchRevMonth('next')">다음 달</button>
       </div>
-      <button onclick="openForecastModal()" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">+ 예상매출 등록</button>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button onclick="copyForecastText()" title="카카오톡 공유" style="background:#1e3a5f;border:1px solid #3b82f633;border-radius:8px;padding:7px 11px;font-size:12px;font-weight:700;color:#60a5fa;cursor:pointer;line-height:1">공유</button>
+        <button onclick="openForecastModal()" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">+ 예상매출 등록</button>
+      </div>
     </div>
     <div id="revForecastList" style="display:flex;flex-direction:column;gap:8px">
       <div style="text-align:center;color:#555;font-size:13px;padding:20px 0">등록된 예상매출이 없습니다.</div>
@@ -1075,6 +1078,50 @@ function switchRevMonth(mode) {
   document.getElementById('revMonthNext').classList.toggle('active', mode==='next');
   renderForecasts();
   updateForecastTotal();
+}
+
+function copyForecastText() {
+  const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
+  const list = _revForecasts.filter(f => f.forecast_month === month);
+  const [y, m] = month.split('-');
+  const now = new Date();
+  const weekNum = Math.ceil(now.getDate() / 7);
+
+  const lines = [];
+  lines.push(`${me?.name || ''} ${Number(m)}월 ${weekNum}주차 매출계획`);
+  lines.push('─────────────────────');
+  if (!list.length) {
+    lines.push('등록된 예상매출이 없습니다.');
+  } else {
+    list.forEach(f => {
+      const amt = (f.price_per_session || 0) * f.session_count;
+      const status = f.is_registered ? '✅등록' : '⬜미등록';
+      lines.push(`${f.member_name} | ${(f.price_per_session||0).toLocaleString()} × ${f.session_count}회 | ${_fmtWon(amt)} | ${status}`);
+      if (f.memo) lines.push(`  └ ${f.memo}`);
+    });
+    lines.push('─────────────────────');
+    const total = list.reduce((s, f) => s + (f.price_per_session||0) * f.session_count, 0);
+    lines.push(`총 예상매출: ${_fmtWon(total)}`);
+  }
+
+  const text = lines.join('\n');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('복사됐어요! 카카오톡에 붙여넣기 하세요'))
+      .catch(() => _fallbackCopy(text));
+  } else {
+    _fallbackCopy(text);
+  }
+}
+function _fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); showToast('복사됐어요! 카카오톡에 붙여넣기 하세요'); }
+  catch (_) { showToast('복사 실패 — 텍스트를 직접 선택해 주세요'); }
+  document.body.removeChild(ta);
 }
 
 function renderForecasts() {
