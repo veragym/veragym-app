@@ -90,6 +90,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
 .modal-handle { width:36px; height:4px; background:#2a2518; border-radius:99px; margin:16px auto 20px; }
 .modal-title { font-size:17px; font-weight:700; margin-bottom:20px; }
+.modal-close-x { position:absolute; top:14px; right:16px; background:none; border:none; color:#c9a84c; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; line-height:1; transition:opacity 0.15s; }
+.modal-close-x:active { opacity:0.5; }
 .field { margin-bottom:14px; }
 .field label { display:block; font-size:12px; color:#888; margin-bottom:6px; font-weight:500; }
 .field input, .field select { width:100%; background:#0a0a08; border:1.5px solid #2a2518; border-radius:10px; padding:12px 14px; font-size:14px; color:#fff; outline:none; font-family:inherit; transition:border-color 0.2s; }
@@ -333,6 +335,15 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <div class="sec-header">
     <div><span class="sec-title">전체 회원</span><span class="sec-count" id="memberCount"></span></div>
     <button class="btn-add" onclick="openAddMember()">+ 회원 추가</button>
+  </div>
+  <!-- 회원명 검색 -->
+  <div style="margin-bottom:12px;position:relative">
+    <input type="text" id="memberSearchInput"
+      placeholder="🔍 회원명 검색..."
+      oninput="searchMembers(this.value)"
+      autocomplete="off"
+      style="width:100%;box-sizing:border-box;background:#111;border:1px solid #2a2518;border-radius:8px;padding:9px 36px 9px 12px;font-size:13px;color:#fff;outline:none;caret-color:#c9a84c">
+    <button onclick="clearMemberSearch()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;font-size:18px;cursor:pointer;padding:4px;line-height:1">×</button>
   </div>
   <!-- 지점별 요약 카운트 -->
   <div id="branchSummary" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
@@ -1137,6 +1148,34 @@ function toggleAcc(id) {
   body.classList.toggle('open', !isOpen);
   if (arrow)  arrow.classList.toggle('open', !isOpen);
   if (header) header.classList.toggle('open', !isOpen);
+}
+
+function searchMembers(query) {
+  const q = (query || '').trim();
+  const summary = document.getElementById('branchSummary');
+  const breadcrumb = document.getElementById('memberBreadcrumb');
+  if (!q) {
+    if (summary) summary.style.display = '';
+    if (breadcrumb) breadcrumb.style.display = '';
+    showAllBranches();
+    return;
+  }
+  if (summary) summary.style.display = 'none';
+  if (breadcrumb) breadcrumb.style.display = 'none';
+  const results = _allMembers.filter(m => m.name && m.name.toLowerCase().includes(q.toLowerCase()));
+  const wrap = document.getElementById('memberList');
+  if (!results.length) { wrap.innerHTML = '<div class="empty">검색 결과가 없어요</div>'; return; }
+  wrap.innerHTML = results.map(m => memberRow(m)).join('');
+}
+
+function clearMemberSearch() {
+  const input = document.getElementById('memberSearchInput');
+  if (input) input.value = '';
+  const summary = document.getElementById('branchSummary');
+  const breadcrumb = document.getElementById('memberBreadcrumb');
+  if (summary) summary.style.display = '';
+  if (breadcrumb) breadcrumb.style.display = '';
+  showAllBranches();
 }
 
 function memberRow(m) {
@@ -2142,7 +2181,7 @@ init();
         <div style="font-size:15px;font-weight:700;color:#fff;">전체 시간표</div>
         <div style="font-size:11px;color:#888;margin-top:2px;" id="bsSubtitle"></div>
       </div>
-      <button onclick="closeBranchSchedModal()" style="background:none;border:none;color:#888;font-size:20px;cursor:pointer;padding:4px;">✕</button>
+      <button onclick="closeBranchSchedModal()" class="modal-close-x" style="position:static;">✕</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid #2a251833;flex-shrink:0;">
       <button id="bsBtnToday" onclick="onBsDay(0)" style="flex:1;background:#c9a84c;border:none;color:#111;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">오늘</button>
@@ -2483,7 +2522,7 @@ function renderStats() {
   // 주요 지표
   const allTimeNet = _allPayments.reduce((s,p) => s + (p.net_amount||0), 0);
   const cmNet = cmPayments.reduce((s,p) => s + (p.net_amount||0), 0);
-  const avgPerSession = _allPayments.length ? Math.round(_allPayments.reduce((s,p) => s + (p.price_per_session||0), 0) / _allPayments.length) : 0;
+  const avgPerSession = _allPayments.length ? Math.round(_allPayments.reduce((s,p) => s + (p.price_per_session||0), 0) / _allPayments.length / 1000) * 1000 : 0;
   const avgMonthly = monthlyData.length ? Math.round(monthlyData.reduce((s,d) => s + d.total, 0) / monthlyData.length) : 0;
 
   document.getElementById('statKeyMetrics').innerHTML = [

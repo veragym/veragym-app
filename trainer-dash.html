@@ -96,6 +96,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
 .modal-handle { width:36px; height:4px; background:#1e3a5f; border-radius:99px; margin:14px auto 18px; }
 .modal-title { font-size:17px; font-weight:700; margin-bottom:18px; }
+.modal-close-x { position:absolute; top:14px; right:16px; background:none; border:none; color:#60a5fa; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; line-height:1; transition:opacity 0.15s; }
+.modal-close-x:active { opacity:0.5; }
 .field { margin-bottom:14px; }
 .field label { display:block; font-size:12px; color:#4a6580; margin-bottom:6px; font-weight:500; }
 .field input, .field select, .field textarea { width:100%; background:#080e1a; border:1.5px solid #1e3a5f44; border-radius:10px; padding:12px 14px; font-size:14px; color:#fff; outline:none; font-family:inherit; transition:border-color .2s; resize:none; }
@@ -233,7 +235,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
         <div style="font-size:15px;font-weight:700;color:#fff;">전체 시간표</div>
         <div style="font-size:11px;color:#6a88a8;margin-top:2px;" id="bsSubtitle"></div>
       </div>
-      <button onclick="closeBranchSchedModal()" style="background:none;border:none;color:#6a88a8;font-size:20px;cursor:pointer;padding:4px;">✕</button>
+      <button onclick="closeBranchSchedModal()" class="modal-close-x" style="position:static;">✕</button>
     </div>
     <!-- 날짜 선택 (오늘/내일) -->
     <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid #1e3a5f33;flex-shrink:0;">

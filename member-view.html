@@ -180,6 +180,8 @@
     padding: 13px; font-size: 14px; font-weight: 600; color: #aaa;
     cursor: pointer; font-family: inherit;
   }
+  .modal-close-x { position:absolute; top:14px; right:16px; background:none; border:none; color:#4ade80; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; line-height:1; transition:opacity 0.15s; }
+  .modal-close-x:active { opacity:0.5; }
 </style>
 </head>
 <body>
@@ -228,10 +230,10 @@
 </div>
 
 <!-- 사진 뷰어 모달 -->
-<div id="memberPhotoViewer" class="mv-viewer-bg" onclick="if(event.target===this)closeMemberPhotoViewer()">
+<div id="memberPhotoViewer" class="mv-viewer-bg" style="position:relative" onclick="if(event.target===this)closeMemberPhotoViewer()">
+  <button class="modal-close-x" onclick="closeMemberPhotoViewer()">✕</button>
   <div class="mv-viewer-title" id="memberViewerTitle">자세 사진</div>
   <div class="mv-viewer-imgs" id="memberViewerImgs"></div>
-  <button class="mv-viewer-close" onclick="closeMemberPhotoViewer()">닫기</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

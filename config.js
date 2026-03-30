@@ -85,7 +85,21 @@ function showToast(msg, duration = 2400) {
 }
 
 // ── 모달 열기/닫기 ─────────────────────────────────────────
-function openModal(id) { document.getElementById(id).classList.add('open'); }
+function openModal(id) {
+  const bg = document.getElementById(id);
+  if (!bg) return;
+  const modal = bg.querySelector('.modal');
+  if (modal && !modal.querySelector('.modal-close-x')) {
+    modal.style.position = 'relative';
+    const btn = document.createElement('button');
+    btn.className = 'modal-close-x';
+    btn.textContent = '✕';
+    btn.setAttribute('aria-label', '닫기');
+    btn.onclick = (e) => { e.stopPropagation(); closeModal(id); };
+    modal.appendChild(btn);
+  }
+  bg.classList.add('open');
+}
 function closeModal(id, e) {
   if (e && e.target !== document.getElementById(id)) return;
   document.getElementById(id).classList.remove('open');
