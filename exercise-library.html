@@ -324,13 +324,46 @@ async function init() {
     const memberToken = _p.get('token') || _p.get('t') || localStorage.getItem('vg_member_token');
     if (memberToken) {
       _memberMode = true;
+      // 회원 모드: sessionStorage 캐시 클리어 후 강제 로드
+      sessionStorage.removeItem('vg_exdb_cache_v2');
+      // 회원 모드: 그린 테마 CSS 주입 (실제 클래스명 기준)
+      const memberStyle = document.createElement('style');
+      memberStyle.textContent = `
+        body { background:#080e08 !important; }
+        .header { background:#0d1a0d !important; border-bottom-color:#1a3a1a44 !important; }
+        .header-title span { color:#4ade80 !important; }
+        .header-sub { color:#3a5840 !important; }
+        .btn-logout { border-color:#1a3a1a44 !important; color:#3a5840 !important; }
+        .btn-logout:hover { border-color:#4ade8044 !important; color:#4ade80 !important; }
+        .search-area { background:#080e08 !important; }
+        .ex-search { background:#0d1a0d !important; border-color:#1a3a1a55 !important; }
+        .ex-search:focus { border-color:#4ade80 !important; }
+        .ex-search::placeholder { color:#2a4a2a !important; }
+        .filter-label { color:#2a4a2a !important; }
+        .chip { background:#0d1a0d !important; border-color:#1a3a1a55 !important; color:#3a5840 !important; }
+        .chip:hover { border-color:#4ade8033 !important; color:#86efac !important; }
+        .chip.active { background:#4ade8022 !important; border-color:#4ade8066 !important; color:#4ade80 !important; }
+        .view-tabs { display:none !important; }
+        .stat-bar { color:#3a5840 !important; }
+        .stat-bar span { color:#4ade80 !important; }
+        .ex-card { background:#0d1a0d !important; border-color:#1a3a1a44 !important; }
+        .ex-card:hover, .ex-card:active { border-color:#4ade8044 !important; }
+        .ex-thumb { background:#111f11 !important; }
+        .ex-en { color:#3a5840 !important; }
+        .ex-tag-tool { background:#4ade8011 !important; border-color:#4ade8033 !important; color:#86efac !important; }
+        .ex-tag-part { border-color:#1a3a1a55 !important; color:#3a5840 !important; }
+        .ex-tag-cnt { color:#1a3a1a !important; }
+        .btn-more { background:#0d1a0d !important; border-color:#1a3a1a44 !important; color:#4ade80 !important; }
+        .empty, .loading { color:#2a4a2a !important; }
+      `;
+      document.head.appendChild(memberStyle);
       // 회원 모드 UI 전환
       document.getElementById('topTabs').style.display = 'none';
       document.getElementById('tabMine').style.display = 'none';
       document.querySelector('.header').innerHTML = `
         <div>
-          <div class="header-title">VERA<span>GYM</span></div>
-          <div class="header-sub">운동 라이브러리</div>
+          <div class="header-title">VERA<span style="color:#4ade80">GYM</span></div>
+          <div class="header-sub" style="color:#3a5840">운동 라이브러리</div>
         </div>
         <button class="btn-logout" onclick="history.back()">← 돌아가기</button>`;
       await loadAllExercises();
