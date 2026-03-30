@@ -1001,12 +1001,27 @@ function calcRevPeriod() {
     byMonth[m] = (byMonth[m]||0) + p.net_amount;
   });
 
-  let total = 0, cnt = 0;
+  let total = 0;
+  const now = new Date();
+  const curYear = now.getFullYear();
+  const curMonthNum = now.getMonth() + 1;
+  const periodYear = parseInt(year);
+
+  // 지나간 월 수 계산 (미래 기간이면 0)
+  let elapsedMonths;
+  if (periodYear < curYear) {
+    elapsedMonths = endM - startM + 1;
+  } else if (periodYear > curYear) {
+    elapsedMonths = 0;
+  } else {
+    elapsedMonths = Math.max(0, Math.min(endM, curMonthNum) - startM + 1);
+  }
+
   for (let m = startM; m <= endM; m++) {
     const key = `${year}-${String(m).padStart(2,'0')}`;
-    if (byMonth[key] !== undefined) { total += byMonth[key]; cnt++; }
+    if (byMonth[key] !== undefined) total += byMonth[key];
   }
-  const avg = cnt ? Math.round(total / (endM - startM + 1)) : 0;
+  const avg = elapsedMonths > 0 ? Math.round(total / elapsedMonths) : 0;
   document.getElementById('revAvgPeriod').textContent = _fmtWon(avg);
 }
 
