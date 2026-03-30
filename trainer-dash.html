@@ -510,7 +510,7 @@ async function showMemberDetail(memberId) {
   document.getElementById('detailSub').textContent = `${m.gym_location}${m.notes ? ' · ' + m.notes : ''}`;
 
   // 토큰 링크
-  const tokenUrl = `${APP_URL}?t=${m.token}`;
+  const tokenUrl = `${APP_URL}?token=${m.token}`;
   document.getElementById('detailTokenBox').innerHTML = `
     <div class="token-box" onclick="copyToken('${tokenUrl}')">
       <span style="font-size:11px;color:#3a5878">링크</span>
