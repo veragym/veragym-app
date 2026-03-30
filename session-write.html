@@ -773,47 +773,45 @@ async function saveSession() {
   btn.disabled = true; btn.textContent = '저장 중...';
 
   try {
-    // ── PT 노트 사진 처리 ──────────────────────────────────
+    // ── PT 노트 사진: 기존 사진 삭제 (교체 or 삭제 버튼) ──
     let notePhotoPath = _notePhotoExistingPath;
-
-    // 기존 사진 삭제: 삭제 버튼 눌렀거나 새 사진으로 교체하는 경우
     if (_notePhotoExistingPath && (_notePhotoRemoved || _notePhotoFile)) {
       await db.storage.from('session-photos').remove([_notePhotoExistingPath]);
       notePhotoPath = null;
     }
 
-    // 새 사진 업로드 (기존 파일 먼저 지웠으므로 upsert 불필요)
-    if (_notePhotoFile) {
-      const ext   = _notePhotoFile.name.split('.').pop() || 'jpg';
-      const tmpId = logId || crypto.randomUUID();
-      const path  = `${trainer.id}/pt-notes/${tmpId}.${ext}`;
+    // ── 사진 업로드 헬퍼 (logId 확보 후 호출) ─────────────
+    async function uploadNotePhoto(lid) {
+      if (!_notePhotoFile) return notePhotoPath; // 새 사진 없으면 현재 경로 유지
+      const ext  = (_notePhotoFile.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${trainer.id}/pt-notes/${lid}.${ext}`;
       const { error: upErr } = await db.storage.from('session-photos').upload(path, _notePhotoFile);
-      if (!upErr) notePhotoPath = path;
+      return upErr ? notePhotoPath : path; // 실패 시 기존 경로 유지
     }
-    // ───────────────────────────────────────────────────────
 
     if (logId) {
+      // ── 기존 로그 수정 ──────────────────────────────────
+      notePhotoPath = await uploadNotePhoto(logId);
       const updatePayload = { session_date: date, notes, note_photo_path: notePhotoPath };
       if (scheduleId) updatePayload.schedule_id = scheduleId;
-      await db.from('workout_logs')
-        .update(updatePayload)
-        .eq('id', logId);
+      await db.from('workout_logs').update(updatePayload).eq('id', logId);
       await db.from('workout_log_exercises').delete().eq('log_id', logId);
     } else {
+      // ── 신규 로그: INSERT 먼저 → logId 확보 → 사진 업로드 ──
       const { data: newLog, error: le } = await db
         .from('workout_logs')
-        .insert({ trainer_id: trainer.id, member_id: memberId, session_date: date, notes, note_photo_path: notePhotoPath, ...(scheduleId ? { schedule_id: scheduleId } : {}) })
+        .insert({ trainer_id: trainer.id, member_id: memberId, session_date: date, notes,
+                  ...(scheduleId ? { schedule_id: scheduleId } : {}) })
         .select('id').single();
       if (le) throw le;
       logId = newLog.id;
-      // 사진 경로에 임시 UUID 사용했다면 실제 logId로 이름 변경
-      if (_notePhotoFile && notePhotoPath && !notePhotoPath.includes(logId)) {
-        const ext = _notePhotoFile.name.split('.').pop() || 'jpg';
-        const correctPath = `${trainer.id}/pt-notes/${logId}.${ext}`;
-        await db.storage.from('session-photos').move(notePhotoPath, correctPath);
-        await db.from('workout_logs').update({ note_photo_path: correctPath }).eq('id', logId);
-      }
       history.replaceState(null, '', `?log=${logId}`);
+
+      // logId 확보 후 사진 업로드 → UPDATE (move 불필요)
+      notePhotoPath = await uploadNotePhoto(logId);
+      if (notePhotoPath) {
+        await db.from('workout_logs').update({ note_photo_path: notePhotoPath }).eq('id', logId);
+      }
     }
 
     if (exercises.length) {
