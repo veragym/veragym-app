@@ -9,242 +9,350 @@
 <meta name="apple-mobile-web-app-title" content="베라짐 멤버">
 <meta name="theme-color" content="#4ade80">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VERA GYM Member | 내 수업 일지</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VERA GYM | 내 수업</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-    background: #0f0f0f; color: #fff;
-    min-height: 100dvh; padding-bottom: 40px;
-  }
+/* ── Reset & Base ─────────────────────────────────────────── */
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e08; color:#fff; min-height:100dvh; overscroll-behavior:none; padding-bottom:0; }
 
-  /* ─── 헤더 ─── */
-  .header {
-    background: linear-gradient(135deg, #0f2a1a 0%, #0f0f0f 60%);
-    border-bottom: 1px solid #1a2a1a;
-    padding: 24px 20px 20px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .gym-badge {
-    display: inline-block; background: #4ade8022;
-    border: 1px solid #4ade8044; border-radius: 20px;
-    padding: 4px 12px; font-size: 11px; color: #4ade80;
-    margin-bottom: 10px; letter-spacing: 0.5px;
-  }
-  .member-greet { font-size: 22px; font-weight: 800; }
-  .member-greet span { color: #4ade80; }
-  .trainer-info { font-size: 13px; color: #666; margin-top: 6px; }
+/* ── Header ──────────────────────────────────────────────── */
+.header { background:#0d1a0d; border-bottom:1px solid #1a3a1a44; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.header-title { font-size:16px; font-weight:800; }
+.header-title span { color:#4ade80; }
+.header-sub { font-size:11px; color:#3a5840; }
 
-  /* ─── 통계 바 ─── */
-  .stats-row {
-    display: flex; gap: 10px;
-    padding: 16px 20px; border-bottom: 1px solid #1a1a1a;
-    overflow-x: auto;
-  }
-  .stat-box {
-    background: #1a1a1a; border: 1px solid #2a2a2a;
-    border-radius: 12px; padding: 12px 16px;
-    flex-shrink: 0; min-width: 90px; text-align: center;
-  }
-  .stat-num { font-size: 22px; font-weight: 800; color: #4ade80; }
-  .stat-label { font-size: 11px; color: #555; margin-top: 3px; }
+/* ── Top Tab Navigation ──────────────────────────────────── */
+.tabs { display:flex; background:#0d1a0d; border-bottom:1px solid #1a3a1a44; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab-btn { flex:1; min-width:60px; padding:13px 10px; font-size:12px; font-weight:600; color:#3a5840; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; text-align:center; }
+.tab-btn.active { color:#4ade80; border-bottom-color:#4ade80; }
 
-  /* ─── 섹션 제목 ─── */
-  .sec-title { font-size: 13px; color: #555; padding: 16px 20px 8px; font-weight: 600; letter-spacing: 0.3px; }
+/* ── Tab Content ─────────────────────────────────────────── */
+.tab-content { display:none; padding:16px 14px; }
+.tab-content.active { display:block; }
 
-  /* ─── 세션 카드 ─── */
-  .sess-list { padding: 0 16px; }
-  .sess-card {
-    background: #1a1a1a; border: 1px solid #2a2a2a;
-    border-radius: 16px; margin-bottom: 10px; overflow: hidden;
-  }
-  .sess-head {
-    padding: 16px 18px;
-    display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer;
-  }
-  .sess-head:hover { background: #1f1f1f; }
-  .sess-left .sess-num-badge {
-    display: inline-block; background: #0f2a1a;
-    border: 1px solid #4ade8033; border-radius: 20px;
-    padding: 3px 10px; font-size: 11px; color: #4ade80;
-    margin-bottom: 6px;
-  }
-  .sess-left .sess-date { font-size: 16px; font-weight: 700; }
-  .sess-left .sess-ex-cnt { font-size: 12px; color: #555; margin-top: 3px; }
-  .chevron { color: #333; font-size: 18px; transition: transform 0.2s; }
-  .chevron.open { transform: rotate(90deg); }
+/* ── Stats Row ───────────────────────────────────────────── */
+.stats-row { display:flex; gap:10px; padding:16px 14px 0; overflow-x:auto; }
+.stat-box { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:12px; padding:12px 16px; flex:1; text-align:center; }
+.stat-num { font-size:22px; font-weight:800; color:#4ade80; }
+.stat-label { font-size:11px; color:#3a5840; margin-top:3px; }
 
-  /* ─── 운동 상세 ─── */
-  .sess-body { display: none; border-top: 1px solid #222; }
-  .sess-body.open { display: block; }
+/* ── Section Header ──────────────────────────────────────── */
+.sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.sec-title { font-size:15px; font-weight:700; }
+.sec-count { font-size:12px; color:#2a4a2a; margin-left:6px; }
+.divider-label { font-size:11px; font-weight:700; color:#4ade80; letter-spacing:1px; margin:16px 0 10px; display:flex; align-items:center; gap:8px; }
+.divider-label::after { content:''; flex:1; height:1px; background:#1a3a1a44; }
 
-  .ex-item { padding: 14px 18px; border-bottom: 1px solid #1a1a1a; }
-  .ex-item:last-child { border-bottom: none; }
-  .ex-item-head {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-  }
-  .ex-icon { font-size: 20px; }
-  .ex-item-name { font-size: 14px; font-weight: 700; }
-  .ex-item-cat { font-size: 11px; color: #555; margin-top: 2px; }
+/* ── Log Cards (수업일지) ─────────────────────────────────── */
+.sess-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:14px; margin-bottom:10px; overflow:hidden; }
+.sess-head { padding:16px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:background 0.15s; }
+.sess-head:active { background:#111f11; }
+.sess-date { font-size:15px; font-weight:700; }
+.sess-sub { font-size:12px; color:#3a5840; margin-top:3px; }
+.sess-num-badge { display:inline-block; background:#0d2a0d; border:1px solid #4ade8033; border-radius:20px; padding:2px 9px; font-size:11px; color:#4ade80; margin-bottom:5px; }
+.chevron { color:#1a3a1a; font-size:18px; transition:transform 0.2s; flex-shrink:0; }
+.chevron.open { transform:rotate(90deg); }
+.sess-body { display:none; border-top:1px solid #1a3a1a22; }
+.sess-body.open { display:block; }
+.sess-notes { background:#0a140a; margin:14px 18px 0; border-radius:10px; padding:12px 14px; font-size:13px; color:#7a9a7a; line-height:1.6; border:1px solid #1a3a1a33; }
+.sess-notes-label { font-size:11px; color:#4ade80; margin-bottom:6px; font-weight:600; }
 
-  /* 세트 테이블 */
-  .sets-table { width: 100%; border-collapse: collapse; }
-  .sets-table th {
-    font-size: 11px; color: #555; padding: 4px 8px;
-    text-align: center; font-weight: 500;
-  }
-  .sets-table td {
-    font-size: 14px; color: #ddd; padding: 6px 8px;
-    text-align: center; border-top: 1px solid #1a1a1a;
-  }
-  .sets-table .set-cell { color: #666; font-size: 12px; }
+/* ── Exercise Detail ─────────────────────────────────────── */
+.ex-item { padding:14px 18px; border-bottom:1px solid #1a3a1a22; }
+.ex-item:last-child { border-bottom:none; }
+.ex-item-name { font-size:14px; font-weight:700; }
+.ex-item-cat { font-size:11px; color:#3a5840; margin-top:2px; }
+.sets-table { width:100%; border-collapse:collapse; margin-top:8px; }
+.sets-table th { font-size:11px; color:#3a5840; padding:4px 8px; text-align:center; font-weight:500; }
+.sets-table td { font-size:14px; color:#ddd; padding:6px 8px; text-align:center; border-top:1px solid #1a3a1a33; }
+.sets-table .set-cell { color:#3a5840; font-size:12px; }
+.mv-photo-btn { display:inline-flex; align-items:center; gap:5px; background:#0d2a0d; border:1px solid #4ade8044; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:600; color:#4ade80; cursor:pointer; font-family:inherit; margin-top:10px; }
 
-  /* 코멘트 */
-  .ex-comment-box {
-    background: #111; border-left: 2px solid #4ade80;
-    border-radius: 0 8px 8px 0;
-    padding: 8px 12px; margin-top: 10px;
-    font-size: 13px; color: #aaa; line-height: 1.5;
-  }
+/* ── Schedule Cards (일정) ───────────────────────────────── */
+.sched-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:14px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; }
+.sched-date-block { text-align:center; background:#111f11; border:1px solid #1a3a1a44; border-radius:10px; padding:8px 12px; flex-shrink:0; min-width:52px; }
+.sched-month { font-size:10px; color:#4ade80; font-weight:700; letter-spacing:0.5px; }
+.sched-day { font-size:22px; font-weight:800; line-height:1; }
+.sched-weekday { font-size:10px; color:#3a5840; margin-top:1px; }
+.sched-info { flex:1; min-width:0; }
+.sched-type-badge { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; margin-bottom:5px; }
+.sched-type-PT { background:#4ade8022; border:1px solid #4ade8044; color:#4ade80; }
+.sched-type-SPT { background:#86efac22; border:1px solid #86efac44; color:#86efac; }
+.sched-time { font-size:14px; font-weight:700; }
+.sched-trainer { font-size:12px; color:#3a5840; margin-top:3px; }
+.sched-status { font-size:11px; font-weight:600; flex-shrink:0; }
+.sched-status.done { color:#3a5840; }
+.sched-status.upcoming { color:#4ade80; }
 
-  /* 총평 */
-  .sess-notes {
-    background: #111; margin: 0 18px 14px;
-    border-radius: 10px; padding: 12px 14px;
-    font-size: 13px; color: #aaa; line-height: 1.6;
-    border: 1px solid #222;
-  }
-  .sess-notes-label {
-    font-size: 11px; color: #4ade80; margin-bottom: 6px; font-weight: 600;
-  }
+/* ── Anatomy Tab ─────────────────────────────────────────── */
+.anatomy-toggle { display:flex; background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; overflow:hidden; margin-bottom:16px; }
+.anatomy-toggle button { flex:1; padding:10px; font-size:13px; font-weight:600; background:none; border:none; color:#3a5840; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+.anatomy-toggle button.active { background:#4ade8022; color:#4ade80; }
+.anatomy-view { display:flex; justify-content:center; }
+.body-svg-wrap { width:100%; max-width:280px; }
+.muscle-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px; }
+.muscle-chip { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:10px 12px; font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
+.muscle-chip .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 
-  /* ─── 빈 상태 / 로딩 ─── */
-  .empty { text-align: center; padding: 60px 20px; color: #444; }
-  .empty-icon { font-size: 48px; margin-bottom: 14px; }
-  .loading { text-align: center; padding: 40px; color: #555; }
+/* ── Modal / Photo Viewer ────────────────────────────────── */
+.mv-viewer-bg { display:none; position:fixed; inset:0; background:#000000f2; z-index:500; flex-direction:column; align-items:center; justify-content:center; padding:20px 16px calc(env(safe-area-inset-bottom) + 20px); }
+.mv-viewer-bg.open { display:flex; }
+.mv-viewer-title { font-size:14px; font-weight:700; color:#fff; margin-bottom:14px; text-align:center; flex-shrink:0; }
+.mv-viewer-imgs { display:flex; gap:10px; width:100%; max-width:440px; flex:1; min-height:0; }
+.mv-photo-slot { flex:1; min-width:0; background:#111; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
+.mv-photo-slot img { width:100%; height:auto; display:block; max-height:calc(100dvh - 140px); object-fit:contain; flex:1; }
+.mv-photo-label { font-size:11px; color:#555; padding:5px 6px; text-align:center; flex-shrink:0; }
+.mv-viewer-close { flex-shrink:0; margin-top:14px; width:100%; max-width:440px; background:#1a1a1a; border:1px solid #333; border-radius:10px; padding:13px; font-size:14px; font-weight:600; color:#aaa; cursor:pointer; font-family:inherit; }
+.modal-close-x { position:absolute; top:14px; right:16px; background:none; border:none; color:#4ade80; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; line-height:1; transition:opacity 0.15s; }
+.modal-close-x:active { opacity:0.5; }
 
-  /* ─── 에러 화면 ─── */
-  .error-screen {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    min-height: 100dvh; padding: 40px 20px; text-align: center;
-  }
-  .error-screen .icon { font-size: 60px; margin-bottom: 20px; }
-  .error-screen h2 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
-  .error-screen p { font-size: 14px; color: #666; line-height: 1.6; }
+/* ── Loading / Error / Empty ─────────────────────────────── */
+.loading { text-align:center; padding:40px; color:#2a4a2a; }
+.empty { text-align:center; padding:40px 20px; color:#2a4a2a; font-size:14px; line-height:1.8; }
+.error-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100dvh; padding:40px 20px; text-align:center; }
+.error-screen h2 { font-size:20px; font-weight:700; margin-bottom:10px; }
+.error-screen p { font-size:14px; color:#555; line-height:1.6; }
 
-  /* ─── 사진 버튼 ─── */
-  .mv-photo-btn {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: #0f2a1a; border: 1px solid #4ade8044;
-    border-radius: 8px; padding: 7px 12px;
-    font-size: 12px; font-weight: 600; color: #4ade80;
-    cursor: pointer; font-family: inherit;
-    transition: background 0.15s;
-  }
-  .mv-photo-btn:hover { background: #1a3a2a; }
-
-  /* ─── 사진 뷰어 모달 ─── */
-  .mv-viewer-bg {
-    display: none; position: fixed; inset: 0;
-    background: #000000f2; z-index: 500;
-    flex-direction: column; align-items: center; justify-content: center;
-    padding: 20px 16px calc(env(safe-area-inset-bottom) + 20px);
-  }
-  .mv-viewer-bg.open { display: flex; }
-  .mv-viewer-title {
-    font-size: 14px; font-weight: 700; color: #fff;
-    margin-bottom: 14px; text-align: center; flex-shrink: 0;
-  }
-  .mv-viewer-imgs {
-    display: flex; gap: 10px; width: 100%; max-width: 440px;
-    flex: 1; min-height: 0;
-  }
-  .mv-photo-slot {
-    flex: 1; min-width: 0; background: #111; border-radius: 12px;
-    overflow: hidden; display: flex; flex-direction: column;
-  }
-  .mv-photo-slot img {
-    width: 100%; height: auto; display: block;
-    max-height: calc(100dvh - 140px); object-fit: contain;
-    flex: 1;
-  }
-  .mv-photo-label {
-    font-size: 11px; color: #555; padding: 5px 6px;
-    text-align: center; flex-shrink: 0;
-  }
-  .mv-viewer-close {
-    flex-shrink: 0; margin-top: 14px; width: 100%; max-width: 440px;
-    background: #1a1a1a; border: 1px solid #333; border-radius: 10px;
-    padding: 13px; font-size: 14px; font-weight: 600; color: #aaa;
-    cursor: pointer; font-family: inherit;
-  }
-  .modal-close-x { position:absolute; top:14px; right:16px; background:none; border:none; color:#4ade80; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; line-height:1; transition:opacity 0.15s; }
-  .modal-close-x:active { opacity:0.5; }
+/* ── Toast ───────────────────────────────────────────────── */
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#111f11; color:#4ade80; border:1px solid #4ade8044; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; }
 </style>
 </head>
 <body>
 
-<!-- 메인 콘텐츠 (토큰 확인 후 표시) -->
-<div id="mainContent" style="display:none">
-  <!-- 헤더 -->
-  <div class="header">
-    <div>
-      <div class="gym-badge" id="gymBadge">베라짐 미사점</div>
-      <div class="member-greet">안녕하세요, <span id="memberNameHdr"></span>님</div>
-      <div class="trainer-info" id="trainerInfo"></div>
-    </div>
-    <button id="btnExLib" onclick="goExLib()" style="background:#0f2a1a;border:1px solid #4ade8044;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;color:#4ade80;cursor:pointer;flex-shrink:0;font-family:inherit;line-height:1.3;text-align:center">운동<br>DB</button>
-  </div>
-
-  <!-- 통계 -->
-  <div class="stats-row">
-    <div class="stat-box">
-      <div class="stat-num" id="statTotal">-</div>
-      <div class="stat-label">총 수업</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-num" id="statMonth">-</div>
-      <div class="stat-label">이번 달</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-num" id="statExTypes">-</div>
-      <div class="stat-label">운동 종류</div>
-    </div>
-  </div>
-
-  <!-- 수업 목록 -->
-  <div class="sec-title">수업 기록</div>
-  <div id="sessList" class="sess-list">
-    <div class="loading">불러오는 중...</div>
-  </div>
-</div>
-
-<!-- 에러 화면 (토큰 오류) -->
+<!-- 에러 화면 -->
 <div id="errorScreen" style="display:none" class="error-screen">
+  <div style="font-size:52px;margin-bottom:20px">🔒</div>
   <h2>접근할 수 없어요</h2>
   <p>유효하지 않은 링크예요.<br>트레이너에게 링크를 다시 받아보세요.</p>
 </div>
 
 <!-- 로딩 화면 -->
 <div id="loadingScreen" class="error-screen">
-  <h2 style="color:#555">로딩 중...</h2>
+  <h2 style="color:#3a5840">로딩 중...</h2>
 </div>
 
-<!-- 사진 뷰어 모달 -->
+<!-- 메인 콘텐츠 -->
+<div id="mainContent" style="display:none">
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="header">
+    <div>
+      <div class="header-title">VERA<span>GYM</span></div>
+      <div class="header-sub" id="headerSub">베라짐 회원</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:15px;font-weight:800" id="memberNameHdr">회원</div>
+      <div style="font-size:11px;color:#3a5840;margin-top:2px" id="trainerInfoHdr"></div>
+    </div>
+  </div>
+
+  <!-- ── Tab Navigation ─────────────────────────────────── -->
+  <div class="tabs">
+    <button class="tab-btn active" id="nav-logs"     onclick="switchTab('logs',this)">수업일지</button>
+    <button class="tab-btn"        id="nav-schedule" onclick="switchTab('schedule',this)">일정</button>
+    <button class="tab-btn"        onclick="goExLib()">운동DB</button>
+    <button class="tab-btn"        id="nav-anatomy"  onclick="switchTab('anatomy',this)">해부도</button>
+  </div>
+
+  <!-- ── Tab: 수업일지 ───────────────────────────────────── -->
+  <div id="tab-logs" class="tab-content active">
+    <!-- 통계 -->
+    <div class="stats-row" style="padding:0 0 16px">
+      <div class="stat-box">
+        <div class="stat-num" id="statTotal">-</div>
+        <div class="stat-label">총 수업</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statMonth">-</div>
+        <div class="stat-label">이번 달</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statExTypes">-</div>
+        <div class="stat-label">운동 종류</div>
+      </div>
+    </div>
+    <div class="sec-header">
+      <div><span class="sec-title">수업 기록</span><span class="sec-count" id="logCount"></span></div>
+    </div>
+    <div id="sessList"><div class="loading">불러오는 중...</div></div>
+  </div>
+
+  <!-- ── Tab: 일정 ───────────────────────────────────────── -->
+  <div id="tab-schedule" class="tab-content">
+    <div id="schedList"><div class="loading">불러오는 중...</div></div>
+  </div>
+
+  <!-- ── Tab: 해부도 ─────────────────────────────────────── -->
+  <div id="tab-anatomy" class="tab-content">
+    <div class="sec-header">
+      <span class="sec-title">근육 해부도</span>
+    </div>
+
+    <!-- 앞/뒤 토글 -->
+    <div class="anatomy-toggle">
+      <button class="active" id="btnFront" onclick="showAnatomy('front')">앞면</button>
+      <button id="btnBack" onclick="showAnatomy('back')">뒷면</button>
+    </div>
+
+    <!-- 앞면 SVG -->
+    <div id="anatomyFront" class="anatomy-view">
+      <div class="body-svg-wrap">
+        <svg viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+          <!-- 배경 -->
+          <rect width="200" height="420" fill="#080e08"/>
+          <!-- 머리 -->
+          <ellipse cx="100" cy="38" rx="28" ry="32" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 목 -->
+          <rect x="89" y="66" width="22" height="18" rx="4" fill="#1a3a1a" stroke="#1a3a1a44" stroke-width="1"/>
+          <!-- 몸통 -->
+          <path d="M55 84 L145 84 L150 200 L50 200 Z" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 가슴 분할선 -->
+          <line x1="100" y1="84" x2="100" y2="140" stroke="#4ade8033" stroke-width="1"/>
+          <!-- 복근 라인 -->
+          <line x1="100" y1="140" x2="100" y2="200" stroke="#4ade8033" stroke-width="1"/>
+          <line x1="78" y1="148" x2="122" y2="148" stroke="#4ade8033" stroke-width="1"/>
+          <line x1="76" y1="164" x2="124" y2="164" stroke="#4ade8033" stroke-width="1"/>
+          <line x1="74" y1="180" x2="126" y2="180" stroke="#4ade8033" stroke-width="1"/>
+          <!-- 왼팔 -->
+          <path d="M55 84 L30 92 L22 160 L38 162 L48 100" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 왼 전완 -->
+          <path d="M22 160 L18 230 L36 232 L38 162" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
+          <!-- 오른팔 -->
+          <path d="M145 84 L170 92 L178 160 L162 162 L152 100" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 오른 전완 -->
+          <path d="M178 160 L182 230 L164 232 L162 162" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
+          <!-- 왼 손 -->
+          <ellipse cx="27" cy="238" rx="10" ry="12" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
+          <!-- 오른 손 -->
+          <ellipse cx="173" cy="238" rx="10" ry="12" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
+          <!-- 허리/골반 -->
+          <path d="M50 200 L150 200 L155 240 L45 240 Z" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 왼 허벅지 -->
+          <path d="M50 240 L45 240 L40 340 L80 342 L85 240" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 오른 허벅지 -->
+          <path d="M115 240 L155 240 L160 340 L120 342 L115 240" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 왼 종아리 -->
+          <path d="M40 340 L36 400 L78 402 L80 342" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
+          <!-- 오른 종아리 -->
+          <path d="M120 342 L122 400 L164 402 L160 340" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
+          <!-- 왼발 -->
+          <ellipse cx="57" cy="406" rx="20" ry="8" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
+          <!-- 오른발 -->
+          <ellipse cx="143" cy="406" rx="20" ry="8" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
+
+          <!-- 근육 라벨 -->
+          <text x="100" y="106" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">대흉근</text>
+          <text x="82" y="162" text-anchor="middle" font-size="8" fill="#86efac">복직근</text>
+          <text x="30" y="128" text-anchor="middle" font-size="8" fill="#86efac">삼각근</text>
+          <text x="170" y="128" text-anchor="middle" font-size="8" fill="#86efac">삼각근</text>
+          <text x="26" y="192" text-anchor="middle" font-size="8" fill="#4ade8088">이두박근</text>
+          <text x="174" y="192" text-anchor="middle" font-size="8" fill="#4ade8088">이두박근</text>
+          <text x="60" y="292" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">대퇴사두근</text>
+          <text x="140" y="292" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">대퇴사두근</text>
+          <text x="58" y="372" text-anchor="middle" font-size="8" fill="#86efac">전경골근</text>
+          <text x="142" y="372" text-anchor="middle" font-size="8" fill="#86efac">전경골근</text>
+          <text x="100" y="222" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">복사근</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 뒷면 SVG -->
+    <div id="anatomyBack" class="anatomy-view" style="display:none">
+      <div class="body-svg-wrap">
+        <svg viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+          <rect width="200" height="420" fill="#080e08"/>
+          <!-- 머리 -->
+          <ellipse cx="100" cy="38" rx="28" ry="32" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 목 -->
+          <rect x="89" y="66" width="22" height="18" rx="4" fill="#1a3a1a" stroke="#1a3a1a44" stroke-width="1"/>
+          <!-- 몸통 -->
+          <path d="M55 84 L145 84 L150 200 L50 200 Z" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 등 분할선 -->
+          <line x1="100" y1="84" x2="100" y2="200" stroke="#4ade8033" stroke-width="1"/>
+          <!-- 승모근 -->
+          <path d="M72 84 Q100 72 128 84" fill="none" stroke="#86efac" stroke-width="2"/>
+          <!-- 광배근 라인 -->
+          <path d="M58 120 Q100 130 142 120" fill="none" stroke="#86efac66" stroke-width="1.5"/>
+          <!-- 왼팔 -->
+          <path d="M55 84 L30 92 L22 160 L38 162 L48 100" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 왼 전완 -->
+          <path d="M22 160 L18 230 L36 232 L38 162" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
+          <!-- 오른팔 -->
+          <path d="M145 84 L170 92 L178 160 L162 162 L152 100" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 오른 전완 -->
+          <path d="M178 160 L182 230 L164 232 L162 162" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
+          <!-- 손 -->
+          <ellipse cx="27" cy="238" rx="10" ry="12" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
+          <ellipse cx="173" cy="238" rx="10" ry="12" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
+          <!-- 허리/둔근 -->
+          <path d="M50 200 L150 200 L155 245 L45 245 Z" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 왼 햄스트링 -->
+          <path d="M50 245 L45 245 L40 340 L80 342 L85 245" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 오른 햄스트링 -->
+          <path d="M115 245 L155 245 L160 340 L120 342 L115 245" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
+          <!-- 왼 종아리 -->
+          <path d="M40 340 L36 400 L78 402 L80 342" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
+          <!-- 오른 종아리 -->
+          <path d="M120 342 L122 400 L164 402 L160 340" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
+          <!-- 발 -->
+          <ellipse cx="57" cy="406" rx="20" ry="8" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
+          <ellipse cx="143" cy="406" rx="20" ry="8" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
+
+          <!-- 근육 라벨 -->
+          <text x="100" y="100" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">승모근</text>
+          <text x="76" y="150" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">광배근</text>
+          <text x="124" y="150" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">광배근</text>
+          <text x="30" y="128" text-anchor="middle" font-size="8" fill="#86efac">삼각근</text>
+          <text x="170" y="128" text-anchor="middle" font-size="8" fill="#86efac">삼각근</text>
+          <text x="26" y="200" text-anchor="middle" font-size="8" fill="#4ade8088">삼두박근</text>
+          <text x="174" y="200" text-anchor="middle" font-size="8" fill="#4ade8088">삼두박근</text>
+          <text x="100" y="228" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">대둔근</text>
+          <text x="60" y="296" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">햄스트링</text>
+          <text x="140" y="296" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">햄스트링</text>
+          <text x="59" y="375" text-anchor="middle" font-size="8" fill="#86efac">비복근</text>
+          <text x="141" y="375" text-anchor="middle" font-size="8" fill="#86efac">비복근</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 주요 근육 그리드 -->
+    <div id="muscleGridFront" class="muscle-grid">
+      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>대흉근</div>
+      <div class="muscle-chip"><span class="dot" style="background:#86efac"></span>삼각근</div>
+      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>복직근</div>
+      <div class="muscle-chip"><span class="dot" style="background:#86efac"></span>복사근</div>
+      <div class="muscle-chip"><span class="dot" style="background:#4ade8088"></span>이두박근</div>
+      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>대퇴사두근</div>
+    </div>
+    <div id="muscleGridBack" class="muscle-grid" style="display:none">
+      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>승모근</div>
+      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>광배근</div>
+      <div class="muscle-chip"><span class="dot" style="background:#86efac"></span>삼각근</div>
+      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>대둔근</div>
+      <div class="muscle-chip"><span class="dot" style="background:#4ade8088"></span>삼두박근</div>
+      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>햄스트링</div>
+    </div>
+  </div>
+
+</div><!-- /mainContent -->
+
+<!-- 사진 뷰어 -->
 <div id="memberPhotoViewer" class="mv-viewer-bg" style="position:relative" onclick="if(event.target===this)closeMemberPhotoViewer()">
   <button class="modal-close-x" onclick="closeMemberPhotoViewer()">✕</button>
   <div class="mv-viewer-title" id="memberViewerTitle">자세 사진</div>
   <div class="mv-viewer-imgs" id="memberViewerImgs"></div>
 </div>
 
+<div id="toast" class="toast"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
 init_db();
-// ─── PWA 뒤로가기 버튼 앱 종료 방지 ───
+
+// ── PWA 뒤로가기 방지 ────────────────────────────────────────
 (function() {
   history.pushState(null, '', location.href);
   window.addEventListener('popstate', function() {
@@ -252,52 +360,72 @@ init_db();
   });
 })();
 
-// ─── 토큰 캐시 ───
 let _memberToken = null;
-const _logDetailCache = {};
+let _logsData    = [];
 
-// ─── 초기화 ───
+// ── 탭 전환 ──────────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ── 운동DB 이동 ──────────────────────────────────────────────
+function goExLib() {
+  const token = _memberToken || localStorage.getItem('vg_member_token');
+  if (token) location.href = `exercise-library.html?token=${token}`;
+}
+
+// ── 해부도 토글 ──────────────────────────────────────────────
+function showAnatomy(view) {
+  const isFront = view === 'front';
+  document.getElementById('anatomyFront').style.display    = isFront ? '' : 'none';
+  document.getElementById('anatomyBack').style.display     = isFront ? 'none' : '';
+  document.getElementById('muscleGridFront').style.display = isFront ? '' : 'none';
+  document.getElementById('muscleGridBack').style.display  = isFront ? 'none' : '';
+  document.getElementById('btnFront').classList.toggle('active', isFront);
+  document.getElementById('btnBack').classList.toggle('active', !isFront);
+}
+
+// ── 초기화 ───────────────────────────────────────────────────
 async function init() {
-  // URL 토큰 우선, 없으면 저장된 토큰 사용 (PWA 홈화면 재방문 대응)
   const _params = new URLSearchParams(location.search);
-  let token = _params.get('token') || _params.get('t'); // ?token= 또는 기존 ?t= 모두 허용
+  let token = _params.get('token') || _params.get('t');
   if (token) {
-    localStorage.setItem('vg_member_token', token); // 기기에 저장
+    localStorage.setItem('vg_member_token', token);
   } else {
-    token = localStorage.getItem('vg_member_token'); // 저장된 토큰 불러오기
+    token = localStorage.getItem('vg_member_token');
   }
   if (!token) { showError(); return; }
   _memberToken = token;
 
-  // 회원 정보 조회
   const { data, error } = await db.rpc('member_get_by_token', { p_token: token });
   if (error || !data || !data.length) { showError(); return; }
 
   const info = data[0];
-
-  // 화면 세팅
-  document.getElementById('gymBadge').textContent      = `베라짐 ${info.gym_location}`;
-  document.getElementById('memberNameHdr').textContent = info.member_name;
-  document.getElementById('trainerInfo').textContent   = info.trainer_name ? `담당 트레이너 · ${info.trainer_name}` : '';
+  document.getElementById('headerSub').textContent      = `베라짐 ${info.gym_location}`;
+  document.getElementById('memberNameHdr').textContent  = `${info.member_name}님`;
+  document.getElementById('trainerInfoHdr').textContent = info.trainer_name ? `담당 트레이너 · ${info.trainer_name}` : '';
 
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('mainContent').style.display   = 'block';
 
-  // 수업 기록 로드
-  await loadSessions(token);
+  // 수업일지 + 일정 병렬 로드
+  loadLogs(token);
+  loadSchedules(token);
 }
 
-// ─── 수업 기록 로드 ───
-async function loadSessions(token) {
+// ── 수업 기록 로드 ───────────────────────────────────────────
+async function loadLogs(token) {
   const { data: logs, error } = await db.rpc('member_get_logs', { p_token: token });
 
   if (error || !logs) {
     document.getElementById('sessList').innerHTML =
-      `<div class="empty"><div class="empty-icon">⚠️</div><div>수업 기록을 불러오지 못했어요</div></div>`;
+      `<div class="empty">⚠️<br>수업 기록을 불러오지 못했어요</div>`;
     return;
   }
 
-  // 통계 계산
   const thisMonth = new Date().toISOString().slice(0, 7);
   const monthLogs = logs.filter(s => s.session_date?.startsWith(thisMonth)).length;
   const allExNames = new Set();
@@ -306,39 +434,32 @@ async function loadSessions(token) {
   document.getElementById('statTotal').textContent   = logs.length;
   document.getElementById('statMonth').textContent   = monthLogs;
   document.getElementById('statExTypes').textContent = allExNames.size;
+  document.getElementById('logCount').textContent    = logs.length ? `${logs.length}건` : '';
 
-  // 목록 렌더
   const wrap = document.getElementById('sessList');
   if (!logs.length) {
-    wrap.innerHTML = `<div class="empty">아직 수업 기록이 없어요.</div>`;
+    wrap.innerHTML = `<div class="empty">아직 수업 기록이 없어요</div>`;
     return;
   }
 
-  // log_id → index 매핑 저장 (detail 로딩에 사용)
-  window._logsData = logs;
+  _logsData = logs;
 
   wrap.innerHTML = logs.map((s, i) => {
     const exCount   = s.ex_count || (s.ex_details?.length) || 0;
     const dateStr   = fmtDate(s.session_date);
     const exPreview = (s.ex_details || []).slice(0, 3).map(e => e.name).filter(Boolean).join(', ');
-
     return `
       <div class="sess-card">
         <div class="sess-head" onclick="toggleSess(${i}, '${s.log_id}')">
-          <div class="sess-left">
+          <div>
+            <div class="sess-num-badge">#${logs.length - i}</div>
             <div class="sess-date">${dateStr}</div>
-            <div class="sess-ex-cnt">운동 ${exCount}종목${exPreview ? ' · ' + exPreview : ''}</div>
+            <div class="sess-sub">운동 ${exCount}종목${exPreview ? ' · ' + exPreview : ''}</div>
           </div>
           <div class="chevron" id="chev${i}">›</div>
         </div>
         <div class="sess-body" id="sessBody${i}">
-          ${s.notes ? `
-            <div style="padding:14px 18px 0">
-              <div class="sess-notes">
-                <div class="sess-notes-label">트레이너 총평</div>
-                ${s.notes}
-              </div>
-            </div>` : ''}
+          ${s.notes ? `<div style="padding:14px 18px 0"><div class="sess-notes"><div class="sess-notes-label">트레이너 총평</div>${s.notes}</div></div>` : ''}
           <div id="sessDetail${i}"></div>
         </div>
       </div>
@@ -346,22 +467,19 @@ async function loadSessions(token) {
   }).join('');
 }
 
-// ─── 아코디언 (지연 로딩) ───
+// ── 아코디언 토글 ────────────────────────────────────────────
 async function toggleSess(i, logId) {
   const body   = document.getElementById(`sessBody${i}`);
   const chev   = document.getElementById(`chev${i}`);
   const isOpen = body.classList.toggle('open');
   chev.classList.toggle('open', isOpen);
-
   if (!isOpen) return;
 
   const detailEl = document.getElementById(`sessDetail${i}`);
-  if (detailEl.dataset.loaded) return; // 이미 로딩됨
+  if (detailEl.dataset.loaded) return;
 
-  // 로딩 표시
   detailEl.innerHTML = '<div class="loading" style="padding:16px">불러오는 중...</div>';
 
-  // 운동 상세 + 사진 경로 병렬 조회
   const [{ data: exs, error }, { data: photos }] = await Promise.all([
     db.rpc('member_get_log_detail', { p_token: _memberToken, p_log_id: logId }),
     db.rpc('member_get_log_photos',  { p_token: _memberToken, p_log_id: logId }),
@@ -370,11 +488,10 @@ async function toggleSess(i, logId) {
   detailEl.dataset.loaded = '1';
 
   if (error || !exs || !exs.length) {
-    detailEl.innerHTML = '<div style="padding:10px 18px 14px;color:#444;font-size:13px">운동 기록이 없어요</div>';
+    detailEl.innerHTML = '<div style="padding:10px 18px 14px;color:#2a4a2a;font-size:13px">운동 기록이 없어요</div>';
     return;
   }
 
-  // order_index → 사진 경로 맵
   const photoMap = {};
   (photos || []).forEach(p => { photoMap[p.order_idx ?? 0] = p; });
 
@@ -397,25 +514,18 @@ async function toggleSess(i, logId) {
             </tr>
           `).join('')}
         </table>
-      ` : '<div style="font-size:12px;color:#444;padding:4px 0">세트 정보 없음</div>';
+      ` : '<div style="font-size:12px;color:#2a4a2a;padding:4px 0">세트 정보 없음</div>';
 
-      // 사진이 하나라도 있으면 버튼 표시
       const photoBtn = (photo?.start_path || photo?.end_path) ? `
-        <div style="margin-top:10px">
-          <button class="mv-photo-btn"
-            onclick="viewMemberPhotos(${JSON.stringify(photo.start_path||null)}, ${JSON.stringify(photo.end_path||null)}, ${JSON.stringify(name)})">
-            📷 자세 사진 보기
-          </button>
-        </div>` : '';
+        <button class="mv-photo-btn"
+          onclick="viewMemberPhotos(${JSON.stringify(photo.start_path||null)}, ${JSON.stringify(photo.end_path||null)}, ${JSON.stringify(name)})">
+          📷 자세 사진 보기
+        </button>` : '';
 
       return `
         <div class="ex-item">
-          <div class="ex-item-head">
-            <div>
-              <div class="ex-item-name">${name}</div>
-              ${category ? `<div class="ex-item-cat">${category}</div>` : ''}
-            </div>
-          </div>
+          <div class="ex-item-name">${name}</div>
+          ${category ? `<div class="ex-item-cat">${category}</div>` : ''}
           ${setsHtml}
           ${photoBtn}
         </div>
@@ -423,7 +533,65 @@ async function toggleSess(i, logId) {
     }).join('');
 }
 
-// ─── 사진 뷰어 ───
+// ── 일정 로드 ────────────────────────────────────────────────
+async function loadSchedules(token) {
+  const { data: scheds, error } = await db.rpc('member_get_schedules', { p_token: token });
+  const wrap = document.getElementById('schedList');
+
+  if (error || !scheds) {
+    wrap.innerHTML = `<div class="empty">⚠️<br>일정을 불러오지 못했어요</div>`;
+    return;
+  }
+  if (!scheds.length) {
+    wrap.innerHTML = `<div class="empty">등록된 PT 일정이 없어요</div>`;
+    return;
+  }
+
+  const today     = new Date(); today.setHours(0,0,0,0);
+  const upcoming  = scheds.filter(s => new Date(s.sched_date) >= today);
+  const past      = scheds.filter(s => new Date(s.sched_date) <  today);
+  const WDAYS     = ['일','월','화','수','목','금','토'];
+
+  function renderCard(s) {
+    const d      = new Date(s.sched_date + 'T00:00:00');
+    const mon    = (d.getMonth() + 1) + '월';
+    const day    = d.getDate();
+    const wday   = WDAYS[d.getDay()];
+    const isPast = d < today;
+    const sTime  = (s.start_time || '').slice(0, 5);
+    const eTime  = (s.end_time   || '').slice(0, 5);
+    const typeCls = s.type === 'SPT' ? 'sched-type-SPT' : 'sched-type-PT';
+    return `
+      <div class="sched-card">
+        <div class="sched-date-block">
+          <div class="sched-month">${mon}</div>
+          <div class="sched-day">${day}</div>
+          <div class="sched-weekday">${wday}요일</div>
+        </div>
+        <div class="sched-info">
+          <div><span class="sched-type-badge ${typeCls}">${s.type}</span></div>
+          <div class="sched-time">${sTime}${eTime ? ' – ' + eTime : ''}</div>
+          ${s.trainer_name ? `<div class="sched-trainer">트레이너 · ${s.trainer_name}</div>` : ''}
+          ${s.title ? `<div style="font-size:12px;color:#3a5840;margin-top:3px">${s.title}</div>` : ''}
+        </div>
+        <div class="sched-status ${isPast ? 'done' : 'upcoming'}">${isPast ? '완료' : '예정'}</div>
+      </div>
+    `;
+  }
+
+  let html = '';
+  if (upcoming.length) {
+    html += `<div class="divider-label">예정된 일정</div>`;
+    html += upcoming.reverse().map(renderCard).join(''); // 가장 가까운 날짜 먼저
+  }
+  if (past.length) {
+    html += `<div class="divider-label" style="margin-top:${upcoming.length ? 20 : 0}px">지난 일정</div>`;
+    html += past.map(renderCard).join('');
+  }
+  wrap.innerHTML = html;
+}
+
+// ── 사진 뷰어 ────────────────────────────────────────────────
 async function viewMemberPhotos(startPath, endPath, exName) {
   const viewer = document.getElementById('memberPhotoViewer');
   const imgs   = document.getElementById('memberViewerImgs');
@@ -461,24 +629,27 @@ function closeMemberPhotoViewer() {
   document.getElementById('memberPhotoViewer').classList.remove('open');
 }
 
-// ─── 에러 화면 ───
+// ── 에러 화면 ────────────────────────────────────────────────
 function showError() {
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('errorScreen').style.display   = 'flex';
 }
-function goExLib() {
-  const token = localStorage.getItem('vg_member_token') || _memberToken;
-  if (token) location.href = `exercise-library.html?token=${token}`;
+
+// ── 날짜 포맷 ────────────────────────────────────────────────
+function fmtDate(dateStr) {
+  if (!dateStr) return '-';
+  const d = new Date(dateStr + 'T00:00:00');
+  const DAYS = ['일','월','화','수','목','금','토'];
+  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${DAYS[d.getDay()]})`;
 }
 
-// ─── 시작 ───
+// ── 시작 ─────────────────────────────────────────────────────
 init();
 </script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/veragym-app/service-worker.js')
-      .catch(() => {});
+    navigator.serviceWorker.register('/veragym-app/service-worker.js').catch(() => {});
   });
 }
 </script>
