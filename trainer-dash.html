@@ -1084,25 +1084,34 @@ function copyForecastText() {
   const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
   const list = _revForecasts.filter(f => f.forecast_month === month);
   const [y, m] = month.split('-');
-  const now = new Date();
-  const weekNum = Math.ceil(now.getDate() / 7);
+  const weekNum = Math.ceil(new Date().getDate() / 7);
+
+  const registered   = list.filter(f =>  f.is_registered);
+  const unregistered = list.filter(f => !f.is_registered);
 
   const lines = [];
   lines.push(`${me?.name || ''} ${Number(m)}월 ${weekNum}주차 매출계획`);
-  lines.push('─────────────────────');
-  if (!list.length) {
-    lines.push('등록된 예상매출이 없습니다.');
-  } else {
-    list.forEach(f => {
-      const amt = (f.price_per_session || 0) * f.session_count;
-      const status = f.is_registered ? '✅등록' : '⬜미등록';
-      lines.push(`${f.member_name} | ${(f.price_per_session||0).toLocaleString()} × ${f.session_count}회 | ${_fmtWon(amt)} | ${status}`);
-      if (f.memo) lines.push(`  └ ${f.memo}`);
-    });
-    lines.push('─────────────────────');
-    const total = list.reduce((s, f) => s + (f.price_per_session||0) * f.session_count, 0);
-    lines.push(`총 예상매출: ${_fmtWon(total)}`);
-  }
+  lines.push('');
+
+  lines.push('등록매출');
+  registered.forEach(f => {
+    const amt = (f.price_per_session || 0) * f.session_count;
+    lines.push(`${f.member_name} | ${(f.price_per_session||0).toLocaleString()} × ${f.session_count}회 | ${_fmtWon(amt)}`);
+    if (f.memo) lines.push(`-${f.memo}`);
+  });
+  const regTotal = registered.reduce((s, f) => s + (f.price_per_session||0) * f.session_count, 0);
+  lines.push(`현재 총 등록매출: ${_fmtWon(regTotal)}`);
+
+  lines.push('');
+
+  lines.push('예상매출');
+  unregistered.forEach(f => {
+    const amt = (f.price_per_session || 0) * f.session_count;
+    lines.push(`${f.member_name} | ${(f.price_per_session||0).toLocaleString()} × ${f.session_count}회 | ${_fmtWon(amt)}`);
+    if (f.memo) lines.push(`-${f.memo}`);
+  });
+  const unregTotal = unregistered.reduce((s, f) => s + (f.price_per_session||0) * f.session_count, 0);
+  lines.push(`총 예상매출: ${_fmtWon(unregTotal)}`);
 
   const text = lines.join('\n');
   if (navigator.clipboard && navigator.clipboard.writeText) {
