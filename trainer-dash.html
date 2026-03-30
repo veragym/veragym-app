@@ -1088,7 +1088,7 @@ function renderForecasts() {
   el.innerHTML = list.map(f => {
     const amt = f.price_per_session * f.session_count;
     const unreg = !f.is_registered;
-    return `<div class="fc-card${unreg?' unregistered':''}" onclick="toggleForecast('${f.id}')">
+    return `<div class="fc-card${unreg?' unregistered':''}">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:14px;font-weight:600;color:${unreg?'#f87171':'#fff'}">${f.member_name}</span>
         <span style="font-size:11px;padding:3px 8px;border-radius:6px;font-weight:600;${unreg?'background:#7f1d1d44;color:#f87171':'background:#16a34a33;color:#4ade80'}">${unreg?'미등록':'등록'}</span>
@@ -1099,22 +1099,38 @@ function renderForecasts() {
         <span style="color:#60a5fa;font-weight:600">${_fmtWon(amt)}</span>
       </div>
       ${f.memo?`<div style="font-size:11px;color:#666;margin-top:4px">${f.memo}</div>`:''}
+      <div class="log-actions" style="margin-top:10px;padding-top:10px;border-top:1px solid #1e3a5f22">
+        <button class="btn-sm" style="color:#4ade80;border-color:#16a34a44" onclick="setForecastStatus('${f.id}',true)">등록</button>
+        <button class="btn-sm" style="color:#f87171;border-color:#7f1d1d44" onclick="setForecastStatus('${f.id}',false)">미등록</button>
+        <button class="btn-sm btn-danger" onclick="deleteForecast('${f.id}')">삭제</button>
+      </div>
     </div>`;
   }).join('');
 }
 
-async function toggleForecast(id) {
+async function setForecastStatus(id, isRegistered) {
   const f = _revForecasts.find(x=>x.id===id);
   if (!f) return;
-  const newVal = !f.is_registered;
+  if (f.is_registered === isRegistered) return;
   try {
-    const { error } = await db.from('sales_forecasts').update({ is_registered: newVal, updated_at: new Date().toISOString() }).eq('id', id);
+    const { error } = await db.from('sales_forecasts').update({ is_registered: isRegistered, updated_at: new Date().toISOString() }).eq('id', id);
     if (error) throw error;
-    f.is_registered = newVal;
+    f.is_registered = isRegistered;
     renderForecasts();
     updateForecastTotal();
-    showToast(newVal ? '등록 처리됨' : '미등록 처리됨');
+    showToast(isRegistered ? '등록 처리됨' : '미등록 처리됨');
   } catch(e) { showToast('변경 실패: ' + (e.message||'')); }
+}
+
+async function deleteForecast(id) {
+  try {
+    const { error } = await db.from('sales_forecasts').delete().eq('id', id);
+    if (error) throw error;
+    _revForecasts = _revForecasts.filter(x => x.id !== id);
+    renderForecasts();
+    updateForecastTotal();
+    showToast('삭제됐어요');
+  } catch(e) { showToast('삭제 실패: ' + (e.message||'')); }
 }
 
 // ── 예상매출 등록 모달 ──

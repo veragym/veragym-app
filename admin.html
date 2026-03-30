@@ -1291,16 +1291,27 @@ async function loadPaymentRecords(memberName) {
     return;
   }
   wrap.innerHTML = data.map(r => {
-    const amt = r.payment_amount != null ? r.payment_amount.toLocaleString() + '원' : '-';
-    const pps = r.price_per_session ? r.price_per_session.toLocaleString() + '원' : null;
-    const sess = r.total_sessions || '';
+    const pps  = r.price_per_session || 0;
+    const sess = r.total_sessions || 0;
+    const amt  = r.payment_amount != null ? r.payment_amount.toLocaleString() : '-';
+    const net  = r.net_amount != null ? r.net_amount.toLocaleString() : null;
     return `<div class="pt-card">
       <div class="pt-card-header">
-        <div style="font-size:13px;font-weight:700;color:#c9a84c">${amt}</div>
-        <span style="font-size:11px;color:#888">${r.payment_date || '-'}</span>
+        <div>
+          <span class="pt-sessions-label">${sess}회 / </span>
+          <span class="pt-sessions">${amt}</span>
+          <span class="pt-sessions-label">원</span>
+        </div>
+        <span class="pt-badge-active" style="background:#1e3a5f;color:#60a5fa">결제완료</span>
       </div>
+      ${pps ? `<div style="display:flex;gap:8px;font-size:12px;color:#888;margin:6px 0 2px;padding:0 4px">
+        <span>세션단가 <span style="color:#c9a84c">${pps.toLocaleString()}원</span></span>
+        <span>·</span>
+        <span>순매출 <span style="color:#c9a84c;font-weight:700">${net}원</span></span>
+      </div>` : ''}
       <div class="pt-meta">
-        ${pps ? `단가 ${pps} × ${sess}회 · ` : ''}트레이너 ${r.trainer_name || '미지정'}
+        결제일 ${r.payment_date || '-'}<br>
+        트레이너 <span style="color:#c9a84c">${r.trainer_name || '미지정'}</span>
       </div>
     </div>`;
   }).join('');
