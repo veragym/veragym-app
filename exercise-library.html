@@ -308,6 +308,7 @@ let filterTool  = '';
 let filterPart  = '';
 let showCount   = 50;
 let searchTm    = null;
+let _memberMode = false; // 회원 토큰으로 접근 시 true (read-only)
 
 const TOOLS = ['전체','핀 머신','플레이트 머신','스미스머신','바벨','덤벨','케이블','케틀벨','소도구','밴드','체중','머신'];
 const PARTS = ['전체','가슴','등','어깨','팔','코어','하체','전신'];
@@ -318,6 +319,26 @@ async function init() {
   if (_initRunning) return;          // 중복 호출 방지
   _initRunning = true;
   try {
+    // 회원 토큰으로 접근했는지 확인
+    const _p = new URLSearchParams(location.search);
+    const memberToken = _p.get('token') || _p.get('t') || localStorage.getItem('vg_member_token');
+    if (memberToken) {
+      _memberMode = true;
+      // 회원 모드 UI 전환
+      document.getElementById('topTabs').style.display = 'none';
+      document.getElementById('tabMine').style.display = 'none';
+      document.querySelector('.header').innerHTML = `
+        <div>
+          <div class="header-title">VERA<span>GYM</span></div>
+          <div class="header-sub">운동 라이브러리</div>
+        </div>
+        <button class="btn-logout" onclick="history.back()">← 돌아가기</button>`;
+      await loadAllExercises();
+      buildFilters();
+      renderList();
+      return;
+    }
+    // 트레이너 모드
     trainer = await requireTrainer();
     if (!trainer) return;
     const el = document.getElementById('trainerInfo');
@@ -479,13 +500,14 @@ function renderList() {
             </div>
           </div>
           <div class="ex-btns">
+            ${_memberMode ? '' : `
             ${curView === 'mine' ? `
             <button class="btn-fav ${isFav?'active':''}"
                     onclick="event.stopPropagation();toggleFavorite('${ex.id}',${isFav})">${isFav?'★':'☆'}</button>` : ''}
             <button class="btn-add ${isMine?'added':''}"
                     onclick="event.stopPropagation();toggleUse('${ex.id}',${isMine})">
               ${isMine ? '추가됨 / 해제' : '＋ 추가'}
-            </button>
+            </button>`}
           </div>
         </div>
       </div>`;
