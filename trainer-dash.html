@@ -2165,8 +2165,8 @@ async function saveSchedule(){
   // PT 유형 + 회원 선택 시 active pt_product 자동 연결
   let ptProductId=null;
   if(selType==='PT'&&selMember){
-    const{data:prod}=await db.from('pt_products').select('id').eq('member_id',selMember).eq('status','active').maybeSingle();
-    ptProductId=prod?.id||null;
+    const{data:prods}=await db.from('pt_products').select('id').eq('member_id',selMember).eq('status','active').gt('remaining_sessions',0).order('contract_date',{ascending:true}).limit(1);
+    ptProductId=prods?.[0]?.id||null;
   }
   // notes: SPT는 schedMemberText(회원/내용 입력칸)에서 읽음, 나머지는 schedNotes에서 읽음
   const notesVal = selType==='SPT'
