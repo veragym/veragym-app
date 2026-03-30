@@ -162,6 +162,27 @@ body {
 }
 .notes-area textarea:focus { border-color: #3b82f666; color: #fff; }
 
+/* ─── PT 노트 사진 ─── */
+.note-photo-area { padding: 0 16px 12px; }
+.note-photo-label { font-size: 12px; color: #3a5878; font-weight: 600; margin-bottom: 8px; }
+.note-photo-upload {
+  width: 100%; background: #141f35; border: 1.5px dashed #1e3a5f66;
+  border-radius: 12px; padding: 18px 14px; text-align: center;
+  cursor: pointer; transition: border-color 0.2s; position: relative;
+}
+.note-photo-upload:hover { border-color: #3b82f655; }
+.note-photo-upload input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.note-photo-upload-text { font-size: 13px; color: #3a5878; }
+.note-photo-upload-text span { color: #3b82f6; font-weight: 700; }
+.note-photo-preview { position: relative; }
+.note-photo-preview img { width: 100%; border-radius: 10px; display: block; max-height: 300px; object-fit: contain; background: #141f35; }
+.note-photo-remove {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(0,0,0,0.6); border: none; color: #fff;
+  border-radius: 50%; width: 28px; height: 28px; font-size: 14px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
 /* ─── 하단 버튼 ─── */
 .add-bar {
   position: fixed; bottom: 0; left: 0; right: 0;
@@ -368,6 +389,19 @@ body {
   <textarea id="notesInput" placeholder="오늘 수업 내용, 특이사항 등..."></textarea>
 </div>
 
+<!-- PT 노트 사진 -->
+<div class="note-photo-area">
+  <div class="note-photo-label">PT 노트 사진</div>
+  <div id="notePhotoUpload" class="note-photo-upload">
+    <input type="file" id="notePhotoInput" accept="image/*" capture="environment" onchange="onNotePhotoSelected(this)">
+    <div class="note-photo-upload-text">📷 <span>사진 촬영 또는 선택</span><br><small style="color:#2a4060;margin-top:4px;display:block">수기 PT 노트를 찍어서 첨부하세요</small></div>
+  </div>
+  <div id="notePhotoPreview" class="note-photo-preview" style="display:none">
+    <img id="notePhotoImg" src="" alt="PT 노트">
+    <button class="note-photo-remove" onclick="removeNotePhoto()">✕</button>
+  </div>
+</div>
+
 <!-- 하단 버튼 -->
 <div class="add-bar">
   <button class="btn-add-ex" onclick="openSearch()">＋ 운동 추가</button>
@@ -457,6 +491,9 @@ let logId           = null;
 let memberId        = null;
 let exercises       = [];   // [{rowId,refId,name,part,tool,sets,comment,photos:{start,end}}]
 let myLibrary       = [];
+let _notePhotoFile  = null;   // 새로 선택한 사진 File 객체
+let _notePhotoExistingPath = null; // DB에 이미 저장된 경로
+let _notePhotoRemoved = false;    // 기존 사진 삭제 여부
 let freqMap         = {};
 let filterPart      = '';
 let searchTm        = null;
@@ -501,6 +538,12 @@ async function loadExistingLog() {
   document.getElementById('hdrMeta').textContent   = '수업 일지 편집';
   document.getElementById('metaDate').value         = log.session_date || today();
   document.getElementById('notesInput').value       = log.notes || '';
+  // 기존 PT 노트 사진 표시
+  if (log.note_photo_path) {
+    _notePhotoExistingPath = log.note_photo_path;
+    const { data } = await db.storage.from('session-photos').createSignedUrl(log.note_photo_path, 3600);
+    if (data?.signedUrl) showNotePhotoPreview(data.signedUrl);
+  }
 
   const { data: rows } = await db
     .from('workout_log_exercises')
@@ -730,8 +773,23 @@ async function saveSession() {
   btn.disabled = true; btn.textContent = '저장 중...';
 
   try {
+    // ── PT 노트 사진 처리 ──────────────────────────────────
+    let notePhotoPath = _notePhotoExistingPath;
+    if (_notePhotoRemoved && _notePhotoExistingPath) {
+      await db.storage.from('session-photos').remove([_notePhotoExistingPath]);
+      notePhotoPath = null;
+    }
+    if (_notePhotoFile) {
+      const ext  = _notePhotoFile.name.split('.').pop() || 'jpg';
+      const tmpId = logId || crypto.randomUUID();
+      const path = `${trainer.id}/pt-notes/${tmpId}.${ext}`;
+      const { error: upErr } = await db.storage.from('session-photos').upload(path, _notePhotoFile, { upsert: true });
+      if (!upErr) notePhotoPath = path;
+    }
+    // ───────────────────────────────────────────────────────
+
     if (logId) {
-      const updatePayload = { session_date: date, notes };
+      const updatePayload = { session_date: date, notes, note_photo_path: notePhotoPath };
       if (scheduleId) updatePayload.schedule_id = scheduleId;
       await db.from('workout_logs')
         .update(updatePayload)
@@ -740,10 +798,17 @@ async function saveSession() {
     } else {
       const { data: newLog, error: le } = await db
         .from('workout_logs')
-        .insert({ trainer_id: trainer.id, member_id: memberId, session_date: date, notes, ...(scheduleId ? { schedule_id: scheduleId } : {}) })
+        .insert({ trainer_id: trainer.id, member_id: memberId, session_date: date, notes, note_photo_path: notePhotoPath, ...(scheduleId ? { schedule_id: scheduleId } : {}) })
         .select('id').single();
       if (le) throw le;
       logId = newLog.id;
+      // 사진 경로에 임시 UUID 사용했다면 실제 logId로 이름 변경
+      if (_notePhotoFile && notePhotoPath && !notePhotoPath.includes(logId)) {
+        const ext = _notePhotoFile.name.split('.').pop() || 'jpg';
+        const correctPath = `${trainer.id}/pt-notes/${logId}.${ext}`;
+        await db.storage.from('session-photos').move(notePhotoPath, correctPath);
+        await db.from('workout_logs').update({ note_photo_path: correctPath }).eq('id', logId);
+      }
       history.replaceState(null, '', `?log=${logId}`);
     }
 
@@ -1052,6 +1117,30 @@ async function toggleFav(libId, isFav) {
 // ─── 유틸 ───
 function today() { return new Date().toISOString().slice(0, 10); }
 function esc(s)  { return (s||'').replace(/'/g, '&#39;').replace(/"/g, '&quot;'); }
+// ── PT 노트 사진 핸들러 ──────────────────────────────────────
+function onNotePhotoSelected(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  _notePhotoFile = file;
+  _notePhotoRemoved = false;
+  const url = URL.createObjectURL(file);
+  showNotePhotoPreview(url);
+}
+function showNotePhotoPreview(url) {
+  document.getElementById('notePhotoImg').src    = url;
+  document.getElementById('notePhotoUpload').style.display  = 'none';
+  document.getElementById('notePhotoPreview').style.display = '';
+}
+function removeNotePhoto() {
+  _notePhotoFile    = null;
+  _notePhotoRemoved = true;
+  document.getElementById('notePhotoInput').value           = '';
+  document.getElementById('notePhotoImg').src               = '';
+  document.getElementById('notePhotoPreview').style.display = 'none';
+  document.getElementById('notePhotoUpload').style.display  = '';
+}
+// ─────────────────────────────────────────────────────────────
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.style.opacity = 1;
