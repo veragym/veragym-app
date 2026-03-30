@@ -405,7 +405,7 @@ async function init() {
 
   const info = data[0];
   document.getElementById('headerSub').textContent      = `베라짐 ${info.gym_location}`;
-  document.getElementById('memberNameHdr').textContent  = `${info.member_name}님`;
+  document.getElementById('memberNameHdr').textContent  = info.member_name.replace(/\d+$/, '') + '님';
   document.getElementById('trainerInfoHdr').textContent = info.trainer_name ? `담당 트레이너 · ${info.trainer_name}` : '';
 
   document.getElementById('loadingScreen').style.display = 'none';
