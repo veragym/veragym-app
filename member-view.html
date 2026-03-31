@@ -138,14 +138,14 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .ex-modal-muscle-chip { background:#4ade8011; border:1px solid #4ade8033; border-radius:16px; padding:5px 12px; font-size:12px; color:#86efac; }
 
 /* ── Anatomy Tab ─────────────────────────────────────────── */
-.anatomy-toggle { display:flex; background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; overflow:hidden; margin-bottom:16px; }
-.anatomy-toggle button { flex:1; padding:10px; font-size:13px; font-weight:600; background:none; border:none; color:#3a5840; cursor:pointer; font-family:inherit; transition:all 0.2s; }
-.anatomy-toggle button.active { background:#4ade8022; color:#4ade80; }
+.anatomy-type-toggle { display:flex; background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; overflow:hidden; margin-bottom:10px; }
+.anatomy-type-toggle button { flex:1; padding:11px; font-size:14px; font-weight:700; background:none; border:none; color:#3a5840; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+.anatomy-type-toggle button.active { background:#4ade8022; color:#4ade80; }
+.anatomy-side-toggle { display:flex; background:#080e08; border:1px solid #1a3a1a33; border-radius:8px; overflow:hidden; margin-bottom:16px; }
+.anatomy-side-toggle button { flex:1; padding:7px; font-size:12px; font-weight:600; background:none; border:none; color:#2a4a2a; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+.anatomy-side-toggle button.active { background:#1a3a1a; color:#86efac; }
 .anatomy-view { display:flex; justify-content:center; }
-.body-svg-wrap { width:100%; max-width:280px; }
-.muscle-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px; }
-.muscle-chip { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:10px 12px; font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
-.muscle-chip .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.anatomy-img { width:100%; max-width:300px; border-radius:12px; display:block; }
 
 /* ── Photo Viewer ────────────────────────────────────────── */
 .mv-viewer-bg { display:none; position:fixed; inset:0; background:#000000f2; z-index:500; flex-direction:column; align-items:center; justify-content:center; padding:20px 16px calc(env(safe-area-inset-bottom)+20px); }
@@ -247,105 +247,27 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 
   <!-- ── Tab: 해부도 ─────────────────────────────────────── -->
   <div id="tab-anatomy" class="tab-content">
-    <div class="sec-header"><span class="sec-title">근육 해부도</span></div>
-    <div class="anatomy-toggle">
-      <button class="active" id="btnFront" onclick="showAnatomy('front')">앞면</button>
-      <button id="btnBack" onclick="showAnatomy('back')">뒷면</button>
+    <div class="sec-header"><span class="sec-title">해부도</span></div>
+    <!-- 1단계: 근육 / 뼈 -->
+    <div class="anatomy-type-toggle">
+      <button class="active" id="btnTypeMuscle" onclick="setAnatomyType('muscle')">근육</button>
+      <button id="btnTypeBone" onclick="setAnatomyType('bone')">뼈</button>
     </div>
-    <!-- 앞면 -->
-    <div id="anatomyFront" class="anatomy-view">
-      <div class="body-svg-wrap">
-        <svg viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
-          <rect width="200" height="420" fill="#080e08"/>
-          <ellipse cx="100" cy="38" rx="28" ry="32" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
-          <rect x="89" y="66" width="22" height="18" rx="4" fill="#1a3a1a" stroke="#1a3a1a44" stroke-width="1"/>
-          <path d="M55 84 L145 84 L150 200 L50 200 Z" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
-          <line x1="100" y1="84" x2="100" y2="200" stroke="#4ade8033" stroke-width="1"/>
-          <line x1="78" y1="148" x2="122" y2="148" stroke="#4ade8033" stroke-width="1"/>
-          <line x1="76" y1="164" x2="124" y2="164" stroke="#4ade8033" stroke-width="1"/>
-          <line x1="74" y1="180" x2="126" y2="180" stroke="#4ade8033" stroke-width="1"/>
-          <path d="M55 84 L30 92 L22 160 L38 162 L48 100" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
-          <path d="M22 160 L18 230 L36 232 L38 162" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
-          <path d="M145 84 L170 92 L178 160 L162 162 L152 100" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
-          <path d="M178 160 L182 230 L164 232 L162 162" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
-          <ellipse cx="27" cy="238" rx="10" ry="12" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
-          <ellipse cx="173" cy="238" rx="10" ry="12" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
-          <path d="M50 200 L150 200 L155 240 L45 240 Z" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
-          <path d="M50 240 L45 240 L40 340 L80 342 L85 240" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
-          <path d="M115 240 L155 240 L160 340 L120 342 L115 240" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
-          <path d="M40 340 L36 400 L78 402 L80 342" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
-          <path d="M120 342 L122 400 L164 402 L160 340" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
-          <ellipse cx="57" cy="406" rx="20" ry="8" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
-          <ellipse cx="143" cy="406" rx="20" ry="8" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
-          <text x="100" y="106" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">대흉근</text>
-          <text x="82" y="162" text-anchor="middle" font-size="8" fill="#86efac">복직근</text>
-          <text x="30" y="128" text-anchor="middle" font-size="8" fill="#86efac">삼각근</text>
-          <text x="170" y="128" text-anchor="middle" font-size="8" fill="#86efac">삼각근</text>
-          <text x="26" y="192" text-anchor="middle" font-size="8" fill="#4ade8088">이두박근</text>
-          <text x="174" y="192" text-anchor="middle" font-size="8" fill="#4ade8088">이두박근</text>
-          <text x="60" y="292" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">대퇴사두근</text>
-          <text x="140" y="292" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">대퇴사두근</text>
-          <text x="58" y="372" text-anchor="middle" font-size="8" fill="#86efac">전경골근</text>
-          <text x="142" y="372" text-anchor="middle" font-size="8" fill="#86efac">전경골근</text>
-          <text x="100" y="222" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">복사근</text>
-        </svg>
-      </div>
+    <!-- 2단계: 근육 정면 / 후면 -->
+    <div id="anatomyMuscleViews" class="anatomy-side-toggle">
+      <button class="active" id="btnMuscleFront" onclick="showAnatomyImg('muscle-front')">정면</button>
+      <button id="btnMuscleBack" onclick="showAnatomyImg('muscle-back')">후면</button>
     </div>
-    <!-- 뒷면 -->
-    <div id="anatomyBack" class="anatomy-view" style="display:none">
-      <div class="body-svg-wrap">
-        <svg viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
-          <rect width="200" height="420" fill="#080e08"/>
-          <ellipse cx="100" cy="38" rx="28" ry="32" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
-          <rect x="89" y="66" width="22" height="18" rx="4" fill="#1a3a1a" stroke="#1a3a1a44" stroke-width="1"/>
-          <path d="M55 84 L145 84 L150 200 L50 200 Z" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
-          <line x1="100" y1="84" x2="100" y2="200" stroke="#4ade8033" stroke-width="1"/>
-          <path d="M72 84 Q100 72 128 84" fill="none" stroke="#86efac" stroke-width="2"/>
-          <path d="M58 120 Q100 130 142 120" fill="none" stroke="#86efac66" stroke-width="1.5"/>
-          <path d="M55 84 L30 92 L22 160 L38 162 L48 100" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
-          <path d="M22 160 L18 230 L36 232 L38 162" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
-          <path d="M145 84 L170 92 L178 160 L162 162 L152 100" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
-          <path d="M178 160 L182 230 L164 232 L162 162" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
-          <ellipse cx="27" cy="238" rx="10" ry="12" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
-          <ellipse cx="173" cy="238" rx="10" ry="12" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
-          <path d="M50 200 L150 200 L155 245 L45 245 Z" fill="#163016" stroke="#4ade8066" stroke-width="1.5"/>
-          <path d="M50 245 L45 245 L40 340 L80 342 L85 245" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
-          <path d="M115 245 L155 245 L160 340 L120 342 L115 245" fill="#1a3a1a" stroke="#4ade8066" stroke-width="1.5"/>
-          <path d="M40 340 L36 400 L78 402 L80 342" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
-          <path d="M120 342 L122 400 L164 402 L160 340" fill="#0d1a0d" stroke="#4ade8044" stroke-width="1"/>
-          <ellipse cx="57" cy="406" rx="20" ry="8" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
-          <ellipse cx="143" cy="406" rx="20" ry="8" fill="#0d1a0d" stroke="#1a3a1a44" stroke-width="1"/>
-          <text x="100" y="100" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">승모근</text>
-          <text x="76" y="150" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">광배근</text>
-          <text x="124" y="150" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">광배근</text>
-          <text x="30" y="128" text-anchor="middle" font-size="8" fill="#86efac">삼각근</text>
-          <text x="170" y="128" text-anchor="middle" font-size="8" fill="#86efac">삼각근</text>
-          <text x="26" y="200" text-anchor="middle" font-size="8" fill="#4ade8088">삼두박근</text>
-          <text x="174" y="200" text-anchor="middle" font-size="8" fill="#4ade8088">삼두박근</text>
-          <text x="100" y="228" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">대둔근</text>
-          <text x="60" y="296" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">햄스트링</text>
-          <text x="140" y="296" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="700">햄스트링</text>
-          <text x="59" y="375" text-anchor="middle" font-size="8" fill="#86efac">비복근</text>
-          <text x="141" y="375" text-anchor="middle" font-size="8" fill="#86efac">비복근</text>
-        </svg>
-      </div>
+    <!-- 2단계: 뼈 정면 / 측면 -->
+    <div id="anatomyBoneViews" class="anatomy-side-toggle" style="display:none">
+      <button class="active" id="btnBoneFront" onclick="showAnatomyImg('bone-front')">정면</button>
+      <button id="btnBoneSide" onclick="showAnatomyImg('bone-side')">측면</button>
     </div>
-    <div id="muscleGridFront" class="muscle-grid">
-      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>대흉근</div>
-      <div class="muscle-chip"><span class="dot" style="background:#86efac"></span>삼각근</div>
-      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>복직근</div>
-      <div class="muscle-chip"><span class="dot" style="background:#86efac"></span>복사근</div>
-      <div class="muscle-chip"><span class="dot" style="background:#4ade8088"></span>이두박근</div>
-      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>대퇴사두근</div>
+    <div class="anatomy-view">
+      <img id="anatomyImg" src="./images/anatomy/muscle-front.png" class="anatomy-img" alt="근육 정면 해부도">
     </div>
-    <div id="muscleGridBack" class="muscle-grid" style="display:none">
-      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>승모근</div>
-      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>광배근</div>
-      <div class="muscle-chip"><span class="dot" style="background:#86efac"></span>삼각근</div>
-      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>대둔근</div>
-      <div class="muscle-chip"><span class="dot" style="background:#4ade8088"></span>삼두박근</div>
-      <div class="muscle-chip"><span class="dot" style="background:#4ade80"></span>햄스트링</div>
-    </div>
+  </div>
+
   </div>
 
 </div><!-- /mainContent -->
@@ -389,14 +311,41 @@ function switchTab(id, btn) {
 }
 
 // ── 해부도 토글 ──────────────────────────────────────────────
-function showAnatomy(view) {
-  const isFront = view === 'front';
-  document.getElementById('anatomyFront').style.display    = isFront ? '' : 'none';
-  document.getElementById('anatomyBack').style.display     = isFront ? 'none' : '';
-  document.getElementById('muscleGridFront').style.display = isFront ? '' : 'none';
-  document.getElementById('muscleGridBack').style.display  = isFront ? 'none' : '';
-  document.getElementById('btnFront').classList.toggle('active', isFront);
-  document.getElementById('btnBack').classList.toggle('active', !isFront);
+let _anatomyType = 'muscle';
+
+function setAnatomyType(type) {
+  _anatomyType = type;
+  const isMuscle = type === 'muscle';
+  document.getElementById('anatomyMuscleViews').style.display = isMuscle ? '' : 'none';
+  document.getElementById('anatomyBoneViews').style.display   = isMuscle ? 'none' : '';
+  document.getElementById('btnTypeMuscle').classList.toggle('active', isMuscle);
+  document.getElementById('btnTypeBone').classList.toggle('active', !isMuscle);
+  if (isMuscle) {
+    document.getElementById('btnMuscleFront').classList.add('active');
+    document.getElementById('btnMuscleBack').classList.remove('active');
+    showAnatomyImg('muscle-front');
+  } else {
+    document.getElementById('btnBoneFront').classList.add('active');
+    document.getElementById('btnBoneSide').classList.remove('active');
+    showAnatomyImg('bone-front');
+  }
+}
+
+function showAnatomyImg(view) {
+  const srcs = {
+    'muscle-front': './images/anatomy/muscle-front.png',
+    'muscle-back':  './images/anatomy/muscle-back.png',
+    'bone-front':   './images/anatomy/skeleton-front.png',
+    'bone-side':    './images/anatomy/skeleton-side.png',
+  };
+  document.getElementById('anatomyImg').src = srcs[view];
+  if (_anatomyType === 'muscle') {
+    document.getElementById('btnMuscleFront').classList.toggle('active', view === 'muscle-front');
+    document.getElementById('btnMuscleBack').classList.toggle('active', view === 'muscle-back');
+  } else {
+    document.getElementById('btnBoneFront').classList.toggle('active', view === 'bone-front');
+    document.getElementById('btnBoneSide').classList.toggle('active', view === 'bone-side');
+  }
 }
 
 // ── 초기화 ───────────────────────────────────────────────────
