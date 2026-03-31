@@ -184,6 +184,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div>
       <div class="header-title">VERA<span>GYM</span></div>
       <div class="header-sub" id="headerSub">베라짐 회원</div>
+      <div id="tokenDaysHdr" style="font-size:10px;color:#2a4a2a;margin-top:2px;font-weight:600"></div>
     </div>
     <div style="text-align:right">
       <div style="font-size:15px;font-weight:800" id="memberNameHdr">회원</div>
@@ -364,6 +365,18 @@ async function init() {
   document.getElementById('headerSub').textContent      = `베라짐 ${info.gym_location}`;
   document.getElementById('memberNameHdr').textContent  = info.member_name.replace(/\d+$/, '') + '님';
   document.getElementById('trainerInfoHdr').textContent = info.trainer_name ? `담당 트레이너 · ${info.trainer_name}` : '';
+
+  // 토큰 남은 일수 표시
+  const daysEl = document.getElementById('tokenDaysHdr');
+  if (info.token_expires_at) {
+    const days = Math.ceil((new Date(info.token_expires_at) - Date.now()) / 86400000);
+    if (days > 0) {
+      daysEl.textContent = `URL ${days}일 남음`;
+    } else {
+      daysEl.textContent = 'URL 만료됨';
+      daysEl.style.color = '#f87171';
+    }
+  }
 
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('mainContent').style.display   = 'block';

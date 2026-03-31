@@ -650,6 +650,23 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
       <div id="statusOverrideNote" style="font-size:10px;color:#666;margin-top:6px"></div>
     </div>
 
+    <!-- 회원앱 토큰 관리 -->
+    <div style="background:#080e1a;border:1px solid #1e3a5f44;border-radius:10px;padding:12px 14px;margin-bottom:16px">
+      <div style="font-size:11px;color:#888;font-weight:600;letter-spacing:1.2px;margin-bottom:10px">회원앱 토큰</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div id="tokenStatusBadge" style="font-size:13px;font-weight:700"></div>
+          <div id="tokenExpiryText" style="font-size:11px;color:#555;margin-top:3px"></div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button id="tokenToggleBtn" onclick="adminToggleToken()"
+            style="border:1.5px solid;border-radius:8px;padding:7px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;background:#2a0e0e;color:#f87171;border-color:#3a1a1a">비활성화</button>
+          <button onclick="adminExtendToken()"
+            style="background:#1e3a5f;color:#60a5fa;border:1.5px solid #1e3a5f88;border-radius:8px;padding:7px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">+1년 연장</button>
+        </div>
+      </div>
+    </div>
+
     <div style="font-size:11px;color:#888;letter-spacing:1.2px;margin-bottom:10px;font-weight:600">PT 상품 목록</div>
     <div id="ptProductList"></div>
     <button class="btn-cancel" style="margin-top:16px;width:100%" onclick="closeModal('memberDetailModal')">닫기</button>
@@ -990,7 +1007,7 @@ let _allMembers  = [];
 async function loadMembers() {
   const [trRes, mbRes] = await Promise.all([
     db.from('trainers').select('id,name,gym_location,is_active,is_admin').order('name'),
-    db.from('members').select('id,name,gym_location,notes,is_active,member_status,status_override,trainer_id,phone').order('name'),
+    db.from('members').select('id,name,gym_location,notes,is_active,member_status,status_override,trainer_id,phone,token_active,token_issued_at,token_expires_at').order('name'),
   ]);
   if (trRes.error || mbRes.error) { showToast('불러오기 실패'); return; }
   _allTrainers = trRes.data || [];
@@ -1220,9 +1237,79 @@ async function showMemberDetail(memberId) {
     note.style.color = '#555';
   }
 
+  renderTokenSection(m);
   document.getElementById('ptProductList').innerHTML = '<div class="loading" style="padding:20px;font-size:13px">불러오는 중...</div>';
   openModal('memberDetailModal');
   await loadPtProducts(memberId);
+}
+
+// ── 토큰 관리 ──────────────────────────────────────────────────
+function renderTokenSection(m) {
+  const now = new Date();
+  const exp = m.token_expires_at ? new Date(m.token_expires_at) : null;
+  const isExpired = exp && exp < now;
+
+  const badge      = document.getElementById('tokenStatusBadge');
+  const expText    = document.getElementById('tokenExpiryText');
+  const toggleBtn  = document.getElementById('tokenToggleBtn');
+
+  if (!m.token_active) {
+    badge.textContent = '🔴 비활성화';
+    badge.style.color = '#f87171';
+  } else if (isExpired) {
+    badge.textContent = '🟡 만료됨 (접근 불가)';
+    badge.style.color = '#f59e0b';
+  } else {
+    badge.textContent = '🟢 활성';
+    badge.style.color = '#4ade80';
+  }
+
+  if (exp) {
+    const diffDays = Math.ceil((exp - now) / 86400000);
+    expText.textContent = isExpired
+      ? `만료일: ${exp.toLocaleDateString('ko-KR')} (${Math.abs(diffDays)}일 지남)`
+      : `만료일: ${exp.toLocaleDateString('ko-KR')} (${diffDays}일 남음)`;
+  } else {
+    expText.textContent = '만료일 정보 없음';
+  }
+
+  if (m.token_active) {
+    toggleBtn.textContent = '비활성화';
+    toggleBtn.style.background    = '#2a0e0e';
+    toggleBtn.style.color         = '#f87171';
+    toggleBtn.style.borderColor   = '#3a1a1a';
+  } else {
+    toggleBtn.textContent = '활성화';
+    toggleBtn.style.background    = '#0e2a0e';
+    toggleBtn.style.color         = '#4ade80';
+    toggleBtn.style.borderColor   = '#1a3a1a';
+  }
+}
+
+async function adminExtendToken() {
+  const m = _allMembers.find(x => x.id === _currentMemberId);
+  if (!m) return;
+  const { error } = await db.rpc('admin_extend_member_token', { p_member_id: _currentMemberId });
+  if (error) { showToast('연장 실패: ' + error.message); return; }
+
+  // 로컬 캐시 업데이트
+  const base = new Date(Math.max(new Date(m.token_expires_at || Date.now()), Date.now()));
+  base.setFullYear(base.getFullYear() + 1);
+  m.token_expires_at = base.toISOString();
+  m.token_active = true;
+  renderTokenSection(m);
+  showToast('토큰 1년 연장 완료');
+}
+
+async function adminToggleToken() {
+  const m = _allMembers.find(x => x.id === _currentMemberId);
+  if (!m) return;
+  const newActive = !m.token_active;
+  const { error } = await db.rpc('admin_toggle_member_token', { p_member_id: _currentMemberId, p_active: newActive });
+  if (error) { showToast('변경 실패: ' + error.message); return; }
+  m.token_active = newActive;
+  renderTokenSection(m);
+  showToast(newActive ? '토큰 활성화됨' : '토큰 비활성화됨');
 }
 
 async function adminSetStatus() {
