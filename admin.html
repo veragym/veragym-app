@@ -2205,83 +2205,7 @@ async function doLogout() {
 
 init();
 
-// ── 공개 API (HTML onclick에서 호출) ──────────────────────────
-window.addMember              = addMember;
-window.addPtProduct           = addPtProduct;
-window.addTrainer             = addTrainer;
-window.adminSetStatus         = adminSetStatus;
-window.calcPaymentAmount      = calcPaymentAmount;
-window.calcPtPayment          = calcPtPayment;
-window.clearExSearch          = clearExSearch;
-window.clearMemberSearch      = clearMemberSearch;
-window.closeBranchSchedModal  = closeBranchSchedModal;
-window.completeReq            = completeReq;
-window.deleteReq              = deleteReq;
-window.deleteTrainer          = deleteTrainer;
-window.doChangePw             = doChangePw;
-window.doLogout               = doLogout;
-window.downloadBranchSched    = downloadBranchSched;
-window.filterExercise         = filterExercise;
-window.loadAdminRevenue       = loadAdminRevenue;
-window.loadMoreEx             = loadMoreEx;
-window.onBsDay                = onBsDay;
-window.onGymChange            = onGymChange;
-window.onMemberNameInput      = onMemberNameInput;
-window.openAddMember          = openAddMember;
-window.openAddPtProduct       = openAddPtProduct;
-window.openAddTrainer         = openAddTrainer;
-window.openBranchSchedModal   = openBranchSchedModal;
-window.openChangePw           = openChangePw;
-window.openChangeTrainer      = openChangeTrainer;
-window.openExDetail           = openExDetail;
-window.renderPayList          = renderPayList;
-window.renderStats            = renderStats;
-window.saveChangeTrainer      = saveChangeTrainer;
-window.scAskConfirm           = scAskConfirm;
-window.scCancelConfirm        = scCancelConfirm;
-window.scExecAction           = scExecAction;
-window.scMoveDays             = scMoveDays;
-window.scOnBranchChange       = scOnBranchChange;
-window.scOpenInfo             = scOpenInfo;
-window.scSelectDate           = scSelectDate;
-window.scToggleNoshow         = scToggleNoshow;
-window.searchMembers          = searchMembers;
-window.showAllBranches        = showAllBranches;
-window.showBranch             = showBranch;
-window.showMemberDetail       = showMemberDetail;
-window.switchAdminRevMonth    = switchAdminRevMonth;
-window.switchRevSub           = switchRevSub;
-window.switchTab              = switchTab;
-window.toggleAcc              = toggleAcc;
-window.toggleActive           = toggleActive;
-window.toggleAdminTrainerDetail = toggleAdminTrainerDetail;
-})();
-</script>
-<!-- ── 전체 시간표 모달 ────────────────────────────────── -->
-<div id="branchSchedModal" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.75);flex-direction:column;align-items:center;justify-content:center;" onclick="if(event.target===this)closeBranchSchedModal()">
-  <div style="background:#111108;border-radius:16px;width:96vw;max-width:520px;max-height:92dvh;display:flex;flex-direction:column;overflow:hidden;border:1px solid #2a2518;">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #2a2518;flex-shrink:0;">
-      <div>
-        <div style="font-size:15px;font-weight:700;color:#fff;">전체 시간표</div>
-        <div style="font-size:11px;color:#888;margin-top:2px;" id="bsSubtitle"></div>
-      </div>
-      <button onclick="closeBranchSchedModal()" class="modal-close-x" style="position:static;">✕</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid #2a251833;flex-shrink:0;">
-      <button id="bsBtnToday" onclick="onBsDay(0)" style="flex:1;background:#c9a84c;border:none;color:#111;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">오늘</button>
-      <button id="bsBtnTomorrow" onclick="onBsDay(1)" style="flex:1;background:#1a1a14;border:1px solid #2a251855;color:#888;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">내일</button>
-      <input type="hidden" id="bsDatePicker" value="">
-    </div>
-    <div style="overflow:auto;-webkit-overflow-scrolling:touch;flex:1;display:flex;align-items:flex-start;justify-content:flex-start;background:#f4f4f4;" id="bsCanvasWrap">
-      <canvas id="bsCanvas" style="display:block;"></canvas>
-    </div>
-    <div style="padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #2a251833;flex-shrink:0;">
-      <button onclick="downloadBranchSched()" style="width:100%;background:linear-gradient(135deg,#c9a84c,#a07830);border:none;color:#111;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">📥 저장 / 공유</button>
-    </div>
-  </div>
-</div>
 
-<script>
 // ══════════ 전체 시간표 캔버스 (관리자용) ══════════
 const BS_DAYS=['일','월','화','수','목','금','토'];
 let _bsTrainers=[],_bsSchedules=[],_bsCurrentDate='';
@@ -2739,7 +2663,83 @@ function toggleAdminTrainerDetail(card, trainerId, month) {
   }
   detail.style.display = 'block';
 }
+// ── 공개 API (HTML onclick에서 호출) ──────────────────────────
+window.addMember              = addMember;
+window.addPtProduct           = addPtProduct;
+window.addTrainer             = addTrainer;
+window.adminSetStatus         = adminSetStatus;
+window.calcPaymentAmount      = calcPaymentAmount;
+window.calcPtPayment          = calcPtPayment;
+window.clearExSearch          = clearExSearch;
+window.clearMemberSearch      = clearMemberSearch;
+window.closeBranchSchedModal  = closeBranchSchedModal;
+window.completeReq            = completeReq;
+window.deleteReq              = deleteReq;
+window.deleteTrainer          = deleteTrainer;
+window.doChangePw             = doChangePw;
+window.doLogout               = doLogout;
+window.downloadBranchSched    = downloadBranchSched;
+window.filterExercise         = filterExercise;
+window.loadAdminRevenue       = loadAdminRevenue;
+window.loadMoreEx             = loadMoreEx;
+window.onBsDay                = onBsDay;
+window.onGymChange            = onGymChange;
+window.onMemberNameInput      = onMemberNameInput;
+window.openAddMember          = openAddMember;
+window.openAddPtProduct       = openAddPtProduct;
+window.openAddTrainer         = openAddTrainer;
+window.openBranchSchedModal   = openBranchSchedModal;
+window.openChangePw           = openChangePw;
+window.openChangeTrainer      = openChangeTrainer;
+window.openExDetail           = openExDetail;
+window.renderPayList          = renderPayList;
+window.renderStats            = renderStats;
+window.saveChangeTrainer      = saveChangeTrainer;
+window.scAskConfirm           = scAskConfirm;
+window.scCancelConfirm        = scCancelConfirm;
+window.scExecAction           = scExecAction;
+window.scMoveDays             = scMoveDays;
+window.scOnBranchChange       = scOnBranchChange;
+window.scOpenInfo             = scOpenInfo;
+window.scSelectDate           = scSelectDate;
+window.scToggleNoshow         = scToggleNoshow;
+window.searchMembers          = searchMembers;
+window.showAllBranches        = showAllBranches;
+window.showBranch             = showBranch;
+window.showMemberDetail       = showMemberDetail;
+window.switchAdminRevMonth    = switchAdminRevMonth;
+window.switchRevSub           = switchRevSub;
+window.switchTab              = switchTab;
+window.toggleAcc              = toggleAcc;
+window.toggleActive           = toggleActive;
+window.toggleAdminTrainerDetail = toggleAdminTrainerDetail;
+})();
 </script>
+<!-- ── 전체 시간표 모달 ────────────────────────────────── -->
+<div id="branchSchedModal" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.75);flex-direction:column;align-items:center;justify-content:center;" onclick="if(event.target===this)closeBranchSchedModal()">
+  <div style="background:#111108;border-radius:16px;width:96vw;max-width:520px;max-height:92dvh;display:flex;flex-direction:column;overflow:hidden;border:1px solid #2a2518;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #2a2518;flex-shrink:0;">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;">전체 시간표</div>
+        <div style="font-size:11px;color:#888;margin-top:2px;" id="bsSubtitle"></div>
+      </div>
+      <button onclick="closeBranchSchedModal()" class="modal-close-x" style="position:static;">✕</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid #2a251833;flex-shrink:0;">
+      <button id="bsBtnToday" onclick="onBsDay(0)" style="flex:1;background:#c9a84c;border:none;color:#111;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">오늘</button>
+      <button id="bsBtnTomorrow" onclick="onBsDay(1)" style="flex:1;background:#1a1a14;border:1px solid #2a251855;color:#888;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">내일</button>
+      <input type="hidden" id="bsDatePicker" value="">
+    </div>
+    <div style="overflow:auto;-webkit-overflow-scrolling:touch;flex:1;display:flex;align-items:flex-start;justify-content:flex-start;background:#f4f4f4;" id="bsCanvasWrap">
+      <canvas id="bsCanvas" style="display:block;"></canvas>
+    </div>
+    <div style="padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #2a251833;flex-shrink:0;">
+      <button onclick="downloadBranchSched()" style="width:100%;background:linear-gradient(135deg,#c9a84c,#a07830);border:none;color:#111;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">📥 저장 / 공유</button>
+    </div>
+  </div>
+</div>
+
+
 
 <script>
 if ('serviceWorker' in navigator) {

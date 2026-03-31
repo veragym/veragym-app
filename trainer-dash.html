@@ -2111,144 +2111,7 @@ function closeSchedInfo(){
   _siTogglePending=false;_siCancelCompletedPending=false;_siRollbackPending=false;
 }
 
-// ── 공개 API (HTML onclick에서 호출) ──────────────────────────
-window.calcFcAmount        = calcFcAmount;
-window.calcRevPeriod       = calcRevPeriod;
-window.closeBranchSchedModal = closeBranchSchedModal;
-window.closeSchedInfo      = closeSchedInfo;
-window.closeSchedModal     = closeSchedModal;
-window.copyForecastText    = copyForecastText;
-window.copyToken           = copyToken;
-window.deleteForecast      = deleteForecast;
-window.deleteLog           = deleteLog;
-window.deleteSchedule      = deleteSchedule;
-window.doLogout            = doLogout;
-window.downloadBranchSched = downloadBranchSched;
-window.editForecast        = editForecast;
-window.generateWorkoutCard = generateWorkoutCard;
-window.igAddExById         = igAddExById;
-window.igAddSet            = igAddSet;
-window.igDelSet            = igDelSet;
-window.igGenerateAndSave   = igGenerateAndSave;
-window.igGenerateAndShare  = igGenerateAndShare;
-window.igRemoveEx          = igRemoveEx;
-window.igSearchEx          = igSearchEx;
-window.igUpdSet            = igUpdSet;
-window.linkLogSkip         = linkLogSkip;
-window.linkLogWrite        = linkLogWrite;
-window.onBsDay             = onBsDay;
-window.onSchedTypeChange   = onSchedTypeChange;
-window.openAddReq          = openAddReq;
-window.openBranchSchedModal = openBranchSchedModal;
-window.openForecastModal   = openForecastModal;
-window.openSchedInfo       = openSchedInfo;
-window.openSchedModal      = openSchedModal;
-window.saveForecast        = saveForecast;
-window.saveReq             = saveReq;
-window.saveSchedule        = saveSchedule;
-window.saveTarget          = saveTarget;
-window.selectLinkLog       = selectLinkLog;
-window.selectSchedTime     = selectSchedTime;
-window.setForecastStatus   = setForecastStatus;
-window.showMemberDetail    = showMemberDetail;
-window.showMemberList      = showMemberList;
-window.siAction            = siAction;
-window.siCancelCompleted   = siCancelCompleted;
-window.siToggleNoshow      = siToggleNoshow;
-window.switchRevMonth      = switchRevMonth;
-window.switchTab           = switchTab;
-window.toggleTimePicker    = toggleTimePicker;
-window.updateRevPeriodUI   = updateRevPeriodUI;
-window.viewNotePhoto       = viewNotePhoto;
-
-})();
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
-  });
-}
-</script>
-
-<!-- ===== 일정 모달 ===== -->
-<div id="schedModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
-  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:16px 16px 0 0;padding:24px 20px 32px;box-sizing:border-box;max-height:90vh;overflow-y:auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <h3 id="schedModalTitle" style="margin:0;font-size:17px;font-weight:700;color:#fff;">일정 추가</h3>
-      <button onclick="closeSchedModal()" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;">&times;</button>
-    </div>
-    <div id="schedModalErr" style="display:none;background:#ff4d4f22;color:#ff4d4f;border:1px solid #ff4d4f55;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px;"></div>
-    <div style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">날짜</label>
-      <input id="schedDate" type="date" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;"></div>
-    <div style="margin-bottom:8px;">
-      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">시작 시간 <span style="font-size:10px;color:#6c63ff;font-weight:600">탭하여 조정 ▼</span></label>
-      <div id="schedStartDisplay" onclick="toggleTimePicker()" style="width:100%;background:#241850;border:1.5px solid #6c63ff;border-radius:8px;color:#fff;padding:11px 14px;font-size:16px;font-weight:700;cursor:pointer;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;-webkit-tap-highlight-color:transparent;">
-        <span id="schedStartLabel">오전 9:00</span>
-        <span style="font-size:11px;color:#9d8fdb;font-weight:400">변경 ▼</span>
-      </div>
-      <input id="schedStart" type="hidden" value="09:00">
-      <div id="timePickerDrop" style="display:none;background:#1a1a2e;border:1px solid #3a3a5c;border-radius:8px;max-height:168px;overflow-y:auto;margin-top:4px;position:relative;z-index:50;-webkit-overflow-scrolling:touch;"></div>
-    </div>
-    <div style="margin-bottom:14px;">
-      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">종료 시간 <span style="font-size:10px;color:#2a4060">시작 +60분 자동</span></label>
-      <div id="schedEndDisplay" style="width:100%;background:#141f35;border:1px solid #1e3a5f44;border-radius:8px;color:#4a6580;padding:11px 14px;font-size:16px;font-weight:700;box-sizing:border-box;">오전 10:00</div>
-      <input id="schedEnd" type="hidden" value="10:00">
-    </div>
-    <div style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">유형</label>
-      <div style="position:relative;">
-        <select id="schedType" onchange="onSchedTypeChange()" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 40px 10px 12px;font-size:14px;box-sizing:border-box;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;">
-          <option value="PT">PT</option>
-          <option value="SPT">SPT</option>
-          <option value="업무">업무</option>
-          <option value="청소">청소</option>
-          <option value="홍보">홍보</option>
-          <option value="식사">식사</option>
-        </select>
-        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:#aaa;font-size:12px;">▼</span>
-      </div></div>
-    <div id="schedMemberRow" style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">회원 (선택)</label>
-      <select id="schedMember" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;-webkit-appearance:none;">
-        <option value="">-- 회원 없음 --</option></select></div>
-    <div id="schedMemberTextRow" style="display:none;margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">회원</label>
-      <input id="schedMemberText" type="text" placeholder="회원명을 입력해주세요" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;font-family:inherit;"></div>
-    <div id="schedNotesRow" style="margin-bottom:20px;display:none;"><label id="schedNotesLabel" style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">내용</label>
-      <textarea id="schedNotes" rows="3" placeholder="" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;resize:vertical;font-family:inherit;"></textarea></div>
-    <div style="display:flex;gap:10px;">
-      <button id="schedDeleteBtn" onclick="deleteSchedule()" style="display:none;flex:1;background:#3a1a1a;border:1px solid #ff4d4f55;color:#ff4d4f;border-radius:10px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;">삭제</button>
-      <button id="schedSaveBtn" onclick="saveSchedule()" style="flex:2;background:#6c63ff;border:none;color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== 일정 상세/액션 모달 ===== -->
-<div id="schedInfoModal" style="display:none;position:fixed;inset:0;z-index:1001;background:rgba(0,0,0,0.55);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeSchedInfo()">
-  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:0 20px calc(28px + env(safe-area-inset-bottom));box-sizing:border-box;max-height:85dvh;overflow-y:auto;animation:slideUp .22s ease;">
-    <div style="width:36px;height:4px;background:#3a3a5c;border-radius:99px;margin:14px auto 20px;"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <div id="siMember" style="font-size:18px;font-weight:800;color:#fff;"></div>
-      <div id="siStatus"></div>
-    </div>
-    <div style="background:#141428;border-radius:12px;padding:14px 16px;margin-bottom:8px;">
-      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2a2a3c;">
-        <span style="font-size:12px;color:#6a6a8a;">날짜/시간</span>
-        <span id="siDateTime" style="font-size:13px;color:#fff;font-weight:600;"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2a2a3c;">
-        <span style="font-size:12px;color:#6a6a8a;">유형</span>
-        <span id="siType" style="font-size:13px;color:#fff;font-weight:600;"></span>
-      </div>
-      <div id="siSessionRow" style="display:flex;justify-content:space-between;padding:5px 0;">
-        <span style="font-size:12px;color:#6a6a8a;">PT 회차</span>
-        <span id="siSession" style="font-size:13px;color:#fff;font-weight:600;"></span>
-      </div>
-    </div>
-    <div id="siErr" style="display:none;background:#ff4d4f22;color:#ff4d4f;border:1px solid #ff4d4f55;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:10px;"></div>
-    <div id="siActions" style="display:flex;flex-direction:column;gap:10px;margin-top:14px;"></div>
-  </div>
-</div>
-
-<script>
+// ── 일정 모달 함수 ──────────────────────────────────────────────
 // ── 유형 변경 시 회원 행 show/hide ──────────────────────────
 function onSchedTypeChange(){
   const t=document.getElementById('schedType').value;
@@ -2366,7 +2229,6 @@ async function saveSchedule(){
   // PT만 드롭다운 회원 연결 / SPT·기타는 member_id 없음
   const selMember=(selType==='PT')?document.getElementById('schedMember').value||null:null;
   // PT 유형 + 회원 선택 시 active pt_product 자동 연결
-  // 오래된 상품 우선, 단 scheduled 예약이 remaining을 다 채운 경우 다음 상품으로 자동 전환
   let ptProductId=null;
   if(selType==='PT'&&selMember){
     const{data:prods}=await db.from('pt_products').select('id,remaining_sessions').eq('member_id',selMember).eq('status','active').gt('remaining_sessions',0).order('contract_date',{ascending:true});
@@ -2375,7 +2237,7 @@ async function saveSchedule(){
         const{count:schedCnt}=await db.from('schedules').select('*',{count:'exact',head:true}).eq('pt_product_id',p.id).eq('status','scheduled');
         if((schedCnt||0)<p.remaining_sessions){ptProductId=p.id;break;}
       }
-      if(!ptProductId)ptProductId=prods[0].id; // 모두 꽉 찬 경우 가장 오래된 것
+      if(!ptProductId)ptProductId=prods[0].id;
     }
   }
   // notes: SPT는 schedMemberText(회원/내용 입력칸)에서 읽음, 나머지는 schedNotes에서 읽음
@@ -2409,24 +2271,7 @@ async function deleteSchedule(){
   if(error){showToast('삭제 실패: '+error.message);return;}
   closeSchedModal();showToast('일정 삭제 완료');await loadScheduleView();
 }
-</script>
 
-
-<!-- ── 수업일지 연결 모달 ───────────────────────────────────── -->
-<div id="linkLogModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.7);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)linkLogSkip()">
-  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:0 20px calc(28px + env(safe-area-inset-bottom));box-sizing:border-box;max-height:80dvh;overflow-y:auto;animation:slideUp .22s ease;">
-    <div style="width:36px;height:4px;background:#3a3a5c;border-radius:99px;margin:14px auto 18px;"></div>
-    <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px;">수업일지 연결</div>
-    <div id="linkLogSubtitle" style="font-size:12px;color:#6a6a8a;margin-bottom:16px;"></div>
-    <div id="linkLogList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;"></div>
-    <div style="display:flex;gap:10px;padding-bottom:4px;">
-      <button onclick="linkLogWrite()" style="flex:1;background:#3b82f622;border:1.5px solid #3b82f655;color:#60a5fa;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">지금 작성</button>
-      <button onclick="linkLogSkip()" style="flex:1;background:#ffffff11;border:1.5px solid #ffffff22;color:#888;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">나중에</button>
-    </div>
-  </div>
-</div>
-
-<script>
 // ── 수업일지 연결 모달 ────────────────────────────────────────
 let _linkLogScheduleId=null,_linkLogMemberId=null,_linkLogDate=null,_linkLogMemberName=null;
 
@@ -2779,7 +2624,163 @@ function igFallbackDownload(blob, name) {
   document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
+// ── 공개 API (HTML onclick에서 호출) ──────────────────────────
+window.calcFcAmount        = calcFcAmount;
+window.calcRevPeriod       = calcRevPeriod;
+window.closeBranchSchedModal = closeBranchSchedModal;
+window.closeSchedInfo      = closeSchedInfo;
+window.closeSchedModal     = closeSchedModal;
+window.copyForecastText    = copyForecastText;
+window.copyToken           = copyToken;
+window.deleteForecast      = deleteForecast;
+window.deleteLog           = deleteLog;
+window.deleteSchedule      = deleteSchedule;
+window.doLogout            = doLogout;
+window.downloadBranchSched = downloadBranchSched;
+window.editForecast        = editForecast;
+window.generateWorkoutCard = generateWorkoutCard;
+window.igAddExById         = igAddExById;
+window.igAddSet            = igAddSet;
+window.igDelSet            = igDelSet;
+window.igGenerateAndSave   = igGenerateAndSave;
+window.igGenerateAndShare  = igGenerateAndShare;
+window.igRemoveEx          = igRemoveEx;
+window.igSearchEx          = igSearchEx;
+window.igToggleWeightMode  = igToggleWeightMode;
+window.igUpdSet            = igUpdSet;
+window.linkLogSkip         = linkLogSkip;
+window.linkLogWrite        = linkLogWrite;
+window.onBsDay             = onBsDay;
+window.onSchedTypeChange   = onSchedTypeChange;
+window.openAddReq          = openAddReq;
+window.openBranchSchedModal = openBranchSchedModal;
+window.openForecastModal   = openForecastModal;
+window.openLinkLogModal    = openLinkLogModal;
+window.openSchedInfo       = openSchedInfo;
+window.openSchedModal      = openSchedModal;
+window.saveForecast        = saveForecast;
+window.saveReq             = saveReq;
+window.saveSchedule        = saveSchedule;
+window.saveTarget          = saveTarget;
+window.selectLinkLog       = selectLinkLog;
+window.selectSchedTime     = selectSchedTime;
+window.setForecastStatus   = setForecastStatus;
+window.showMemberDetail    = showMemberDetail;
+window.showMemberList      = showMemberList;
+window.siAction            = siAction;
+window.siCancelCompleted   = siCancelCompleted;
+window.siToggleNoshow      = siToggleNoshow;
+window.switchRevMonth      = switchRevMonth;
+window.switchTab           = switchTab;
+window.toggleTimePicker    = toggleTimePicker;
+window.updateRevPeriodUI   = updateRevPeriodUI;
+window.viewNotePhoto       = viewNotePhoto;
+
+})();
 </script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+  });
+}
+</script>
+
+<!-- ===== 일정 모달 ===== -->
+<div id="schedModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
+  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:16px 16px 0 0;padding:24px 20px 32px;box-sizing:border-box;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 id="schedModalTitle" style="margin:0;font-size:17px;font-weight:700;color:#fff;">일정 추가</h3>
+      <button onclick="closeSchedModal()" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;">&times;</button>
+    </div>
+    <div id="schedModalErr" style="display:none;background:#ff4d4f22;color:#ff4d4f;border:1px solid #ff4d4f55;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px;"></div>
+    <div style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">날짜</label>
+      <input id="schedDate" type="date" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;"></div>
+    <div style="margin-bottom:8px;">
+      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">시작 시간 <span style="font-size:10px;color:#6c63ff;font-weight:600">탭하여 조정 ▼</span></label>
+      <div id="schedStartDisplay" onclick="toggleTimePicker()" style="width:100%;background:#241850;border:1.5px solid #6c63ff;border-radius:8px;color:#fff;padding:11px 14px;font-size:16px;font-weight:700;cursor:pointer;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;-webkit-tap-highlight-color:transparent;">
+        <span id="schedStartLabel">오전 9:00</span>
+        <span style="font-size:11px;color:#9d8fdb;font-weight:400">변경 ▼</span>
+      </div>
+      <input id="schedStart" type="hidden" value="09:00">
+      <div id="timePickerDrop" style="display:none;background:#1a1a2e;border:1px solid #3a3a5c;border-radius:8px;max-height:168px;overflow-y:auto;margin-top:4px;position:relative;z-index:50;-webkit-overflow-scrolling:touch;"></div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">종료 시간 <span style="font-size:10px;color:#2a4060">시작 +60분 자동</span></label>
+      <div id="schedEndDisplay" style="width:100%;background:#141f35;border:1px solid #1e3a5f44;border-radius:8px;color:#4a6580;padding:11px 14px;font-size:16px;font-weight:700;box-sizing:border-box;">오전 10:00</div>
+      <input id="schedEnd" type="hidden" value="10:00">
+    </div>
+    <div style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">유형</label>
+      <div style="position:relative;">
+        <select id="schedType" onchange="onSchedTypeChange()" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 40px 10px 12px;font-size:14px;box-sizing:border-box;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;">
+          <option value="PT">PT</option>
+          <option value="SPT">SPT</option>
+          <option value="업무">업무</option>
+          <option value="청소">청소</option>
+          <option value="홍보">홍보</option>
+          <option value="식사">식사</option>
+        </select>
+        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:#aaa;font-size:12px;">▼</span>
+      </div></div>
+    <div id="schedMemberRow" style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">회원 (선택)</label>
+      <select id="schedMember" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;-webkit-appearance:none;">
+        <option value="">-- 회원 없음 --</option></select></div>
+    <div id="schedMemberTextRow" style="display:none;margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">회원</label>
+      <input id="schedMemberText" type="text" placeholder="회원명을 입력해주세요" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;font-family:inherit;"></div>
+    <div id="schedNotesRow" style="margin-bottom:20px;display:none;"><label id="schedNotesLabel" style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">내용</label>
+      <textarea id="schedNotes" rows="3" placeholder="" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;resize:vertical;font-family:inherit;"></textarea></div>
+    <div style="display:flex;gap:10px;">
+      <button id="schedDeleteBtn" onclick="deleteSchedule()" style="display:none;flex:1;background:#3a1a1a;border:1px solid #ff4d4f55;color:#ff4d4f;border-radius:10px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;">삭제</button>
+      <button id="schedSaveBtn" onclick="saveSchedule()" style="flex:2;background:#6c63ff;border:none;color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 일정 상세/액션 모달 ===== -->
+<div id="schedInfoModal" style="display:none;position:fixed;inset:0;z-index:1001;background:rgba(0,0,0,0.55);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeSchedInfo()">
+  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:0 20px calc(28px + env(safe-area-inset-bottom));box-sizing:border-box;max-height:85dvh;overflow-y:auto;animation:slideUp .22s ease;">
+    <div style="width:36px;height:4px;background:#3a3a5c;border-radius:99px;margin:14px auto 20px;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div id="siMember" style="font-size:18px;font-weight:800;color:#fff;"></div>
+      <div id="siStatus"></div>
+    </div>
+    <div style="background:#141428;border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2a2a3c;">
+        <span style="font-size:12px;color:#6a6a8a;">날짜/시간</span>
+        <span id="siDateTime" style="font-size:13px;color:#fff;font-weight:600;"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2a2a3c;">
+        <span style="font-size:12px;color:#6a6a8a;">유형</span>
+        <span id="siType" style="font-size:13px;color:#fff;font-weight:600;"></span>
+      </div>
+      <div id="siSessionRow" style="display:flex;justify-content:space-between;padding:5px 0;">
+        <span style="font-size:12px;color:#6a6a8a;">PT 회차</span>
+        <span id="siSession" style="font-size:13px;color:#fff;font-weight:600;"></span>
+      </div>
+    </div>
+    <div id="siErr" style="display:none;background:#ff4d4f22;color:#ff4d4f;border:1px solid #ff4d4f55;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:10px;"></div>
+    <div id="siActions" style="display:flex;flex-direction:column;gap:10px;margin-top:14px;"></div>
+  </div>
+</div>
+
+
+
+
+<!-- ── 수업일지 연결 모달 ───────────────────────────────────── -->
+<div id="linkLogModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.7);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)linkLogSkip()">
+  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:0 20px calc(28px + env(safe-area-inset-bottom));box-sizing:border-box;max-height:80dvh;overflow-y:auto;animation:slideUp .22s ease;">
+    <div style="width:36px;height:4px;background:#3a3a5c;border-radius:99px;margin:14px auto 18px;"></div>
+    <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px;">수업일지 연결</div>
+    <div id="linkLogSubtitle" style="font-size:12px;color:#6a6a8a;margin-bottom:16px;"></div>
+    <div id="linkLogList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;"></div>
+    <div style="display:flex;gap:10px;padding-bottom:4px;">
+      <button onclick="linkLogWrite()" style="flex:1;background:#3b82f622;border:1.5px solid #3b82f655;color:#60a5fa;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">지금 작성</button>
+      <button onclick="linkLogSkip()" style="flex:1;background:#ffffff11;border:1.5px solid #ffffff22;color:#888;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">나중에</button>
+    </div>
+  </div>
+</div>
+
+
 
 </body>
 </html>
