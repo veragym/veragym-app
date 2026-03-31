@@ -76,6 +76,41 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .log-actions { display:flex; gap:8px; margin-top:10px; padding-top:10px; border-top:1px solid #1e3a5f22; }
 .btn-sm { flex:1; background:#141f35; border:1px solid #1e3a5f44; border-radius:8px; padding:8px 10px; font-size:12px; color:#60a5fa; cursor:pointer; font-family:inherit; text-align:center; }
 .btn-sm:hover { border-color:#3b82f644; }
+
+/* ── 이미지생성 탭 ──────────────────────────────────────────── */
+.ig-field { margin-bottom:14px; }
+.ig-label { font-size:11px; color:#3a5878; font-weight:600; letter-spacing:0.8px; margin-bottom:6px; }
+.ig-input { width:100%; background:#0d1525; border:1px solid #1e3a5f44; border-radius:10px; padding:11px 14px; color:#fff; font-size:14px; font-family:inherit; box-sizing:border-box; }
+.ig-input:focus { outline:none; border-color:#3b82f6; }
+.ig-search-wrap { position:relative; margin-bottom:8px; }
+.ig-search { width:100%; background:#0d1525; border:1px solid #1e3a5f44; border-radius:10px; padding:11px 14px; color:#fff; font-size:13px; font-family:inherit; box-sizing:border-box; }
+.ig-search:focus { outline:none; border-color:#3b82f6; }
+.ig-results { position:absolute; top:100%; left:0; right:0; background:#0d1525; border:1px solid #1e3a5f66; border-radius:10px; z-index:200; max-height:220px; overflow-y:auto; margin-top:4px; box-shadow:0 8px 24px #00000066; }
+.ig-result { padding:11px 14px; cursor:pointer; border-bottom:1px solid #1e3a5f22; }
+.ig-result:last-child { border-bottom:none; }
+.ig-result:active { background:#1e3a5f33; }
+.ig-result-name { font-size:13px; font-weight:600; color:#e2e8f0; }
+.ig-result-sub { font-size:11px; color:#4a6580; margin-top:2px; }
+.ig-ex-card { background:#0d1525; border:1px solid #1e3a5f44; border-radius:12px; padding:13px 14px; margin-bottom:10px; }
+.ig-ex-head { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
+.ig-ex-num { width:26px; height:26px; background:#1e3a5f; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#60a5fa; flex-shrink:0; margin-top:2px; }
+.ig-ex-name { font-size:14px; font-weight:700; flex:1; line-height:1.4; }
+.ig-ex-sub { font-size:11px; color:#4a6580; margin-top:2px; }
+.ig-ex-del { background:none; border:none; color:#4a6580; font-size:20px; cursor:pointer; padding:0 4px; line-height:1; }
+.ig-sets-hdr { display:grid; grid-template-columns:34px 1fr 1fr 34px; gap:6px; margin-bottom:4px; }
+.ig-sets-hdr span { font-size:10px; color:#3a5878; font-weight:600; text-align:center; letter-spacing:0.5px; }
+.ig-set-row { display:grid; grid-template-columns:34px 1fr 1fr 34px; gap:6px; align-items:center; margin-bottom:4px; }
+.ig-set-num { font-size:12px; color:#5a7898; font-weight:600; text-align:center; }
+.ig-set-input { background:#091422; border:1px solid #1e3a5f33; border-radius:8px; padding:8px 6px; color:#fff; font-size:13px; text-align:center; font-family:inherit; width:100%; box-sizing:border-box; }
+.ig-set-input:focus { outline:none; border-color:#3b82f666; }
+.ig-del-set { background:none; border:none; color:#3a5878; font-size:18px; cursor:pointer; text-align:center; padding:0; }
+.ig-add-set { width:100%; background:none; border:1px dashed #1e3a5f55; border-radius:8px; color:#3a5878; font-size:12px; font-weight:600; padding:7px; cursor:pointer; font-family:inherit; margin-top:4px; }
+.ig-add-set:active { background:#1e3a5f22; }
+.ig-empty { color:#3a5878; font-size:13px; text-align:center; padding:24px 0 16px; }
+.ig-actions { display:flex; gap:10px; margin-top:20px; padding-bottom:20px; }
+.ig-btn-save { flex:1; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; border:none; border-radius:12px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+.ig-btn-share { flex:1; background:#0d1525; border:1px solid #3b82f644; color:#60a5fa; border-radius:12px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+.ig-btn-save:active, .ig-btn-share:active { opacity:0.8; }
 .btn-danger { color:#f87171; border-color:#3a1a1a; }
 .btn-danger:hover { border-color:#f87171 !important; }
 
@@ -178,6 +213,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <button class="tab-btn" id="nav-revenue" onclick="switchTab('revenue',this)">매출관리</button>
   <button class="tab-btn" onclick="location.href='exercise-library.html'">운동DB</button>
   <button class="tab-btn" id="nav-requests" onclick="switchTab('requests',this)">요청사항</button>
+  <button class="tab-btn" id="nav-imggen" onclick="switchTab('imggen',this)">이미지생성</button>
 </div>
 
 <!-- ── Tab: 회원 ───────────────────────────────────────────── -->
@@ -359,6 +395,36 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <button class="btn-add" onclick="openAddReq()">+ 요청 추가</button>
   </div>
   <div id="reqList"><div class="loading">불러오는 중...</div></div>
+</div>
+
+<div id="tab-imggen" class="tab-content">
+  <div class="sec-header"><span class="sec-title">이미지 생성</span></div>
+
+  <!-- 기본 정보 -->
+  <div class="ig-field">
+    <div class="ig-label">회원명</div>
+    <input class="ig-input" id="ig-member" type="text" placeholder="홍길동">
+  </div>
+  <div class="ig-field">
+    <div class="ig-label">운동 프로그램명</div>
+    <input class="ig-input" id="ig-program" type="text" placeholder="하체, 상체, 전신 등">
+  </div>
+
+  <!-- 운동 검색 -->
+  <div class="ig-label" style="margin-bottom:8px">운동 목록</div>
+  <div class="ig-search-wrap">
+    <input class="ig-search" id="igExSearch" type="text" placeholder="운동 이름으로 검색..." oninput="igSearchEx()" autocomplete="off" onclick="igSearchEx()">
+    <div class="ig-results" id="igExResults" style="display:none"></div>
+  </div>
+
+  <!-- 운동 카드 목록 -->
+  <div id="igExList"><div class="ig-empty">운동을 검색해서 추가하세요</div></div>
+
+  <!-- 버튼 -->
+  <div class="ig-actions">
+    <button class="ig-btn-save" onclick="igGenerateAndSave()">📥 이미지 저장</button>
+    <button class="ig-btn-share" onclick="igGenerateAndShare()">📤 공유하기</button>
+  </div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -1162,7 +1228,7 @@ async function handleDbError(error, fallbackMsg) {
   return true;
 }
 const _origSwitchTab=switchTab;
-switchTab=function(id,btn){_origSwitchTab(id,btn);if(id==='schedule')loadScheduleView();if(id==='revenue')loadRevenue();};
+switchTab=function(id,btn){_origSwitchTab(id,btn);if(id==='schedule')loadScheduleView();if(id==='revenue')loadRevenue();if(id==='imggen'){igLoadExCache();igRenderList();}};
 
 // ══════════ 매출관리 (Revenue) ══════════
 let _revPayments = [];        // payment_records for this trainer
@@ -2265,6 +2331,296 @@ function linkLogSkip(){
   document.getElementById('linkLogModal').style.display='none';
   document.body.style.overflow='';
 }
+
+// ══════════════════════════════════════════════════════════════
+// 이미지생성 탭
+// ══════════════════════════════════════════════════════════════
+let igExercises = [];   // { name, part, tool, image_url, sets:[{weight,reps}] }
+let _igExCache  = [];   // 전체 운동 목록 캐시
+
+async function igLoadExCache() {
+  if (_igExCache.length) return;
+  const { data } = await db.from('exercise_refs')
+    .select('id,name_ko,name_en,part_unified,tool_unified,image_url')
+    .eq('is_active', true).order('name_ko');
+  _igExCache = data || [];
+}
+
+let _igSearchTimer = null;
+function igSearchEx() {
+  clearTimeout(_igSearchTimer);
+  _igSearchTimer = setTimeout(async () => {
+    const q = (document.getElementById('igExSearch').value || '').trim().toLowerCase();
+    const res = document.getElementById('igExResults');
+    if (!q) { res.style.display = 'none'; return; }
+    await igLoadExCache();
+    const hits = _igExCache.filter(e =>
+      (e.name_ko || '').toLowerCase().includes(q) ||
+      (e.name_en || '').toLowerCase().includes(q)
+    ).slice(0, 8);
+    if (!hits.length) { res.style.display = 'none'; return; }
+    res.innerHTML = hits.map(e =>
+      `<div class="ig-result" onclick="igAddExById('${e.id}')">
+        <div class="ig-result-name">${e.name_ko || e.name_en}</div>
+        <div class="ig-result-sub">${[e.part_unified, e.tool_unified].filter(Boolean).join(' · ')}</div>
+       </div>`
+    ).join('');
+    res.style.display = 'block';
+  }, 180);
+}
+
+document.addEventListener('click', e => {
+  const res = document.getElementById('igExResults');
+  if (res && !res.contains(e.target) && e.target.id !== 'igExSearch') {
+    res.style.display = 'none';
+  }
+});
+
+function igAddExById(id) {
+  const ex = _igExCache.find(e => e.id === id);
+  if (!ex) return;
+  igExercises.push({
+    name:      ex.name_ko || ex.name_en || '운동',
+    part:      ex.part_unified || '',
+    tool:      ex.tool_unified || '',
+    image_url: ex.image_url || null,
+    sets:      [{ weight: 0, reps: 10 }]
+  });
+  document.getElementById('igExSearch').value = '';
+  document.getElementById('igExResults').style.display = 'none';
+  igRenderList();
+}
+
+function igRenderList() {
+  const wrap = document.getElementById('igExList');
+  if (!igExercises.length) {
+    wrap.innerHTML = '<div class="ig-empty">운동을 검색해서 추가하세요</div>'; return;
+  }
+  wrap.innerHTML = igExercises.map((ex, i) => `
+    <div class="ig-ex-card">
+      <div class="ig-ex-head">
+        <div class="ig-ex-num">${i + 1}</div>
+        <div style="flex:1">
+          <div class="ig-ex-name">${ex.name}</div>
+          ${ex.part || ex.tool ? `<div class="ig-ex-sub">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>` : ''}
+        </div>
+        <button class="ig-ex-del" onclick="igRemoveEx(${i})">✕</button>
+      </div>
+      <div class="ig-sets-hdr"><span>세트</span><span>무게(kg)</span><span>횟수</span><span></span></div>
+      ${ex.sets.map((s, si) => `
+        <div class="ig-set-row">
+          <div class="ig-set-num">${si + 1}</div>
+          <input class="ig-set-input" type="number" step="0.5" min="0" value="${s.weight}"
+                 onchange="igUpdSet(${i},${si},'weight',this.value)">
+          <input class="ig-set-input" type="number" min="1" value="${s.reps}"
+                 onchange="igUpdSet(${i},${si},'reps',this.value)">
+          <button class="ig-del-set" onclick="igDelSet(${i},${si})"
+                  ${ex.sets.length <= 1 ? 'style="opacity:0;pointer-events:none"' : ''}>−</button>
+        </div>`).join('')}
+      <button class="ig-add-set" onclick="igAddSet(${i})">＋ 세트 추가</button>
+    </div>`).join('');
+}
+
+function igRemoveEx(i) { igExercises.splice(i, 1); igRenderList(); }
+function igAddSet(i) {
+  const last = igExercises[i].sets.at(-1) || { weight: 0, reps: 10 };
+  igExercises[i].sets.push({ weight: last.weight, reps: last.reps });
+  igRenderList();
+}
+function igDelSet(i, si) {
+  if (igExercises[i].sets.length <= 1) return;
+  igExercises[i].sets.splice(si, 1);
+  igRenderList();
+}
+function igUpdSet(i, si, field, val) {
+  igExercises[i].sets[si][field] = field === 'weight' ? parseFloat(val) || 0 : parseInt(val) || 0;
+}
+
+// ── 캔버스 생성 ──────────────────────────────────────────────
+async function igBuildCanvas() {
+  const memberName  = (document.getElementById('ig-member').value  || '').trim();
+  const programName = (document.getElementById('ig-program').value || '').trim();
+  if (!memberName)         { showToast('회원명을 입력해주세요'); return null; }
+  if (!igExercises.length) { showToast('운동을 하나 이상 추가해주세요'); return null; }
+  showToast('이미지 생성 중...');
+
+  // 운동 이미지 로드 (CORS 실패 → null)
+  const imgMap = {};
+  await Promise.all(igExercises.map(async (ex, i) => {
+    if (!ex.image_url) return;
+    imgMap[i] = await new Promise(resolve => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload  = () => resolve(img);
+      img.onerror = () => resolve(null);
+      setTimeout(() => resolve(null), 4000);
+      img.src = ex.image_url;
+    });
+  }));
+
+  // ── 상수 ─────────────────────────────────────────────────
+  const W = 1080, PAD = 52, COL = 1080 - 52 * 2;
+  const HEADER_H = 148, FOOTER_H = 72;
+  const EX_TOP = 48, NAME_H = 68, SET_HDR = 38, SET_ROW = 40, EX_SEP = 32;
+
+  // ── 전체 높이 계산 ────────────────────────────────────────
+  let totalH = HEADER_H + EX_TOP;
+  igExercises.forEach((ex, i) => {
+    if (imgMap[i]) totalH += Math.round(COL * 9 / 16) + 18;
+    totalH += NAME_H + SET_HDR + ex.sets.length * SET_ROW;
+    totalH += i < igExercises.length - 1 ? EX_SEP + 24 : EX_SEP;
+  });
+  totalH += FOOTER_H + 20;
+
+  // ── 캔버스 ───────────────────────────────────────────────
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = totalH;
+  const ctx = canvas.getContext('2d');
+
+  function rRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+  }
+
+  // ── 배경 + 헤더 ──────────────────────────────────────────
+  ctx.fillStyle = '#080e1a'; ctx.fillRect(0, 0, W, totalH);
+  ctx.fillStyle = '#0d1525'; ctx.fillRect(0, 0, W, HEADER_H);
+  ctx.fillStyle = '#1e3a5f33'; ctx.fillRect(0, HEADER_H - 1, W, 1);
+
+  // 로고
+  const FONT = '-apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+  ctx.font = `bold 46px ${FONT}`;
+  ctx.fillStyle = '#ffffff'; ctx.fillText('VERA', PAD, 64);
+  const vW = ctx.measureText('VERA').width;
+  ctx.fillStyle = '#3b82f6'; ctx.fillText('GYM', PAD + vW + 6, 64);
+
+  // 회원명 + 프로그램명
+  ctx.font = `bold 36px ${FONT}`;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(`'${memberName}'님`, PAD, 114);
+  if (programName) {
+    const nmW = ctx.measureText(`'${memberName}'님`).width;
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillText(`  '${programName}' 프로그램`, PAD + nmW, 114);
+  }
+
+  // ── 운동 목록 ─────────────────────────────────────────────
+  let y = HEADER_H + EX_TOP;
+  for (let i = 0; i < igExercises.length; i++) {
+    const ex = igExercises[i];
+    const cat = [ex.part, ex.tool].filter(Boolean).join(' · ');
+
+    // 운동 이미지
+    if (imgMap[i]) {
+      const imgH = Math.round(COL * 9 / 16);
+      rRect(PAD, y, COL, imgH, 14); ctx.save(); ctx.clip();
+      const img = imgMap[i];
+      const scale = Math.min(COL / img.naturalWidth, imgH / img.naturalHeight);
+      const iW = img.naturalWidth * scale, iH = img.naturalHeight * scale;
+      ctx.fillStyle = '#0d1a2e'; ctx.fillRect(PAD, y, COL, imgH);
+      ctx.drawImage(img, PAD + (COL - iW) / 2, y + (imgH - iH) / 2, iW, iH);
+      ctx.restore();
+      y += imgH + 18;
+    }
+
+    // 번호 + 이름
+    ctx.font = `bold 32px ${FONT}`;
+    ctx.fillStyle = '#3b82f6'; ctx.textAlign = 'left';
+    ctx.fillText(`${i + 1}.`, PAD, y + 32);
+    const numW = ctx.measureText(`${i + 1}. `).width + 2;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(ex.name, PAD + numW, y + 32);
+    if (cat) {
+      ctx.font = `22px ${FONT}`; ctx.fillStyle = '#4a6580';
+      ctx.fillText(cat, PAD + numW, y + 58);
+    }
+    y += NAME_H;
+
+    // 세트 헤더
+    const colW = COL / 3;
+    ctx.fillStyle = '#0a1525'; rRect(PAD, y, COL, SET_HDR, 8); ctx.fill();
+    ctx.font = `20px ${FONT}`; ctx.fillStyle = '#3a5878'; ctx.textAlign = 'center';
+    ctx.fillText('세트', PAD + colW * 0.5, y + 26);
+    ctx.fillText('무게 (kg)', PAD + colW * 1.5, y + 26);
+    ctx.fillText('횟수', PAD + colW * 2.5, y + 26);
+    ctx.textAlign = 'left'; y += SET_HDR;
+
+    // 세트 행
+    ex.sets.forEach((s, si) => {
+      ctx.fillStyle = si % 2 === 0 ? '#0d1a2e' : '#091422';
+      ctx.fillRect(PAD, y, COL, SET_ROW);
+      ctx.textAlign = 'center'; ctx.font = `24px ${FONT}`;
+      ctx.fillStyle = '#5a7898'; ctx.fillText(String(si + 1), PAD + colW * 0.5, y + 28);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(s.weight !== 0 ? String(s.weight) : '─', PAD + colW * 1.5, y + 28);
+      ctx.fillText(s.reps   !== 0 ? String(s.reps)   : '─', PAD + colW * 2.5, y + 28);
+      ctx.textAlign = 'left'; y += SET_ROW;
+    });
+
+    // 구분선
+    if (i < igExercises.length - 1) {
+      y += 16; ctx.fillStyle = '#1e3a5f33'; ctx.fillRect(PAD, y, COL, 1); y += EX_SEP;
+    } else { y += EX_SEP; }
+  }
+
+  // ── 푸터 ─────────────────────────────────────────────────
+  const fy = totalH - FOOTER_H;
+  ctx.fillStyle = '#1e3a5f22'; ctx.fillRect(0, fy, W, 1);
+  ctx.font = `22px ${FONT}`; ctx.fillStyle = '#2a4060'; ctx.textAlign = 'center';
+  ctx.fillText('VERA GYM | 트레이너 맞춤 프로그램', W / 2, fy + 44);
+  ctx.textAlign = 'left';
+
+  return canvas;
+}
+
+// ── 저장 ────────────────────────────────────────────────────
+async function igGenerateAndSave() {
+  const canvas = await igBuildCanvas();
+  if (!canvas) return;
+  canvas.toBlob(blob => {
+    if (!blob) { showToast('이미지 생성 실패'); return; }
+    const memberName = (document.getElementById('ig-member').value || '').trim();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `veragym_${memberName || 'workout'}.png`;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('이미지 저장 완료 ✓');
+  }, 'image/png');
+}
+
+// ── 공유 (Web Share API → 갤러리 저장 fallback) ────────────
+async function igGenerateAndShare() {
+  const canvas = await igBuildCanvas();
+  if (!canvas) return;
+  canvas.toBlob(async blob => {
+    if (!blob) { showToast('이미지 생성 실패'); return; }
+    const memberName = (document.getElementById('ig-member').value || '').trim();
+    const file = new File([blob], `veragym_${memberName || 'workout'}.png`, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'VERA GYM 운동 기록' });
+      } catch (e) {
+        if (e.name !== 'AbortError') igFallbackDownload(blob, memberName);
+      }
+    } else {
+      igFallbackDownload(blob, memberName);
+      showToast('공유 미지원 환경 — 이미지 저장했어요');
+    }
+  }, 'image/png');
+}
+
+function igFallbackDownload(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `veragym_${name || 'workout'}.png`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
 </script>
 
 </body>
