@@ -1282,14 +1282,15 @@ async function loadRoutineExercises(routineExs) {
   }
   routineExs.forEach(ex => {
     exercises.push({
-      rowId:   null,
-      refId:   ex.refId || null,
-      name:    ex.name,
-      part:    ex.part  || '',
-      tool:    ex.tool  || '',
-      sets:    [{ set: 1, weight: 0, reps: 10 }],
-      comment: '',
-      photos:  { start: null, end: null },
+      rowId:      null,
+      refId:      ex.refId || null,
+      name:       ex.name,
+      part:       ex.part  || '',
+      tool:       ex.tool  || '',
+      weight_mode: ex.weight_mode || defaultWeightMode(ex.tool || ''),
+      sets:       [{ set: 1, weight: 0, reps: 10 }],
+      comment:    '',
+      photos:     { start: null, end: null },
     });
   });
   renderExercises();
