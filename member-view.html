@@ -138,13 +138,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .ex-modal-muscle-chip { background:#4ade8011; border:1px solid #4ade8033; border-radius:16px; padding:5px 12px; font-size:12px; color:#86efac; }
 
 /* ── Anatomy Tab ─────────────────────────────────────────── */
-.anatomy-type-toggle { display:flex; background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; overflow:hidden; margin-bottom:10px; }
-.anatomy-type-toggle button { flex:1; padding:11px; font-size:14px; font-weight:700; background:none; border:none; color:#3a5840; cursor:pointer; font-family:inherit; transition:all 0.2s; }
-.anatomy-type-toggle button.active { background:#4ade8022; color:#4ade80; }
-.anatomy-side-toggle { display:flex; background:#080e08; border:1px solid #1a3a1a33; border-radius:8px; overflow:hidden; margin-bottom:16px; }
-.anatomy-side-toggle button { flex:1; padding:7px; font-size:12px; font-weight:600; background:none; border:none; color:#2a4a2a; cursor:pointer; font-family:inherit; transition:all 0.2s; }
-.anatomy-side-toggle button.active { background:#1a3a1a; color:#86efac; }
-.anatomy-view { display:flex; justify-content:center; }
+.anatomy-view { display:flex; justify-content:center; margin-top:4px; }
 .anatomy-img { width:100%; max-width:300px; border-radius:12px; display:block; }
 
 /* ── Photo Viewer ────────────────────────────────────────── */
@@ -248,20 +242,26 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <!-- ── Tab: 해부도 ─────────────────────────────────────── -->
   <div id="tab-anatomy" class="tab-content">
     <div class="sec-header"><span class="sec-title">해부도</span></div>
-    <!-- 1단계: 근육 / 뼈 -->
-    <div class="anatomy-type-toggle">
-      <button class="active" id="btnTypeMuscle" onclick="setAnatomyType('muscle')">근육</button>
-      <button id="btnTypeBone" onclick="setAnatomyType('bone')">뼈</button>
+    <div class="ex-filter-row">
+      <div class="ex-filter-label">종류</div>
+      <div class="ex-chips">
+        <button class="ex-chip active" id="btnTypeMuscle" onclick="setAnatomyType('muscle')">근육</button>
+        <button class="ex-chip" id="btnTypeBone" onclick="setAnatomyType('bone')">뼈</button>
+      </div>
     </div>
-    <!-- 2단계: 근육 정면 / 후면 -->
-    <div id="anatomyMuscleViews" class="anatomy-side-toggle">
-      <button class="active" id="btnMuscleFront" onclick="showAnatomyImg('muscle-front')">정면</button>
-      <button id="btnMuscleBack" onclick="showAnatomyImg('muscle-back')">후면</button>
+    <div id="anatomyMuscleViews" class="ex-filter-row">
+      <div class="ex-filter-label">방향</div>
+      <div class="ex-chips">
+        <button class="ex-chip active" id="btnMuscleFront" onclick="showAnatomyImg('muscle-front')">정면</button>
+        <button class="ex-chip" id="btnMuscleBack" onclick="showAnatomyImg('muscle-back')">후면</button>
+      </div>
     </div>
-    <!-- 2단계: 뼈 정면 / 측면 -->
-    <div id="anatomyBoneViews" class="anatomy-side-toggle" style="display:none">
-      <button class="active" id="btnBoneFront" onclick="showAnatomyImg('bone-front')">정면</button>
-      <button id="btnBoneSide" onclick="showAnatomyImg('bone-side')">측면</button>
+    <div id="anatomyBoneViews" class="ex-filter-row" style="display:none">
+      <div class="ex-filter-label">방향</div>
+      <div class="ex-chips">
+        <button class="ex-chip active" id="btnBoneFront" onclick="showAnatomyImg('bone-front')">정면</button>
+        <button class="ex-chip" id="btnBoneSide" onclick="showAnatomyImg('bone-side')">측면</button>
+      </div>
     </div>
     <div class="anatomy-view">
       <img id="anatomyImg" src="./images/anatomy/muscle-front.png" class="anatomy-img" alt="근육 정면 해부도">
