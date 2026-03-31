@@ -2005,38 +2005,34 @@ async function siAction(action){
   }
 }
 
-// ── 수업 롤백 ─────────────────────────────────────────────────
-// 완료 ↔ 노쇼 전환 (잔여횟수 변동 없음, 상태 라벨만 변경)
+// ── 완료 ↔ 노쇼 전환 (잔여횟수 변동 없음) ──────────────────────
 let _siTogglePending=false;
 async function siToggleNoshow(){
   if(!_siTarget)return;
   const btn=document.getElementById('siBtnToggleNoshow');
   const errEl=document.getElementById('siErr');
   errEl.style.display='none';
-  if(!_siTogglePending){
-    _siTogglePending=true;
-    if(btn)btn.textContent=btn.textContent+' — 한 번 더 탭해서 확인';
-    setTimeout(()=>{if(_siTogglePending){_siTogglePending=false;renderSiActions();}},3000);
-    return;
-  }
-  _siTogglePending=false;
-  if(btn)btn.disabled=true;
+  if(btn){btn.disabled=true;btn.style.opacity='0.6';}
   try{
-    const newStatus=_siTarget.status==='completed'?'noshow':'completed';
+    const curStatus=_siTarget.status;
+    const newStatus=curStatus==='completed'?'noshow':'completed';
     const toggledId=_siTarget.id;
-    const{error}=await db.from('schedules').update({status:newStatus}).eq('id',toggledId);
+    const{data:updated,error}=await db.from('schedules')
+      .update({status:newStatus}).eq('id',toggledId).select('id,status');
     if(error)throw new Error(error.message);
-    // 즉시 메모리 업데이트 → 카드 색상/라벨 즉각 반영 (loadScheduleView 완료 전에도)
+    if(!updated?.length)throw new Error('상태 변경 실패: 권한이 없거나 항목을 찾을 수 없습니다');
+    // 메모리 즉시 반영
     const idx=scheduleData.findIndex(s=>s.id===toggledId);
     if(idx>=0) scheduleData[idx]={...scheduleData[idx],status:newStatus};
+    // _siTarget도 직접 갱신
+    _siTarget={..._siTarget,status:newStatus};
     closeSchedInfo();
     renderCalGrid(getCalDates());
     showToast(newStatus==='noshow'?'노쇼로 변경됐습니다':'완료로 변경됐습니다');
     await loadScheduleView();
   }catch(e){
-    errEl.textContent=e.message;errEl.style.display='block';
-    if(btn)btn.disabled=false;
-    renderSiActions();
+    if(errEl){errEl.textContent=e.message;errEl.style.display='block';}
+    if(btn){btn.disabled=false;btn.style.opacity='1';}
   }
 }
 

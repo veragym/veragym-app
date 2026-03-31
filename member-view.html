@@ -406,7 +406,16 @@ async function loadLogs(token) {
         </div>
         <div class="sess-body" id="sessBody${i}">
           ${s.notes ? `<div style="padding:14px 18px 0"><div class="sess-notes"><div class="sess-notes-label">트레이너 총평</div>${s.notes}</div></div>` : ''}
-          ${s.note_photo_path ? `<div style="padding:10px 18px 0"><button class="mv-photo-btn" onclick="viewNotePhotoMember('${s.note_photo_path}')">PT 노트 사진 보기</button></div>` : ''}
+          ${s.note_photo_path ? `
+          <div style="padding:8px 18px 0">
+            <div id="notePhotoInline${i}" style="display:none;margin-bottom:8px;position:relative;background:#0d1a0d;border-radius:10px;overflow:hidden;border:1px solid #1a3a1a44;">
+              <div style="padding:8px;text-align:center;">
+                <img id="notePhotoInlineImg${i}" src="" alt="PT 노트" style="max-width:100%;max-height:55dvh;object-fit:contain;display:block;margin:0 auto;border-radius:6px;">
+              </div>
+              <button onclick="closeNotePhotoInline(${i})" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:#4ade80;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+            </div>
+            <button class="mv-photo-btn" id="notePhotoBtn${i}" onclick="toggleNotePhotoInline(${i}, '${s.note_photo_path}')">PT 노트 사진 보기</button>
+          </div>` : ''}
           <div id="sessDetail${i}"></div>
         </div>
       </div>`;
@@ -654,18 +663,51 @@ async function viewMemberPhotos(startPath, endPath, exName) {
 }
 function closeMemberPhotoViewer() { document.getElementById('memberPhotoViewer').classList.remove('open'); }
 
-async function viewNotePhotoMember(path) {
-  const viewer = document.getElementById('memberPhotoViewer');
-  const imgs   = document.getElementById('memberViewerImgs');
-  document.getElementById('memberViewerTitle').textContent = 'PT 노트 사진';
-  imgs.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#555;font-size:13px">불러오는 중...</div>';
-  viewer.classList.add('open');
-  const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
-  if (error || !data?.signedUrl) {
-    imgs.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#f87171;font-size:13px">사진을 불러올 수 없습니다</div>';
+// PT 노트 사진 인라인 토글 (signed URL 캐시 포함)
+const _notePhotoUrlCache = {};
+
+async function toggleNotePhotoInline(i, path) {
+  const container = document.getElementById(`notePhotoInline${i}`);
+  const btn       = document.getElementById(`notePhotoBtn${i}`);
+  const img       = document.getElementById(`notePhotoInlineImg${i}`);
+  if (!container) return;
+
+  // 이미 열려 있으면 닫기
+  if (container.style.display !== 'none') {
+    container.style.display = 'none';
+    if (btn) btn.textContent = 'PT 노트 사진 보기';
     return;
   }
-  imgs.innerHTML = `<div class="mv-photo-slot" style="flex:none;width:100%"><img src="${data.signedUrl}" alt="PT 노트" style="max-height:65vh;width:auto;max-width:100%;object-fit:contain;"><div class="mv-photo-label">PT 노트</div></div>`;
+
+  // 열기
+  container.style.display = '';
+  if (btn) btn.textContent = '사진 닫기';
+
+  // 이미 이미지가 로드돼 있으면 재사용
+  if (img && img.src && img.src !== window.location.href) return;
+
+  // 로딩 표시
+  if (img) { img.style.minHeight = '80px'; img.style.opacity = '0.4'; }
+
+  // signed URL 가져오기 (캐시 활용)
+  if (!_notePhotoUrlCache[path]) {
+    const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) {
+      container.innerHTML = `
+        <div style="padding:16px;text-align:center;color:#f87171;font-size:13px;">사진을 불러올 수 없습니다</div>
+        <button onclick="closeNotePhotoInline(${i})" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:#4ade80;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>`;
+      return;
+    }
+    _notePhotoUrlCache[path] = data.signedUrl;
+  }
+  if (img) { img.src = _notePhotoUrlCache[path]; img.style.minHeight = ''; img.style.opacity = '1'; }
+}
+
+function closeNotePhotoInline(i) {
+  const container = document.getElementById(`notePhotoInline${i}`);
+  const btn       = document.getElementById(`notePhotoBtn${i}`);
+  if (container) container.style.display = 'none';
+  if (btn) btn.textContent = 'PT 노트 사진 보기';
 }
 
 // ── 에러 / 날짜 포맷 ──────────────────────────────────────────
