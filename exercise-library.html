@@ -241,6 +241,7 @@ body {
   <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=revenue'">매출관리</button>
   <button class="tab-btn active" onclick="location.href='exercise-library.html'">운동DB</button>
   <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=requests'">요청사항</button>
+  <button class="tab-btn" onclick="location.href='image-card.html'">이미지생성</button>
 </div>
 
 <!-- 수업작성에서 온 경우: 돌아가기 바 (JS로 표시) -->
@@ -272,8 +273,9 @@ body {
 
 <!-- 뷰 탭 -->
 <div class="view-tabs">
-  <div class="view-tab active" id="tabAll"  onclick="switchView('all')">전체 운동</div>
-  <div class="view-tab"        id="tabMine" onclick="switchView('mine')">내 운동 <span id="myCount" style="font-size:11px;opacity:0.75;">0</span></div>
+  <div class="view-tab active" id="tabAll"     onclick="switchView('all')">전체 운동</div>
+  <div class="view-tab"        id="tabMine"    onclick="switchView('mine')">내 운동 <span id="myCount" style="font-size:11px;opacity:0.75;">0</span></div>
+  <div class="view-tab"        id="tabRoutine" onclick="switchView('routine')">루틴 폴더</div>
 </div>
 
 <div class="stat-bar" id="statBar"></div>
@@ -281,6 +283,16 @@ body {
 <!-- 운동 목록 -->
 <div class="ex-list" id="exList">
   <div class="loading">운동 목록 불러오는 중...</div>
+</div>
+
+<!-- 루틴 목록 -->
+<div id="routineSection" style="display:none; padding:12px;">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+    <button onclick="openNewRoutineModal()"
+      style="padding:9px 16px;background:#3b82f6;border:none;border-radius:8px;
+             color:#fff;font-size:13px;font-weight:600;cursor:pointer;">+ 새 루틴</button>
+  </div>
+  <div id="routineList"></div>
 </div>
 
 <!-- 운동 상세 모달 -->
@@ -295,6 +307,7 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
+<script src="routine-utils.js"></script>
 <script>
 init_db();
 
@@ -389,23 +402,26 @@ async function init() {
     if (el) el.textContent = `${trainer.name} · ${trainer.gym_location}`;
     await Promise.all([loadAllExercises(), loadMyLib()]);
     buildFilters();
-    renderList();
+    // ?view= 파라미터로 특정 탭 직접 진입
+    const _vp = new URLSearchParams(location.search).get('view');
+    if (_vp === 'mine' || _vp === 'routine') { switchView(_vp); }
+    else { renderList(); }
   } finally {
     _initRunning = false;
   }
 }
 
 // ─── 전체 운동 DB 로드 (sessionStorage 5분 캐싱) ───
-const _EX_CACHE_KEY = 'vg_exdb_cache_v2';
+const _EX_CACHE_KEY = 'vg_exdb_cache_v3'; // v3: 빈 캐시 버그 수정
 const _EX_CACHE_TTL = 5 * 60 * 1000; // 5분
 
 async function loadAllExercises() {
-  // 캐시 확인
+  // 캐시 확인 (비어있는 캐시는 무시)
   try {
     const raw = sessionStorage.getItem(_EX_CACHE_KEY);
     if (raw) {
       const { ts, data } = JSON.parse(raw);
-      if (Date.now() - ts < _EX_CACHE_TTL) {
+      if (Date.now() - ts < _EX_CACHE_TTL && Array.isArray(data) && data.length > 0) {
         allExs = data;
         return;
       }
@@ -414,7 +430,7 @@ async function loadAllExercises() {
 
   // 캐시 없거나 만료 → Supabase 에서 로드 (페이지네이션)
   const PAGE = 1000;
-  let all = [], page = 0;
+  let all = [], page = 0, loadError = null;
   while (true) {
     const { data, error } = await db
       .from('exercise_refs')
@@ -422,18 +438,27 @@ async function loadAllExercises() {
       .eq('is_active', true)
       .order('name_ko', { ascending: true })
       .range(page * PAGE, (page + 1) * PAGE - 1);
-    if (error) { console.error('운동 DB 오류:', error.message); break; }
+    if (error) { console.error('운동 DB 오류:', error.message); loadError = error.message; break; }
     if (!data || data.length === 0) break;
     all.push(...data);
     if (data.length < PAGE) break;
     page++;
   }
+
+  if (loadError && all.length === 0) {
+    // 로드 실패 시 캐시에 저장하지 않고 오류 표시
+    showToast('운동 목록 로드 실패: ' + loadError);
+    return;
+  }
+
   allExs = all;
 
-  // sessionStorage 에 저장
-  try {
-    sessionStorage.setItem(_EX_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: all }));
-  } catch (_) {} // 저장 실패 시 무시 (용량 초과 등)
+  // 데이터가 있을 때만 sessionStorage 에 저장
+  if (all.length > 0) {
+    try {
+      sessionStorage.setItem(_EX_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: all }));
+    } catch (_) {} // 저장 실패 시 무시 (용량 초과 등)
+  }
 }
 
 // ─── 내 운동 목록 로드 ───
@@ -480,9 +505,281 @@ function clearSearch() {
 // ─── 뷰 전환 ───
 function switchView(v) {
   curView = v;
-  document.getElementById('tabAll').classList.toggle('active',  v==='all');
-  document.getElementById('tabMine').classList.toggle('active', v==='mine');
-  showCount=50; renderList();
+  document.getElementById('tabAll').classList.toggle('active',     v==='all');
+  document.getElementById('tabMine').classList.toggle('active',    v==='mine');
+  document.getElementById('tabRoutine').classList.toggle('active', v==='routine');
+
+  const isRoutine = v === 'routine';
+  document.getElementById('exList').style.display       = isRoutine ? 'none' : '';
+  document.getElementById('statBar').style.display      = isRoutine ? 'none' : '';
+  document.getElementById('routineSection').style.display = isRoutine ? '' : 'none';
+
+  if (isRoutine) { renderRoutines(); return; }
+  showCount = 50; renderList();
+}
+
+// ─── 루틴 렌더 ───
+async function renderRoutines() {
+  const wrap = document.getElementById('routineList');
+  wrap.innerHTML = '<div class="loading">불러오는 중...</div>';
+  if (!trainer) { wrap.innerHTML = '<div class="loading">로그인이 필요합니다</div>'; return; }
+
+  const routines = await routineList(trainer.id);
+  if (routines.length === 0) {
+    wrap.innerHTML = `
+      <div style="padding:32px;text-align:center;color:#8aa8c4;font-size:14px;line-height:1.8;">
+        저장된 루틴이 없습니다.<br>
+        수업일지에서 운동 구성 후<br>
+        <b style="color:#e0eaf4;">루틴으로 저장</b> 버튼을 눌러보세요.
+      </div>`;
+    return;
+  }
+
+  const rows = await Promise.all(routines.map(async r => {
+    const exs = await routineExercises(r.id);
+    return { ...r, exs };
+  }));
+
+  wrap.innerHTML = rows.map(r => `
+    <div style="background:#1a2636;border-radius:10px;padding:14px 16px;
+                margin-bottom:10px;border:1px solid #2a3a4a;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:14px;font-weight:700;color:#e0eaf4;">${r.name}</span>
+        <button onclick="deleteRoutineConfirm('${r.id}','${r.name.replace(/'/g,'&#39;')}')"
+          style="background:none;border:none;color:#ef4444;font-size:13px;cursor:pointer;padding:2px 6px;">
+          삭제
+        </button>
+      </div>
+      <div style="font-size:12px;color:#8aa8c4;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+        ${r.exs.length === 0
+          ? '<span style="color:#4a6580;">운동 없음</span>'
+          : r.exs.map(e => `
+            <span style="background:#0d1b2a;padding:3px 8px;border-radius:12px;display:inline-flex;align-items:center;gap:4px;">
+              ${e.name_ko}
+              <span onclick="removeRoutineExercise('${e.id}','${e.name_ko.replace(/'/g,'&#39;').replace(/"/g,'&quot;')}')"
+                style="color:#ef4444;cursor:pointer;font-size:11px;line-height:1;">✕</span>
+            </span>`).join('')
+        }
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:11px;color:#4a6580;">${r.exs.length}개 운동 · ${r.created_at.slice(0,10)}</span>
+        <button onclick="openRoutineAddExerciseModal('${r.id}','${r.name.replace(/'/g,'&#39;')}',${r.exs.length})"
+          style="background:#1e3a5a;border:1px solid #2a5a7a55;border-radius:8px;
+                 color:#60a5fa;font-size:12px;font-weight:600;padding:5px 12px;cursor:pointer;">
+          운동 추가
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function deleteRoutineConfirm(routineId, name) {
+  if (!confirm(`"${name}" 루틴을 삭제할까요?`)) return;
+  const ok = await routineDelete(routineId);
+  showToast(ok ? '루틴 삭제됨' : '삭제 실패');
+  if (ok) renderRoutines();
+}
+
+async function removeRoutineExercise(rowId, exerciseName) {
+  if (!confirm(`"${exerciseName}" 운동을 루틴에서 제거할까요?`)) return;
+  const ok = await routineExerciseRemove(rowId);
+  showToast(ok ? '운동 제거됨' : '제거 실패');
+  if (ok) renderRoutines();
+}
+
+function openRoutineAddExerciseModal(routineId, routineName, currentExCount) {
+  document.getElementById('routineAddExOverlay')?.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'routineAddExOverlay';
+  overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;flex-direction:column;`;
+
+  const chipStyle = (active) =>
+    `display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit;border:none;` +
+    (active ? 'background:#2563eb;color:#fff;font-weight:700;' : 'background:#1a2636;color:#4a6580;');
+
+  const buildChipRow = (items, selectedVal, setFn) =>
+    `<div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0;">` +
+    items.map(v => `<button style="${chipStyle(v===selectedVal)}" onclick="${setFn}('${v}')">${v}</button>`).join('') +
+    `</div>`;
+
+  overlay.innerHTML = `
+    <div style="background:#0d1525;width:100%;flex:1;display:flex;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #1e3a5f44;flex-shrink:0;">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#e0eaf4;">"${routineName}" 운동 추가</div>
+          <div style="font-size:11px;color:#4a6580;margin-top:2px;">전체 운동에서 선택하세요</div>
+        </div>
+        <button onclick="document.getElementById('routineAddExOverlay').remove()"
+          style="background:none;border:1px solid #1e3a5f44;border-radius:8px;color:#4a6580;font-size:12px;padding:6px 12px;cursor:pointer;font-family:inherit;">닫기</button>
+      </div>
+      <div style="padding:8px 14px 6px;flex-shrink:0;">
+        <input id="routineAddSearch" type="text" placeholder="운동 이름 검색..."
+          style="width:100%;box-sizing:border-box;padding:9px 12px;background:#1a2636;
+                 border:1.5px solid #1e3a5f55;border-radius:8px;color:#e0eaf4;font-size:13px;outline:none;font-family:inherit;"
+          oninput="window._raeShowCount=50;renderRoutineAddList()" />
+      </div>
+      <div style="padding:4px 14px;flex-shrink:0;">
+        <div style="font-size:10px;color:#4a6580;margin-bottom:4px;">부위</div>
+        <div id="raePartChips">${buildChipRow(PARTS, '전체', 'raeSetPart')}</div>
+      </div>
+      <div style="padding:4px 14px 8px;border-bottom:1px solid #1e3a5f33;flex-shrink:0;">
+        <div style="font-size:10px;color:#4a6580;margin-bottom:4px;">도구</div>
+        <div id="raeToolChips">${buildChipRow(TOOLS, '전체', 'raeSetTool')}</div>
+      </div>
+      <div style="font-size:11px;color:#4a6580;padding:6px 14px 2px;flex-shrink:0;" id="raeCount"></div>
+      <div id="routineAddList" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 14px 20px;"></div>
+    </div>
+  `;
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  document.getElementById('routineAddSearch').focus();
+
+  window._routineAddExMap = {};
+  window._routineAddExCount = currentExCount;
+  window._raeFilterTool = '';
+  window._raeFilterPart = '';
+  window._raeShowCount  = 50;
+
+  window.raeSetPart = function(v) {
+    window._raeFilterPart = (v === '전체') ? '' : v;
+    window._raeShowCount = 50;
+    // 칩 재렌더
+    const el = document.getElementById('raePartChips');
+    if (el) el.innerHTML = buildChipRow(PARTS, v, 'raeSetPart');
+    renderRoutineAddList();
+  };
+  window.raeSetTool = function(v) {
+    window._raeFilterTool = (v === '전체') ? '' : v;
+    window._raeShowCount = 50;
+    const el = document.getElementById('raeToolChips');
+    if (el) el.innerHTML = buildChipRow(TOOLS, v, 'raeSetTool');
+    renderRoutineAddList();
+  };
+
+  window.renderRoutineAddList = function() {
+    const q = (document.getElementById('routineAddSearch')?.value || '').trim().toLowerCase();
+    let list = allExs;
+    if (window._raeFilterPart) list = list.filter(e => e.part_unified === window._raeFilterPart);
+    if (window._raeFilterTool) list = list.filter(e => e.tool_unified === window._raeFilterTool);
+    if (q) list = list.filter(e =>
+      (e.name_ko||'').toLowerCase().includes(q) ||
+      (e.name_en||'').toLowerCase().includes(q)
+    );
+
+    const total = list.length;
+    const shown = list.slice(0, window._raeShowCount);
+
+    const countEl = document.getElementById('raeCount');
+    if (countEl) countEl.textContent = total ? `${total}개 운동` : '';
+
+    const wrap = document.getElementById('routineAddList');
+    if (!wrap) return;
+
+    const rows = shown.map(ex => {
+      const key = 'ex_' + ex.id;
+      window._routineAddExMap[key] = ex;
+      return `
+        <div id="routineAddRow_${ex.id}" onclick="addExToRoutine('${routineId}','${key}')"
+          style="display:flex;align-items:center;gap:10px;padding:10px 8px;
+                 border-bottom:1px solid #1e3a5f22;cursor:pointer;border-radius:6px;">
+          <div style="width:38px;height:38px;border-radius:6px;background:#1a2636;overflow:hidden;flex-shrink:0;">
+            ${ex.image_url ? `<img src="${ex.image_url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : ''}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;color:#e0eaf4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ex.name_ko||ex.name_en}</div>
+            <div style="font-size:11px;color:#4a6580;">${[ex.part_unified,ex.tool_unified].filter(Boolean).join(' · ')}</div>
+          </div>
+          <span id="routineAddIcon_${ex.id}" style="font-size:18px;color:#3b82f6;flex-shrink:0;">＋</span>
+        </div>`;
+    });
+
+    if (!total) {
+      wrap.innerHTML = '<div style="text-align:center;color:#4a6580;padding:24px;font-size:13px;">운동이 없어요</div>';
+      return;
+    }
+
+    let html = rows.join('');
+    if (total > window._raeShowCount) {
+      const remain = total - window._raeShowCount;
+      html += `<div style="text-align:center;padding:16px 0;">
+        <button onclick="window._raeShowCount+=50;renderRoutineAddList()"
+          style="background:#1a2636;border:1px solid #1e3a5f55;border-radius:8px;color:#a0b8d0;
+                 font-size:13px;padding:9px 24px;cursor:pointer;font-family:inherit;">
+          더 보기 (${remain}개 남음)
+        </button>
+      </div>`;
+    }
+    wrap.innerHTML = html;
+  };
+
+  renderRoutineAddList();
+}
+
+window.addExToRoutine = async function(routineId, key) {
+  const ex = window._routineAddExMap?.[key];
+  if (!ex) return;
+  const row = document.getElementById('routineAddRow_' + ex.id);
+  const icon = document.getElementById('routineAddIcon_' + ex.id);
+  if (row) { row.style.opacity = '0.5'; row.style.pointerEvents = 'none'; }
+  const ok = await routineExerciseAppend(routineId, trainer.id, {
+    refId:   ex.id,
+    name_ko: ex.name_ko || ex.name_en,
+    part:    ex.part_unified || '',
+    tool:    ex.tool_unified || '',
+  }, window._routineAddExCount ?? 0);
+  if (ok) {
+    window._routineAddExCount = (window._routineAddExCount ?? 0) + 1;
+    showToast(`"${ex.name_ko || ex.name_en}" 추가됨`);
+    if (icon) { icon.textContent = '✓'; icon.style.color = '#22c55e'; }
+    if (row)  { row.style.opacity = '1'; row.style.background = '#0a2010'; }
+  } else {
+    if (row) { row.style.opacity = '1'; row.style.pointerEvents = ''; }
+    showToast('추가 실패');
+  }
+};
+
+function openNewRoutineModal() {
+  // 루틴 저장 모달: 운동 목록 없이 이름만 받고 빈 루틴 생성
+  document.getElementById('routineSaveOverlay')?.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'routineSaveOverlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,.6);
+    z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;
+  `;
+  overlay.innerHTML = `
+    <div style="background:#1a2636;border-radius:14px;padding:24px;width:100%;max-width:360px;">
+      <div style="font-size:15px;font-weight:700;color:#e0eaf4;margin-bottom:8px;">새 루틴 만들기</div>
+      <div style="font-size:12px;color:#8aa8c4;margin-bottom:12px;">
+        빈 루틴을 만들어요. 수업일지에서 운동 구성 후 이 루틴에 저장할 수 있어요.
+      </div>
+      <input id="newRoutineNameInput" type="text" placeholder="루틴 이름"
+        style="width:100%;box-sizing:border-box;padding:10px 12px;
+               background:#0d1b2a;border:1px solid #2a3a4a;border-radius:8px;
+               color:#e0eaf4;font-size:14px;outline:none;margin-bottom:16px;" maxlength="30"/>
+      <div style="display:flex;gap:10px;">
+        <button onclick="document.getElementById('routineSaveOverlay').remove()"
+          style="flex:1;padding:11px;background:#1e2e3e;border:none;border-radius:8px;color:#8aa8c4;font-size:14px;cursor:pointer;">취소</button>
+        <button id="newRoutineConfirmBtn"
+          style="flex:1;padding:11px;background:#3b82f6;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">만들기</button>
+      </div>
+    </div>
+  `;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  document.getElementById('newRoutineNameInput').focus();
+
+  document.getElementById('newRoutineConfirmBtn').addEventListener('click', async () => {
+    const name = document.getElementById('newRoutineNameInput').value.trim();
+    if (!name) { document.getElementById('newRoutineNameInput').style.borderColor='#ef4444'; return; }
+    const btn = document.getElementById('newRoutineConfirmBtn');
+    btn.textContent = '만드는 중...'; btn.disabled = true;
+    const ok = await routineSave(trainer.id, name, []);
+    overlay.remove();
+    showToast(ok ? `"${name}" 루틴 생성됨` : '생성 실패');
+    if (ok) renderRoutines();
+  });
 }
 
 // ─── 목록 렌더 ───
