@@ -607,11 +607,13 @@ async function initNewLog() {
   document.getElementById('hdrMeta').textContent   = '새 수업 일지';
 
   // 라이브러리에서 돌아온 경우 → 저장된 드래프트 복원
+  const _DRAFT_TTL = 24 * 60 * 60 * 1000; // 24시간
   const rawDraft = sessionStorage.getItem('vg_session_draft');
   if (rawDraft) {
     try {
       const draft = JSON.parse(rawDraft);
-      if (draft.memberId === memberId && !draft.logId) {
+      const isRecent = Date.now() - (draft.ts || 0) < _DRAFT_TTL;
+      if (draft.memberId === memberId && !draft.logId && isRecent) {
         exercises = draft.exercises || [];
         document.getElementById('metaDate').value    = draft.date || today();
         document.getElementById('notesInput').value  = draft.notes || '';
@@ -639,6 +641,7 @@ function goToLibrary() {
   syncInputsToState();
   // 드래프트 저장
   sessionStorage.setItem('vg_session_draft', JSON.stringify({
+    ts:        Date.now(), // TTL 검증용 타임스탬프
     memberId,
     logId,
     date:      document.getElementById('metaDate').value,
@@ -1221,6 +1224,11 @@ function showToast(msg) {
   clearTimeout(showToast._tm);
   showToast._tm = setTimeout(() => { t.style.opacity = 0; }, 2200);
 }
+
+// ─── 타이머 정리 (페이지 이탈 시 메모리 누수 방지) ──────────
+window.addEventListener('beforeunload', () => {
+  if (searchTm) clearTimeout(searchTm);
+}, { once: true });
 
 // ─── 하드웨어 뒤로가기 차단 (Android / iOS) ─────────────────
 // 저장 버튼으로만 나갈 수 있도록 popstate 이벤트를 무력화

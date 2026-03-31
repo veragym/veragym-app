@@ -16,7 +16,7 @@ async function routineList(trainerId) {
     .select('id, name, created_at')
     .eq('trainer_id', trainerId)
     .order('created_at', { ascending: false });
-  if (error) { console.error('routineList', error); return []; }
+  if (error) { console.error('routineList', error); if (window.showToast) showToast('루틴 목록을 불러오지 못했습니다'); return []; }
   return data || [];
 }
 
@@ -30,7 +30,7 @@ async function routineExercises(routineId) {
     .select('id, exercise_ref_id, name_ko, part, tool, order_index')
     .eq('routine_id', routineId)
     .order('order_index', { ascending: true });
-  if (error) { console.error('routineExercises', error); return []; }
+  if (error) { console.error('routineExercises', error); if (window.showToast) showToast('루틴 운동 목록을 불러오지 못했습니다'); return []; }
   return data || [];
 }
 
@@ -45,7 +45,7 @@ async function routineSave(trainerId, routineName, exercises) {
     .insert({ trainer_id: trainerId, name: routineName })
     .select('id')
     .single();
-  if (rErr || !routine) { console.error('routineSave folder', rErr); return false; }
+  if (rErr || !routine) { console.error('routineSave folder', rErr); if (window.showToast) showToast('루틴 저장에 실패했습니다'); return false; }
 
   // 2. 운동 목록 삽입
   const rows = exercises.map((ex, i) => ({
@@ -61,7 +61,7 @@ async function routineSave(trainerId, routineName, exercises) {
   const { error: eErr } = await db
     .from('trainer_routine_exercises')
     .insert(rows);
-  if (eErr) { console.error('routineSave exercises', eErr); return false; }
+  if (eErr) { console.error('routineSave exercises', eErr); if (window.showToast) showToast('운동 목록 저장에 실패했습니다'); return false; }
   return true;
 }
 
@@ -161,51 +161,64 @@ async function routinePickerOpen(options) {
         저장된 루틴이 없습니다.<br>수업일지에서 운동 구성 후 루틴으로 저장해 보세요.
       </div>`;
   } else {
+    // DocumentFragment로 DOM 삽입 1회만 (리플로우 최소화)
+    const routineMap = {};
+    const fragment = document.createDocumentFragment();
     routines.forEach(r => {
+      routineMap[r.id] = r;
       const item = document.createElement('div');
       item.style.cssText = `
         padding:14px 20px;cursor:pointer;border-bottom:1px solid #1e2e3e;
         display:flex;align-items:center;gap:12px;
       `;
+      item.dataset.rid = r.id;
       item.innerHTML = `
         <span style="flex:1;font-size:14px;color:#e0eaf4;">${r.name}</span>
         <span style="font-size:11px;color:#8aa8c4;">${r.created_at.slice(0,10)}</span>
       `;
-      item.addEventListener('click', async () => {
-        overlay.remove();
-        const exList = await routineExercises(r.id);
-        if (exList.length === 0) {
-          if (window.showToast) showToast('루틴에 운동이 없습니다');
-          return;
-        }
+      fragment.appendChild(item);
+    });
+    list.appendChild(fragment); // 단 1회 DOM 삽입
 
-        let result = exList.map(e => ({
-          refId: e.exercise_ref_id,
-          name:  e.name_ko,
-          part:  e.part,
-          tool:  e.tool,
-          image_url: null,
-        }));
+    // 이벤트 위임: list에 리스너 1개만 (overlay 제거 시 자동 해제)
+    list.addEventListener('click', async (e) => {
+      const item = e.target.closest('[data-rid]');
+      if (!item) return;
+      const r = routineMap[item.dataset.rid];
+      if (!r) return;
 
-        // image-card용: image_url 추가 fetch
-        if (withImageUrl) {
-          const refIds = result.map(e => e.refId).filter(Boolean);
-          if (refIds.length > 0) {
-            const { data: refs } = await db
-              .from('exercise_refs')
-              .select('id, image_url')
-              .in('id', refIds);
-            if (refs) {
-              const imgMap = {};
-              refs.forEach(r => { imgMap[r.id] = r.image_url; });
-              result = result.map(e => ({ ...e, image_url: imgMap[e.refId] || null }));
-            }
+      overlay.remove();
+      const exList = await routineExercises(r.id);
+      if (exList.length === 0) {
+        if (window.showToast) showToast('루틴에 운동이 없습니다');
+        return;
+      }
+
+      let result = exList.map(ex => ({
+        refId: ex.exercise_ref_id,
+        name:  ex.name_ko,
+        part:  ex.part,
+        tool:  ex.tool,
+        image_url: null,
+      }));
+
+      // image-card용: image_url 추가 fetch
+      if (withImageUrl) {
+        const refIds = result.map(ex => ex.refId).filter(Boolean);
+        if (refIds.length > 0) {
+          const { data: refs } = await db
+            .from('exercise_refs')
+            .select('id, image_url')
+            .in('id', refIds);
+          if (refs) {
+            const imgMap = {};
+            refs.forEach(rf => { imgMap[rf.id] = rf.image_url; });
+            result = result.map(ex => ({ ...ex, image_url: imgMap[ex.refId] || null }));
           }
         }
+      }
 
-        await onSelect(result);
-      });
-      list.appendChild(item);
+      await onSelect(result);
     });
   }
 

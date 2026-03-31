@@ -1,6 +1,7 @@
 // VERA GYM App - Service Worker
-const CACHE_NAME = 'veragym-app-v24';
+const CACHE_NAME = 'veragym-app-v25';
 const IMG_CACHE  = 'veragym-app-img-v1'; // 운동 이미지 전용 캐시 (별도 관리)
+const MAX_IMG_ENTRIES = 200; // 이미지 캐시 최대 항목 수 (~50MB 기준)
 
 const STATIC = [
   '/veragym-app/',
@@ -55,7 +56,16 @@ self.addEventListener('fetch', e => {
           if (cached) return cached; // 캐시 히트 → 즉시 반환
           // 캐시 미스 → 네트워크에서 가져오고 캐시에 저장
           return fetch(e.request).then(res => {
-            if (res.ok) imgCache.put(e.request, res.clone());
+            if (res.ok) {
+              imgCache.put(e.request, res.clone()).then(() => {
+                // 최대 항목 초과 시 오래된 것부터 제거 (LRU-approximation)
+                imgCache.keys().then(keys => {
+                  if (keys.length > MAX_IMG_ENTRIES) {
+                    keys.slice(0, keys.length - MAX_IMG_ENTRIES).forEach(k => imgCache.delete(k));
+                  }
+                });
+              });
+            }
             return res;
           }).catch(() => new Response('', { status: 503 }));
         })

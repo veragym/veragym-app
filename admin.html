@@ -800,6 +800,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
+(function () {
 // ── 모달 / 뒤로가기 유틸 ───────────────────────────────────────
 function preventBackExit() {
   history.pushState(null, '', location.href);
@@ -2203,6 +2204,58 @@ async function doLogout() {
 }
 
 init();
+
+// ── 공개 API (HTML onclick에서 호출) ──────────────────────────
+window.addMember              = addMember;
+window.addPtProduct           = addPtProduct;
+window.addTrainer             = addTrainer;
+window.adminSetStatus         = adminSetStatus;
+window.calcPaymentAmount      = calcPaymentAmount;
+window.calcPtPayment          = calcPtPayment;
+window.clearExSearch          = clearExSearch;
+window.clearMemberSearch      = clearMemberSearch;
+window.closeBranchSchedModal  = closeBranchSchedModal;
+window.completeReq            = completeReq;
+window.deleteReq              = deleteReq;
+window.deleteTrainer          = deleteTrainer;
+window.doChangePw             = doChangePw;
+window.doLogout               = doLogout;
+window.downloadBranchSched    = downloadBranchSched;
+window.filterExercise         = filterExercise;
+window.loadAdminRevenue       = loadAdminRevenue;
+window.loadMoreEx             = loadMoreEx;
+window.onBsDay                = onBsDay;
+window.onGymChange            = onGymChange;
+window.onMemberNameInput      = onMemberNameInput;
+window.openAddMember          = openAddMember;
+window.openAddPtProduct       = openAddPtProduct;
+window.openAddTrainer         = openAddTrainer;
+window.openBranchSchedModal   = openBranchSchedModal;
+window.openChangePw           = openChangePw;
+window.openChangeTrainer      = openChangeTrainer;
+window.openExDetail           = openExDetail;
+window.renderPayList          = renderPayList;
+window.renderStats            = renderStats;
+window.saveChangeTrainer      = saveChangeTrainer;
+window.scAskConfirm           = scAskConfirm;
+window.scCancelConfirm        = scCancelConfirm;
+window.scExecAction           = scExecAction;
+window.scMoveDays             = scMoveDays;
+window.scOnBranchChange       = scOnBranchChange;
+window.scOpenInfo             = scOpenInfo;
+window.scSelectDate           = scSelectDate;
+window.scToggleNoshow         = scToggleNoshow;
+window.searchMembers          = searchMembers;
+window.showAllBranches        = showAllBranches;
+window.showBranch             = showBranch;
+window.showMemberDetail       = showMemberDetail;
+window.switchAdminRevMonth    = switchAdminRevMonth;
+window.switchRevSub           = switchRevSub;
+window.switchTab              = switchTab;
+window.toggleAcc              = toggleAcc;
+window.toggleActive           = toggleActive;
+window.toggleAdminTrainerDetail = toggleAdminTrainerDetail;
+})();
 </script>
 <!-- ── 전체 시간표 모달 ────────────────────────────────── -->
 <div id="branchSchedModal" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.75);flex-direction:column;align-items:center;justify-content:center;" onclick="if(event.target===this)closeBranchSchedModal()">

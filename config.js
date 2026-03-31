@@ -43,14 +43,16 @@ async function requireTrainer() {
   const { data: { session } } = await db.auth.getSession();
   if (!session) { location.replace('trainer-login.html'); return null; }
 
-  // 캐시가 있고, auth_id가 현재 세션과 일치하면 그대로 사용
+  // 캐시가 있고, auth_id + TTL 이내면 그대로 사용
+  const _TRAINER_CACHE_TTL = 24 * 60 * 60 * 1000; // 24시간
   const raw = localStorage.getItem('vg_trainer');
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
-      if (parsed.auth_id === session.user.id) return parsed;
+      const isRecent = Date.now() - (parsed._ts || 0) < _TRAINER_CACHE_TTL;
+      if (parsed.auth_id === session.user.id && isRecent) return parsed;
     } catch (_) {}
-    // 불일치(다른 계정으로 세션 변경) → 캐시 무효화
+    // 불일치 또는 만료 → 캐시 무효화
     localStorage.removeItem('vg_trainer');
   }
 
@@ -63,13 +65,14 @@ async function requireTrainer() {
     location.replace('trainer-login.html');
     return null;
   }
-  // auth_id 포함해서 저장 (다음 호출 시 세션 검증에 사용)
+  // auth_id + 타임스탬프 포함해서 저장 (세션 검증 + TTL 만료 판단에 사용)
   const trainerData = {
     id: trainer.id,
     name: trainer.name,
     gym_location: trainer.gym_location,
     is_admin: trainer.is_admin || false,
-    auth_id: session.user.id
+    auth_id: session.user.id,
+    _ts: Date.now()
   };
   localStorage.setItem('vg_trainer', JSON.stringify(trainerData));
   return trainerData;

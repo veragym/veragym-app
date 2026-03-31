@@ -470,6 +470,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
+(function () {
+
 init_db();
 preventBackExit();
 
@@ -1058,6 +1060,12 @@ async function doLogout() {
 
 init();
 
+// ─── 타이머 정리 (페이지 이탈 시 메모리 누수 방지) ──────────
+window.addEventListener('beforeunload', () => {
+  if (_midnightTimer)  clearTimeout(_midnightTimer);
+  if (_igSearchTimer)  clearTimeout(_igSearchTimer);
+}, { once: true });
+
 // ─── bfcache 복원 시 재초기화 ─────────────────────────────
 // exercise-library ↔ trainer-dash 탭 이동 시 bfcache 복원되면
 // me=null 상태로 자막·회원목록이 비어있을 수 있음
@@ -1275,7 +1283,7 @@ async function loadRevenue() {
     renderRevAvg();
     renderRevSummary();
     renderForecasts();
-  } catch(e) { console.error('loadRevenue', e); }
+  } catch(e) { console.error('loadRevenue', e); showToast('매출 정보를 불러오지 못했습니다'); }
 }
 
 // ── <1> 총 평균매출 ──
@@ -2096,6 +2104,58 @@ function closeSchedInfo(){
   _siTarget=null;_siActionPending=null;
   _siTogglePending=false;_siCancelCompletedPending=false;_siRollbackPending=false;
 }
+
+// ── 공개 API (HTML onclick에서 호출) ──────────────────────────
+window.calcFcAmount        = calcFcAmount;
+window.calcRevPeriod       = calcRevPeriod;
+window.closeBranchSchedModal = closeBranchSchedModal;
+window.closeSchedInfo      = closeSchedInfo;
+window.closeSchedModal     = closeSchedModal;
+window.copyForecastText    = copyForecastText;
+window.copyToken           = copyToken;
+window.deleteForecast      = deleteForecast;
+window.deleteLog           = deleteLog;
+window.deleteSchedule      = deleteSchedule;
+window.doLogout            = doLogout;
+window.downloadBranchSched = downloadBranchSched;
+window.editForecast        = editForecast;
+window.generateWorkoutCard = generateWorkoutCard;
+window.igAddExById         = igAddExById;
+window.igAddSet            = igAddSet;
+window.igDelSet            = igDelSet;
+window.igGenerateAndSave   = igGenerateAndSave;
+window.igGenerateAndShare  = igGenerateAndShare;
+window.igRemoveEx          = igRemoveEx;
+window.igSearchEx          = igSearchEx;
+window.igUpdSet            = igUpdSet;
+window.linkLogSkip         = linkLogSkip;
+window.linkLogWrite        = linkLogWrite;
+window.onBsDay             = onBsDay;
+window.onSchedTypeChange   = onSchedTypeChange;
+window.openAddReq          = openAddReq;
+window.openBranchSchedModal = openBranchSchedModal;
+window.openForecastModal   = openForecastModal;
+window.openSchedInfo       = openSchedInfo;
+window.openSchedModal      = openSchedModal;
+window.saveForecast        = saveForecast;
+window.saveReq             = saveReq;
+window.saveSchedule        = saveSchedule;
+window.saveTarget          = saveTarget;
+window.selectLinkLog       = selectLinkLog;
+window.selectSchedTime     = selectSchedTime;
+window.setForecastStatus   = setForecastStatus;
+window.showMemberDetail    = showMemberDetail;
+window.showMemberList      = showMemberList;
+window.siAction            = siAction;
+window.siCancelCompleted   = siCancelCompleted;
+window.siToggleNoshow      = siToggleNoshow;
+window.switchRevMonth      = switchRevMonth;
+window.switchTab           = switchTab;
+window.toggleTimePicker    = toggleTimePicker;
+window.updateRevPeriodUI   = updateRevPeriodUI;
+window.viewNotePhoto       = viewNotePhoto;
+
+})();
 </script>
 <script>
 if ('serviceWorker' in navigator) {
