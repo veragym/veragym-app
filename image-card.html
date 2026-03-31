@@ -223,6 +223,11 @@ body {
   z-index: 999; white-space: nowrap; pointer-events: none;
   border: 1px solid #1e3a5f44;
 }
+
+/* ─── Weight Mode Chip ─── */
+.wm-chip { font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px; border:none; cursor:pointer; flex-shrink:0; transition:background 0.15s; }
+.wm-total { background:#1e3a5f; color:#60a5fa; }
+.wm-single { background:#1a3a20; color:#4ade80; }
 </style>
 </head>
 <body>
@@ -313,11 +318,19 @@ body {
 init_db();
 
 let trainer    = null;
-let exercises  = [];   // [{refId, name, part, tool, image_url, sets:[{set,weight,reps}]}]
+let exercises  = [];   // [{refId, name, part, tool, image_url, weight_mode, sets:[{set,weight,reps}]}]
 let myLibrary  = [];
 let freqMap    = {};
 let filterPart = '';
 let searchTm   = null;
+
+// ── Weight Mode Helpers ────────────────────────────────────────
+function defaultWeightMode(tool) {
+  return tool === '덤벨' ? 'single' : 'total';
+}
+function effectiveWeight(weight, weight_mode) {
+  return weight_mode === 'single' ? (weight || 0) * 2 : (weight || 0);
+}
 
 // ── 초기화 ──────────────────────────────────────────────────
 async function init() {
@@ -389,11 +402,15 @@ function renderExercises() {
             ? `<div class="ex-sub">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>`
             : ''}
         </div>
+        <button class="wm-chip ${ex.weight_mode === 'single' ? 'wm-single' : 'wm-total'}"
+                onclick="toggleWeightMode(${i})">
+          ${ex.weight_mode === 'single' ? '한쪽' : '양손'}
+        </button>
         <button class="btn-del-ex" onclick="removeEx(${i})">삭제</button>
       </div>
       <div class="sets-area">
         <div class="sets-header">
-          <span>세트</span><span>무게(kg)</span><span>횟수</span><span></span>
+          <span>세트</span><span>${ex.weight_mode === 'single' ? '한쪽(kg)' : '무게(kg)'}</span><span>횟수</span><span></span>
         </div>
         ${ex.sets.map((s, si) => `
           <div class="set-row">
@@ -428,6 +445,10 @@ function updSet(idx, si, field, val) {
 function removeEx(idx) {
   if (!confirm(`'${exercises[idx].name}' 삭제할까요?`)) return;
   exercises.splice(idx, 1);
+  renderExercises();
+}
+function toggleWeightMode(idx) {
+  exercises[idx].weight_mode = exercises[idx].weight_mode === 'single' ? 'total' : 'single';
   renderExercises();
 }
 
@@ -525,6 +546,7 @@ function selectEx(libId, refId, name, part, tool, imageUrl) {
     refId:     (refId === 'undefined' || !refId) ? null : refId,
     name, part, tool,
     image_url: imageUrl || null,
+    weight_mode: defaultWeightMode(tool),
     sets: [{ set: 1, weight: 0, reps: 10 }],
   });
   renderExercises();
@@ -712,7 +734,8 @@ async function buildCanvas(memberName, programName) {
     ctx.fillStyle = '#0a1525'; rRect(PAD, y, COL, SET_HDR, 8); ctx.fill();
     ctx.font = `20px ${FONT}`; ctx.fillStyle = '#3a5878'; ctx.textAlign = 'center';
     ctx.fillText('세트', PAD + colW * 0.5, y + 26);
-    ctx.fillText('무게 (kg)', PAD + colW * 1.5, y + 26);
+    const weightLabel = ex.weight_mode === 'single' ? '한쪽 (kg)' : '무게 (kg)';
+    ctx.fillText(weightLabel, PAD + colW * 1.5, y + 26);
     ctx.fillText('횟수', PAD + colW * 2.5, y + 26);
     ctx.textAlign = 'left'; y += SET_HDR;
 
@@ -723,7 +746,10 @@ async function buildCanvas(memberName, programName) {
       ctx.textAlign = 'center'; ctx.font = `24px ${FONT}`;
       ctx.fillStyle = '#5a7898'; ctx.fillText(String(si + 1), PAD + colW * 0.5, y + 28);
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(s.weight !== undefined ? String(s.weight) : '─', PAD + colW * 1.5, y + 28);
+      const wDisp = (ex.weight_mode === 'single' && s.weight > 0)
+        ? `${s.weight}×2`
+        : (s.weight !== undefined ? String(s.weight) : '─');
+      ctx.fillText(wDisp, PAD + colW * 1.5, y + 28);
       ctx.fillText(s.reps   !== undefined ? String(s.reps)   : '─', PAD + colW * 2.5, y + 28);
       ctx.textAlign = 'left'; y += SET_ROW;
     });
@@ -773,6 +799,7 @@ async function loadRoutineIntoImageCard(routineExs) {
       part:      ex.part  || '',
       tool:      ex.tool  || '',
       image_url: ex.image_url || null,
+      weight_mode: ex.weight_mode || defaultWeightMode(ex.tool || ''),
       sets:      [{ set: 1, weight: 0, reps: 10 }],
     });
   });

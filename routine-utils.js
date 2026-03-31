@@ -22,12 +22,12 @@ async function routineList(trainerId) {
 
 /* ─────────────────────────────────────────────
    루틴 운동 목록 불러오기
-   반환: [{ exercise_ref_id, name_ko, part, tool, order_index }]
+   반환: [{ exercise_ref_id, name_ko, part, tool, weight_mode, order_index }]
 ───────────────────────────────────────────── */
 async function routineExercises(routineId) {
   const { data, error } = await db
     .from('trainer_routine_exercises')
-    .select('id, exercise_ref_id, name_ko, part, tool, order_index')
+    .select('id, exercise_ref_id, name_ko, part, tool, weight_mode, order_index')
     .eq('routine_id', routineId)
     .order('order_index', { ascending: true });
   if (error) { console.error('routineExercises', error); if (window.showToast) showToast('루틴 운동 목록을 불러오지 못했습니다'); return []; }
@@ -36,7 +36,7 @@ async function routineExercises(routineId) {
 
 /* ─────────────────────────────────────────────
    루틴 저장
-   exercises: [{ refId, name, part, tool }]
+   exercises: [{ refId, name, part, tool, weight_mode }]
 ───────────────────────────────────────────── */
 async function routineSave(trainerId, routineName, exercises) {
   // 1. 루틴 폴더 생성
@@ -55,6 +55,7 @@ async function routineSave(trainerId, routineName, exercises) {
     name_ko:         ex.name  || '운동',
     part:            ex.part  || '',
     tool:            ex.tool  || '',
+    weight_mode:     ex.weight_mode || 'total',
     order_index:     i,
   }));
 
@@ -67,7 +68,7 @@ async function routineSave(trainerId, routineName, exercises) {
 
 /* ─────────────────────────────────────────────
    기존 루틴에 운동 하나 추가
-   exercise: { refId, name_ko, part, tool }
+   exercise: { refId, name_ko, part, tool, weight_mode }
    orderIndex: 삽입 순서 (현재 운동 수)
 ───────────────────────────────────────────── */
 async function routineExerciseAppend(routineId, trainerId, exercise, orderIndex) {
@@ -80,6 +81,7 @@ async function routineExerciseAppend(routineId, trainerId, exercise, orderIndex)
       name_ko:         exercise.name_ko || exercise.name || '운동',
       part:            exercise.part    || exercise.part_unified || '',
       tool:            exercise.tool    || exercise.tool_unified || '',
+      weight_mode:     exercise.weight_mode || (exercise.tool_unified === '덤벨' || exercise.tool === '덤벨' ? 'single' : 'total'),
       order_index:     orderIndex,
     });
   if (error) { console.error('routineExerciseAppend', error); return false; }
@@ -195,11 +197,12 @@ async function routinePickerOpen(options) {
       }
 
       let result = exList.map(ex => ({
-        refId: ex.exercise_ref_id,
-        name:  ex.name_ko,
-        part:  ex.part,
-        tool:  ex.tool,
-        image_url: null,
+        refId:       ex.exercise_ref_id,
+        name:        ex.name_ko,
+        part:        ex.part,
+        tool:        ex.tool,
+        weight_mode: ex.weight_mode || 'total',
+        image_url:   null,
       }));
 
       // image-card용: image_url 추가 fetch

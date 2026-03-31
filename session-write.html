@@ -356,6 +356,11 @@ body {
   flex-shrink: 0; margin-top: 12px; background: #141f35; border: 1.5px solid #1e3a5f44;
   border-radius: 12px; padding: 11px 40px; color: #fff; font-size: 14px; cursor: pointer; font-family: inherit;
 }
+
+/* ─── weight_mode 토글 칩 ─── */
+.wm-chip { font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px; border:none; cursor:pointer; flex-shrink:0; transition:background 0.15s; }
+.wm-total { background:#1e3a5f; color:#60a5fa; }
+.wm-single { background:#1a3a20; color:#4ade80; }
 </style>
 </head>
 <body>
@@ -568,7 +573,7 @@ async function loadExistingLog() {
 
   const { data: rows } = await db
     .from('workout_log_exercises')
-    .select('*, exercise_refs(name_ko, name_en, part_unified, tool_unified)')
+    .select('*, weight_mode, exercise_refs(name_ko, name_en, part_unified, tool_unified)')
     .eq('log_id', logId)
     .order('order_index');
 
@@ -591,6 +596,7 @@ async function loadExistingLog() {
       name:    r.custom_name || r.exercise_refs?.name_ko || r.exercise_refs?.name_en || '운동',
       part:    r.exercise_refs?.part_unified || '',
       tool:    r.exercise_refs?.tool_unified || '',
+      weight_mode: r.weight_mode || defaultWeightMode(r.exercise_refs?.tool_unified || ''),
       sets:    setsArr,
       comment: '',
       photos:  { start: pu.start || null, end: pu.end || null },
@@ -707,6 +713,16 @@ async function loadFreqMap() {
   });
 }
 
+// ─── weight_mode 헬퍼 함수 ───
+// 도구 이름으로 기본 weight_mode 반환
+function defaultWeightMode(tool) {
+  return tool === '덤벨' ? 'single' : 'total';
+}
+// 유효 중량 계산 (한쪽이면 ×2)
+function effectiveWeight(weight, weight_mode) {
+  return weight_mode === 'single' ? (weight || 0) * 2 : (weight || 0);
+}
+
 // ─── 운동 렌더 ───
 function renderExercises() {
   const wrap = document.getElementById('exList');
@@ -727,6 +743,10 @@ function renderExercises() {
             ? `<div class="ex-sub">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>`
             : ''}
         </div>
+        <button class="wm-chip ${ex.weight_mode === 'single' ? 'wm-single' : 'wm-total'}"
+                onclick="toggleWeightMode(${i})">
+          ${ex.weight_mode === 'single' ? '한쪽' : '양손'}
+        </button>
         <div class="ex-photo-area">
           <button class="btn-photo ${hasAny ? 'done' : ''}"
                   onclick="${hasAny ? `viewPhotos(${i})` : `openPhotoModal(${i})`}">
@@ -740,7 +760,7 @@ function renderExercises() {
 
       <div class="sets-area">
         <div class="sets-header">
-          <span>세트</span><span>무게(kg)</span><span>횟수</span><span></span>
+          <span>세트</span><span>${ex.weight_mode === 'single' ? '한쪽(kg)' : '무게(kg)'}</span><span>횟수</span><span></span>
         </div>
         ${ex.sets.map((s, si) => `
           <div class="set-row">
@@ -784,6 +804,10 @@ function updComment(idx, val) { exercises[idx].comment = val; }
 function removeEx(idx) {
   if (!confirm(`'${exercises[idx].name}' 삭제할까요?`)) return;
   exercises.splice(idx, 1);
+  renderExercises();
+}
+function toggleWeightMode(idx) {
+  exercises[idx].weight_mode = exercises[idx].weight_mode === 'single' ? 'total' : 'single';
   renderExercises();
 }
 
@@ -847,6 +871,7 @@ async function saveSession() {
         sets:            ex.sets.length,
         reps:            ex.sets[0]?.reps || null,
         weight:          ex.sets[0]?.weight || null,
+        weight_mode:     ex.weight_mode || 'total',
         order_index:     i,
         photo_urls:      (ex.photos?.start || ex.photos?.end)
                            ? { start: ex.photos.start || null, end: ex.photos.end || null }
@@ -1111,6 +1136,7 @@ function selectEx(libId, refId, name, part, tool) {
     rowId: null,
     refId: (refId === 'undefined' || !refId) ? null : refId,
     name, part, tool,
+    weight_mode: defaultWeightMode(tool),
     sets: [{ set: 1, weight: 0, reps: 10 }],
     comment: '',
     photos: { start: null, end: null },
