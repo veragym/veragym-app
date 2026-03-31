@@ -44,7 +44,8 @@ async function requireTrainer() {
   if (!session) { location.replace('trainer-login.html'); return null; }
 
   // 캐시가 있고, auth_id + TTL 이내면 그대로 사용
-  const _TRAINER_CACHE_TTL = 24 * 60 * 60 * 1000; // 24시간
+  // 4시간: 관리자가 트레이너 비활성화/정보변경 시 최대 4시간 내 반영
+  const _TRAINER_CACHE_TTL = 4 * 60 * 60 * 1000; // 4시간
   const raw = localStorage.getItem('vg_trainer');
   if (raw) {
     try {
