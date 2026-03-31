@@ -1080,6 +1080,12 @@ function getCalDates(){
   return[-1,0,1,2].map(i=>{const d=new Date(t);d.setDate(d.getDate()+i);return d;});
 }
 async function loadScheduleView(){
+  // 시간이 지난 scheduled 수업 자동 완료 처리 (달력 렌더 전 완료)
+  if(me?.id){
+    const{data:autoData}=await db.rpc('auto_complete_past_sessions',{p_trainer_id:me.id});
+    if(autoData?.completed_count>0) showToast(`${autoData.completed_count}개 수업 자동 완료 처리됨`);
+  }
+
   const dates=getCalDates();
   if(!myMembersForSched.length&&me){
     const{data:mems}=await db.from('members').select('id,name').eq('trainer_id',me.id).eq('is_active',true).order('name');
@@ -2229,10 +2235,17 @@ async function saveSchedule(){
   // PT만 드롭다운 회원 연결 / SPT·기타는 member_id 없음
   const selMember=(selType==='PT')?document.getElementById('schedMember').value||null:null;
   // PT 유형 + 회원 선택 시 active pt_product 자동 연결
+  // 오래된 상품 우선, 단 scheduled 예약이 remaining을 다 채운 경우 다음 상품으로 자동 전환
   let ptProductId=null;
   if(selType==='PT'&&selMember){
-    const{data:prods}=await db.from('pt_products').select('id').eq('member_id',selMember).eq('status','active').gt('remaining_sessions',0).order('contract_date',{ascending:true}).limit(1);
-    ptProductId=prods?.[0]?.id||null;
+    const{data:prods}=await db.from('pt_products').select('id,remaining_sessions').eq('member_id',selMember).eq('status','active').gt('remaining_sessions',0).order('contract_date',{ascending:true});
+    if(prods&&prods.length){
+      for(const p of prods){
+        const{count:schedCnt}=await db.from('schedules').select('*',{count:'exact',head:true}).eq('pt_product_id',p.id).eq('status','scheduled');
+        if((schedCnt||0)<p.remaining_sessions){ptProductId=p.id;break;}
+      }
+      if(!ptProductId)ptProductId=prods[0].id; // 모두 꽉 찬 경우 가장 오래된 것
+    }
   }
   // notes: SPT는 schedMemberText(회원/내용 입력칸)에서 읽음, 나머지는 schedNotes에서 읽음
   const notesVal = selType==='SPT'
