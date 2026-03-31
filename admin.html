@@ -2105,8 +2105,14 @@ function scRenderInfoActions(){
     }
     b+=`<button class="sc-btn sc-btn-red" style="flex:1;" onclick="scAskConfirm('cancel')">예약 취소</button>`;
   }
-  if(isPtSpt&&s.status==='completed')b+=`<button class="sc-btn sc-btn-gold" style="flex:1;" onclick="scAskConfirm('rollback')">완료 롤백</button>`;
-  if(isPtSpt&&s.status==='noshow')b+=`<button class="sc-btn sc-btn-gold" style="flex:1;" onclick="scAskConfirm('rollback')">노쇼 롤백</button>`;
+  if(isPtSpt&&s.status==='completed'){
+    b+=`<button class="sc-btn sc-btn-amber" id="scBtnToggle" style="flex:1;" onclick="scToggleNoshow()">노쇼로 변경</button>`;
+    b+=`<button class="sc-btn sc-btn-gold" style="flex:1;" onclick="scAskConfirm('rollback')">완료 롤백</button>`;
+  }
+  if(isPtSpt&&s.status==='noshow'){
+    b+=`<button class="sc-btn sc-btn-green" id="scBtnToggle" style="flex:1;" onclick="scToggleNoshow()">완료로 변경</button>`;
+    b+=`<button class="sc-btn sc-btn-gold" style="flex:1;" onclick="scAskConfirm('rollback')">노쇼 롤백</button>`;
+  }
   acts.innerHTML=b;acts.style.display='flex';
 }
 
@@ -2163,6 +2169,30 @@ async function scExecAction(){
     await scRefresh();
   }catch(e){
     err.textContent=e.message;err.style.display='block';btn.disabled=false;
+  }
+}
+
+async function scToggleNoshow(){
+  if(!scTarget)return;
+  const btn=document.getElementById('scBtnToggle');
+  const errEl=document.getElementById('scInfoErr');
+  errEl.style.display='none';
+  if(btn){btn.disabled=true;btn.style.opacity='0.6';}
+  try{
+    const curStatus=scTarget.status;
+    const newStatus=curStatus==='completed'?'noshow':'completed';
+    const toggledId=scTarget.id;
+    const{error}=await db.from('schedules').update({status:newStatus}).eq('id',toggledId);
+    if(error)throw new Error(error.message);
+    const idx=scData.findIndex(s=>s.id===toggledId);
+    if(idx>=0) scData[idx]={...scData[idx],status:newStatus};
+    scTarget={...scTarget,status:newStatus};
+    closeModal('scInfoModal');
+    showToast(newStatus==='noshow'?'노쇼로 변경됐습니다':'완료로 변경됐습니다');
+    await scRefresh();
+  }catch(e){
+    if(errEl){errEl.textContent=e.message;errEl.style.display='block';}
+    if(btn){btn.disabled=false;btn.style.opacity='1';}
   }
 }
 
