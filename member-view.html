@@ -514,16 +514,19 @@ async function loadSchedules(token) {
   const wrap = document.getElementById('schedList');
   if (error || !scheds) { wrap.innerHTML = `<div class="empty">⚠️<br>일정을 불러오지 못했어요</div>`; return; }
   if (!scheds.length) { wrap.innerHTML = `<div class="empty">등록된 PT 일정이 없어요</div>`; return; }
-  const today = new Date(); today.setHours(0,0,0,0);
-  const upcoming = scheds.filter(s => new Date(s.sched_date) >= today);
-  const past     = scheds.filter(s => new Date(s.sched_date) <  today);
+  // status 기준으로 분류 (날짜 기준 X — 트레이너 완료/노쇼 처리 즉시 반영)
+  const upcoming = scheds.filter(s => s.status === 'scheduled');
+  const past     = scheds.filter(s => s.status !== 'scheduled'); // completed, noshow
   const WDAYS    = ['일','월','화','수','목','금','토'];
+  const STATUS_LABEL = { scheduled:'예정', completed:'완료', noshow:'노쇼' };
+  const STATUS_CLS   = { scheduled:'upcoming', completed:'done', noshow:'done' };
   function renderCard(s) {
     const d = new Date(s.sched_date + 'T00:00:00');
-    const isPast = d < today;
     const sTime = (s.start_time||'').slice(0,5);
     const eTime = (s.end_time||'').slice(0,5);
     const typeCls = s.type === 'SPT' ? 'sched-type-SPT' : 'sched-type-PT';
+    const badgeLabel = STATUS_LABEL[s.status] || s.status;
+    const badgeCls   = STATUS_CLS[s.status]   || 'done';
     return `<div class="sched-card">
       <div class="sched-date-block">
         <div class="sched-month">${d.getMonth()+1}월</div>
@@ -536,7 +539,7 @@ async function loadSchedules(token) {
         ${s.trainer_name?`<div class="sched-trainer">트레이너 · ${s.trainer_name}</div>`:''}
         ${s.title?`<div style="font-size:12px;color:#3a5840;margin-top:3px">${s.title}</div>`:''}
       </div>
-      <div class="sched-status ${isPast?'done':'upcoming'}">${isPast?'완료':'예정'}</div>
+      <div class="sched-status ${badgeCls}">${badgeLabel}</div>
     </div>`;
   }
   let html = '';
