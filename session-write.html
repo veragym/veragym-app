@@ -413,6 +413,16 @@ body {
 <!-- 하단 버튼 -->
 <div class="add-bar">
   <button class="btn-add-ex" onclick="openSearch()">＋ 운동 추가</button>
+  <div style="display:flex;gap:8px;">
+    <button class="btn-lib-edit" style="flex:1;"
+      onclick="routinePickerOpen({ trainerId: trainer?.id, onSelect: loadRoutineExercises })">
+      루틴 불러오기
+    </button>
+    <button class="btn-lib-edit" style="flex:1;"
+      onclick="routineSaveModalOpen(trainer?.id, exercises)">
+      루틴으로 저장
+    </button>
+  </div>
 </div>
 
 <!-- ══ 운동 검색 모달 ══ -->
@@ -490,6 +500,7 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
+<script src="routine-utils.js"></script>
 <script>
 init_db();
 
@@ -1224,6 +1235,32 @@ window.addEventListener('pageshow', (e) => {
 });
 
 init();
+
+// ─── 루틴 불러오기 콜백 ───
+async function loadRoutineExercises(routineExs) {
+  if (!routineExs || routineExs.length === 0) return;
+  const hasExisting = exercises.length > 0;
+  if (hasExisting) {
+    const replace = confirm(
+      `현재 운동 ${exercises.length}개가 있습니다.\n루틴 운동으로 교체할까요?\n(취소 시 기존 운동 뒤에 추가됩니다)`
+    );
+    if (replace) exercises = [];
+  }
+  routineExs.forEach(ex => {
+    exercises.push({
+      rowId:   null,
+      refId:   ex.refId || null,
+      name:    ex.name,
+      part:    ex.part  || '',
+      tool:    ex.tool  || '',
+      sets:    [{ set: 1, weight: 0, reps: 10 }],
+      comment: '',
+      photos:  { start: null, end: null },
+    });
+  });
+  renderExercises();
+  showToast(`루틴 운동 ${routineExs.length}개 불러옴`);
+}
 </script>
 </body>
 </html>
