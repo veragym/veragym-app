@@ -1941,10 +1941,17 @@ function renderSiActions(){
         </div>`;
     }
   }else if(s.status==='completed'||s.status==='noshow'){
-    // 완료/노쇼: 롤백 버튼 제공
+    // 완료/노쇼: 노쇼전환·취소·수정 제공 (예약상태 복원 없음 → 자동완료 루프 방지)
+    const toggleLabel = s.status==='completed' ? '노쇼 처리로 변경' : '완료 처리로 변경';
     acts.innerHTML=`
-      <button id="siBtnRollback" onclick="siRollback()" style="width:100%;background:#6c63ff22;border:1.5px solid #6c63ff55;color:#a5b4fc;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">수업 롤백 (예약 상태로 복원)</button>
-      <button onclick="closeSchedInfo()" style="width:100%;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">닫기</button>`;
+      <button id="siBtnToggleNoshow" onclick="siToggleNoshow()"
+        style="width:100%;background:#f59e0b22;border:1.5px solid #f59e0b55;color:#fbbf24;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">${toggleLabel}</button>
+      <div style="display:flex;gap:10px;">
+        <button id="siBtnCancelCompleted" onclick="siCancelCompleted()"
+          style="flex:1;background:#ff4d4f22;border:1.5px solid #ff4d4f55;color:#ff4d4f;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">예약 취소</button>
+        <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)"
+          style="flex:1;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">수정</button>
+      </div>`;
   }else{
     acts.innerHTML=`<button onclick="closeSchedInfo()" style="width:100%;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">닫기</button>`;
   }
@@ -1999,6 +2006,63 @@ async function siAction(action){
 }
 
 // ── 수업 롤백 ─────────────────────────────────────────────────
+// 완료 ↔ 노쇼 전환 (잔여횟수 변동 없음, 상태 라벨만 변경)
+let _siTogglePending=false;
+async function siToggleNoshow(){
+  if(!_siTarget)return;
+  const btn=document.getElementById('siBtnToggleNoshow');
+  const errEl=document.getElementById('siErr');
+  errEl.style.display='none';
+  if(!_siTogglePending){
+    _siTogglePending=true;
+    if(btn)btn.textContent=btn.textContent+' — 한 번 더 탭해서 확인';
+    setTimeout(()=>{if(_siTogglePending){_siTogglePending=false;renderSiActions();}},3000);
+    return;
+  }
+  _siTogglePending=false;
+  if(btn)btn.disabled=true;
+  try{
+    const newStatus=_siTarget.status==='completed'?'noshow':'completed';
+    const{error}=await db.from('schedules').update({status:newStatus}).eq('id',_siTarget.id);
+    if(error)throw new Error(error.message);
+    closeSchedInfo();
+    showToast(newStatus==='noshow'?'노쇼로 변경됐습니다':'완료로 변경됐습니다');
+    await loadScheduleView();
+  }catch(e){
+    errEl.textContent=e.message;errEl.style.display='block';
+    if(btn)btn.disabled=false;
+    renderSiActions();
+  }
+}
+
+// 완료/노쇼 수업 취소 (잔여횟수 복원 + 상태 cancelled)
+let _siCancelCompletedPending=false;
+async function siCancelCompleted(){
+  if(!_siTarget)return;
+  const btn=document.getElementById('siBtnCancelCompleted');
+  const errEl=document.getElementById('siErr');
+  errEl.style.display='none';
+  if(!_siCancelCompletedPending){
+    _siCancelCompletedPending=true;
+    if(btn)btn.textContent='취소 — 한 번 더 탭해서 확인';
+    setTimeout(()=>{if(_siCancelCompletedPending){_siCancelCompletedPending=false;renderSiActions();}},3000);
+    return;
+  }
+  _siCancelCompletedPending=false;
+  if(btn)btn.disabled=true;
+  try{
+    const{data,error}=await db.rpc('cancel_completed_session',{p_schedule_id:_siTarget.id});
+    if(error||!data?.ok)throw new Error(error?.message||data?.error||'취소 실패');
+    closeSchedInfo();
+    showToast('예약이 취소됐습니다 (잔여 횟수 복원)');
+    await loadScheduleView();
+  }catch(e){
+    errEl.textContent=e.message;errEl.style.display='block';
+    if(btn)btn.disabled=false;
+    renderSiActions();
+  }
+}
+
 let _siRollbackPending=false;
 async function siRollback(){
   if(!_siTarget)return;
