@@ -4,7 +4,7 @@
   "id": "veragym-admin",
   "description": "VERA GYM 관리자 전용 앱",
   "start_url": "/veragym-app/admin-login.html",
-  "scope": "/veragym-app/",
+  "scope": "/veragym-app/admin",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0a0a0a",
