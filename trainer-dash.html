@@ -2023,9 +2023,14 @@ async function siToggleNoshow(){
   if(btn)btn.disabled=true;
   try{
     const newStatus=_siTarget.status==='completed'?'noshow':'completed';
-    const{error}=await db.from('schedules').update({status:newStatus}).eq('id',_siTarget.id);
+    const toggledId=_siTarget.id;
+    const{error}=await db.from('schedules').update({status:newStatus}).eq('id',toggledId);
     if(error)throw new Error(error.message);
+    // 즉시 메모리 업데이트 → 카드 색상/라벨 즉각 반영 (loadScheduleView 완료 전에도)
+    const idx=scheduleData.findIndex(s=>s.id===toggledId);
+    if(idx>=0) scheduleData[idx]={...scheduleData[idx],status:newStatus};
     closeSchedInfo();
+    renderCalGrid(getCalDates());
     showToast(newStatus==='noshow'?'노쇼로 변경됐습니다':'완료로 변경됐습니다');
     await loadScheduleView();
   }catch(e){
@@ -2094,6 +2099,7 @@ function closeSchedInfo(){
   document.getElementById('schedInfoModal').style.display='none';
   document.body.style.overflow='';
   _siTarget=null;_siActionPending=null;
+  _siTogglePending=false;_siCancelCompletedPending=false;_siRollbackPending=false;
 }
 </script>
 <script>

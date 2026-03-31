@@ -252,7 +252,7 @@ body {
 <!-- 하단 버튼 -->
 <div class="add-bar">
   <button class="btn-add-ex" onclick="openSearch()">＋ 운동 추가</button>
-  <button class="btn-gen-img" id="btnGenImg" onclick="generateImage()">📥 이미지 생성</button>
+  <button class="btn-gen-img" id="btnGenImg" onclick="generateImage()">이미지 생성</button>
 </div>
 
 <!-- 운동 검색 모달 -->
@@ -565,7 +565,7 @@ async function generateImage() {
       }
     }, 'image/png');
   } finally {
-    btn.disabled = false; btn.textContent = '📥 이미지 생성';
+    btn.disabled = false; btn.textContent = '이미지 생성';
   }
 }
 
