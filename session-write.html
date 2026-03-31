@@ -82,12 +82,12 @@ body {
 /* ─── 세트 테이블 ─── */
 .sets-area { padding: 0 16px 10px; }
 .sets-header {
-  display: grid; grid-template-columns: 36px 1fr 1fr 36px;
-  gap: 6px; margin-bottom: 4px;
+  display: grid; grid-template-columns: 36px 1fr 1fr auto 36px;
+  gap: 6px; margin-bottom: 4px; align-items: center;
 }
 .sets-header span { font-size: 10px; color: #3a5878; text-align: center; }
 .set-row {
-  display: grid; grid-template-columns: 36px 1fr 1fr 36px;
+  display: grid; grid-template-columns: 36px 1fr 1fr auto 36px;
   gap: 6px; margin-bottom: 6px; align-items: center;
 }
 .set-num {
@@ -743,10 +743,6 @@ function renderExercises() {
             ? `<div class="ex-sub">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>`
             : ''}
         </div>
-        <button class="wm-chip ${ex.weight_mode === 'single' ? 'wm-single' : 'wm-total'}"
-                onclick="toggleWeightMode(${i})">
-          ${ex.weight_mode === 'single' ? '한쪽' : '양손'}
-        </button>
         <div class="ex-photo-area">
           <button class="btn-photo ${hasAny ? 'done' : ''}"
                   onclick="${hasAny ? `viewPhotos(${i})` : `openPhotoModal(${i})`}">
@@ -760,7 +756,7 @@ function renderExercises() {
 
       <div class="sets-area">
         <div class="sets-header">
-          <span>세트</span><span>${ex.weight_mode === 'single' ? '한쪽(kg)' : '무게(kg)'}</span><span>횟수</span><span></span>
+          <span>세트</span><span>무게(kg)</span><span>횟수</span><button class="wm-chip ${ex.weight_mode === 'single' ? 'wm-single' : 'wm-total'}" onclick="toggleWeightMode(${i})">${ex.weight_mode === 'single' ? '한쪽' : '양손'}</button><span></span>
         </div>
         ${ex.sets.map((s, si) => `
           <div class="set-row">
@@ -769,6 +765,7 @@ function renderExercises() {
                    onchange="updSet(${i},${si},'weight',this.value)">
             <input class="set-input" type="number" min="1" max="999" value="${s.reps}"
                    onchange="updSet(${i},${si},'reps',this.value)">
+            <span></span>
             <button class="btn-del-set" onclick="delSet(${i},${si})"
                     ${ex.sets.length <= 1 ? 'style="opacity:0;pointer-events:none"' : ''}>−</button>
           </div>
