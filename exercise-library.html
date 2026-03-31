@@ -321,7 +321,11 @@ async function init() {
   try {
     // 회원 토큰으로 접근했는지 확인
     const _p = new URLSearchParams(location.search);
-    const memberToken = _p.get('token') || _p.get('t') || localStorage.getItem('vg_member_token');
+    // 트레이너 세션이 있으면 회원 토큰 무시 (같은 브라우저에서 회원 앱 테스트 시 오작동 방지)
+    const { data: { session: _trainerSession } } = await db.auth.getSession();
+    const memberToken = _trainerSession
+      ? null  // 트레이너 로그인 상태 → 항상 트레이너 모드
+      : (_p.get('token') || _p.get('t') || localStorage.getItem('vg_member_token'));
     if (memberToken) {
       _memberMode = true;
       // 회원 모드: sessionStorage 캐시 클리어 후 강제 로드
@@ -336,7 +340,7 @@ async function init() {
         .btn-logout { border-color:#1a3a1a44 !important; color:#3a5840 !important; }
         .btn-logout:hover { border-color:#4ade8044 !important; color:#4ade80 !important; }
         .tabs { background:#0d1a0d !important; border-bottom-color:#1a3a1a44 !important; }
-        .tab-btn { color:#3a5840 !important; border-bottom-color:transparent !important; }
+        .tab-btn { flex:1 !important; min-width:0 !important; text-align:center !important; color:#3a5840 !important; border-bottom-color:transparent !important; padding:13px 10px !important; }
         .tab-btn.active { color:#4ade80 !important; border-bottom-color:#4ade80 !important; }
         .search-area { background:#080e08 !important; }
         .ex-search { background:#0d1a0d !important; border-color:#1a3a1a55 !important; }
