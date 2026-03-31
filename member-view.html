@@ -351,7 +351,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 </div><!-- /mainContent -->
 
 <!-- 사진 뷰어 -->
-<div id="memberPhotoViewer" class="mv-viewer-bg" style="position:relative" onclick="if(event.target===this)closeMemberPhotoViewer()">
+<div id="memberPhotoViewer" class="mv-viewer-bg" onclick="if(event.target===this)closeMemberPhotoViewer()">
   <button class="modal-close-x" onclick="closeMemberPhotoViewer()">✕</button>
   <div class="mv-viewer-title" id="memberViewerTitle">자세 사진</div>
   <div class="mv-viewer-imgs" id="memberViewerImgs"></div>
@@ -733,7 +733,7 @@ init();
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/veragym-app/service-worker.js').catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
   });
 }
 </script>

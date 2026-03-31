@@ -68,6 +68,7 @@ async function requireTrainer() {
     id: trainer.id,
     name: trainer.name,
     gym_location: trainer.gym_location,
+    is_admin: trainer.is_admin || false,
     auth_id: session.user.id
   };
   localStorage.setItem('vg_trainer', JSON.stringify(trainerData));

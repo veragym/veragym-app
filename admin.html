@@ -614,7 +614,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
         <input id="mPricePerSession" type="number" min="0" placeholder="예: 55000" oninput="calcPaymentAmount()">
       </div>
       <div class="field" style="flex:1">
-        <label>결제금액</label>
+        <label>결제금액 <span style="font-size:11px;color:#aaa">(부가세 제외)</span></label>
         <input id="mPaymentAmount" type="number" min="0" placeholder="자동계산" readonly style="color:#c9a84c">
       </div>
     </div>
@@ -681,7 +681,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
       <input id="ptPricePerSession" type="number" min="0" placeholder="예: 55000" oninput="calcPtPayment()">
     </div>
     <div class="field">
-      <label>결제금액</label>
+      <label>결제금액 <span style="font-size:11px;color:#aaa">(부가세 제외)</span></label>
       <input id="ptPaymentAmount" type="number" min="0" placeholder="자동계산" readonly style="color:#c9a84c">
     </div>
     <div class="field">
@@ -1424,7 +1424,7 @@ async function addPtProduct() {
         member_name: member?.name || '',
         member_id: _currentMemberId,
         total_sessions: sessions,
-        payment_amount: paymentAmt,
+        payment_amount: Math.round(paymentAmt * 1.1),
         trainer_id: contractTr,
         trainer_name: trainerRow ? trainerRow.name : null,
         pt_product_id: ptProductId,
@@ -1555,7 +1555,7 @@ async function addMember() {
         is_active: true,
       };
       if (pricePerSess > 0) ptInsert.price_per_session = pricePerSess;
-      const { error: e2 } = await db.from('pt_products').insert(ptInsert);
+      const { data: ptData2, error: e2 } = await db.from('pt_products').insert(ptInsert).select('id').single();
       if (e2) throw e2;
 
       // 결제 기록도 자동 생성
@@ -1566,9 +1566,10 @@ async function addMember() {
           member_name: name,
           member_id: newMember.id,
           total_sessions: sessions,
-          payment_amount: paymentAmt,
+          payment_amount: Math.round(paymentAmt * 1.1),
           trainer_id: contractTrId || trainerId,
           trainer_name: trainerRow ? trainerRow.name : null,
+          pt_product_id: ptData2.id,
         });
         if (e3) throw e3;
       }
@@ -2660,7 +2661,7 @@ function toggleAdminTrainerDetail(card, trainerId, month) {
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/veragym-app/service-worker.js').catch(()=>{});
+    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
   });
 }
 </script>
