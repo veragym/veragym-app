@@ -1,6 +1,7 @@
 {
   "name": "VERA GYM Admin",
   "short_name": "베라짐 관리자",
+  "id": "veragym-admin",
   "description": "VERA GYM 관리자 전용 앱",
   "start_url": "/veragym-app/admin-login.html",
   "scope": "/veragym-app/",
