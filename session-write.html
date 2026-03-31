@@ -358,7 +358,7 @@ body {
 }
 
 /* ─── weight_mode 토글 칩 ─── */
-.wm-chip { font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px; border:none; cursor:pointer; flex-shrink:0; transition:background 0.15s; }
+.wm-chip { font-size:12px; font-weight:700; border:1.5px solid #1e3a5f44; border-radius:10px; cursor:pointer; width:100%; height:38px; transition:background 0.15s; }
 .wm-total { background:#1e3a5f; color:#60a5fa; }
 .wm-single { background:#1a3a20; color:#4ade80; }
 </style>
@@ -756,7 +756,7 @@ function renderExercises() {
 
       <div class="sets-area">
         <div class="sets-header">
-          <span>세트</span><span>무게(kg)</span><span>횟수</span><button class="wm-chip ${ex.weight_mode === 'single' ? 'wm-single' : 'wm-total'}" onclick="toggleWeightMode(${i})">${ex.weight_mode === 'single' ? '한쪽' : '양손'}</button><span></span>
+          <span>세트</span><span>무게(kg)</span><span>횟수</span><span></span><span></span>
         </div>
         ${ex.sets.map((s, si) => `
           <div class="set-row">
@@ -765,7 +765,7 @@ function renderExercises() {
                    onchange="updSet(${i},${si},'weight',this.value)">
             <input class="set-input" type="number" min="1" max="999" value="${s.reps}"
                    onchange="updSet(${i},${si},'reps',this.value)">
-            <span></span>
+            <button class="wm-chip ${ex.weight_mode === 'single' ? 'wm-single' : 'wm-total'}" onclick="toggleWeightMode(${i})">${ex.weight_mode === 'single' ? '한쪽' : '양손'}</button>
             <button class="btn-del-set" onclick="delSet(${i},${si})"
                     ${ex.sets.length <= 1 ? 'style="opacity:0;pointer-events:none"' : ''}>−</button>
           </div>

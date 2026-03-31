@@ -113,7 +113,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .ig-btn-save:active, .ig-btn-share:active { opacity:0.8; }
 .btn-danger { color:#f87171; border-color:#3a1a1a; }
 .btn-danger:hover { border-color:#f87171 !important; }
-.wm-chip { font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px; border:none; cursor:pointer; flex-shrink:0; transition:background 0.15s; }
+.wm-chip { font-size:12px; font-weight:700; border:1px solid #1e3a5f44; border-radius:8px; cursor:pointer; width:100%; height:34px; transition:background 0.15s; }
 .wm-total { background:#1e3a5f; color:#60a5fa; }
 .wm-single { background:#1a3a20; color:#4ade80; }
 
@@ -2401,7 +2401,7 @@ function igRenderList() {
         </div>
         <button class="ig-ex-del" onclick="igRemoveEx(${i})">✕</button>
       </div>
-      <div class="ig-sets-hdr"><span>세트</span><span>무게(kg)</span><span>횟수</span><button class="wm-chip ${ex.weight_mode === 'single' ? 'wm-single' : 'wm-total'}" onclick="igToggleWeightMode(${i})">${ex.weight_mode === 'single' ? '한쪽' : '양손'}</button><span></span></div>
+      <div class="ig-sets-hdr"><span>세트</span><span>무게(kg)</span><span>횟수</span><span></span><span></span></div>
       ${ex.sets.map((s, si) => `
         <div class="ig-set-row">
           <div class="ig-set-num">${si + 1}</div>
@@ -2409,7 +2409,7 @@ function igRenderList() {
                  onchange="igUpdSet(${i},${si},'weight',this.value)">
           <input class="ig-set-input" type="number" min="1" value="${s.reps}"
                  onchange="igUpdSet(${i},${si},'reps',this.value)">
-          <span></span>
+          <button class="wm-chip ${ex.weight_mode === 'single' ? 'wm-single' : 'wm-total'}" onclick="igToggleWeightMode(${i})">${ex.weight_mode === 'single' ? '한쪽' : '양손'}</button>
           <button class="ig-del-set" onclick="igDelSet(${i},${si})"
                   ${ex.sets.length <= 1 ? 'style="opacity:0;pointer-events:none"' : ''}>−</button>
         </div>`).join('')}
