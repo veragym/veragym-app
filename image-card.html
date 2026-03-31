@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="베라짐 트레이너">
+<meta name="theme-color" content="#3b82f6">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VERA GYM | 이미지 생성</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  background: #080e1a; color: #fff;
+  min-height: 100dvh; padding-bottom: 90px;
+}
+
+/* ─── 헤더 ─── */
+.header {
+  background: #0d1525; border-bottom: 1px solid #1e3a5f44;
+  padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 100;
+}
+.btn-back {
+  background: none; border: 1px solid #1e3a5f44; border-radius: 8px;
+  color: #60a5fa; font-size: 13px; font-weight: 600;
+  padding: 7px 12px; cursor: pointer; flex-shrink: 0; font-family: inherit;
+}
+.header-title { font-size: 16px; font-weight: 800; flex: 1; }
+.header-title span { color: #3b82f6; }
+
+/* ─── 기본 정보 입력 ─── */
+.info-bar {
+  background: #0d1525; padding: 14px 16px 10px;
+  border-bottom: 1px solid #1e3a5f44; display: flex; flex-direction: column; gap: 8px;
+}
+.info-row { display: flex; gap: 8px; }
+.info-chip {
+  flex: 1; background: #141f35; border: 1px solid #1e3a5f44;
+  border-radius: 10px; padding: 8px 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.info-chip label { font-size: 11px; color: #3a5878; white-space: nowrap; }
+.info-chip input {
+  background: none; border: none; color: #fff; outline: none;
+  font-size: 14px; font-family: inherit; flex: 1; width: 0;
+}
+.info-chip input::placeholder { color: #2a4060; }
+
+/* ─── 운동 카드 (session-write와 동일) ─── */
+.ex-section { padding: 12px 16px 0; }
+.section-label { font-size: 12px; color: #3a5878; font-weight: 600; margin-bottom: 10px; }
+
+.ex-card {
+  background: #141f35; border: 1px solid #1e3a5f44;
+  border-radius: 14px; margin-bottom: 10px; overflow: hidden;
+}
+.ex-card-head {
+  display: flex; align-items: center; padding: 14px 16px; gap: 10px;
+}
+.ex-order {
+  width: 26px; height: 26px; border-radius: 50%; background: #1e3a5f;
+  color: #60a5fa; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.ex-name-area { flex: 1; min-width: 0; }
+.ex-name { font-size: 14px; font-weight: 700; }
+.ex-sub  { font-size: 11px; color: #3a5878; margin-top: 2px; }
+.btn-del-ex {
+  background: #1a0a0a; border: 1px solid #3a1a1a; border-radius: 8px;
+  color: #f87171; font-size: 12px; font-family: inherit;
+  cursor: pointer; padding: 5px 12px; flex-shrink: 0;
+}
+
+/* ─── 세트 테이블 (session-write와 동일) ─── */
+.sets-area { padding: 0 16px 10px; }
+.sets-header {
+  display: grid; grid-template-columns: 36px 1fr 1fr 36px;
+  gap: 6px; margin-bottom: 4px;
+}
+.sets-header span { font-size: 10px; color: #3a5878; text-align: center; }
+.set-row {
+  display: grid; grid-template-columns: 36px 1fr 1fr 36px;
+  gap: 6px; margin-bottom: 6px; align-items: center;
+}
+.set-num {
+  background: #1e3a5f; border-radius: 6px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #60a5fa;
+}
+.set-input {
+  background: #0d1a2e; border: 1.5px solid #1e3a5f44;
+  border-radius: 10px; padding: 10px 6px;
+  font-size: 15px; font-weight: 700; color: #fff;
+  text-align: center; outline: none; font-family: inherit;
+  width: 100%; -moz-appearance: textfield; height: 38px;
+}
+.set-input::-webkit-outer-spin-button,
+.set-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.set-input:focus { border-color: #3b82f6; }
+.btn-del-set {
+  background: none; border: none; color: #3a5878; font-size: 18px;
+  cursor: pointer; padding: 4px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-add-set {
+  width: 100%; background: #0d1a2e; border: 1.5px dashed #1e3a5f44;
+  border-radius: 10px; padding: 9px; font-size: 12px; font-weight: 600;
+  color: #3a5878; cursor: pointer; margin-top: 4px; font-family: inherit;
+}
+.btn-add-set:active { border-color: #3b82f6; color: #3b82f6; }
+
+.ex-empty {
+  text-align: center; padding: 40px 20px; color: #3a5878;
+  font-size: 14px; line-height: 1.7;
+}
+
+/* ─── 하단 바 ─── */
+.add-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #0d1525; border-top: 1px solid #1e3a5f44;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  display: flex; gap: 10px; z-index: 100;
+}
+.btn-add-ex {
+  flex: 1; background: #141f35; border: 1.5px solid #1e3a5f44;
+  border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 700;
+  color: #60a5fa; cursor: pointer; font-family: inherit;
+}
+.btn-gen-img {
+  flex: 2; background: linear-gradient(135deg,#3b82f6,#1d4ed8);
+  border: none; border-radius: 12px; padding: 14px;
+  font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; font-family: inherit;
+}
+.btn-gen-img:disabled { opacity: 0.5; }
+
+/* ─── 검색 모달 (session-write와 동일) ─── */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: #000000cc; z-index: 200; flex-direction: column;
+}
+.modal-bg.open { display: flex; }
+.modal-dimmer  { flex: 0 0 50px; }
+.modal-sheet {
+  background: #0d1525; border-radius: 24px 24px 0 0;
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+  animation: slideUp 0.22s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle { width: 36px; height: 4px; background: #1e3a5f; border-radius: 99px; margin: 14px auto 4px; flex-shrink: 0; }
+.modal-title-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 16px 10px; flex-shrink: 0;
+}
+.modal-title { font-size: 16px; font-weight: 700; }
+.btn-modal-close { background: none; border: none; color: #3a5878; font-size: 20px; cursor: pointer; }
+.modal-search { padding: 0 16px 10px; flex-shrink: 0; border-bottom: 1px solid #1e3a5f44; }
+.modal-search-box {
+  display: flex; align-items: center; gap: 8px;
+  background: #0d1a2e; border: 1.5px solid #1e3a5f44; border-radius: 12px; padding: 11px 14px;
+}
+.modal-search-box input {
+  background: none; border: none; outline: none;
+  color: #fff; font-size: 15px; flex: 1; font-family: inherit;
+}
+.modal-search-box input::placeholder { color: #3a5878; }
+.modal-filters {
+  display: flex; gap: 8px; padding: 10px 16px 0; flex-shrink: 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+.modal-filters::-webkit-scrollbar { display: none; }
+.ftab {
+  background: #141f35; border: 1.5px solid #1e3a5f44;
+  border-radius: 20px; padding: 5px 12px;
+  font-size: 12px; color: #3a5878; white-space: nowrap; cursor: pointer; flex-shrink: 0;
+}
+.ftab.active { background: #1a3a5c; border-color: #3b82f6; color: #3b82f6; font-weight: 700; }
+.modal-results { flex: 1; overflow-y: auto; padding: 0 16px 20px; }
+.result-section-title {
+  font-size: 11px; font-weight: 700; color: #3a5878;
+  padding: 12px 0 6px; letter-spacing: 0.06em;
+  display: flex; align-items: center; gap: 6px;
+}
+.result-section-title::after { content: ''; flex: 1; height: 1px; background: #1e3a5f44; }
+.result-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 0; border-bottom: 1px solid #1e3a5f22; cursor: pointer;
+}
+.result-info { flex: 1; min-width: 0; }
+.result-name { font-size: 14px; font-weight: 600; }
+.result-meta { font-size: 11px; color: #3a5878; margin-top: 2px; }
+.result-badge {
+  background: #1a2a3a; color: #60a5fa; border-radius: 99px;
+  font-size: 10px; font-weight: 700; padding: 2px 7px; flex-shrink: 0;
+}
+.result-star {
+  background: none; border: none; font-size: 20px;
+  cursor: pointer; padding: 4px; flex-shrink: 0; color: #1e3a5f; line-height: 1;
+}
+.result-star.active { color: #f5c518; }
+.search-empty { text-align: center; padding: 40px 20px; color: #3a5878; font-size: 13px; line-height: 1.7; }
+.btn-lib-edit {
+  width: 100%; background: #141f35; border: 1.5px solid #1e3a5f44;
+  border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700;
+  color: #60a5fa; cursor: pointer; font-family: inherit;
+}
+
+/* ─── 토스트 ─── */
+#toast {
+  position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+  background: #141f35; color: #fff; padding: 10px 20px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.3s;
+  z-index: 999; white-space: nowrap; pointer-events: none;
+  border: 1px solid #1e3a5f44;
+}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- 헤더 -->
+<div class="header">
+  <button class="btn-back" onclick="location.href='trainer-dash.html'">← 나가기</button>
+  <div class="header-title">VERA<span>GYM</span> 이미지 생성</div>
+</div>
+
+<!-- 기본 정보 입력 -->
+<div class="info-bar">
+  <div class="info-row">
+    <div class="info-chip" style="flex:1">
+      <label>회원명</label>
+      <input id="igMember" type="text" placeholder="홍길동">
+    </div>
+    <div class="info-chip" style="flex:1.4">
+      <label>프로그램</label>
+      <input id="igProgram" type="text" placeholder="하체, 상체, 전신 등">
+    </div>
+  </div>
+</div>
+
+<!-- 운동 목록 -->
+<div class="ex-section">
+  <div class="section-label">운동 목록</div>
+  <div id="exList"><div class="ex-empty">아래 버튼으로 운동을 추가해보세요</div></div>
+</div>
+
+<!-- 하단 버튼 -->
+<div class="add-bar">
+  <button class="btn-add-ex" onclick="openSearch()">＋ 운동 추가</button>
+  <button class="btn-gen-img" id="btnGenImg" onclick="generateImage()">📥 이미지 생성</button>
+</div>
+
+<!-- 운동 검색 모달 -->
+<div id="searchModal" class="modal-bg">
+  <div class="modal-dimmer" onclick="closeSearch()"></div>
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title-bar">
+      <span class="modal-title">운동 라이브러리</span>
+      <button class="btn-modal-close" onclick="closeSearch()">×</button>
+    </div>
+    <div class="modal-search">
+      <div class="modal-search-box">
+        <input type="text" id="searchInput" placeholder="운동 이름 검색..."
+               oninput="onSearch(this.value)" autocomplete="off">
+      </div>
+    </div>
+    <div class="modal-filters" id="filterTabs">
+      <div class="ftab active" data-val="" onclick="setFilter(this,'')">전체</div>
+    </div>
+    <div class="modal-results" id="searchResults">
+      <div class="search-empty">라이브러리 불러오는 중...</div>
+    </div>
+    <div style="padding:10px 16px calc(10px + env(safe-area-inset-bottom)); border-top:1px solid #1e3a5f44; flex-shrink:0;">
+      <button class="btn-lib-edit" onclick="goToLibrary()">라이브러리 수정</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+init_db();
+
+let trainer    = null;
+let exercises  = [];   // [{refId, name, part, tool, image_url, sets:[{set,weight,reps}]}]
+let myLibrary  = [];
+let freqMap    = {};
+let filterPart = '';
+let searchTm   = null;
+
+// ── 초기화 ──────────────────────────────────────────────────
+async function init() {
+  trainer = await requireTrainer();
+  if (!trainer) return;
+  await Promise.all([loadMyLibrary(), loadFreqMap()]);
+  renderExercises();
+}
+
+// ── 라이브러리 로드 ─────────────────────────────────────────
+async function loadMyLibrary() {
+  const { data } = await db
+    .from('trainer_exercises')
+    .select('id, is_favorite, use_count, exercise_ref_id, exercise_refs(name_ko, name_en, part_unified, tool_unified, image_url)')
+    .eq('trainer_id', trainer.id);
+
+  myLibrary = (data || []).map(te => ({
+    id:          te.id,
+    refId:       te.exercise_ref_id,
+    is_favorite: te.is_favorite,
+    use_count:   te.use_count || 0,
+    name:        te.exercise_refs?.name_ko || te.exercise_refs?.name_en || '',
+    part:        te.exercise_refs?.part_unified || '',
+    tool:        te.exercise_refs?.tool_unified || '',
+    image_url:   te.exercise_refs?.image_url || null,
+  })).sort((a, b) =>
+    (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0) ||
+    b.use_count - a.use_count ||
+    a.name.localeCompare(b.name, 'ko')
+  );
+  buildFilterTabs();
+}
+
+async function loadFreqMap() {
+  const { data } = await db
+    .from('workout_log_exercises')
+    .select('exercise_ref_id, workout_logs!inner(trainer_id)')
+    .eq('workout_logs.trainer_id', trainer.id)
+    .not('exercise_ref_id', 'is', null)
+    .limit(500);
+  freqMap = {};
+  (data || []).forEach(r => {
+    if (r.exercise_ref_id) freqMap[r.exercise_ref_id] = (freqMap[r.exercise_ref_id] || 0) + 1;
+  });
+}
+
+// ── 운동 렌더 ────────────────────────────────────────────────
+function renderExercises() {
+  const wrap = document.getElementById('exList');
+  if (!exercises.length) {
+    wrap.innerHTML = '<div class="ex-empty">아래 버튼으로 운동을 추가해보세요</div>';
+    return;
+  }
+  wrap.innerHTML = exercises.map((ex, i) => `
+    <div class="ex-card">
+      <div class="ex-card-head">
+        <div class="ex-order">${i + 1}</div>
+        <div class="ex-name-area">
+          <div class="ex-name">${ex.name}</div>
+          ${ex.part || ex.tool
+            ? `<div class="ex-sub">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>`
+            : ''}
+        </div>
+        <button class="btn-del-ex" onclick="removeEx(${i})">삭제</button>
+      </div>
+      <div class="sets-area">
+        <div class="sets-header">
+          <span>세트</span><span>무게(kg)</span><span>횟수</span><span></span>
+        </div>
+        ${ex.sets.map((s, si) => `
+          <div class="set-row">
+            <div class="set-num">${s.set}</div>
+            <input class="set-input" type="number" step="0.5" min="0" value="${s.weight}"
+                   onchange="updSet(${i},${si},'weight',this.value)">
+            <input class="set-input" type="number" min="1" max="999" value="${s.reps}"
+                   onchange="updSet(${i},${si},'reps',this.value)">
+            <button class="btn-del-set" onclick="delSet(${i},${si})"
+                    ${ex.sets.length <= 1 ? 'style="opacity:0;pointer-events:none"' : ''}>−</button>
+          </div>`).join('')}
+        <button class="btn-add-set" onclick="addSet(${i})">＋ 세트 추가</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── 세트 조작 ────────────────────────────────────────────────
+function addSet(idx) {
+  const last = exercises[idx].sets.at(-1) || { weight: 0, reps: 10 };
+  exercises[idx].sets.push({ set: exercises[idx].sets.length + 1, weight: last.weight, reps: last.reps });
+  renderExercises();
+}
+function delSet(idx, si) {
+  if (exercises[idx].sets.length <= 1) return;
+  exercises[idx].sets.splice(si, 1);
+  exercises[idx].sets.forEach((s, i) => { s.set = i + 1; });
+  renderExercises();
+}
+function updSet(idx, si, field, val) {
+  exercises[idx].sets[si][field] = field === 'weight' ? parseFloat(val) || 0 : parseInt(val) || 0;
+}
+function removeEx(idx) {
+  if (!confirm(`'${exercises[idx].name}' 삭제할까요?`)) return;
+  exercises.splice(idx, 1);
+  renderExercises();
+}
+
+// ── 검색 모달 ────────────────────────────────────────────────
+function buildFilterTabs() {
+  const parts = [...new Set(myLibrary.map(e => e.part).filter(Boolean))].sort();
+  const wrap  = document.getElementById('filterTabs');
+  wrap.innerHTML = '<div class="ftab active" data-val="" onclick="setFilter(this,\'\')">전체</div>';
+  parts.forEach(p => {
+    const t = document.createElement('div');
+    t.className = 'ftab'; t.dataset.val = p; t.textContent = p;
+    t.onclick = () => setFilter(t, p);
+    wrap.appendChild(t);
+  });
+}
+
+function setFilter(el, val) {
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  filterPart = val;
+  renderSearchResults(document.getElementById('searchInput')?.value || '');
+}
+
+function openSearch() {
+  document.getElementById('searchModal').classList.add('open');
+  setTimeout(() => document.getElementById('searchInput')?.focus(), 300);
+  renderSearchResults('');
+}
+function closeSearch() {
+  document.getElementById('searchModal').classList.remove('open');
+  document.getElementById('searchInput').value = '';
+  filterPart = '';
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.ftab')?.classList.add('active');
+}
+function onSearch(q) {
+  clearTimeout(searchTm);
+  searchTm = setTimeout(() => renderSearchResults(q), 150);
+}
+
+function renderSearchResults(q) {
+  const wrap = document.getElementById('searchResults');
+  if (!myLibrary.length) {
+    wrap.innerHTML = `<div class="search-empty">라이브러리가 비어있어요.<br>
+      <button onclick="goToLibrary()"
+        style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;margin-top:10px">
+        운동 라이브러리에서 추가하기</button></div>`;
+    return;
+  }
+  let list = myLibrary;
+  if (filterPart) list = list.filter(e => e.part === filterPart);
+  if (q.trim()) {
+    const kw = q.trim().toLowerCase();
+    list = list.filter(e => e.name.toLowerCase().includes(kw));
+  }
+  if (!list.length) {
+    wrap.innerHTML = '<div class="search-empty">해당 조건의 운동이 없어요</div>';
+    return;
+  }
+  let html = '';
+  const isDefault = !q.trim() && !filterPart;
+  if (isDefault) {
+    const favs = list.filter(e => e.is_favorite);
+    if (favs.length) { html += '<div class="result-section-title">즐겨찾기</div>'; html += favs.map(resultItemHtml).join(''); }
+    const freq = list.filter(e => !e.is_favorite && (freqMap[e.refId] > 0)).sort((a, b) => (freqMap[b.refId]||0) - (freqMap[a.refId]||0)).slice(0, 8);
+    if (freq.length) { html += '<div class="result-section-title">자주 사용</div>'; html += freq.map(e => resultItemHtml(e, true)).join(''); }
+    const rest = list.filter(e => !e.is_favorite && !freqMap[e.refId]);
+    if (rest.length) { html += '<div class="result-section-title">전체 목록</div>'; html += rest.map(resultItemHtml).join(''); }
+    if (!favs.length && !freq.length) html = list.map(resultItemHtml).join('');
+  } else {
+    html = list.map(e => resultItemHtml(e, freqMap[e.refId] > 0)).join('');
+  }
+  wrap.innerHTML = html;
+}
+
+function resultItemHtml(ex, showCount = false) {
+  const cnt = freqMap[ex.refId] || 0;
+  return `
+    <div class="result-item"
+         onclick="selectEx('${ex.id}','${ex.refId}','${esc(ex.name)}','${esc(ex.part)}','${esc(ex.tool)}','${esc(ex.image_url||'')}')">
+      <div class="result-info">
+        <div class="result-name">${ex.name}</div>
+        ${ex.part || ex.tool ? `<div class="result-meta">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>` : ''}
+      </div>
+      ${cnt > 0 ? `<span class="result-badge">${cnt}회</span>` : ''}
+      <button class="result-star ${ex.is_favorite ? 'active' : ''}"
+              onclick="event.stopPropagation();toggleFav('${ex.id}',${ex.is_favorite})">
+        ${ex.is_favorite ? '★' : '☆'}
+      </button>
+    </div>`;
+}
+
+function selectEx(libId, refId, name, part, tool, imageUrl) {
+  exercises.push({
+    refId:     (refId === 'undefined' || !refId) ? null : refId,
+    name, part, tool,
+    image_url: imageUrl || null,
+    sets: [{ set: 1, weight: 0, reps: 10 }],
+  });
+  renderExercises();
+  closeSearch();
+  setTimeout(() => {
+    document.querySelectorAll('.ex-card').at(-1)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+async function toggleFav(libId, isFav) {
+  const newVal = !isFav;
+  await db.from('trainer_exercises').update({ is_favorite: newVal }).eq('id', libId);
+  const ex = myLibrary.find(e => e.id === libId);
+  if (ex) {
+    ex.is_favorite = newVal;
+    myLibrary.sort((a, b) =>
+      (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0) ||
+      b.use_count - a.use_count || a.name.localeCompare(b.name, 'ko'));
+  }
+  showToast(newVal ? '즐겨찾기 등록' : '즐겨찾기 해제');
+  renderSearchResults(document.getElementById('searchInput')?.value || '');
+}
+
+function goToLibrary() {
+  const returnUrl = encodeURIComponent(location.href);
+  location.href = `exercise-library.html?returnTo=${returnUrl}`;
+}
+
+// ── DOM input → exercises 배열 동기화 ────────────────────────
+function syncInputs() {
+  document.querySelectorAll('.set-input').forEach(inp => {
+    inp.dispatchEvent(new Event('change'));
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// 이미지 생성 (Canvas)
+// ══════════════════════════════════════════════════════════════
+async function generateImage() {
+  syncInputs();
+
+  const memberName  = document.getElementById('igMember').value.trim();
+  const programName = document.getElementById('igProgram').value.trim();
+  if (!memberName)         { showToast('회원명을 입력해주세요'); return; }
+  if (!exercises.length)   { showToast('운동을 추가해주세요'); return; }
+
+  const btn = document.getElementById('btnGenImg');
+  btn.disabled = true; btn.textContent = '생성 중...';
+  showToast('이미지 생성 중...');
+
+  try {
+    const canvas = await buildCanvas(memberName, programName);
+    if (!canvas) return;
+
+    canvas.toBlob(async blob => {
+      if (!blob) { showToast('이미지 생성 실패'); return; }
+      const file = new File([blob], `veragym_${memberName}.png`, { type: 'image/png' });
+
+      // Web Share API (Android 카카오톡 공유 지원)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: `VERA GYM | ${memberName}님 ${programName} 프로그램` });
+          showToast('공유 완료 ✓');
+        } catch (e) {
+          if (e.name !== 'AbortError') fallbackDownload(blob, memberName);
+        }
+      } else {
+        // 공유 미지원 → 직접 저장
+        fallbackDownload(blob, memberName);
+        showToast('이미지 저장 완료 ✓');
+      }
+    }, 'image/png');
+  } finally {
+    btn.disabled = false; btn.textContent = '📥 이미지 생성';
+  }
+}
+
+function fallbackDownload(blob, memberName) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `veragym_${memberName || 'workout'}.png`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+async function buildCanvas(memberName, programName) {
+  // 운동 이미지 로드 (CORS 실패 → null)
+  const imgMap = {};
+  await Promise.all(exercises.map(async (ex, i) => {
+    if (!ex.image_url) return;
+    imgMap[i] = await new Promise(resolve => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload  = () => resolve(img);
+      img.onerror = () => resolve(null);
+      setTimeout(() => resolve(null), 4000);
+      img.src = ex.image_url;
+    });
+  }));
+
+  // ── 상수 ─────────────────────────────────────────────────
+  const W = 1080, PAD = 52, COL = 1080 - 52 * 2;
+  const HEADER_H = 148, FOOTER_H = 72;
+  const EX_TOP = 48, NAME_H = 68, SET_HDR = 38, SET_ROW = 40, EX_SEP = 32;
+  const FONT = '-apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+
+  // ── 전체 높이 계산 ────────────────────────────────────────
+  let totalH = HEADER_H + EX_TOP;
+  exercises.forEach((ex, i) => {
+    if (imgMap[i]) totalH += Math.round(COL * 9 / 16) + 18;
+    totalH += NAME_H + SET_HDR + ex.sets.length * SET_ROW;
+    totalH += i < exercises.length - 1 ? EX_SEP + 24 : EX_SEP;
+  });
+  totalH += FOOTER_H + 20;
+
+  // ── 캔버스 ───────────────────────────────────────────────
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = totalH;
+  const ctx = canvas.getContext('2d');
+
+  function rRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+  }
+
+  // ── 배경 + 헤더 ──────────────────────────────────────────
+  ctx.fillStyle = '#080e1a'; ctx.fillRect(0, 0, W, totalH);
+  ctx.fillStyle = '#0d1525'; ctx.fillRect(0, 0, W, HEADER_H);
+  ctx.fillStyle = '#1e3a5f33'; ctx.fillRect(0, HEADER_H - 1, W, 1);
+
+  // 로고
+  ctx.font = `bold 46px ${FONT}`;
+  ctx.fillStyle = '#ffffff'; ctx.fillText('VERA', PAD, 64);
+  const vW = ctx.measureText('VERA').width;
+  ctx.fillStyle = '#3b82f6'; ctx.fillText('GYM', PAD + vW + 6, 64);
+
+  // 회원명 + 프로그램명
+  ctx.font = `bold 36px ${FONT}`;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(`'${memberName}'님`, PAD, 116);
+  if (programName) {
+    const nmW = ctx.measureText(`'${memberName}'님`).width;
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillText(`  '${programName}' 프로그램`, PAD + nmW, 116);
+  }
+
+  // ── 운동 목록 ─────────────────────────────────────────────
+  let y = HEADER_H + EX_TOP;
+
+  for (let i = 0; i < exercises.length; i++) {
+    const ex = exercises[i];
+    const cat = [ex.part, ex.tool].filter(Boolean).join(' · ');
+
+    // 운동 이미지
+    if (imgMap[i]) {
+      const imgH = Math.round(COL * 9 / 16);
+      rRect(PAD, y, COL, imgH, 14); ctx.save(); ctx.clip();
+      const img = imgMap[i];
+      const scale = Math.min(COL / img.naturalWidth, imgH / img.naturalHeight);
+      const iW = img.naturalWidth * scale, iH = img.naturalHeight * scale;
+      ctx.fillStyle = '#0d1a2e'; ctx.fillRect(PAD, y, COL, imgH);
+      ctx.drawImage(img, PAD + (COL - iW) / 2, y + (imgH - iH) / 2, iW, iH);
+      ctx.restore();
+      y += imgH + 18;
+    }
+
+    // 번호 + 이름
+    ctx.font = `bold 32px ${FONT}`; ctx.textAlign = 'left';
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillText(`${i + 1}.`, PAD, y + 32);
+    const numW = ctx.measureText(`${i + 1}. `).width + 2;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(ex.name, PAD + numW, y + 32);
+    if (cat) {
+      ctx.font = `22px ${FONT}`; ctx.fillStyle = '#4a6580';
+      ctx.fillText(cat, PAD + numW, y + 58);
+    }
+    y += NAME_H;
+
+    // 세트 헤더
+    const colW = COL / 3;
+    ctx.fillStyle = '#0a1525'; rRect(PAD, y, COL, SET_HDR, 8); ctx.fill();
+    ctx.font = `20px ${FONT}`; ctx.fillStyle = '#3a5878'; ctx.textAlign = 'center';
+    ctx.fillText('세트', PAD + colW * 0.5, y + 26);
+    ctx.fillText('무게 (kg)', PAD + colW * 1.5, y + 26);
+    ctx.fillText('횟수', PAD + colW * 2.5, y + 26);
+    ctx.textAlign = 'left'; y += SET_HDR;
+
+    // 세트 행
+    ex.sets.forEach((s, si) => {
+      ctx.fillStyle = si % 2 === 0 ? '#0d1a2e' : '#091422';
+      ctx.fillRect(PAD, y, COL, SET_ROW);
+      ctx.textAlign = 'center'; ctx.font = `24px ${FONT}`;
+      ctx.fillStyle = '#5a7898'; ctx.fillText(String(si + 1), PAD + colW * 0.5, y + 28);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(s.weight !== undefined ? String(s.weight) : '─', PAD + colW * 1.5, y + 28);
+      ctx.fillText(s.reps   !== undefined ? String(s.reps)   : '─', PAD + colW * 2.5, y + 28);
+      ctx.textAlign = 'left'; y += SET_ROW;
+    });
+
+    // 구분선
+    if (i < exercises.length - 1) {
+      y += 16; ctx.fillStyle = '#1e3a5f33'; ctx.fillRect(PAD, y, COL, 1); y += EX_SEP;
+    } else { y += EX_SEP; }
+  }
+
+  // ── 푸터 ─────────────────────────────────────────────────
+  const fy = totalH - FOOTER_H;
+  ctx.fillStyle = '#1e3a5f22'; ctx.fillRect(0, fy, W, 1);
+  ctx.font = `22px ${FONT}`; ctx.fillStyle = '#2a4060'; ctx.textAlign = 'center';
+  ctx.fillText('VERA GYM | 트레이너 맞춤 프로그램', W / 2, fy + 44);
+  ctx.textAlign = 'left';
+
+  return canvas;
+}
+
+// ── 유틸 ─────────────────────────────────────────────────────
+function esc(s) { return (s||'').replace(/'/g, '&#39;').replace(/"/g, '&quot;'); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.style.opacity = '0'; }, 2200);
+}
+
+init();
+</script>
+</body>
+</html>
