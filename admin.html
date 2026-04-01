@@ -518,7 +518,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <div id="toast" class="toast"></div>
 
 <!-- ── 일정 정보 모달 ─────────────────────────────────── -->
-<div class="modal-bg" id="scInfoModal">
+<div class="modal-bg" id="scInfoModal" onclick="closeModal('scInfoModal',event)">
   <div class="modal" style="padding:0 20px calc(28px + env(safe-area-inset-bottom));max-width:520px;">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
@@ -2193,6 +2193,7 @@ function scOpenInfo(sched){
   document.getElementById('scInfoErr').style.display='none';
   document.getElementById('scInfoWarn').style.display='none';
   document.getElementById('scConfirmArea').style.display='none';
+  document.getElementById('scEditArea').style.display='none';
   scRenderInfoActions();
   document.getElementById('scInfoModal').classList.add('open');
 }
