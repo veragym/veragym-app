@@ -1112,7 +1112,7 @@ async function loadScheduleView(){
     myMembersForSched=mems||[];
   }
   const{data,error}=await db.from('schedules')
-    .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,color,pt_product_id,pt_products(remaining_sessions,total_sessions)')
+    .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,color,pt_product_id,session_number,pt_products(remaining_sessions,total_sessions)')
     .eq('trainer_id',me.id)
     .gte('sched_date',toYMD(dates[0])).lte('sched_date',toYMD(dates[3])).order('start_time');
   if(error){await handleDbError(error,'일정 불러오기 실패');scheduleData=[];}
@@ -1200,7 +1200,7 @@ function renderCalGrid(dates){
       if(sType==='PT'&&s.pt_products){
         const used=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
         const offset=s.status==='scheduled'?(_ptOffsetMap.get(s.id)||0):0;
-        const sessionNum=s.status==='scheduled'?used+offset+1:used;
+        const sessionNum=s.status==='scheduled'?used+offset+1:(s.session_number||used);
         sessionTxt=` ${sessionNum}/${s.pt_products.total_sessions||0}`;
       }
       let evLine1,evLine2;
@@ -1926,7 +1926,7 @@ function openSchedInfo(schedId){
       // scheduled 상태면 같은 pt_product 중 앞에 있는 예약 수만큼 +N+1 표시
       const ptSorted=scheduleData.filter(x=>x.type==='PT'&&x.status==='scheduled'&&x.pt_product_id===s.pt_product_id).sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
       const offset=s.status==='scheduled'?ptSorted.findIndex(x=>x.id===s.id):0;
-      const sessionNum=s.status==='scheduled'?used+(offset>=0?offset:0)+1:used;
+      const sessionNum=s.status==='scheduled'?used+(offset>=0?offset:0)+1:(s.session_number||used);
       document.getElementById('siSession').textContent=`${sessionNum}/${s.pt_products.total_sessions||0}회차`;
     }
     else document.getElementById('siSession').textContent='-';
@@ -2035,11 +2035,10 @@ async function siToggleNoshow(){
   if(btn){btn.disabled=true;btn.style.opacity='0.6';}
   try{
     const curStatus=_siTarget.status;
-    const newStatus=curStatus==='completed'?'noshow':'completed';
     const toggledId=_siTarget.id;
-    const{error}=await db.from('schedules')
-      .update({status:newStatus}).eq('id',toggledId);
-    if(error)throw new Error(error.message);
+    const{data,error}=await db.rpc('toggle_session_status',{p_schedule_id:toggledId});
+    if(error||!data?.ok)throw new Error(error?.message||data?.error||'전환 실패');
+    const newStatus=data.new_status;
     // 메모리 즉시 반영
     const idx=scheduleData.findIndex(s=>s.id===toggledId);
     if(idx>=0) scheduleData[idx]={...scheduleData[idx],status:newStatus};
