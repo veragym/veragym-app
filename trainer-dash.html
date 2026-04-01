@@ -1106,7 +1106,7 @@ async function loadScheduleView(){
     myMembersForSched=mems||[];
   }
   const{data,error}=await db.from('schedules')
-    .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,color,pt_product_id,session_number,pt_products(remaining_sessions,total_sessions)')
+    .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,color,pt_product_id,session_number,auto_completed,pt_products(remaining_sessions,total_sessions)')
     .eq('trainer_id',me.id)
     .gte('sched_date',toYMD(dates[0])).lte('sched_date',toYMD(dates[3])).order('start_time');
   if(error){await handleDbError(error,'일정 불러오기 실패');scheduleData=[];}
@@ -1955,17 +1955,26 @@ function renderSiActions(){
         </div>`;
     }
   }else if(s.status==='completed'||s.status==='noshow'){
-    // 완료/노쇼: 노쇼전환·취소·수정 제공 (예약상태 복원 없음 → 자동완료 루프 방지)
-    const toggleLabel = s.status==='completed' ? '노쇼 처리로 변경' : '완료 처리로 변경';
-    acts.innerHTML=`
-      <button id="siBtnToggleNoshow" onclick="siToggleNoshow()"
-        style="width:100%;background:#f59e0b22;border:1.5px solid #f59e0b55;color:#fbbf24;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">${toggleLabel}</button>
-      <div style="display:flex;gap:10px;">
-        <button id="siBtnCancelCompleted" onclick="siCancelCompleted()"
-          style="flex:1;background:#ff4d4f22;border:1.5px solid #ff4d4f55;color:#ff4d4f;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">예약 취소</button>
-        <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)"
-          style="flex:1;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">수정</button>
-      </div>`;
+    if(s.auto_completed){
+      // 자동완료 수업: 트레이너 수정 불가
+      acts.innerHTML=`
+        <div style="width:100%;background:#1e2a3a;border:1.5px solid #3a5a7a55;color:#7a9abd;border-radius:12px;padding:14px;font-size:14px;text-align:center;line-height:1.6;">
+          ⚙️ 자동 완료된 수업입니다.<br>수정이 필요하면 <strong style="color:#60a5fa;">관리자에게 문의</strong>해주세요.
+        </div>
+        <button onclick="closeSchedInfo()" style="width:100%;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">닫기</button>`;
+    }else{
+      // 수동 완료/노쇼: 노쇼전환·취소·수정 제공 (예약상태 복원 없음 → 자동완료 루프 방지)
+      const toggleLabel = s.status==='completed' ? '노쇼 처리로 변경' : '완료 처리로 변경';
+      acts.innerHTML=`
+        <button id="siBtnToggleNoshow" onclick="siToggleNoshow()"
+          style="width:100%;background:#f59e0b22;border:1.5px solid #f59e0b55;color:#fbbf24;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">${toggleLabel}</button>
+        <div style="display:flex;gap:10px;">
+          <button id="siBtnCancelCompleted" onclick="siCancelCompleted()"
+            style="flex:1;background:#ff4d4f22;border:1.5px solid #ff4d4f55;color:#ff4d4f;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">예약 취소</button>
+          <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)"
+            style="flex:1;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">수정</button>
+        </div>`;
+    }
   }else{
     acts.innerHTML=`<button onclick="closeSchedInfo()" style="width:100%;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">닫기</button>`;
   }

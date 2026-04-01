@@ -538,6 +538,21 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
         <button id="scConfirmExec" style="flex:2;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;border:none;" onclick="scExecAction()">실행</button>
       </div>
     </div>
+    <!-- 3단계: 날짜·시간 수정 영역 -->
+    <div id="scEditArea" style="display:none;margin-top:4px;">
+      <div style="font-size:13px;color:#aaa;margin-bottom:10px;">📅 날짜·시간 수정 (상태·잔여횟수는 변경되지 않음)</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input id="scEditDate" type="date" style="background:#1a2a3a;border:1px solid #2a4a6a;color:#e0e0e0;border-radius:8px;padding:10px;font-size:14px;width:100%;box-sizing:border-box;">
+        <div style="display:flex;gap:8px;">
+          <input id="scEditStart" type="time" placeholder="시작" style="flex:1;background:#1a2a3a;border:1px solid #2a4a6a;color:#e0e0e0;border-radius:8px;padding:10px;font-size:14px;box-sizing:border-box;">
+          <input id="scEditEnd" type="time" placeholder="종료" style="flex:1;background:#1a2a3a;border:1px solid #2a4a6a;color:#e0e0e0;border-radius:8px;padding:10px;font-size:14px;box-sizing:border-box;">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn-cancel" style="flex:1;" onclick="scCloseEdit()">취소</button>
+        <button style="flex:2;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;background:#3b82f622;border:1.5px solid #3b82f666;color:#60a5fa;" onclick="scExecEdit()">저장</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1935,7 +1950,7 @@ async function scRefresh(){
     scSelectedDate=(todayISO>=from&&todayISO<=to)?todayISO:from;
   }
   let q=db.from('schedules')
-    .select('id,pt_product_id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,members(name),trainers(name),pt_products(remaining_sessions,total_sessions)')
+    .select('id,pt_product_id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,auto_completed,members(name),trainers(name),pt_products(remaining_sessions,total_sessions)')
     .gte('sched_date',from).lte('sched_date',to)
     .order('sched_date').order('start_time');
   const branch=document.getElementById('scBranchSel')?.value||'';
@@ -2196,10 +2211,12 @@ function scRenderInfoActions(){
   if(isPtSpt&&s.status==='completed'){
     b+=`<button class="sc-btn sc-btn-amber" id="scBtnToggle" style="flex:1;" onclick="scToggleNoshow()">노쇼로 변경</button>`;
     b+=`<button class="sc-btn sc-btn-gold" style="flex:1;" onclick="scAskConfirm('rollback')">완료 롤백</button>`;
+    b+=`<button class="sc-btn" style="flex:1;background:#3b82f622;border-color:#3b82f666;color:#60a5fa;" onclick="scOpenEdit()">날짜·시간 수정</button>`;
   }
   if(isPtSpt&&s.status==='noshow'){
     b+=`<button class="sc-btn sc-btn-green" id="scBtnToggle" style="flex:1;" onclick="scToggleNoshow()">완료로 변경</button>`;
     b+=`<button class="sc-btn sc-btn-gold" style="flex:1;" onclick="scAskConfirm('rollback')">노쇼 롤백</button>`;
+    b+=`<button class="sc-btn" style="flex:1;background:#3b82f622;border-color:#3b82f666;color:#60a5fa;" onclick="scOpenEdit()">날짜·시간 수정</button>`;
   }
   acts.innerHTML=b;acts.style.display='flex';
 }
@@ -2260,6 +2277,38 @@ async function scExecAction(){
   }
 }
 
+function scOpenEdit(){
+  if(!scTarget)return;
+  document.getElementById('scInfoActions').style.display='none';
+  document.getElementById('scEditDate').value=scTarget.sched_date||'';
+  document.getElementById('scEditStart').value=(scTarget.start_time||'').slice(0,5);
+  document.getElementById('scEditEnd').value=(scTarget.end_time||'').slice(0,5);
+  document.getElementById('scEditArea').style.display='block';
+}
+function scCloseEdit(){
+  document.getElementById('scEditArea').style.display='none';
+  scRenderInfoActions();
+}
+async function scExecEdit(){
+  if(!scTarget)return;
+  const errEl=document.getElementById('scInfoErr');errEl.style.display='none';
+  const newDate=document.getElementById('scEditDate').value;
+  const newStart=document.getElementById('scEditStart').value;
+  const newEnd=document.getElementById('scEditEnd').value||null;
+  if(!newDate||!newStart){errEl.textContent='날짜와 시작 시간은 필수입니다.';errEl.style.display='block';return;}
+  try{
+    const{error}=await db.from('schedules').update({
+      sched_date:newDate,
+      start_time:newStart+':00',
+      end_time:newEnd?newEnd+':00':null
+    }).eq('id',scTarget.id);
+    if(error)throw new Error(error.message);
+    closeModal('scInfoModal');
+    showToast('날짜·시간이 수정됐습니다');
+    await scRefresh();
+  }catch(e){errEl.textContent=e.message;errEl.style.display='block';}
+}
+
 async function scToggleNoshow(){
   if(!scTarget)return;
   const btn=document.getElementById('scBtnToggle');
@@ -2267,11 +2316,11 @@ async function scToggleNoshow(){
   errEl.style.display='none';
   if(btn){btn.disabled=true;btn.style.opacity='0.6';}
   try{
-    const curStatus=scTarget.status;
-    const newStatus=curStatus==='completed'?'noshow':'completed';
     const toggledId=scTarget.id;
-    const{error}=await db.from('schedules').update({status:newStatus}).eq('id',toggledId);
-    if(error)throw new Error(error.message);
+    // toggle_session_status RPC: workout_log(is_noshow) 동기 처리 포함
+    const{data,error}=await db.rpc('toggle_session_status',{p_schedule_id:toggledId});
+    if(error||!data?.ok)throw new Error(error?.message||data?.error||'전환 실패');
+    const newStatus=data.new_status;
     const idx=scData.findIndex(s=>s.id===toggledId);
     if(idx>=0) scData[idx]={...scData[idx],status:newStatus};
     scTarget={...scTarget,status:newStatus};
@@ -2790,6 +2839,9 @@ window.scOnBranchChange       = scOnBranchChange;
 window.scOpenInfo             = scOpenInfo;
 window.scSelectDate           = scSelectDate;
 window.scToggleNoshow         = scToggleNoshow;
+window.scOpenEdit             = scOpenEdit;
+window.scCloseEdit            = scCloseEdit;
+window.scExecEdit             = scExecEdit;
 window.searchMembers          = searchMembers;
 window.showAllBranches        = showAllBranches;
 window.showBranch             = showBranch;
