@@ -2021,7 +2021,7 @@ function scRenderDayView(){
         }
         const memName=s.members?.name||sType;
         const sid=s.id;
-        html+=`<div class="sc-trainer-sess" onclick="scOpenInfo('${sid}')">`
+        html+=`<div class="sc-trainer-sess" onclick="scOpenInfo('${sid}')">
           <div class="sess-time">${tStr} · ${dur}분${sType!=='PT'&&sType!=='SPT'?' · '+sType:''}</div>
           <div class="sess-name">${memName}</div>
           ${stxt?`<div class="sess-sub">${stxt}</div>`:''}
