@@ -418,7 +418,7 @@ async function loadLogs(token) {
           <div class="chevron" id="chev${i}">›</div>
         </div>
         <div class="sess-body" id="sessBody${i}">
-          ${s.notes ? `<div style="padding:14px 18px 0"><div class="sess-notes"><div class="sess-notes-label">트레이너 총평</div>${s.notes}</div></div>` : ''}
+          ${s.notes ? `<div style="padding:14px 18px 0"><div class="sess-notes"><div class="sess-notes-label">트레이너 총평</div>${esc(s.notes)}</div></div>` : ''}
           ${s.note_photo_path ? `
           <div style="padding:8px 18px 0">
             <div id="notePhotoInline${i}" style="display:none;margin-bottom:8px;position:relative;background:#0d1a0d;border-radius:10px;overflow:hidden;border:1px solid #1a3a1a44;">
@@ -667,7 +667,8 @@ async function viewMemberPhotos(startPath, endPath, exName) {
   const labels = ['시작 자세', '끝 자세'];
   const slots = await Promise.all([startPath, endPath].map(async (path, i) => {
     if (!path) return `<div class="mv-photo-slot"><div style="flex:1;display:flex;align-items:center;justify-content:center;color:#444;font-size:12px">미촬영</div><div class="mv-photo-label">${labels[i]}</div></div>`;
-    const { data } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
+    const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
+    if (error) { console.error('Failed to create signed URL:', error); }
     const url = data?.signedUrl;
     if (!url) return `<div class="mv-photo-slot"><div style="flex:1;display:flex;align-items:center;justify-content:center;color:#f87171;font-size:12px">로드 실패</div><div class="mv-photo-label">${labels[i]}</div></div>`;
     return `<div class="mv-photo-slot"><img src="${url}" alt="${labels[i]}"><div class="mv-photo-label">${labels[i]}</div></div>`;

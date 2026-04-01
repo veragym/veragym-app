@@ -342,7 +342,8 @@ async function init() {
     // 회원 토큰으로 접근했는지 확인
     const _p = new URLSearchParams(location.search);
     // 트레이너 세션이 있으면 회원 토큰 무시 (같은 브라우저에서 회원 앱 테스트 시 오작동 방지)
-    const { data: { session: _trainerSession } } = await db.auth.getSession();
+    const { data: { session: _trainerSession }, error: authErr } = await db.auth.getSession();
+    if (authErr) console.warn('세션 확인 실패:', authErr.message);
     const memberToken = _trainerSession
       ? null  // 트레이너 로그인 상태 → 항상 트레이너 모드
       : (_p.get('token') || _p.get('t') || localStorage.getItem('vg_member_token'));
@@ -978,6 +979,8 @@ init();
 async function doLogout() {
   await db.auth.signOut();
   localStorage.removeItem('vg_trainer');
+  localStorage.removeItem('vg_exdb_cache_v2');
+  sessionStorage.removeItem('vg_session_draft');
   location.replace('trainer-login.html');
 }
 

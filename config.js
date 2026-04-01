@@ -119,3 +119,20 @@ function preventBackExit() {
     window.removeEventListener('popstate', handler);
   }, { once: true });
 }
+
+// ── XSS 방어 이스케이프 유틸 ────────────────────────────────
+function esc(str) {
+  if (str == null) return '';
+  const d = document.createElement('div');
+  d.textContent = String(str);
+  return d.innerHTML;
+}
+
+// ── 전역 에러 핸들러 ────────────────────────────────────────
+window.addEventListener('unhandledrejection', e => {
+  console.error('Unhandled rejection:', e.reason);
+  if (window.showToast) showToast('오류가 발생했습니다. 새로고침해주세요.');
+});
+window.onerror = (msg, src, line) => {
+  console.error(`Error: ${msg} at ${src}:${line}`);
+};

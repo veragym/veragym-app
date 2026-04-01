@@ -174,10 +174,14 @@ async function routinePickerOpen(options) {
         display:flex;align-items:center;gap:12px;
       `;
       item.dataset.rid = r.id;
-      item.innerHTML = `
-        <span style="flex:1;font-size:14px;color:#e0eaf4;">${r.name}</span>
-        <span style="font-size:11px;color:#8aa8c4;">${r.created_at.slice(0,10)}</span>
-      `;
+      const nameSpan = document.createElement('span');
+      nameSpan.style.cssText = 'flex:1;font-size:14px;color:#e0eaf4;';
+      nameSpan.textContent = r.name;
+      item.appendChild(nameSpan);
+      const dateSpan = document.createElement('span');
+      dateSpan.style.cssText = 'font-size:11px;color:#8aa8c4;';
+      dateSpan.textContent = r.created_at.slice(0,10);
+      item.appendChild(dateSpan);
       fragment.appendChild(item);
     });
     list.appendChild(fragment); // 단 1회 DOM 삽입

@@ -551,13 +551,13 @@ function renderMemberList() {
 
   const card = m => `
     <div class="card" onclick="showMemberDetail('${m.id}')">
-      <div class="avatar">${(m.name||'?').charAt(0)}</div>
+      <div class="avatar">${esc((m.name||'?').charAt(0))}</div>
       <div class="card-info">
         <div class="card-name">
-          ${m.name}
+          ${esc(m.name)}
           <span class="badge ${m.is_active ? 'badge-active' : 'badge-inactive'}">${m.is_active ? '활성' : '비활성'}</span>
         </div>
-        <div class="card-sub">${m.gym_location}${m.notes ? ' · ' + m.notes.slice(0,20) : ''}</div>
+        <div class="card-sub">${esc(m.gym_location)}${m.notes ? ' · ' + esc(m.notes.slice(0,20)) : ''}</div>
       </div>
       <div class="card-arrow">›</div>
     </div>`;
@@ -593,14 +593,15 @@ async function showMemberDetail(memberId) {
 
   // 해당 회원 수업 기록 (필요 필드만 선택)
   document.getElementById('memberLogs').innerHTML = '<div class="loading">불러오는 중...</div>';
-  const { data: logs } = await db.from('workout_logs')
+  const { data: logs, error: logErr } = await db.from('workout_logs')
     .select('id,session_date,notes,member_id,note_photo_path,workout_log_exercises(custom_name,sets_data,sets,reps)')
     .eq('member_id', memberId)
     .eq('is_deleted', false)
     .order('session_date', { ascending: false })
     .limit(30);
 
-  renderLogCards('memberLogs', logs, false);
+  if (logErr) { document.getElementById('memberLogs').innerHTML = '<div class="empty">수업 기록 불러오기 실패</div>'; return; }
+  renderLogCards('memberLogs', logs || [], false);
 }
 
 function showMemberList() {
@@ -664,10 +665,10 @@ async function loadLogs() {
 
   // ② 운동 태그 별도 로드 후 업데이트 (~300ms)
   const ids = logs.map(l => l.id);
-  const { data: exs } = await db.from('workout_log_exercises')
+  const { data: exs, error: exsErr } = await db.from('workout_log_exercises')
     .select('log_id,custom_name,sets_data,sets,reps')
     .in('log_id', ids);
-  if (!exs?.length) return;
+  if (exsErr || !exs?.length) return;
 
   const exMap = {};
   exs.forEach(e => { (exMap[e.log_id] = exMap[e.log_id] || []).push(e); });
@@ -696,19 +697,19 @@ function renderLogCards(containerId, logs, showMember) {
         <div class="log-header">
           <span class="log-date">${dateStr}</span>
           ${isNoshow ? `<span style="background:#f59e0b22;border:1px solid #f59e0b66;color:#f59e0b;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;margin-left:6px;">노쇼</span>` : ''}
-          ${showMember ? `<span class="log-member">${log.members?.name || '-'}</span>` : ''}
+          ${showMember ? `<span class="log-member">${esc(log.members?.name || '-')}</span>` : ''}
         </div>
         ${isNoshow
           ? `<div style="color:#6a6a8a;font-size:13px;padding:6px 0;">운동 내용 없음</div>`
           : (exs.length ? `<div class="log-exercises">${exs.map(e => {
-              const nm = e.custom_name || '운동';
+              const nm = esc(e.custom_name || '운동');
               const setInfo = e.sets_data?.length
                 ? `${e.sets_data.length}세트`
                 : (e.sets ? `${e.sets}×${e.reps}` : '');
               return `<span class="ex-tag">${nm}${setInfo ? ' ' + setInfo : ''}</span>`;
             }).join('')}</div>` : '')
         }
-        ${log.notes ? `<div class="log-notes" style="margin-top:8px">${log.notes}</div>` : ''}
+        ${log.notes ? `<div class="log-notes" style="margin-top:8px">${esc(log.notes)}</div>` : ''}
         <div class="log-actions">
           ${isNoshow ? '' : `<button class="btn-sm" onclick="location.href='session-write.html?log=${log.id}'">수정</button>`}
           ${log.note_photo_path ? `<button class="btn-sm" onclick="viewNotePhoto('${log.note_photo_path}')">노트 사진</button>` : ''}
@@ -1067,6 +1068,8 @@ function showModalErr(id, msg) {
 async function doLogout() {
   await db.auth.signOut();
   localStorage.removeItem('vg_trainer');
+  localStorage.removeItem('vg_exdb_cache_v2');
+  sessionStorage.removeItem('vg_session_draft');
   location.replace('trainer-login.html');
 }
 
@@ -2336,9 +2339,10 @@ let _igExCache  = [];   // 전체 운동 목록 캐시
 
 async function igLoadExCache() {
   if (_igExCache.length) return;
-  const { data } = await db.from('exercise_refs')
+  const { data, error } = await db.from('exercise_refs')
     .select('id,name_ko,name_en,part_unified,tool_unified,image_url')
     .eq('is_active', true).order('name_ko');
+  if (error) { showToast('운동 목록 로드 실패'); return; }
   _igExCache = data || [];
 }
 

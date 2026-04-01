@@ -568,7 +568,8 @@ async function loadExistingLog() {
   // 기존 PT 노트 사진 표시
   if (log.note_photo_path) {
     _notePhotoExistingPath = log.note_photo_path;
-    const { data } = await db.storage.from('session-photos').createSignedUrl(log.note_photo_path, 3600);
+    const { data, error } = await db.storage.from('session-photos').createSignedUrl(log.note_photo_path, 3600);
+    if (error) { console.error('Failed to create signed URL:', error); }
     if (data?.signedUrl) showNotePhotoPreview(data.signedUrl);
   }
 
@@ -1009,7 +1010,8 @@ async function viewPhotos(idx) {
   const rendered = await Promise.all(['start', 'end'].map(async (type, i) => {
     const path = ex.photos?.[type];
     if (!path) return `<div class="photo-viewer-slot"><div style="flex:1;display:flex;align-items:center;justify-content:center;color:#3a5878;font-size:12px">미촬영</div><div class="photo-viewer-label">${labels[i]}</div></div>`;
-    const { data } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
+    const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
+    if (error) { console.error('Failed to create signed URL:', error); }
     const url = data?.signedUrl;
     if (!url) return `<div class="photo-viewer-slot"><div style="flex:1;display:flex;align-items:center;justify-content:center;color:#f87171;font-size:12px">불러오기 실패</div><div class="photo-viewer-label">${labels[i]}</div></div>`;
     return `<div class="photo-viewer-slot"><img src="${url}" alt="${labels[i]}"><div class="photo-viewer-label">${labels[i]}</div></div>`;
