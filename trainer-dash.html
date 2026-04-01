@@ -531,7 +531,7 @@ function switchTab(id, btn) {
 // ══════════════════════════════════════════════════════════════
 async function loadMembers() {
   const { data, error } = await db.from('members')
-    .select('id,name,gym_location,notes,is_active,token').eq('trainer_id', me.id).order('name');
+    .select('id,name,gym_location,notes,is_active,token,member_status').eq('trainer_id', me.id).eq('member_status','active').order('name');
   if (await handleDbError(error, '회원 불러오기 실패')) return;
   myMembers = data || [];
   document.getElementById('memberCount').textContent = `(${myMembers.length}명)`;
