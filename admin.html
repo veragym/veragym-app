@@ -2021,7 +2021,7 @@ function scRenderDayView(){
         }
         const memName=s.members?.name||sType;
         const sid=s.id;
-        html+=`<div class="sc-trainer-sess" onclick="scOpenInfo(scData.find(x=>x.id==='${sid}'))">
+        html+=`<div class="sc-trainer-sess" onclick="scOpenInfo('${sid}')">`
           <div class="sess-time">${tStr} · ${dur}분${sType!=='PT'&&sType!=='SPT'?' · '+sType:''}</div>
           <div class="sess-name">${memName}</div>
           ${stxt?`<div class="sess-sub">${stxt}</div>`:''}
@@ -2102,7 +2102,7 @@ function scRenderCal(){
       if(sType==='PT'&&stxt){line2=scTrainerId?`PT ${stxt}`:(trainerName?`${trainerName} ${stxt}`:stxt);}
       else{line2=scTrainerId?'':(trainerName||'');}
       const sid=s.id;
-      col+=`<div class="sc-event" style="background:${evBg}dd;opacity:${evOp};top:${top}px;height:${height}px;" onclick="event.stopPropagation();scOpenInfo(scData.find(x=>x.id==='${sid}'))">${evExtra}<div class="sc-ev-title">${line1}</div>${line2?`<div class="sc-ev-sub">${line2}</div>`:''}</div>`;
+      col+=`<div class="sc-event" style="background:${evBg}dd;opacity:${evOp};top:${top}px;height:${height}px;" onclick="event.stopPropagation();scOpenInfo('${sid}')">${evExtra}<div class="sc-ev-title">${line1}</div>${line2?`<div class="sc-ev-sub">${line2}</div>`:''}</div>`;
     });
     // 현재 시각 표시선
     if(isT){const ny=scTimeToY(nowH,nowM);if(ny>=0&&ny<=TOTAL)col+=`<div class="sc-now-line" style="top:${ny}px"></div>`;}
@@ -2151,17 +2151,18 @@ function scBuildActBtns(s){
   const id=s.id;const isPtSpt=(s.type==='PT'||s.type==='SPT');let b='';
   if(s.status==='scheduled'){
     if(isPtSpt){
-      b+=`<button class="sc-btn sc-btn-green" onclick="scOpenInfo(scData.find(x=>x.id==='${id}'))">완료</button>`;
-      b+=`<button class="sc-btn sc-btn-amber" onclick="scOpenInfo(scData.find(x=>x.id==='${id}'))">노쇼</button>`;
+      b+=`<button class="sc-btn sc-btn-green" onclick="scOpenInfo('${id}')">완료</button>`;
+      b+=`<button class="sc-btn sc-btn-amber" onclick="scOpenInfo('${id}')">노쇼</button>`;
     }
-    b+=`<button class="sc-btn sc-btn-red" onclick="scOpenInfo(scData.find(x=>x.id==='${id}'))">취소</button>`;
+    b+=`<button class="sc-btn sc-btn-red" onclick="scOpenInfo('${id}')">취소</button>`;
   }
-  if(isPtSpt&&s.status==='completed')b+=`<button class="sc-btn sc-btn-gold" onclick="scOpenInfo(scData.find(x=>x.id==='${id}'))">완료 롤백</button>`;
-  if(isPtSpt&&s.status==='noshow')b+=`<button class="sc-btn sc-btn-gold" onclick="scOpenInfo(scData.find(x=>x.id==='${id}'))">노쇼 롤백</button>`;
+  if(isPtSpt&&s.status==='completed')b+=`<button class="sc-btn sc-btn-gold" onclick="scOpenInfo('${id}')">완료 롤백</button>`;
+  if(isPtSpt&&s.status==='noshow')b+=`<button class="sc-btn sc-btn-gold" onclick="scOpenInfo('${id}')">노쇼 롤백</button>`;
   return b;
 }
 
 function scOpenInfo(sched){
+  if(typeof sched==='string') sched=scData.find(x=>x.id===sched);
   if(!sched)return;
   scTarget=sched;scPendingAction=null;
   const[y,mo,d]=sched.sched_date.split('-').map(Number);
