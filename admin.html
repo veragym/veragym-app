@@ -2021,8 +2021,9 @@ function scRenderDayView(){
         }
         const memName=s.members?.name||sType;
         const sid=s.id;
+        const statusBadge=s.status==='completed'?'<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;background:#4ade8022;border:1px solid #4ade8055;color:#4ade80;margin-left:5px;">완료</span>':s.status==='noshow'?'<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;background:#f59e0b22;border:1px solid #f59e0b55;color:#f59e0b;margin-left:5px;">노쇼</span>':'';
         html+=`<div class="sc-trainer-sess" onclick="scOpenInfo('${sid}')">
-          <div class="sess-time">${tStr} · ${dur}분${sType!=='PT'&&sType!=='SPT'?' · '+sType:''}</div>
+          <div class="sess-time" style="display:flex;align-items:center;">${tStr} · ${dur}분${sType!=='PT'&&sType!=='SPT'?' · '+sType:''}${statusBadge}</div>
           <div class="sess-name">${memName}</div>
           ${stxt?`<div class="sess-sub">${stxt}</div>`:''}
         </div>`;
