@@ -646,7 +646,7 @@ async function loadMemberSelfLogs(memberId) {
         const isUni = (wm === 'each' || wm === 'single');
         const wmTag = isUni ? '<span style="font-size:10px;background:#1a3a1a;color:#4ade80;padding:2px 5px;border-radius:4px;margin-left:5px">한손</span>' : '';
         const thumbHtml = imgUrl
-          ? `<div style="width:100%;border-radius:10px;overflow:hidden;background:#0a1428;margin:6px 0"><img src="${imgUrl}" loading="lazy" style="width:100%;display:block;object-fit:cover;max-height:180px" onerror="this.parentElement.style.display='none'"></div>`
+          ? `<div style="width:100%;border-radius:10px;overflow:hidden;background:#0a1428;margin:6px 0"><img src="${esc(imgUrl)}" loading="lazy" style="width:100%;display:block;object-fit:cover;max-height:180px" onerror="this.parentElement.style.display='none'"></div>`
           : '';
         const setsStr = sets.length
           ? `<table style="width:100%;table-layout:fixed;border-collapse:collapse;margin-top:6px;font-size:12px">
@@ -832,7 +832,7 @@ async function viewNotePhoto(path) {
   overlay.innerHTML = `
     <button onclick="document.getElementById('notePhotoOverlay').remove()"
       style="position:absolute;top:16px;right:16px;background:#1e3a5f;border:none;border-radius:50%;width:40px;height:40px;font-size:22px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1">✕</button>
-    <img src="${data.signedUrl}" alt="PT 노트"
+    <img src="${esc(data.signedUrl)}" alt="PT 노트"
       style="max-width:96vw;max-height:92dvh;object-fit:contain;border-radius:10px;box-shadow:0 0 40px #00000088;">
   `;
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });

@@ -459,7 +459,7 @@ async function loadMyLib() {
     .from('trainer_exercises')
     .select('exercise_ref_id,is_favorite,use_count')
     .eq('trainer_id', trainer.id);
-  if (error) console.error('내 목록 오류:', error.message);
+  if (error) { console.error('내 목록 오류:', error.message); showToast('내 운동 목록을 불러오지 못했어요'); }
   myLibIds    = new Set((data||[]).map(r => r.exercise_ref_id));
   favIds      = new Set((data||[]).filter(r => r.is_favorite).map(r => r.exercise_ref_id));
   useCountMap = Object.fromEntries((data||[]).map(r => [r.exercise_ref_id, r.use_count||0]));

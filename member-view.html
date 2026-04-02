@@ -880,7 +880,7 @@ async function _loadAllExercises() {
   } catch (_) {}
   // RPC로 전체 로드 (PostgREST max-rows 제한 우회)
   const { data, error } = await db.rpc('get_all_exercise_refs');
-  if (error || !data) { console.error('운동 DB 오류:', error?.message); return; }
+  if (error || !data) { console.error('운동 DB 오류:', error?.message); showToast('운동 정보를 불러오지 못했어요'); return; }
   _exAll = data;
   try { sessionStorage.setItem(EX_CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (_) {}
 }

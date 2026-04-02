@@ -2572,7 +2572,7 @@ async function loadAllPayments() {
     _payDataLoaded = true;
     buildPayFilters();
     renderPayList();
-  } catch(e) { console.error('loadAllPayments', e); }
+  } catch(e) { console.error('loadAllPayments', e); showToast('결제 내역을 불러오지 못했어요'); }
 }
 
 // ── 필터 옵션 생성 ──
@@ -2734,7 +2734,7 @@ async function loadAdminRevenue() {
 
     renderAdminRevSummary();
     renderAdminTrainerList();
-  } catch(e) { console.error('loadAdminRevenue', e); }
+  } catch(e) { console.error('loadAdminRevenue', e); showToast('매출 통계를 불러오지 못했어요'); }
 }
 
 function renderAdminRevSummary() {

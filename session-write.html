@@ -679,7 +679,7 @@ async function loadMyLibrary() {
     .from('trainer_exercises')
     .select('id, is_favorite, exercise_ref_id, use_count, exercise_refs(name_ko, name_en, part_unified, tool_unified)')
     .eq('trainer_id', trainer.id);
-  if (error) { console.error('라이브러리 오류:', error.message); return; }
+  if (error) { console.error('라이브러리 오류:', error.message); showToast('운동 목록을 불러오지 못했어요'); return; }
 
   myLibrary = (data || []).map(te => ({
     id:          te.id,
