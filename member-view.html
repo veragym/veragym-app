@@ -1155,6 +1155,7 @@ let _wlogExs    = [];  // 작성 중 운동 목록
 async function wlogInit() {
   if (_wlogLoaded) return;
   _wlogLoaded = true;
+  lazyLoadEx(); // 운동 이미지 표시에 필요한 _exAll 미리 로드 (탭 미방문 시 이미지 누락 방지)
   await wlogLoadList();
 }
 
