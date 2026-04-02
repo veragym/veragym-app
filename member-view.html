@@ -1831,7 +1831,7 @@ function statsRender(s) {
     html += `<div class="stat-section">
       <div class="stat-section-title">일지별 운동 볼륨</div>
       <div class="stat-section-desc">볼륨 = 들어올린 무게(kg) × 횟수를 모두 더한 값이에요.<br>숫자가 클수록 그날 더 많은 운동을 한 거예요. 점점 높아지면 성장 중이에요! 📈<br><span style="color:#1a3a1a">※ 무게를 직접 입력한 운동만 계산돼요 · 한쪽(한손) 운동은 2배 적용</span></div>
-      <div style="display:flex;gap:10px;margin-bottom:16px">
+      <div style="display:flex;gap:10px;margin-bottom:32px">
         <div style="flex:1;background:#0f1a0f;border-radius:10px;padding:12px;text-align:center">
           <div style="font-size:18px;font-weight:800;color:#4ade80">${fmtVol(avgVol)}</div>
           <div style="font-size:11px;color:#3a5840;margin-top:3px">일지 평균</div>
@@ -1843,7 +1843,7 @@ function statsRender(s) {
           <div style="font-size:10px;color:#1a3a1a;margin-top:2px">가장 많이 한 날</div>
         </div>
       </div>
-      <div style="position:relative">
+      <div style="position:relative;margin-top:28px">
         <!-- 평균선 -->
         <div style="position:absolute;left:0;right:0;top:${Math.round((1 - avgVol/maxBar)*80)}px;height:1px;background:#4ade8055;border-top:1px dashed #4ade8088;z-index:1"></div>
         <div style="display:flex;align-items:flex-end;gap:4px;height:80px;padding-bottom:0">
