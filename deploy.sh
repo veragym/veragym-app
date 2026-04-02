@@ -60,10 +60,34 @@ else
   echo "  ⚠ 테스트 레포 경로를 찾을 수 없음: $TEST_DIR"
 fi
 
-# ── 완료 ───────────────────────────────────────────────────
+# ── Git 커밋 & 푸시 ────────────────────────────────────────
+BRANCH=$(git -C "$APP_DIR" branch --show-current 2>/dev/null || echo "main")
+
+git -C "$APP_DIR" add \
+  service-worker.js config.js \
+  admin.html admin-login.html \
+  trainer-dash.html trainer-login.html \
+  member-view.html session-write.html \
+  exercise-library.html image-card.html \
+  index.html routine-utils.js \
+  manifest.json manifest-admin.json manifest-member.json
+
+COMMIT_MSG="deploy: veragym-app-v$NEXT_NUM ($(date '+%Y-%m-%d'))"
+git -C "$APP_DIR" commit -m "$COMMIT_MSG" 2>/dev/null || echo "  ℹ 변경된 파일 없음 (커밋 스킵)"
+
+echo ""
+echo "  📤 GitHub 푸시 중..."
+git -C "$APP_DIR" push origin "$BRANCH"
+PUSH_CODE=$?
+
 echo ""
 echo "══════════════════════════════════════════"
-echo "  ✅ 배포 준비 완료"
-echo "  다음 단계: git add . && git commit && git push"
+if [ $PUSH_CODE -eq 0 ]; then
+  echo "  ✅ 배포 완료! (veragym-app-v$NEXT_NUM)"
+  echo "  🌐 https://veragym.github.io/veragym-app/"
+else
+  echo "  ❌ 푸시 실패 — 인증 또는 브랜치 확인 필요"
+  echo "  수동 실행: git push origin $BRANCH"
+fi
 echo "══════════════════════════════════════════"
 echo ""

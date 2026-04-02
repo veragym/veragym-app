@@ -1011,11 +1011,24 @@ function exOpenDetail(id) {
   const imgHtml = ex.image_url
     ? `<img class="ex-modal-img" src="${ex.image_url}" onerror="this.style.display='none'">`
     : `<div class="ex-modal-no-img">🏋️</div>`;
-  const muscles = (ex.muscles_detail || '').split('.').map(s => s.trim()).filter(Boolean);
-  const muscleHtml = muscles.length
+  const newMuscles = [
+    ex.primary_muscle ? { label: ex.primary_muscle, type: 'primary' } : null,
+    ex.synergist_1    ? { label: ex.synergist_1,    type: 'syn'     } : null,
+    ex.synergist_2    ? { label: ex.synergist_2,    type: 'syn'     } : null,
+  ].filter(Boolean);
+  const fallbackMuscles = (ex.muscles_detail || '').split('·').map(s => s.trim()).filter(Boolean);
+  const muscleHtml = newMuscles.length
     ? `<div class="ex-modal-sec-title">주요 근육</div>
-       <div class="ex-modal-muscles">${muscles.map(m => `<span class="ex-modal-muscle-chip">${m}</span>`).join('')}</div>`
-    : '';
+       <div class="ex-modal-muscles">
+         ${newMuscles.map(m => m.type === 'primary'
+           ? `<span class="ex-modal-muscle-chip" style="background:#1a3a5a;border-color:#2a5a8a;color:#7ab8e8">${esc(m.label)}</span>`
+           : `<span class="ex-modal-muscle-chip" style="opacity:.7">${esc(m.label)}</span>`
+         ).join('')}
+       </div>`
+    : fallbackMuscles.length
+      ? `<div class="ex-modal-sec-title">주요 근육</div>
+         <div class="ex-modal-muscles">${fallbackMuscles.map(m => `<span class="ex-modal-muscle-chip">${esc(m)}</span>`).join('')}</div>`
+      : '';
   document.getElementById('exModalBody').innerHTML = `
     ${imgHtml}
     <div class="ex-modal-name">${ex.name_ko || ex.name_en}</div>

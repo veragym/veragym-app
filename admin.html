@@ -766,10 +766,57 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div id="exDetailNameEn" style="font-size:13px;color:#555;margin-bottom:16px"></div>
     <!-- 태그 -->
     <div id="exDetailTags" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"></div>
-    <!-- 주요근육 -->
+    <!-- 주요근육 (기존 표시) -->
     <div style="font-size:11px;color:#666;letter-spacing:1px;margin-bottom:8px">주요 근육</div>
     <div id="exDetailMuscles" style="font-size:14px;color:#bbb;line-height:1.8;background:#0f0f0a;border-radius:10px;padding:14px;min-height:40px"></div>
-    <button class="btn-cancel" style="margin-top:18px;width:100%" onclick="closeModal('exDetailModal')">닫기</button>
+    <!-- 근육 편집 (관리자) -->
+    <div style="margin-top:20px;border-top:1px solid #1a1a12;padding-top:16px">
+      <div style="font-size:11px;color:#555;letter-spacing:1px;margin-bottom:12px">근육 편집</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:#666;width:52px;flex-shrink:0">주동근</span>
+          <select id="exEditPrimary" style="flex:1;background:#111;border:1px solid #222;border-radius:8px;color:#ccc;padding:7px 10px;font-size:13px">
+            <option value="">-</option>
+            <optgroup label="가슴"><option>대흉근</option><option>소흉근</option></optgroup>
+            <optgroup label="등"><option>광배근</option><option>승모근</option><option>능형근</option><option>척추기립근</option><option>원근</option></optgroup>
+            <optgroup label="어깨"><option>전면삼각근</option><option>측면삼각근</option><option>후면삼각근</option></optgroup>
+            <optgroup label="팔"><option>이두근</option><option>삼두근</option><option>전완근</option></optgroup>
+            <optgroup label="코어"><option>복직근</option><option>복사근</option><option>장요근</option></optgroup>
+            <optgroup label="하체"><option>대퇴사두근</option><option>햄스트링</option><option>대둔근</option><option>중둔근</option><option>비복근</option><option>내전근</option></optgroup>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:#666;width:52px;flex-shrink:0">협력근 1</span>
+          <select id="exEditSyn1" style="flex:1;background:#111;border:1px solid #222;border-radius:8px;color:#ccc;padding:7px 10px;font-size:13px">
+            <option value="">-</option>
+            <optgroup label="가슴"><option>대흉근</option><option>소흉근</option></optgroup>
+            <optgroup label="등"><option>광배근</option><option>승모근</option><option>능형근</option><option>척추기립근</option><option>원근</option></optgroup>
+            <optgroup label="어깨"><option>전면삼각근</option><option>측면삼각근</option><option>후면삼각근</option></optgroup>
+            <optgroup label="팔"><option>이두근</option><option>삼두근</option><option>전완근</option></optgroup>
+            <optgroup label="코어"><option>복직근</option><option>복사근</option><option>장요근</option></optgroup>
+            <optgroup label="하체"><option>대퇴사두근</option><option>햄스트링</option><option>대둔근</option><option>중둔근</option><option>비복근</option><option>내전근</option></optgroup>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:#666;width:52px;flex-shrink:0">협력근 2</span>
+          <select id="exEditSyn2" style="flex:1;background:#111;border:1px solid #222;border-radius:8px;color:#ccc;padding:7px 10px;font-size:13px">
+            <option value="">-</option>
+            <optgroup label="가슴"><option>대흉근</option><option>소흉근</option></optgroup>
+            <optgroup label="등"><option>광배근</option><option>승모근</option><option>능형근</option><option>척추기립근</option><option>원근</option></optgroup>
+            <optgroup label="어깨"><option>전면삼각근</option><option>측면삼각근</option><option>후면삼각근</option></optgroup>
+            <optgroup label="팔"><option>이두근</option><option>삼두근</option><option>전완근</option></optgroup>
+            <optgroup label="코어"><option>복직근</option><option>복사근</option><option>장요근</option></optgroup>
+            <optgroup label="하체"><option>대퇴사두근</option><option>햄스트링</option><option>대둔근</option><option>중둔근</option><option>비복근</option><option>내전근</option></optgroup>
+          </select>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:2px">
+          <input type="checkbox" id="exEditStretch" style="width:16px;height:16px;accent-color:#3b82f6">
+          <span style="font-size:13px;color:#888">스트레칭 운동 (통계 제외)</span>
+        </label>
+      </div>
+      <button onclick="saveExMuscle()" style="margin-top:14px;width:100%;padding:10px;background:#2563eb;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer">근육 정보 저장</button>
+    </div>
+    <button class="btn-cancel" style="margin-top:10px;width:100%" onclick="closeModal('exDetailModal')">닫기</button>
   </div>
 </div>
 
@@ -1716,6 +1763,7 @@ async function addMember() {
 
 // ── 운동 DB ──────────────────────────────────────────────────
 let _allExercises  = [];
+let _currentExId   = null;
 let _exFiltered    = [];
 let _exShowCount   = 50;
 let _exToolFilter  = '전체';
@@ -1799,14 +1847,15 @@ function _renderExList() {
 
 function loadMoreEx() { _exShowCount += 50; _renderExList(); }
 
-function openExDetail(id) {
+async function openExDetail(id) {
   const r = _allExercises.find(e => e.id === id);
   if (!r) return;
+  _currentExId = id;
 
   // 이미지
   const imgWrap = document.getElementById('exDetailImg');
   if (r.image_url) {
-    imgWrap.innerHTML = `<img src="${r.image_url}" style="width:100%;max-height:260px;object-fit:cover;display:block" onerror="this.parentElement.innerHTML=''">`;
+    imgWrap.innerHTML = `<img src="${esc(r.image_url)}" style="width:100%;max-height:260px;object-fit:cover;display:block" onerror="this.parentElement.innerHTML=''">`;
     imgWrap.style.display = '';
   } else {
     imgWrap.innerHTML = '';
@@ -1823,36 +1872,83 @@ function openExDetail(id) {
     r.part_unified ? `<span class="ex-tag-part" style="font-size:12px;padding:4px 12px;color:#aaa">${esc(r.part_unified)}</span>` : '',
   ].join('');
 
-  // 주요근육 — · 구분자를 줄바꿈으로 표시
+  // 주요근육 (기존 muscles_detail 표시)
   const muscles = r.muscles_detail || '정보 없음';
   document.getElementById('exDetailMuscles').innerHTML =
     muscles.split('·').map(m => m.trim()).filter(Boolean)
       .map(m => `<span style="display:inline-block;background:#1a1a12;border:1px solid #2a2518;border-radius:8px;padding:4px 12px;margin:3px;font-size:13px">${esc(m)}</span>`)
       .join('') || '<span style="color:#444">정보 없음</span>';
 
+  // 근육 편집 필드 초기화
+  document.getElementById('exEditPrimary').value = '';
+  document.getElementById('exEditSyn1').value = '';
+  document.getElementById('exEditSyn2').value = '';
+  document.getElementById('exEditStretch').checked = false;
+
   openModal('exDetailModal');
+
+  // DB에서 새 컬럼 조회 (비동기)
+  const { data } = await db.from('exercise_refs')
+    .select('primary_muscle,synergist_1,synergist_2,is_stretch')
+    .eq('id', id).single();
+  if (data) {
+    document.getElementById('exEditPrimary').value = data.primary_muscle || '';
+    document.getElementById('exEditSyn1').value    = data.synergist_1    || '';
+    document.getElementById('exEditSyn2').value    = data.synergist_2    || '';
+    document.getElementById('exEditStretch').checked = !!data.is_stretch;
+  }
 }
 
+
+async function saveExMuscle() {
+  if (!_currentExId) return;
+  const primary_muscle = document.getElementById('exEditPrimary').value || null;
+  const synergist_1    = document.getElementById('exEditSyn1').value    || null;
+  const synergist_2    = document.getElementById('exEditSyn2').value    || null;
+  const is_stretch     = document.getElementById('exEditStretch').checked;
+
+  const { error } = await db.from('exercise_refs')
+    .update({ primary_muscle, synergist_1, synergist_2, is_stretch })
+    .eq('id', _currentExId);
+
+  if (error) { showToast('저장 실패: ' + error.message); return; }
+
+  // 로컬 캐시 업데이트
+  const idx = _allExercises.findIndex(e => e.id === _currentExId);
+  if (idx !== -1) Object.assign(_allExercises[idx], { primary_muscle, synergist_1, synergist_2, is_stretch });
+
+  showToast('근육 정보가 저장되었어요');
+}
 
 // ── 운동DB Excel 내보내기 ─────────────────────────────────────
 async function exportExerciseExcel() {
   showToast('Excel 생성 중...');
   const { data, error } = await db.from('exercise_refs')
-    .select('name_ko,name_en,tool_unified,part_unified,muscles_detail')
-    .eq('is_active', true).order('name_ko');
+    .select('name_ko,name_en,tool_unified,part_unified,muscles_detail,primary_muscle,synergist_1,synergist_2,is_stretch')
+    .eq('is_active', true).order('part_unified').order('name_ko');
   if (error) { showToast('불러오기 실패'); return; }
   if (!data?.length) { showToast('데이터 없음'); return; }
 
   // TSV로 만들어서 다운로드 (xlsx 라이브러리 없이)
-  const header = ['한글 운동이름','영문 운동이름','도구_통합','부위_통합','주요 근육'];
-  const rows   = data.map(r => [r.name_ko, r.name_en||'', r.tool_unified||'', r.part_unified||'', r.muscles_detail||'']);
-  const tsv    = [header, ...rows].map(r => r.map(c => `"${c.replace(/"/g,'""')}"`).join('\t')).join('\n');
-  const blob   = new Blob(['\uFEFF' + tsv], { type: 'text/tab-separated-values;charset=utf-8' });
-  const a      = document.createElement('a');
-  a.href       = URL.createObjectURL(blob);
-  a.download   = `운동DB_${new Date().toISOString().slice(0,10)}.tsv`;
+  const header = ['한글 운동이름','영문 운동이름','도구','부위','기존 근육 정보','주동근','협력근1','협력근2','스트레칭 여부'];
+  const rows   = data.map(r => [
+    r.name_ko,
+    r.name_en        || '',
+    r.tool_unified   || '',
+    r.part_unified   || '',
+    r.muscles_detail || '',
+    r.primary_muscle || '',
+    r.synergist_1    || '',
+    r.synergist_2    || '',
+    r.is_stretch ? 'Y' : '',
+  ]);
+  const tsv  = [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join('\t')).join('\n');
+  const blob = new Blob(['\uFEFF' + tsv], { type: 'text/tab-separated-values;charset=utf-8' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `운동DB_${new Date().toISOString().slice(0,10)}.tsv`;
   a.click();
-  showToast('다운로드 완료 (Excel에서 열기 가능)');
+  showToast('다운로드 완료 — Excel에서 열기 가능');
 }
 
 // ── 요청사항 ─────────────────────────────────────────────────
