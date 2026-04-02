@@ -38,6 +38,14 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .stat-num { font-size:22px; font-weight:800; color:#4ade80; }
 .stat-label { font-size:11px; color:#3a5840; margin-top:3px; }
 
+/* ── PT 현황 배너 ────────────────────────────────────────── */
+.pt-banner { background:#0a1a2e; border:1px solid #1a3a6044; border-radius:12px; padding:12px 14px; margin-bottom:14px; }
+.pt-banner-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+.pt-banner-label { font-size:12px; color:#7a9ab8; font-weight:600; }
+.pt-banner-val { font-size:13px; color:#c8daea; font-weight:700; }
+.pt-bar-track { height:6px; background:#1a3a6033; border-radius:4px; overflow:hidden; }
+.pt-bar-fill { height:100%; background:linear-gradient(90deg,#3b82f6,#60a5fa); border-radius:4px; transition:width .4s; }
+
 /* ── Section Header ──────────────────────────────────────── */
 .sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
 .sec-title { font-size:15px; font-weight:700; }
@@ -373,6 +381,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
       <div class="stat-box"><div class="stat-num" id="statMonth">-</div><div class="stat-label">이번 달</div></div>
       <div class="stat-box"><div class="stat-num" id="statExTypes">-</div><div class="stat-label">운동 종류</div></div>
     </div>
+    <div id="ptBanner" style="display:none"></div>
     <div class="sec-header">
       <div><span class="sec-title">수업 기록</span><span class="sec-count" id="logCount"></span></div>
     </div>
@@ -665,6 +674,29 @@ async function init() {
 
   loadLogs(token);
   loadSchedules(token);
+  loadPtBanner(token);
+}
+
+// ── PT 잔여 현황 ─────────────────────────────────────────────
+async function loadPtBanner(token) {
+  const { data } = await db.rpc('member_get_pt_products', { p_token: token });
+  if (!data || !data.length) return;
+  const el = document.getElementById('ptBanner');
+  if (!el) return;
+  el.style.display = '';
+  el.innerHTML = data.map(p => {
+    const pct = p.total_sessions > 0 ? Math.round(p.remaining_sessions / p.total_sessions * 100) : 0;
+    const dateStr = p.contract_date ? p.contract_date.slice(0, 7).replace('-', '.') : '';
+    const trainerStr = p.trainer_name ? ` · ${esc(p.trainer_name)}` : '';
+    return `<div class="pt-banner">
+      <div class="pt-banner-row">
+        <span class="pt-banner-label">PT 잔여 횟수${trainerStr}</span>
+        <span class="pt-banner-val">${p.remaining_sessions}회 <span style="font-size:11px;color:#4a6a88">/ ${p.total_sessions}회</span></span>
+      </div>
+      <div class="pt-bar-track"><div class="pt-bar-fill" style="width:${pct}%"></div></div>
+      ${dateStr ? `<div style="font-size:10px;color:#3a5878;margin-top:5px">계약 ${dateStr}</div>` : ''}
+    </div>`;
+  }).join('');
 }
 
 // ── 수업 기록 로드 ───────────────────────────────────────────
@@ -1608,6 +1640,15 @@ async function wlogSave() {
   const date = document.getElementById('wlogDate').value;
   if (!date) { if (window.showToast) showToast('날짜를 선택해주세요'); return; }
   if (!_wlogExs.length) { if (window.showToast) showToast('운동을 추가해주세요'); return; }
+  // 세트 유효성 검사
+  for (const ex of _wlogExs) {
+    if (!ex.sets || !ex.sets.length) {
+      if (window.showToast) showToast(`"${ex.name}" 세트를 추가해주세요`); return;
+    }
+    if (ex.sets.some(s => !s.reps || s.reps <= 0)) {
+      if (window.showToast) showToast(`"${ex.name}" 횟수를 입력해주세요`); return;
+    }
+  }
   // 입력값 동기화
   document.querySelectorAll('#wlogExList .wlog-set-input').forEach(inp => {
     inp.dispatchEvent(new Event('change'));

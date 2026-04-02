@@ -350,8 +350,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
         <button id="revMonthNext" class="rev-month-btn" onclick="switchRevMonth('next')">다음 달</button>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
-        <button onclick="copyForecastText()" title="카카오톡 공유" style="background:#1e3a5f;border:1px solid #3b82f633;border-radius:8px;padding:7px 11px;font-size:12px;font-weight:700;color:#60a5fa;cursor:pointer;line-height:1">공유</button>
-        <button onclick="openForecastModal()" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">+ 예상매출 등록</button>
+        <button onclick="copyForecastText()" title="카카오톡 공유" style="background:#1e3a5f;border:1px solid #3b82f633;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;color:#60a5fa;cursor:pointer;line-height:1">공유</button>
+        <button onclick="openForecastModal()" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">+ 예상매출 등록</button>
       </div>
     </div>
     <div id="revForecastList" style="display:flex;flex-direction:column;gap:8px">
@@ -615,7 +615,23 @@ async function showMemberDetail(memberId) {
     .limit(30);
 
   if (logErr) { document.getElementById('memberLogs').innerHTML = '<div class="empty">수업 기록 불러오기 실패</div>'; }
-  else { renderLogCards('memberLogs', logs || [], false); }
+  else {
+    renderLogCards('memberLogs', logs || [], false);
+    if ((logs || []).length === 30) {
+      const moreBtn = document.createElement('button');
+      moreBtn.textContent = '더 보기';
+      moreBtn.style.cssText = 'display:block;width:100%;margin-top:10px;padding:10px;background:transparent;border:1px solid #1a3a60;border-radius:8px;color:#7a9ab8;font-size:13px;cursor:pointer';
+      moreBtn.onclick = async () => {
+        moreBtn.textContent = '불러오는 중...'; moreBtn.disabled = true;
+        const { data: all } = await db.from('workout_logs')
+          .select('id,session_date,notes,member_id,note_photo_path,workout_log_exercises(custom_name,sets_data,sets,reps)')
+          .eq('member_id', memberId).eq('is_deleted', false)
+          .order('session_date', { ascending: false }).limit(200);
+        renderLogCards('memberLogs', all || [], false);
+      };
+      document.getElementById('memberLogs').appendChild(moreBtn);
+    }
+  }
 
   // 회원 운동일지 (회원이 직접 작성한 기록) — 읽기 전용 (수업기록 오류와 무관하게 항상 실행)
   loadMemberSelfLogs(memberId);
