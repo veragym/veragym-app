@@ -419,7 +419,7 @@ async function init() {
 }
 
 // ─── 전체 운동 DB 로드 (sessionStorage 5분 캐싱) ───
-const _EX_CACHE_KEY = 'vg_exdb_cache_v4'; // v4: weight_mode 필드 추가
+const _EX_CACHE_KEY = 'vg_exdb_cache_v5'; // v5: 페이지네이션 수정
 const _EX_CACHE_TTL = 5 * 60 * 1000; // 5분
 
 async function loadAllExercises() {
@@ -436,7 +436,7 @@ async function loadAllExercises() {
   } catch (_) {}
 
   // 캐시 없거나 만료 → Supabase 에서 로드 (페이지네이션)
-  const PAGE = 1000;
+  const PAGE = 500;
   let all = [], page = 0, loadError = null;
   while (true) {
     const { data, error } = await db
