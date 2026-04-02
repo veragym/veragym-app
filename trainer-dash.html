@@ -164,6 +164,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 /* ── Misc ────────────────────────────────────────────────── */
 .loading { text-align:center; padding:40px; color:#2a4060; }
 .empty { text-align:center; padding:40px; color:#2a4060; font-size:14px; line-height:1.8; }
+.retry-btn { margin-top:10px; background:#1e3a5f22; border:1px solid #3b82f644; color:#60a5fa; border-radius:8px; padding:8px 18px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+.retry-btn:active { background:#3b82f633; }
 .divider { font-size:11px; font-weight:700; color:#3b82f6; letter-spacing:1px; margin:16px 0 10px; display:flex; align-items:center; gap:8px; }
 .divider::after { content:''; flex:1; height:1px; background:#1e3a5f44; }
 .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#141f35; color:#60a5fa; border:1px solid #3b82f644; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; }
@@ -535,9 +537,13 @@ function switchTab(id, btn) {
 // 회원 관리
 // ══════════════════════════════════════════════════════════════
 async function loadMembers() {
+  document.getElementById('memberList').innerHTML = '<div class="loading">불러오는 중...</div>';
   const { data, error } = await db.from('members')
     .select('id,name,gym_location,notes,is_active,token,member_status').eq('trainer_id', me.id).eq('member_status','active').order('name');
-  if (await handleDbError(error, '회원 불러오기 실패')) return;
+  if (await handleDbError(error, '회원 불러오기 실패')) {
+    document.getElementById('memberList').innerHTML = '<div class="empty">불러오기 실패<br><button class="retry-btn" onclick="loadMembers()">다시 시도</button></div>';
+    return;
+  }
   myMembers = data || [];
   document.getElementById('memberCount').textContent = `(${myMembers.length}명)`;
   renderMemberList();
@@ -646,6 +652,7 @@ async function loadMemberSelfLogs(memberId) {
     wrap.innerHTML = '<div class="empty">운동일지를 불러올 수 없어요</div>';
     console.error('loadMemberSelfLogs:', e);
   }
+}
 
 function showMemberList() {
   document.getElementById('view-member-list').style.display = 'block';
@@ -693,7 +700,10 @@ async function loadLogs() {
     .select('id,session_date,notes,member_id,is_noshow,note_photo_path,members(name)')
     .eq('trainer_id', me.id).eq('is_deleted', false)
     .order('session_date', { ascending: false }).limit(50);
-  if (await handleDbError(error, '수업일지 불러오기 실패')) return;
+  if (await handleDbError(error, '수업일지 불러오기 실패')) {
+    document.getElementById('logList').innerHTML = '<div class="empty">불러오기 실패<br><button class="retry-btn" onclick="loadLogs()">다시 시도</button></div>';
+    return;
+  }
 
   const cnt = logs?.length || 0;
   document.getElementById('logCount').textContent = cnt ? `(${cnt}개)` : '';
@@ -1042,9 +1052,13 @@ async function checkPendingReqs() {
 }
 
 async function loadRequests() {
+  document.getElementById('reqList').innerHTML = '<div class="loading">불러오는 중...</div>';
   const { data, error } = await db.from('requests')
     .select('id,type,content,status,admin_note,created_at').eq('trainer_id', me.id).order('created_at', { ascending: false });
-  if (await handleDbError(error, '요청사항 불러오기 실패')) return;
+  if (await handleDbError(error, '요청사항 불러오기 실패')) {
+    document.getElementById('reqList').innerHTML = '<div class="empty">불러오기 실패<br><button class="retry-btn" onclick="loadRequests()">다시 시도</button></div>';
+    return;
+  }
 
   const pending = data?.filter(r => r.status === 'pending') || [];
   document.getElementById('reqCount').textContent = pending.length ? `(미처리 ${pending.length})` : `(${data?.length || 0}건)`;
@@ -2710,6 +2724,9 @@ window.openForecastModal   = openForecastModal;
 window.openLinkLogModal    = openLinkLogModal;
 window.openSchedInfo       = openSchedInfo;
 window.openSchedModal      = openSchedModal;
+window.loadMembers         = loadMembers;
+window.loadLogs            = loadLogs;
+window.loadRequests        = loadRequests;
 window.saveForecast        = saveForecast;
 window.saveReq             = saveReq;
 window.saveSchedule        = saveSchedule;

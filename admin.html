@@ -1719,18 +1719,9 @@ async function loadExercise() {
   if (_allExercises.length) { _buildExFilters(); filterExercise(); return; }
   document.getElementById('exerciseList').innerHTML = '<div class="loading">불러오는 중...</div>';
 
-  // Supabase 기본 limit 1000 → 전체 페이지네이션으로 가져오기
-  let all = [], from = 0, pageSize = 1000;
-  while (true) {
-    const { data, error } = await db.from('exercise_refs')
-      .select('id,name_ko,name_en,tool_unified,part_unified,muscles_detail,image_url')
-      .eq('is_active', true).order('name_ko')
-      .range(from, from + pageSize - 1);
-    if (error) { document.getElementById('exerciseList').innerHTML = '<div class="empty">불러오기 실패</div>'; return; }
-    all = all.concat(data || []);
-    if (!data || data.length < pageSize) break;
-    from += pageSize;
-  }
+  // RPC로 전체 로드 (PostgREST max-rows 제한 우회)
+  const { data: all, error } = await db.rpc('get_all_exercise_refs');
+  if (error || !all) { document.getElementById('exerciseList').innerHTML = '<div class="empty">불러오기 실패</div>'; return; }
 
   _allExercises = all;
   document.getElementById('exerciseCount').textContent = `(총 ${all.length}개)`;

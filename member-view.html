@@ -169,9 +169,13 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 /* ── 운동일지 탭 ───────────────────────────────────────── */
 .wlog-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
 .wlog-add-btn { background:#4ade8022; border:1.5px solid #4ade8066; border-radius:8px; padding:7px 16px; color:#4ade80; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
-.wlog-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:14px 16px; margin-bottom:8px; cursor:pointer; transition:border-color .15s; }
+.wlog-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:14px 16px; margin-bottom:8px; cursor:pointer; transition:border-color .15s; position:relative; }
 .wlog-card:active { border-color:#4ade8044; }
-.wlog-card-date { font-size:13px; font-weight:600; color:#4ade80; }
+.wlog-card-row { display:flex; align-items:center; gap:12px; }
+.wlog-card-date { font-size:13px; font-weight:600; color:#4ade80; white-space:nowrap; }
+.wlog-card-title { font-size:14px; color:#e0e0e0; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+.wlog-card-arrow { position:absolute; right:16px; top:16px; font-size:10px; color:#3a5840; transition:transform .2s; }
+.wlog-card-arrow.open { transform:rotate(180deg); }
 .wlog-card-sub { font-size:12px; color:#3a5840; margin-top:4px; }
 .wlog-card-notes { font-size:11px; color:#2a4a2a; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .wlog-detail { display:none; margin-top:10px; padding-top:10px; border-top:1px solid #1a3a1a33; }
@@ -184,8 +188,13 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .wlog-write-header { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #1a3a1a44; margin-bottom:12px; }
 .wlog-write-title { font-size:16px; font-weight:700; }
 .wlog-write-cancel { background:none; border:none; color:#3a5840; font-size:13px; cursor:pointer; font-family:inherit; }
-.wlog-date-row { margin-bottom:14px; }
+.wlog-date-row { margin-bottom:10px; }
 .wlog-date-input { background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:8px; padding:10px 14px; color:#fff; font-size:14px; font-family:inherit; width:100%; }
+.wlog-title-row { margin-bottom:14px; }
+.wlog-title-input { background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:8px; padding:10px 14px; color:#fff; font-size:14px; font-family:inherit; width:100%; box-sizing:border-box; }
+.wlog-title-input::placeholder { color:#2a4a2a; }
+.wlog-wm-btn { background:#1a3a1a; border:1px solid #2a4a2a; border-radius:6px; padding:4px 10px; color:#4ade80; font-size:11px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.wlog-wm-btn.active { background:#4ade8022; border-color:#4ade80; color:#4ade80; }
 .wlog-ex-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; margin-bottom:8px; overflow:hidden; }
 .wlog-ex-head { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; }
 .wlog-ex-name { font-size:14px; font-weight:600; }
@@ -380,6 +389,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
       <div class="wlog-date-row">
         <input type="date" id="wlogDate" class="wlog-date-input">
       </div>
+      <div class="wlog-title-row">
+        <input type="text" id="wlogTitle" class="wlog-title-input" placeholder="오늘의 운동 이름 (예: 가슴, 어깨, 등)" maxlength="50">
+      </div>
       <div class="wlog-set-header"><span></span><span>무게(kg)</span><span>횟수</span><span></span></div>
       <div id="wlogExList"></div>
       <div class="wlog-notes-area">
@@ -554,6 +566,10 @@ init_db();
 
 let _memberToken = null;
 let _logsData    = [];
+
+// ── weight_mode 정규화 (DB: 'single' ↔ 앱: 'each') ──────────
+function _isUnilateral(wm) { return wm === 'each' || wm === 'single'; }
+function _normalizeWm(wm) { return (wm === 'single') ? 'each' : (wm || 'total'); }
 
 // ── 탭 전환 ──────────────────────────────────────────────────
 function switchTab(id, btn) {
@@ -772,7 +788,7 @@ async function loadSchedules(token) {
 }
 
 // ── 운동DB (내장) ─────────────────────────────────────────────
-const EX_CACHE_KEY = 'vg_exdb_cache_v2';
+const EX_CACHE_KEY = 'vg_exdb_cache_v6'; // v6: RPC로 전환
 const EX_CACHE_TTL = 5 * 60 * 1000;
 const EX_TOOLS = ['전체','핀 머신','플레이트 머신','스미스머신','바벨','덤벨','케이블','케틀벨','소도구','밴드','체중','머신'];
 const EX_PARTS = ['전체','가슴','등','어깨','팔','코어','하체','전신'];
@@ -848,22 +864,11 @@ async function _loadAllExercises() {
       if (Date.now() - ts < EX_CACHE_TTL && data.length > 0) { _exAll = data; return; }
     }
   } catch (_) {}
-  const PAGE = 1000;
-  let all = [], page = 0;
-  while (true) {
-    const { data, error } = await db
-      .from('exercise_refs')
-      .select('id,name_ko,name_en,part_unified,tool_unified,image_url,muscles_detail')
-      .eq('is_active', true)
-      .order('name_ko', { ascending: true })
-      .range(page * PAGE, (page + 1) * PAGE - 1);
-    if (error || !data || data.length === 0) break;
-    all.push(...data);
-    if (data.length < PAGE) break;
-    page++;
-  }
-  _exAll = all;
-  try { sessionStorage.setItem(EX_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: all })); } catch (_) {}
+  // RPC로 전체 로드 (PostgREST max-rows 제한 우회)
+  const { data, error } = await db.rpc('get_all_exercise_refs');
+  if (error || !data) { console.error('운동 DB 오류:', error?.message); return; }
+  _exAll = data;
+  try { sessionStorage.setItem(EX_CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (_) {}
 }
 
 function exBuildFilters() {
@@ -1159,12 +1164,14 @@ function wlogRenderList() {
   }
   wrap.innerHTML = _wlogList.map((log, i) => {
     const dateStr = fmtDate(log.log_date);
-    const exNames = (log.exercise_names || []).join(', ') || '운동 없음';
+    const title = log.title || (log.exercise_names || []).join(', ') || '운동';
     return `
       <div class="wlog-card" onclick="wlogToggleDetail(${i},'${log.id}')">
-        <div class="wlog-card-date">${dateStr}</div>
-        <div class="wlog-card-sub">${log.exercise_count}종목 · ${exNames}</div>
-        ${log.notes ? `<div class="wlog-card-notes">${esc(log.notes)}</div>` : ''}
+        <div class="wlog-card-row">
+          <div class="wlog-card-date">${dateStr}</div>
+          <div class="wlog-card-title">${esc(title)}</div>
+        </div>
+        <div class="wlog-card-arrow" id="wlogArrow-${i}">▼</div>
         <div class="wlog-detail" id="wlogDetail-${i}"></div>
       </div>`;
   }).join('');
@@ -1172,26 +1179,23 @@ function wlogRenderList() {
 
 async function wlogToggleDetail(idx, logId) {
   const el = document.getElementById('wlogDetail-' + idx);
-  if (el.classList.contains('open')) { el.classList.remove('open'); return; }
+  const arrow = document.getElementById('wlogArrow-' + idx);
+  if (el.classList.contains('open')) { el.classList.remove('open'); if(arrow) arrow.classList.remove('open'); return; }
   if (!el.dataset.loaded) {
     el.innerHTML = '<div style="color:#2a4a2a;font-size:12px;padding:4px 0">불러오는 중...</div>';
-    const { data, error } = await db.rpc('member_get_workout_logs', { p_token: _memberToken });
-    // 개별 상세 RPC가 없으므로 log_id로 exercises 조회
-    const { data: exs } = await db.from('member_workout_log_exercises')
-      .select('custom_name,exercise_ref_id,sets_data,order_index,weight_mode')
-      .eq('log_id', logId)
-      .order('order_index');
+    const { data: exs } = await db.rpc('member_get_workout_log_detail', { p_token: _memberToken, p_log_id: logId });
     if (!exs || !exs.length) {
       el.innerHTML = '<div style="color:#2a4a2a;font-size:12px;padding:4px 0">운동 기록이 없어요</div>';
     } else {
       // exercise_ref_id로 이름 매칭
       el.innerHTML = exs.map(e => {
         const name = e.custom_name || (_exAll.find(x=>x.id===e.exercise_ref_id)||{}).name_ko || '운동';
+        const wmTag = _isUnilateral(e.weight_mode) ? '<span style="font-size:10px;color:#4ade80;margin-left:6px;background:#4ade8018;padding:1px 6px;border-radius:4px">한손</span>' : '';
         const sets = e.sets_data || [];
         const setsHtml = sets.length ? `<table class="sets-table"><tr><th>세트</th><th>무게</th><th>횟수</th></tr>` +
           sets.map(s => `<tr><td class="set-cell">${s.set||''}</td><td>${s.weight||0}kg</td><td>${s.reps||0}회</td></tr>`).join('') +
           `</table>` : '';
-        return `<div class="wlog-detail-ex"><div class="wlog-detail-exname">${esc(name)}</div>${setsHtml}</div>`;
+        return `<div class="wlog-detail-ex"><div class="wlog-detail-exname">${esc(name)}${wmTag}</div>${setsHtml}</div>`;
       }).join('');
     }
     el.dataset.loaded = 'true';
@@ -1199,6 +1203,7 @@ async function wlogToggleDetail(idx, logId) {
     el.innerHTML += `<button style="margin-top:8px;background:none;border:1px solid #ef444444;border-radius:6px;padding:6px 12px;color:#ef444488;font-size:11px;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();wlogDelete('${logId}',${idx})">일지 삭제</button>`;
   }
   el.classList.add('open');
+  if(arrow) arrow.classList.add('open');
 }
 
 async function wlogDelete(logId, idx) {
@@ -1216,6 +1221,7 @@ async function wlogDelete(logId, idx) {
 function wlogStartNew() {
   _wlogExs = [];
   document.getElementById('wlogDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('wlogTitle').value = '';
   document.getElementById('wlogNotes').value = '';
   document.getElementById('wlogExList').innerHTML = '';
   document.getElementById('wlogListView').style.display = 'none';
@@ -1237,6 +1243,8 @@ function wlogRenderExList() {
     return;
   }
   wrap.innerHTML = _wlogExs.map((ex, i) => {
+    const wm = ex.weight_mode || 'total';
+    const wmLabel = _isUnilateral(wm) ? '한손' : '양쪽';
     const setsHtml = ex.sets.map((s, si) => `
       <div class="wlog-set-row">
         <span class="wlog-set-num">${s.set}</span>
@@ -1250,7 +1258,10 @@ function wlogRenderExList() {
       <div class="wlog-ex-card">
         <div class="wlog-ex-head">
           <span class="wlog-ex-name">${i+1}. ${esc(ex.name)}</span>
-          <button class="wlog-ex-del" onclick="wlogDelEx(${i})">✕</button>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button class="wlog-wm-btn${_isUnilateral(wm)?' active':''}" onclick="wlogToggleWm(${i})">${wmLabel}</button>
+            <button class="wlog-ex-del" onclick="wlogDelEx(${i})">✕</button>
+          </div>
         </div>
         <div class="wlog-sets">${setsHtml}
           <button class="wlog-add-set" onclick="wlogAddSet(${i})">+ 세트 추가</button>
@@ -1277,6 +1288,12 @@ function wlogAddSet(idx) {
   const ex = _wlogExs[idx];
   const last = ex.sets[ex.sets.length - 1] || { weight: 0, reps: 10 };
   ex.sets.push({ set: ex.sets.length + 1, weight: last.weight, reps: last.reps });
+  wlogRenderExList();
+}
+
+function wlogToggleWm(idx) {
+  const ex = _wlogExs[idx];
+  ex.weight_mode = _isUnilateral(ex.weight_mode) ? 'total' : 'each';
   wlogRenderExList();
 }
 
@@ -1388,6 +1405,7 @@ function wlogRenderPicker() {
             <div class="pk-tags">
               ${ex.tool_unified ? `<span class="pk-tag-tool">${ex.tool_unified}</span>` : ''}
               ${ex.part_unified ? `<span class="pk-tag-part">${ex.part_unified}</span>` : ''}
+              ${_isUnilateral(ex.weight_mode) ? `<span class="pk-tag-tool" style="background:#4ade8011;border-color:#4ade8033;color:#86efac">한손</span>` : ''}
               ${isMine ? `<span class="pk-tag-mine">내 운동</span>` : ''}
             </div>
           </div>
@@ -1414,7 +1432,7 @@ async function wlogPickEx(refId, btnEl) {
       p_name_ko: ex.name_ko || ex.name_en,
       p_part: ex.part_unified || '',
       p_tool: ex.tool_unified || '',
-      p_weight_mode: ex.weight_mode || 'total'
+      p_weight_mode: _normalizeWm(ex.weight_mode)
     });
     if (data) {
       showToast(`"${ex.name_ko || ex.name_en}" 추가됨`);
@@ -1429,7 +1447,7 @@ async function wlogPickEx(refId, btnEl) {
 
   // 일반 운동일지 작성 모드
   wlogCloseExPicker();
-  wlogAddEx(refId, ex.name_ko || ex.name_en, ex.part_unified, ex.tool_unified);
+  wlogAddEx(refId, ex.name_ko || ex.name_en, ex.part_unified, ex.tool_unified, _normalizeWm(ex.weight_mode));
   setTimeout(() => {
     const list = document.getElementById('wlogExList');
     list.lastElementChild?.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -1511,6 +1529,7 @@ async function wlogSave() {
   document.querySelectorAll('#wlogExList .wlog-set-input').forEach(inp => {
     inp.dispatchEvent(new Event('change'));
   });
+  const title = document.getElementById('wlogTitle').value.trim() || null;
   const notes = document.getElementById('wlogNotes').value.trim() || null;
   const exercises = _wlogExs.map((ex, i) => ({
     exercise_ref_id: ex.refId || '',
@@ -1522,6 +1541,7 @@ async function wlogSave() {
   const { data, error } = await db.rpc('member_save_workout_log', {
     p_token: _memberToken,
     p_log_date: date,
+    p_title: title,
     p_notes: notes,
     p_exercises: exercises
   });

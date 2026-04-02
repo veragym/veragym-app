@@ -419,7 +419,7 @@ async function init() {
 }
 
 // ─── 전체 운동 DB 로드 (sessionStorage 5분 캐싱) ───
-const _EX_CACHE_KEY = 'vg_exdb_cache_v5'; // v5: 페이지네이션 수정
+const _EX_CACHE_KEY = 'vg_exdb_cache_v6'; // v6: RPC로 전환 (PostgREST max-rows 제한 우회)
 const _EX_CACHE_TTL = 5 * 60 * 1000; // 5분
 
 async function loadAllExercises() {
@@ -435,35 +435,20 @@ async function loadAllExercises() {
     }
   } catch (_) {}
 
-  // 캐시 없거나 만료 → Supabase 에서 로드 (페이지네이션)
-  const PAGE = 500;
-  let all = [], page = 0, loadError = null;
-  while (true) {
-    const { data, error } = await db
-      .from('exercise_refs')
-      .select('id,name_ko,name_en,part_unified,tool_unified,image_url,muscles_detail,weight_mode')
-      .eq('is_active', true)
-      .order('name_ko', { ascending: true })
-      .range(page * PAGE, (page + 1) * PAGE - 1);
-    if (error) { console.error('운동 DB 오류:', error.message); loadError = error.message; break; }
-    if (!data || data.length === 0) break;
-    all.push(...data);
-    if (data.length < PAGE) break;
-    page++;
-  }
-
-  if (loadError && all.length === 0) {
-    // 로드 실패 시 캐시에 저장하지 않고 오류 표시
-    showToast('운동 목록 로드 실패: ' + loadError);
+  // 캐시 없거나 만료 → RPC로 전체 로드 (PostgREST max-rows 제한 우회)
+  const { data, error } = await db.rpc('get_all_exercise_refs');
+  if (error || !data || !data.length) {
+    console.error('운동 DB 오류:', error?.message);
+    showToast('운동 목록 로드 실패: ' + (error?.message || '데이터 없음'));
     return;
   }
 
-  allExs = all;
+  allExs = data;
 
   // 데이터가 있을 때만 sessionStorage 에 저장
-  if (all.length > 0) {
+  if (data.length > 0) {
     try {
-      sessionStorage.setItem(_EX_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: all }));
+      sessionStorage.setItem(_EX_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
     } catch (_) {} // 저장 실패 시 무시 (용량 초과 등)
   }
 }
