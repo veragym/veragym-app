@@ -389,8 +389,23 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     </div>
     <!-- 루틴 -->
     <div id="exSubRoutine" class="ex-sub-content">
-      <div id="routineList"><div class="loading">불러오는 중...</div></div>
-      <button class="rt-add-btn" onclick="rtStartNew()">+ 새 루틴 만들기</button>
+      <!-- 루틴 목록 뷰 -->
+      <div id="rtListView">
+        <div id="routineList"><div class="loading">불러오는 중...</div></div>
+        <button class="rt-add-btn" onclick="rtStartNew()">+ 새 루틴 만들기</button>
+      </div>
+      <!-- 루틴 빌더 뷰 -->
+      <div id="rtBuildView" class="rt-build" style="display:none">
+        <div class="wlog-write-header">
+          <span class="wlog-write-title">새 루틴</span>
+          <button class="wlog-write-cancel" onclick="rtCancelBuild()">취소</button>
+        </div>
+        <input type="text" id="rtBuildName" class="wlog-date-input" placeholder="루틴 이름 입력" maxlength="30" style="margin-bottom:12px">
+        <div class="wlog-set-header" style="grid-template-columns:32px 1fr 28px"><span></span><span style="text-align:left">운동</span><span></span></div>
+        <div id="rtBuildExList"></div>
+        <button class="wlog-bottom-btn" onclick="rtBuildOpenPicker()" style="width:100%;margin:10px 0">+ 운동 추가</button>
+        <button class="wlog-save-btn" onclick="rtBuildSave()">루틴 저장</button>
+      </div>
     </div>
   </div>
 
@@ -978,9 +993,78 @@ async function rtDelete(routineId) {
   }
 }
 
+// ── 루틴 빌더 ────────────────────────────────────────────────
+let _rtBuildExs = [];
+
 function rtStartNew() {
-  // 운동일지 탭 구현 시 루틴 저장 모달 연동 예정
-  if (window.showToast) showToast('운동일지에서 운동을 추가한 후 "루틴으로 저장"을 눌러주세요');
+  _rtBuildExs = [];
+  document.getElementById('rtBuildName').value = '';
+  document.getElementById('rtBuildExList').innerHTML = '<div class="empty" style="padding:16px 0">운동을 추가해주세요</div>';
+  document.getElementById('rtListView').style.display = 'none';
+  document.getElementById('rtBuildView').style.display = 'block';
+  // 운동DB 데이터 미리 로드
+  if (!_exLoaded) { _exLoaded = true; _loadAllExercises().then(() => _loadMyExercises()); }
+}
+
+function rtCancelBuild() {
+  if (_rtBuildExs.length && !confirm('루틴 만들기를 취소할까요?')) return;
+  document.getElementById('rtBuildView').style.display = 'none';
+  document.getElementById('rtListView').style.display = '';
+}
+
+function rtBuildRender() {
+  const wrap = document.getElementById('rtBuildExList');
+  if (!_rtBuildExs.length) {
+    wrap.innerHTML = '<div class="empty" style="padding:16px 0">운동을 추가해주세요</div>';
+    return;
+  }
+  wrap.innerHTML = _rtBuildExs.map((ex, i) => `
+    <div class="rt-ex-item" style="padding:10px 0">
+      <span class="rt-ex-idx">${i+1}</span>
+      <span style="flex:1">${esc(ex.name)}</span>
+      ${ex.part ? `<span class="ex-tag-part" style="font-size:9px;padding:1px 6px">${esc(ex.part)}</span>` : ''}
+      <button class="wlog-ex-del" style="font-size:14px" onclick="rtBuildDelEx(${i})">✕</button>
+    </div>`).join('');
+}
+
+function rtBuildDelEx(idx) {
+  _rtBuildExs.splice(idx, 1);
+  rtBuildRender();
+}
+
+function rtBuildOpenPicker() {
+  // 운동 추가 피커 재활용 (전체 운동 목록에서 선택)
+  document.getElementById('wlogPickerSearch').value = '';
+  // 피커 선택 콜백을 루틴 빌더용으로 전환
+  _rtPickerMode = true;
+  wlogRenderPicker();
+  document.getElementById('wlogPickerBg').classList.add('open');
+}
+
+let _rtPickerMode = false;
+
+async function rtBuildSave() {
+  const name = document.getElementById('rtBuildName').value.trim();
+  if (!name) { if (window.showToast) showToast('루틴 이름을 입력해주세요'); return; }
+  if (!_rtBuildExs.length) { if (window.showToast) showToast('운동을 추가해주세요'); return; }
+  const exercises = _rtBuildExs.map((ex, i) => ({
+    exercise_ref_id: ex.refId || '',
+    name_ko: ex.name,
+    part: ex.part || '',
+    tool: ex.tool || '',
+    order_index: i,
+    weight_mode: ex.weight_mode || 'total'
+  }));
+  const { data } = await db.rpc('member_save_routine', {
+    p_token: _memberToken, p_name: name, p_exercises: exercises
+  });
+  if (data) {
+    if (window.showToast) showToast(`루틴 "${name}" 저장 완료`);
+    document.getElementById('rtBuildView').style.display = 'none';
+    document.getElementById('rtListView').style.display = '';
+    _rtLoaded = false;
+    rtLoadRoutines();
+  }
 }
 
 // ── 운동일지 탭 ──────────────────────────────────────────────
@@ -1157,6 +1241,7 @@ function wlogOpenExPicker() {
 }
 function wlogCloseExPicker() {
   document.getElementById('wlogPickerBg').classList.remove('open');
+  _rtPickerMode = false;
 }
 function wlogRenderPicker() {
   const q = (document.getElementById('wlogPickerSearch').value || '').trim().toLowerCase();
@@ -1184,8 +1269,19 @@ function wlogRenderPicker() {
 function wlogPickEx(refId) {
   const ex = _exAll.find(e => e.id === refId);
   if (!ex) return;
-  wlogAddEx(refId, ex.name_ko || ex.name_en, ex.part_unified, ex.tool_unified);
   wlogCloseExPicker();
+  // 루틴 빌더 모드 vs 운동일지 작성 모드
+  if (_rtPickerMode) {
+    _rtBuildExs.push({
+      refId, name: ex.name_ko || ex.name_en,
+      part: ex.part_unified, tool: ex.tool_unified,
+      weight_mode: 'total'
+    });
+    rtBuildRender();
+    _rtPickerMode = false;
+    return;
+  }
+  wlogAddEx(refId, ex.name_ko || ex.name_en, ex.part_unified, ex.tool_unified);
   // 자동 스크롤
   setTimeout(() => {
     const list = document.getElementById('wlogExList');
