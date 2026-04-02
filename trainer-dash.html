@@ -631,14 +631,32 @@ async function loadMemberSelfLogs(memberId) {
       const dateStr = log.log_date;
       const exs = log.exercises || [];
       const exPreview = exs.slice(0, 3).map(e => e.name).join(', ');
-      const exHtml = exs.map(e => {
+      const exHtml = exs.map((e, idx) => {
         const sets = e.sets_data || [];
+        const imgUrl = e.image_url || '';
+        const wm = e.weight_mode;
+        const isUni = (wm === 'each' || wm === 'single');
+        const wmTag = isUni ? '<span style="display:inline-block;font-size:10px;background:#1a3a1a;color:#4ade80;padding:2px 6px;border-radius:4px;margin-left:6px">한손</span>' : '';
+        const thumbHtml = imgUrl
+          ? `<div style="width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#0a1428"><img src="${imgUrl}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>`
+          : '';
         const setsStr = sets.length
           ? `<table class="sets-table"><tr><th>세트</th><th>무게</th><th>횟수</th></tr>` +
-            sets.map(s => `<tr><td class="set-cell">${s.set||''}</td><td>${s.weight||0}kg</td><td>${s.reps||0}회</td></tr>`).join('') +
+            sets.map(s => {
+              const wmLabel = isUni ? ' (한쪽)' : '';
+              return `<tr><td class="set-cell">${s.set||''}</td><td>${s.weight||0}kg${wmLabel}</td><td>${s.reps||0}회</td></tr>`;
+            }).join('') +
             `</table>`
           : '';
-        return `<div style="margin-bottom:8px"><div style="font-size:13px;font-weight:600;margin-bottom:3px">${esc(e.name)}</div>${setsStr}</div>`;
+        const commentHtml = e.comment ? `<div style="font-size:11px;color:#6b8ab0;margin-top:4px;padding:4px 6px;background:#0a142833;border-radius:6px">${esc(e.comment)}</div>` : '';
+        return `<div style="margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#1a3a5f;color:#60a5fa;font-size:11px;font-weight:700;flex-shrink:0">${idx+1}</span>
+            ${thumbHtml}
+            <div><div style="font-size:13px;font-weight:600">${esc(e.name)}${wmTag}</div></div>
+          </div>
+          ${setsStr}${commentHtml}
+        </div>`;
       }).join('');
       return `
         <div class="card" style="margin-bottom:8px;padding:14px;cursor:pointer" onclick="this.querySelector('.msl-detail').classList.toggle('open')">
