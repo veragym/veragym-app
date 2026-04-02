@@ -20,6 +20,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .write-bar { position:fixed; bottom:0; left:0; right:0; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:#080e1a; border-top:1px solid #1e3a5f44; }
 .btn-write { width:100%; background:#1a3a5c; border:1.5px solid #3b82f655; border-radius:12px; padding:14px; font-size:15px; font-weight:700; color:#3b82f6; cursor:pointer; font-family:inherit; }
 .btn-write:hover { background:#243d5c; }
+.msl-detail.open { display:block !important; }
 
 /* ── Header ──────────────────────────────────────────────── */
 .header { background:#0d1525; border-bottom:1px solid #1e3a5f44; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
@@ -242,6 +243,10 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div style="margin-top:16px">
       <div class="divider">수업 기록</div>
       <div id="memberLogs"><div class="loading">불러오는 중...</div></div>
+    </div>
+    <div style="margin-top:16px">
+      <div class="divider">회원 운동일지 <span style="font-size:10px;color:#2a4060;font-weight:400">(회원이 직접 작성)</span></div>
+      <div id="memberSelfLogs"><div class="loading">불러오는 중...</div></div>
     </div>
   </div>
 </div>
@@ -602,7 +607,45 @@ async function showMemberDetail(memberId) {
 
   if (logErr) { document.getElementById('memberLogs').innerHTML = '<div class="empty">수업 기록 불러오기 실패</div>'; return; }
   renderLogCards('memberLogs', logs || [], false);
+
+  // 회원 운동일지 (회원이 직접 작성한 기록) — 읽기 전용
+  loadMemberSelfLogs(memberId);
 }
+
+async function loadMemberSelfLogs(memberId) {
+  const wrap = document.getElementById('memberSelfLogs');
+  wrap.innerHTML = '<div class="loading">불러오는 중...</div>';
+  try {
+    const { data, error } = await db.rpc('trainer_get_member_workout_logs', { p_member_id: memberId });
+    if (error || !data || !data.length) {
+      wrap.innerHTML = '<div class="empty">회원이 작성한 운동일지가 없어요</div>';
+      return;
+    }
+    wrap.innerHTML = data.map((log, i) => {
+      const dateStr = log.log_date;
+      const exs = log.exercises || [];
+      const exPreview = exs.slice(0, 3).map(e => e.name).join(', ');
+      const exHtml = exs.map(e => {
+        const sets = e.sets_data || [];
+        const setsStr = sets.length
+          ? `<table class="sets-table"><tr><th>세트</th><th>무게</th><th>횟수</th></tr>` +
+            sets.map(s => `<tr><td class="set-cell">${s.set||''}</td><td>${s.weight||0}kg</td><td>${s.reps||0}회</td></tr>`).join('') +
+            `</table>`
+          : '';
+        return `<div style="margin-bottom:8px"><div style="font-size:13px;font-weight:600;margin-bottom:3px">${esc(e.name)}</div>${setsStr}</div>`;
+      }).join('');
+      return `
+        <div class="card" style="margin-bottom:8px;padding:14px;cursor:pointer" onclick="this.querySelector('.msl-detail').classList.toggle('open')">
+          <div style="font-size:13px;font-weight:600;color:#60a5fa">${dateStr}</div>
+          <div style="font-size:12px;color:#3a5878;margin-top:3px">${exs.length}종목${exPreview ? ' · ' + exPreview : ''}</div>
+          ${log.notes ? `<div style="font-size:11px;color:#2a4060;margin-top:3px">${esc(log.notes)}</div>` : ''}
+          <div class="msl-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #1a3a6033">${exHtml || '<div style="color:#2a4060;font-size:12px">운동 기록 없음</div>'}</div>
+        </div>`;
+    }).join('');
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty">운동일지를 불러올 수 없어요</div>';
+    console.error('loadMemberSelfLogs:', e);
+  }
 
 function showMemberList() {
   document.getElementById('view-member-list').style.display = 'block';
