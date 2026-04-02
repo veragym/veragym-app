@@ -127,9 +127,11 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .ex-sub-tab span { font-size:11px; color:#2a4a2a; margin-left:2px; }
 .ex-sub-content { display:none; }
 .ex-sub-content.active { display:block; }
-/* 내 운동 카드 추가 버튼 */
-.ex-card-add { position:absolute; right:12px; top:50%; transform:translateY(-50%); width:30px; height:30px; border-radius:50%; border:1.5px solid #4ade8044; background:none; color:#4ade80; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.ex-card-add.added { background:#4ade8022; color:#4ade80; }
+/* 내 운동 추가/해제 버튼 (트레이너앱 스타일) */
+.ex-btn-add { background:#4ade8022; border:1px solid #4ade8044; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:700; color:#4ade80; cursor:pointer; white-space:nowrap; font-family:inherit; transition:all 0.15s; flex-shrink:0; }
+.ex-btn-add:active { background:#4ade8033; border-color:#4ade8088; }
+.ex-btn-add.added { background:#2a0e0e; border-color:#7f1d1d; color:#f87171; }
+.ex-btn-add.added:active { background:#3a1010; border-color:#f87171; color:#fca5a5; }
 .ex-card-row { position:relative; }
 /* 루틴 섹션 (트레이너앱 스타일) */
 .rt-empty { padding:32px 14px; text-align:center; color:#3a5840; font-size:14px; line-height:1.8; }
@@ -207,8 +209,14 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .wlog-picker-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:310; }
 .wlog-picker-bg.open { display:flex; flex-direction:column; }
 .wlog-picker { background:#0a140a; border-radius:20px 20px 0 0; margin-top:auto; max-height:90dvh; overflow-y:auto; padding:0 0 24px; animation:slideUp .25s ease; }
+/* 헤더 */
+.pk-header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid #1a3a1a44; position:sticky; top:0; z-index:3; background:#0a140a; border-radius:20px 20px 0 0; }
+.pk-header-title { font-size:15px; font-weight:700; }
+.pk-header-sub { font-size:11px; color:#3a5840; margin-top:2px; }
+.pk-close-btn { background:none; border:1px solid #1a3a1a55; border-radius:8px; color:#3a5840; font-size:12px; padding:6px 12px; cursor:pointer; font-family:inherit; }
+.pk-close-btn:active { border-color:#4ade8044; color:#4ade80; }
 /* 검색 */
-.pk-search-wrap { position:sticky; top:0; z-index:2; background:#0a140a; padding:16px 14px 0; }
+.pk-search-wrap { position:sticky; top:56px; z-index:2; background:#0a140a; padding:10px 14px 0; }
 .pk-search { width:100%; background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:10px; padding:11px 40px 11px 14px; font-size:14px; color:#fff; outline:none; font-family:inherit; display:block; transition:border-color .2s; }
 .pk-search:focus { border-color:#4ade8066; }
 .pk-search::placeholder { color:#3a5840; }
@@ -471,6 +479,14 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <!-- 운동 추가 피커 모달 (트레이너앱 스타일) -->
 <div id="wlogPickerBg" class="wlog-picker-bg" onclick="if(event.target===this)wlogCloseExPicker()">
   <div class="wlog-picker">
+    <!-- 헤더 (닫기 버튼) -->
+    <div class="pk-header">
+      <div>
+        <div class="pk-header-title" id="pkHeaderTitle">운동 선택</div>
+        <div class="pk-header-sub" id="pkHeaderSub">전체 운동에서 선택하세요</div>
+      </div>
+      <button class="pk-close-btn" onclick="wlogCloseExPicker()">닫기</button>
+    </div>
     <!-- 검색 -->
     <div class="pk-search-wrap">
       <input type="text" class="pk-search" id="wlogPickerSearch"
@@ -805,12 +821,13 @@ async function _loadMyExercises() {
   if (countEl) countEl.textContent = _myExIds.size;
 }
 
-async function exToggleMy(exId, ev) {
-  ev.stopPropagation();
+async function exToggleMy(exId) {
   if (!_memberToken) return;
+  const isMine = _myExIds.has(exId);
+  if (isMine && !confirm('내 운동에서 해제할까요?')) return;
   const { data } = await db.rpc('member_toggle_my_exercise', { p_token: _memberToken, p_exercise_ref_id: exId });
-  if (data === 'added') _myExIds.add(exId);
-  else if (data === 'removed') { _myExIds.delete(exId); _myExFavIds.delete(exId); }
+  if (data === 'added') { _myExIds.add(exId); showToast('내 운동에 추가됨'); }
+  else if (data === 'removed') { _myExIds.delete(exId); _myExFavIds.delete(exId); showToast('내 운동에서 해제됨'); }
   document.getElementById('myExCount').textContent = _myExIds.size;
   exRenderList();
 }
@@ -900,7 +917,7 @@ function exRenderList() {
     `<span>${list.length}</span>${list.length===base ? '개 운동' : `개 / 전체 ${base}개`}`;
   if (!list.length) {
     wrap.innerHTML = _exSubView === 'mine'
-      ? `<div class="empty">내 운동이 없어요<br><span style="font-size:12px;color:#2a4a2a">전체운동에서 + 버튼으로 추가해보세요</span></div>`
+      ? `<div class="empty">내 운동이 없어요<br><span style="font-size:12px;color:#2a4a2a">전체운동에서 [＋ 추가] 버튼으로 추가해보세요</span></div>`
       : `<div class="empty">해당하는 운동이 없어요</div>`;
     return;
   }
@@ -910,14 +927,10 @@ function exRenderList() {
       ? `<div class="ex-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
       : `<div class="ex-thumb"></div>`;
     const isMine = _myExIds.has(ex.id);
-    const isFav = _myExFavIds.has(ex.id);
-    // 전체운동: +/✓ 버튼, 내 운동: ★ 버튼
-    let actionBtn = '';
-    if (_exSubView === 'all') {
-      actionBtn = `<button class="ex-card-add${isMine?' added':''}" onclick="exToggleMy('${ex.id}',event)">${isMine?'✓':'+'}</button>`;
-    } else if (_exSubView === 'mine') {
-      actionBtn = `<button class="ex-card-add" onclick="exToggleFav('${ex.id}',event)" style="color:${isFav?'#fbbf24':'#3a5840'};border-color:${isFav?'#fbbf2444':'#1a3a1a55'}">${isFav?'★':'☆'}</button>`;
-    }
+    // 전체운동 & 내운동 모두: [＋ 추가] / [추가됨 / 해제] 버튼
+    const actionBtn = `<button class="ex-btn-add${isMine?' added':''}"
+      onclick="event.stopPropagation();exToggleMy('${ex.id}')">
+      ${isMine ? '추가됨 / 해제' : '＋ 추가'}</button>`;
     return `
       <div class="ex-card" onclick="exOpenDetail('${ex.id}')">
         <div class="ex-card-row">
@@ -1103,6 +1116,9 @@ function rtOpenAddEx(routineId, routineName, currentExCount) {
   _rtPickerMode = true;
   // 운동DB 데이터 미리 로드
   if (!_exLoaded) { _exLoaded = true; _loadAllExercises().then(() => _loadMyExercises()); }
+  // 피커 헤더에 루틴 이름 표시
+  document.getElementById('pkHeaderTitle').textContent = `"${routineName}" 운동 추가`;
+  document.getElementById('pkHeaderSub').textContent = '전체 운동에서 선택하세요';
   // 피커 초기화 및 열기
   document.getElementById('wlogPickerSearch').value = '';
   document.getElementById('pkBtnX').style.display = 'none';
@@ -1285,6 +1301,8 @@ let _pkShowCount  = 40;
 let _pkSearchTm   = null;
 
 function wlogOpenExPicker() {
+  document.getElementById('pkHeaderTitle').textContent = '운동 선택';
+  document.getElementById('pkHeaderSub').textContent = '운동을 선택해주세요';
   document.getElementById('wlogPickerSearch').value = '';
   document.getElementById('pkBtnX').style.display = 'none';
   _pkFilterPart = ''; _pkFilterTool = ''; _pkShowCount = 40;
@@ -1361,7 +1379,7 @@ function wlogRenderPicker() {
       ? `<div class="pk-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
       : `<div class="pk-thumb"></div>`;
     return `
-      <div class="pk-card" onclick="wlogPickEx('${ex.id}')">
+      <div class="pk-card" onclick="wlogPickEx('${ex.id}',this.querySelector('.pk-add'))">
         <div class="pk-card-row">
           ${thumb}
           <div class="pk-info">
@@ -1373,7 +1391,7 @@ function wlogRenderPicker() {
               ${isMine ? `<span class="pk-tag-mine">내 운동</span>` : ''}
             </div>
           </div>
-          <div class="pk-add">＋</div>
+          <div class="pk-add" onclick="event.stopPropagation();wlogPickEx('${ex.id}',this)">＋</div>
         </div>
       </div>`;
   }).join('') +
@@ -1381,16 +1399,15 @@ function wlogRenderPicker() {
     ? `<button class="pk-more" onclick="event.stopPropagation();_pkShowCount+=40;wlogRenderPicker()">더 보기 (${list.length-_pkShowCount}개 남음)</button>`
     : '');
 }
-async function wlogPickEx(refId) {
+async function wlogPickEx(refId, btnEl) {
   const ex = _exAll.find(e => e.id === refId);
   if (!ex) return;
 
   // 루틴 운동추가 모드: 피커를 닫지 않고 즉시 DB에 추가
   if (_rtPickerMode && _rtTargetId) {
-    const card = event?.target?.closest('.pk-card');
-    const icon = card?.querySelector('.pk-add');
+    const card = btnEl?.closest('.pk-card');
     if (card) { card.style.opacity = '0.5'; card.style.pointerEvents = 'none'; }
-    const ok = await db.rpc('member_append_routine_exercise', {
+    const { data } = await db.rpc('member_append_routine_exercise', {
       p_token: _memberToken,
       p_routine_id: _rtTargetId,
       p_exercise_ref_id: String(ex.id),
@@ -1399,9 +1416,9 @@ async function wlogPickEx(refId) {
       p_tool: ex.tool_unified || '',
       p_weight_mode: ex.weight_mode || 'total'
     });
-    if (ok?.data) {
+    if (data) {
       showToast(`"${ex.name_ko || ex.name_en}" 추가됨`);
-      if (icon) { icon.textContent = '✓'; icon.style.color = '#22c55e'; }
+      if (btnEl) { btnEl.textContent = '✓'; btnEl.style.color = '#22c55e'; }
       if (card) { card.style.opacity = '1'; card.style.background = '#0a200a'; }
     } else {
       if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
