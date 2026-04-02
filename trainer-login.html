@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="베라짐 트레이너">
+<meta name="theme-color" content="#3b82f6">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERA GYM | 트레이너 로그인</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'Pretendard',sans-serif; background:#0a0f1a; color:#fff; min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; }
+.logo-wrap { text-align:center; margin-bottom:32px; }
+.logo-title { font-size:22px; font-weight:900; letter-spacing:3px; }
+.logo-title span { color:#3b82f6; }
+.logo-sub { font-size:11px; color:#555; margin-top:4px; letter-spacing:2px; }
+.card { width:100%; max-width:380px; background:#0d1525; border:1px solid #1e3a5f44; border-radius:20px; padding:28px 24px; }
+.field { margin-bottom:16px; }
+.field label { display:block; font-size:12px; color:#888; margin-bottom:7px; font-weight:500; }
+.field input { width:100%; background:#0a0f1a; border:1.5px solid #1e3a5f; border-radius:10px; padding:13px 14px; font-size:15px; color:#fff; outline:none; font-family:inherit; transition:border-color 0.2s; }
+.field input:focus { border-color:#3b82f6; }
+.field input::placeholder { color:#2a3550; }
+.btn-login { width:100%; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; border:none; border-radius:12px; padding:15px; font-size:16px; font-weight:700; cursor:pointer; transition:opacity 0.15s; }
+.btn-login:disabled { opacity:0.45; cursor:default; }
+.btn-login:hover:not(:disabled) { opacity:0.88; }
+.err-box { background:#1a0d2d; border:1px solid #5a2080; border-radius:8px; padding:10px 14px; font-size:13px; color:#c084fc; margin-bottom:14px; display:none; }
+.spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.2); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+</style>
+</head>
+<body>
+
+<div class="logo-wrap">
+  <div class="logo-title">VERA <span>GYM</span></div>
+  <div class="logo-sub">TRAINER</div>
+</div>
+
+<div class="card">
+  <div id="errBox" class="err-box"></div>
+  <div class="field">
+    <label>이름</label>
+    <input id="tName" type="text" placeholder="홍길동" autocomplete="off">
+  </div>
+  <div class="field">
+    <label>비밀번호</label>
+    <input id="tPw" type="password" placeholder="비밀번호 입력" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter')doLogin()">
+  </div>
+  <button class="btn-login" id="btnLogin" onclick="doLogin()">로그인</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+init_db();
+preventBackExit();
+
+(async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) return;
+  const { data: t } = await db.from('trainers').select('is_active').eq('auth_id', session.user.id).single();
+  if (t?.is_active) location.replace('trainer-dash.html');
+  else await db.auth.signOut();
+})();
+
+async function doLogin() {
+  const name = document.getElementById('tName').value.trim();
+  const pw   = document.getElementById('tPw').value;
+  const btn  = document.getElementById('btnLogin');
+  const err  = document.getElementById('errBox');
+  err.style.display = 'none';
+  if (!name || !pw) { err.textContent='이름과 비밀번호를 입력해주세요'; err.style.display='block'; return; }
+
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>로그인 중...';
+
+  try {
+    // ① 이름으로 이메일 + 기본정보 한 번에 조회 (기존 RPC+재조회 2번 → 1번)
+    const { data: info, error: rpcErr } = await db.rpc('trainer_login_prefetch', { p_name: name });
+    if (rpcErr || !info) {
+      throw new Error('등록되지 않은 이름입니다');
+    }
+
+    // ② 인증 (트레이너 재조회 불필요 — info에 이미 포함)
+    const { data: authData, error: signErr } = await db.auth.signInWithPassword({ email: info.email, password: pw });
+    if (signErr) {
+      throw new Error('비밀번호가 올바르지 않습니다');
+    }
+
+    // 트레이너 캐시 저장 (trainer-dash.html requireTrainer() DB 재조회 스킵)
+    localStorage.setItem('vg_trainer', JSON.stringify({
+      id:           info.id,
+      name:         info.name,
+      gym_location: info.gym_location,
+      is_admin:     info.is_admin || false,
+      auth_id:      authData.user.id,
+      _ts:          Date.now()
+    }));
+    location.replace('trainer-dash.html');
+  } catch(e) {
+    err.textContent = e.message; err.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = '로그인';
+  }
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>

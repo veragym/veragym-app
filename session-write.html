@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="베라짐">
+<meta name="theme-color" content="#3b82f6">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>베라짐 트레이너 | 수업 일지</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  background: #080e1a; color: #fff;
+  min-height: 100dvh; padding-bottom: 90px;
+}
+
+/* ─── 헤더 ─── */
+.header {
+  background: #0d1525; border-bottom: 1px solid #1e3a5f44;
+  padding: 16px 20px; display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-info { flex: 1; min-width: 0; }
+.header-info .member-nm { font-size: 16px; font-weight: 700; }
+.header-info .sess-meta { font-size: 12px; color: #3a5878; margin-top: 2px; }
+.btn-save-top {
+  background: #3b82f6; color: #fff; border: none;
+  border-radius: 10px; padding: 9px 18px;
+  font-size: 13px; font-weight: 700; cursor: pointer; flex-shrink: 0;
+}
+.btn-save-top:disabled { opacity: 0.4; }
+
+/* ─── 메타 바 ─── */
+.meta-bar {
+  background: #0d1525; padding: 12px 16px;
+  display: flex; gap: 10px; border-bottom: 1px solid #1e3a5f44; flex-wrap: wrap;
+}
+.meta-chip {
+  background: #141f35; border-radius: 8px; padding: 7px 12px;
+  font-size: 12px; color: #aaa; display: flex; align-items: center; gap: 6px;
+  border: 1px solid #1e3a5f44;
+}
+.meta-chip label { color: #3a5878; font-size: 11px; }
+.meta-chip input {
+  background: none; border: none; color: #fff;
+  font-size: 12px; outline: none; font-family: inherit;
+}
+.meta-chip input[type=date]   { width: 130px; }
+.meta-chip input[type=number] { width: 44px; }
+
+/* ─── 운동 카드 ─── */
+.ex-section { padding: 12px 16px 0; }
+.section-label { font-size: 12px; color: #3a5878; font-weight: 600; margin-bottom: 10px; }
+
+.ex-card {
+  background: #141f35; border: 1px solid #1e3a5f44;
+  border-radius: 14px; margin-bottom: 10px; overflow: hidden;
+}
+.ex-card-head {
+  display: flex; align-items: center; padding: 14px 16px; gap: 10px;
+}
+.ex-order {
+  width: 26px; height: 26px; border-radius: 50%; background: #1e3a5f;
+  color: #60a5fa; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.ex-name-area { flex: 1; min-width: 0; }
+.ex-name { font-size: 14px; font-weight: 700; }
+.ex-sub  { font-size: 11px; color: #3a5878; margin-top: 2px; }
+.btn-del-ex {
+  background: #1a0a0a; border: 1px solid #3a1a1a; border-radius: 8px;
+  color: #f87171; font-size: 12px; font-family: inherit;
+  cursor: pointer; padding: 5px 12px; flex-shrink: 0; line-height: 1.4;
+}
+.btn-del-ex:hover { border-color: #f87171; background: #2a0e0e; }
+
+/* ─── 세트 테이블 ─── */
+.sets-area { padding: 0 16px 10px; }
+.sets-header {
+  display: grid; grid-template-columns: 36px 1fr 1fr auto;
+  gap: 6px; margin-bottom: 4px; align-items: center;
+}
+.sets-header span { font-size: 10px; color: #3a5878; text-align: center; }
+.set-row {
+  display: grid; grid-template-columns: 36px 1fr 1fr auto;
+  gap: 6px; margin-bottom: 6px; align-items: center;
+}
+.set-row-end { display: flex; align-items: center; gap: 4px; }
+.set-num {
+  background: #1e3a5f; border-radius: 6px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #60a5fa;
+}
+.set-input {
+  background: #0d1a2e; border: 1.5px solid #1e3a5f44;
+  border-radius: 10px; padding: 10px 6px;
+  font-size: 15px; font-weight: 700; color: #fff;
+  text-align: center; outline: none; font-family: inherit;
+  width: 100%; -moz-appearance: textfield; height: 38px;
+}
+.set-input::-webkit-outer-spin-button,
+.set-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.set-input:focus { border-color: #3b82f6; }
+.btn-del-set {
+  background: none; border: none; color: #3a5878; font-size: 18px;
+  cursor: pointer; padding: 4px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-del-set:hover { color: #f87171; }
+.btn-add-set {
+  width: 100%; background: #0d1a2e; border: 1.5px dashed #1e3a5f44;
+  border-radius: 10px; padding: 9px; font-size: 12px; font-weight: 600;
+  color: #3a5878; cursor: pointer; margin-top: 4px;
+  transition: all 0.15s;
+}
+.btn-add-set:hover { border-color: #3b82f6; color: #3b82f6; background: #141f35; }
+
+/* ─── 코멘트 ─── */
+.ex-comment { padding: 0 16px 10px; }
+.ex-comment textarea {
+  width: 100%; background: #0d1a2e; border: 1.5px solid #1e3a5f44;
+  border-radius: 10px; padding: 10px 12px;
+  font-size: 13px; color: #aaa; outline: none; font-family: inherit;
+  resize: none; height: 48px; transition: border-color 0.2s;
+}
+.ex-comment textarea:focus { border-color: #3b82f666; color: #fff; }
+
+/* ─── 사진 영역 (운동명 우측 인라인) ─── */
+.ex-photo-area {
+  display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+}
+.btn-photo {
+  background: #1a3a5c; border: 1.5px solid #3b82f655;
+  border-radius: 7px; padding: 5px 8px;
+  font-size: 11px; font-weight: 700; color: #3b82f6; cursor: pointer;
+  flex-shrink: 0; transition: all 0.15s; white-space: nowrap;
+}
+.btn-photo.done { background: #1a2a3a; color: #60a5fa; border-color: #60a5fa55; }
+.photo-dot { font-size: 8px; }
+.photo-dot.taken { color: #3b82f6; }
+.photo-dot.empty { color: #1e3a5f; }
+
+/* ─── 빈 상태 ─── */
+.ex-empty {
+  text-align: center; padding: 40px 20px; color: #3a5878;
+  font-size: 14px; line-height: 1.7;
+}
+.ex-empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+/* ─── 메모 ─── */
+.notes-area { padding: 12px 16px; }
+.notes-label { font-size: 12px; color: #3a5878; font-weight: 600; margin-bottom: 6px; }
+.notes-area textarea {
+  width: 100%; background: #141f35; border: 1.5px solid #1e3a5f44;
+  border-radius: 12px; padding: 12px 14px;
+  font-size: 13px; color: #aaa; outline: none; font-family: inherit;
+  resize: none; height: 72px; transition: border-color 0.2s;
+}
+.notes-area textarea:focus { border-color: #3b82f666; color: #fff; }
+
+/* ─── PT 노트 사진 ─── */
+.note-photo-area { padding: 0 16px 12px; }
+.note-photo-label { font-size: 12px; color: #3a5878; font-weight: 600; margin-bottom: 8px; }
+.note-photo-upload {
+  width: 100%; background: #141f35; border: 1.5px dashed #1e3a5f66;
+  border-radius: 12px; padding: 18px 14px; text-align: center;
+  cursor: pointer; transition: border-color 0.2s; position: relative;
+}
+.note-photo-upload:hover { border-color: #3b82f655; }
+.note-photo-upload input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.note-photo-upload-text { font-size: 13px; color: #3a5878; }
+.note-photo-upload-text span { color: #3b82f6; font-weight: 700; }
+.note-photo-preview { position: relative; min-height: 180px; max-height: 60dvh; background: #141f35; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.note-photo-preview img { max-width: 100%; max-height: 60dvh; display: block; object-fit: contain; image-orientation: from-image; }
+.note-photo-remove {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(0,0,0,0.6); border: none; color: #fff;
+  border-radius: 50%; width: 32px; height: 32px; font-size: 14px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.note-photo-rotate {
+  position: absolute; top: 8px; left: 8px;
+  background: rgba(0,0,0,0.6); border: none; color: #fff;
+  border-radius: 50%; width: 32px; height: 32px; font-size: 17px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.15s;
+}
+
+/* ─── 하단 버튼 ─── */
+.add-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: #080e1a; border-top: 1px solid #1e3a5f44;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.btn-add-ex {
+  width: 100%; background: #1a3a5c; border: 1.5px solid #3b82f655;
+  border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700;
+  color: #3b82f6; cursor: pointer; font-family: inherit;
+}
+.btn-add-ex:hover { background: #243d5c; }
+.btn-lib-edit {
+  width: 100%; background: #141f35; border: 1.5px solid #1e3a5f44;
+  border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700;
+  color: #60a5fa; cursor: pointer; font-family: inherit;
+}
+.btn-lib-edit:hover { border-color: #3b82f644; color: #3b82f6; }
+
+/* ─── 검색 모달 ─── */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: #000000cc; z-index: 200; flex-direction: column;
+}
+.modal-bg.open { display: flex; }
+.modal-dimmer  { flex: 0 0 50px; }
+.modal-sheet {
+  background: #0d1525; border-radius: 24px 24px 0 0;
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+  animation: slideUp 0.22s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle { width: 36px; height: 4px; background: #1e3a5f; border-radius: 99px; margin: 14px auto 4px; flex-shrink: 0; }
+.modal-title-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 16px 10px; flex-shrink: 0;
+}
+.modal-title { font-size: 16px; font-weight: 700; }
+.btn-modal-close { background: none; border: none; color: #3a5878; font-size: 20px; cursor: pointer; }
+
+.modal-search { padding: 0 16px 10px; flex-shrink: 0; border-bottom: 1px solid #1e3a5f44; }
+.modal-search-box {
+  display: flex; align-items: center; gap: 8px;
+  background: #0d1a2e; border: 1.5px solid #1e3a5f44; border-radius: 12px; padding: 11px 14px;
+}
+.modal-search-box input {
+  background: none; border: none; outline: none;
+  color: #fff; font-size: 15px; flex: 1; font-family: inherit;
+}
+.modal-search-box input::placeholder { color: #3a5878; }
+
+/* 부위 필터 탭 */
+.modal-filters {
+  display: flex; gap: 8px; padding: 10px 16px 0; flex-shrink: 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+.modal-filters::-webkit-scrollbar { display: none; }
+.ftab {
+  background: #141f35; border: 1.5px solid #1e3a5f44;
+  border-radius: 20px; padding: 5px 12px;
+  font-size: 12px; color: #3a5878; white-space: nowrap; cursor: pointer; flex-shrink: 0;
+}
+.ftab.active { background: #1a3a5c; border-color: #3b82f6; color: #3b82f6; font-weight: 700; }
+
+/* 결과 목록 */
+.modal-results { flex: 1; overflow-y: auto; padding: 0 16px 20px; }
+
+.result-section-title {
+  font-size: 11px; font-weight: 700; color: #3a5878;
+  padding: 12px 0 6px; letter-spacing: 0.06em;
+  display: flex; align-items: center; gap: 6px;
+}
+.result-section-title::after {
+  content: ''; flex: 1; height: 1px; background: #1e3a5f44;
+}
+.result-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 0; border-bottom: 1px solid #1e3a5f22; cursor: pointer;
+}
+.result-item:active { background: #141f35; border-radius: 10px; }
+.result-info { flex: 1; min-width: 0; }
+.result-name { font-size: 14px; font-weight: 600; }
+.result-meta { font-size: 11px; color: #3a5878; margin-top: 2px; }
+.result-badge {
+  background: #1a2a3a; color: #60a5fa; border-radius: 99px;
+  font-size: 10px; font-weight: 700; padding: 2px 7px; flex-shrink: 0;
+}
+.result-star {
+  background: none; border: none; font-size: 20px;
+  cursor: pointer; padding: 4px; flex-shrink: 0; color: #1e3a5f;
+  transition: color 0.1s; line-height: 1;
+}
+.result-star.active { color: #f5c518; }
+
+.search-empty {
+  text-align: center; padding: 40px 20px; color: #3a5878;
+  font-size: 13px; line-height: 1.7;
+}
+
+/* ─── 토스트 ─── */
+#toast {
+  position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+  background: #141f35; color: #fff; padding: 10px 20px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.3s;
+  z-index: 999; white-space: nowrap; pointer-events: none;
+  border: 1px solid #1e3a5f44;
+}
+.loading { text-align: center; padding: 40px; color: #3a5878; font-size: 14px; }
+
+/* ─── 사진 촬영 모달 ─── */
+.photo-modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: #000000cc; z-index: 300; align-items: flex-end;
+}
+.photo-modal-bg.open { display: flex; }
+.photo-modal-sheet {
+  background: #0d1525; border-radius: 24px 24px 0 0;
+  width: 100%; padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  animation: slideUp 0.22s ease;
+}
+.photo-modal-title {
+  font-size: 15px; font-weight: 700; margin-bottom: 16px; text-align: center;
+}
+.photo-btns { display: flex; gap: 10px; }
+.btn-capture {
+  flex: 1; background: #141f35; border: 1.5px solid #1e3a5f44;
+  border-radius: 12px; padding: 16px 10px; text-align: center; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-capture:hover { border-color: #3b82f6; }
+.btn-capture .cap-label { font-size: 13px; font-weight: 700; color: #fff; }
+.btn-capture .cap-status { font-size: 11px; color: #3a5878; margin-top: 4px; }
+.btn-capture.done { border-color: #3b82f655; background: #1a3a5c; }
+.btn-capture.done .cap-status { color: #3b82f6; }
+.btn-photo-cancel {
+  width: 100%; margin-top: 12px; background: none; border: none;
+  color: #3a5878; font-size: 14px; padding: 12px; cursor: pointer;
+}
+.photo-source-label {
+  font-size: 13px; color: #60a5fa; text-align: center;
+  margin-bottom: 14px; font-weight: 600;
+}
+
+/* ─── 사진 뷰어 ─── */
+.photo-viewer-bg {
+  display: none; position: fixed; inset: 0;
+  background: #000000f0; z-index: 400; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 16px 16px calc(env(safe-area-inset-bottom) + 16px); gap: 0;
+}
+.photo-viewer-bg.open { display: flex; }
+.photo-viewer-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; flex-shrink: 0; }
+.photo-viewer-imgs {
+  display: flex; gap: 10px; width: 100%; max-width: 420px;
+}
+.photo-viewer-slot {
+  flex: 1; min-width: 0; background: #141f35; border-radius: 12px; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.photo-viewer-slot img { width: 100%; height: auto; display: block; max-height: calc(100dvh - 130px); object-fit: contain; }
+.photo-viewer-label { font-size: 11px; color: #3a5878; padding: 5px 6px; text-align: center; flex-shrink: 0; }
+.btn-viewer-close {
+  flex-shrink: 0; margin-top: 12px; background: #141f35; border: 1.5px solid #1e3a5f44;
+  border-radius: 12px; padding: 11px 40px; color: #fff; font-size: 14px; cursor: pointer; font-family: inherit;
+}
+
+/* ─── weight_mode 토글 칩 ─── */
+.wm-chip { font-size:12px; font-weight:700; border:1.5px solid #1e3a5f44; border-radius:10px; cursor:pointer; flex:1; height:38px; transition:background 0.15s; }
+.wm-total { background:#1e3a5f; color:#60a5fa; }
+.wm-single { background:#1a3a20; color:#4ade80; }
+</style>
+</head>
+<body>
+<div id="toast"></div>
+<!-- 카메라 전용 (capture=environment) -->
+<input type="file" id="photoInputCamera" accept="image/*" capture="environment"
+       style="display:none" onchange="onPhotoSelected(this)">
+<!-- 갤러리 전용 (capture 없음) -->
+<input type="file" id="photoInputGallery" accept="image/*"
+       style="display:none" onchange="onPhotoSelected(this)">
+
+<!-- 헤더 -->
+<div class="header">
+  <div class="header-info">
+    <div class="member-nm" id="hdrMember">...</div>
+    <div class="sess-meta" id="hdrMeta"></div>
+  </div>
+  <button class="btn-save-top" id="btnSave" onclick="saveSession()">저장 후 나가기</button>
+</div>
+
+<!-- 수업 메타 -->
+<div class="meta-bar">
+  <div class="meta-chip" id="metaDateChip">
+    <label>날짜</label>
+    <input type="date" id="metaDate">
+  </div>
+</div>
+
+<!-- 운동 목록 -->
+<div class="ex-section">
+  <div class="section-label">운동 목록</div>
+  <div id="exList"><div class="loading">불러오는 중...</div></div>
+</div>
+
+<!-- 메모 -->
+<div class="notes-area">
+  <div class="notes-label">수업 메모</div>
+  <textarea id="notesInput" placeholder="오늘 수업 내용, 특이사항 등..."></textarea>
+</div>
+
+<!-- PT 노트 사진 -->
+<div class="note-photo-area">
+  <div class="note-photo-label">PT 노트 사진</div>
+  <div id="notePhotoUpload" class="note-photo-upload">
+    <input type="file" id="notePhotoInput" accept="image/*" capture="environment" onchange="onNotePhotoSelected(this)">
+    <div class="note-photo-upload-text"><span>사진 촬영 또는 선택</span><br><small style="color:#2a4060;margin-top:4px;display:block">수기 PT 노트를 찍어서 첨부하세요</small></div>
+  </div>
+  <div id="notePhotoPreview" class="note-photo-preview" style="display:none">
+    <img id="notePhotoImg" src="" alt="PT 노트">
+    <button class="note-photo-rotate" id="btnRotateNote" onclick="rotateNotePhotoLeft()" title="왼쪽으로 90° 회전">↺</button>
+    <button class="note-photo-remove" onclick="removeNotePhoto()">✕</button>
+  </div>
+</div>
+
+<!-- 하단 버튼 -->
+<div class="add-bar">
+  <button class="btn-add-ex" onclick="openSearch()">＋ 운동 추가</button>
+  <div style="display:flex;gap:8px;">
+    <button class="btn-lib-edit" style="flex:1;"
+      onclick="routinePickerOpen({ trainerId: trainer?.id, onSelect: loadRoutineExercises })">
+      루틴 불러오기
+    </button>
+    <button class="btn-lib-edit" style="flex:1;"
+      onclick="routineSaveModalOpen(trainer?.id, exercises)">
+      루틴으로 저장
+    </button>
+  </div>
+</div>
+
+<!-- ══ 운동 검색 모달 ══ -->
+<div id="searchModal" class="modal-bg">
+  <div class="modal-dimmer" onclick="closeSearch()"></div>
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title-bar">
+      <span class="modal-title">운동 라이브러리</span>
+      <button class="btn-modal-close" onclick="closeSearch()">×</button>
+    </div>
+    <div class="modal-search">
+      <div class="modal-search-box">
+        <input type="text" id="searchInput" placeholder="운동 이름 검색..."
+               oninput="onSearch(this.value)" autocomplete="off">
+      </div>
+    </div>
+    <div class="modal-filters" id="filterTabs">
+      <div class="ftab active" data-val="" onclick="setFilter(this,'')">전체</div>
+    </div>
+    <div class="modal-results" id="searchResults">
+      <div class="search-empty">라이브러리 불러오는 중...</div>
+    </div>
+    <div style="padding:10px 16px calc(10px + env(safe-area-inset-bottom)); border-top:1px solid #1e3a5f44; flex-shrink:0;">
+      <button class="btn-lib-edit" onclick="closeSearch();goToLibrary()">라이브러리 수정</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 사진 촬영 모달 ══ -->
+<div id="photoModal" class="photo-modal-bg" onclick="if(event.target===this)closePhotoModal()">
+  <div class="photo-modal-sheet">
+    <div class="photo-modal-title" id="photoModalTitle">사진</div>
+
+    <!-- Step 1: 자세 선택 -->
+    <div id="photoStep1">
+      <div class="photo-btns">
+        <div class="btn-capture" id="capStart" onclick="selectPose('start')">
+          <div class="cap-label">시작 자세</div>
+          <div class="cap-status" id="capStartStatus">미촬영</div>
+        </div>
+        <div class="btn-capture" id="capEnd" onclick="selectPose('end')">
+          <div class="cap-label">끝 자세</div>
+          <div class="cap-status" id="capEndStatus">미촬영</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: 소스 선택 (카메라 / 갤러리) -->
+    <div id="photoStep2" style="display:none">
+      <div class="photo-source-label" id="photoSourceLabel">시작 자세 — 선택</div>
+      <div class="photo-btns">
+        <div class="btn-capture" onclick="triggerSource('camera')">
+          <div class="cap-label">📷 카메라</div>
+          <div class="cap-status">바로 촬영</div>
+        </div>
+        <div class="btn-capture" onclick="triggerSource('gallery')">
+          <div class="cap-label">🖼 갤러리</div>
+          <div class="cap-status">앨범에서 선택</div>
+        </div>
+      </div>
+      <button class="btn-photo-cancel" onclick="backToStep1()">← 뒤로</button>
+    </div>
+
+    <button class="btn-photo-cancel" id="photoModalClose" onclick="closePhotoModal()">닫기</button>
+  </div>
+</div>
+
+<!-- ══ 사진 보기 모달 ══ -->
+<div id="photoViewer" class="photo-viewer-bg" onclick="if(event.target===this)closePhotoViewer()">
+  <div class="photo-viewer-title" id="viewerTitle">자세 사진</div>
+  <div class="photo-viewer-imgs" id="viewerImgs"></div>
+  <button class="btn-viewer-close" onclick="closePhotoViewer()">닫기</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="routine-utils.js"></script>
+<script>
+init_db();
+
+// ─── 상태 ───
+let trainer         = null;
+let logId           = null;
+let memberId        = null;
+let scheduleId      = null;
+let scheduleDate    = null;
+let exercises       = [];   // [{rowId,refId,name,part,tool,sets,comment,photos:{start,end}}]
+let myLibrary       = [];
+let _notePhotoFile  = null;   // 새로 선택한 사진 File 객체
+let _notePhotoExistingPath = null; // DB에 이미 저장된 경로
+let _notePhotoRemoved = false;    // 기존 사진 삭제 여부
+let freqMap         = {};
+let filterPart      = '';
+let searchTm        = null;
+let photoTargetIdx  = null;
+let photoTargetType = null;
+
+// ─── 초기화 ───
+async function init() {
+  trainer = await requireTrainer();
+  if (!trainer) return;
+
+  const p = new URLSearchParams(location.search);
+  logId        = p.get('log');
+  memberId     = p.get('member');
+  scheduleId   = p.get('schedule') || null;
+  scheduleDate = p.get('date') || null;
+
+  if (!logId && !memberId) {
+    showToast('잘못된 접근입니다');
+    setTimeout(() => location.replace('trainer-dash.html'), 1500);
+    return;
+  }
+
+  await Promise.all([loadMyLibrary(), loadFreqMap()]);
+
+  if (logId) await loadExistingLog();
+  else       await initNewLog();
+}
+
+// ─── 기존 수업 일지 로드 ───
+async function loadExistingLog() {
+  const { data: log, error } = await db
+    .from('workout_logs')
+    .select('*, members(name)')
+    .eq('id', logId)
+    .single();
+
+  if (error || !log) { showToast('수업 일지를 불러올 수 없습니다'); renderExercises(); return; }
+
+  memberId = log.member_id;
+  document.getElementById('hdrMember').textContent = log.members?.name || '회원';
+  document.getElementById('hdrMeta').textContent   = '수업 일지 편집';
+  document.getElementById('metaDate').value         = log.session_date || today();
+  document.getElementById('notesInput').value       = log.notes || '';
+  // 기존 PT 노트 사진 표시
+  if (log.note_photo_path) {
+    _notePhotoExistingPath = log.note_photo_path;
+    const { data, error } = await db.storage.from('session-photos').createSignedUrl(log.note_photo_path, 3600);
+    if (error) { console.error('Failed to create signed URL:', error); }
+    if (data?.signedUrl) showNotePhotoPreview(data.signedUrl);
+  }
+
+  const { data: rows } = await db
+    .from('workout_log_exercises')
+    .select('*, weight_mode, exercise_refs(name_ko, name_en, part_unified, tool_unified)')
+    .eq('log_id', logId)
+    .order('order_index');
+
+  exercises = (rows || []).map(r => {
+    let setsArr;
+    if (r.sets_data && Array.isArray(r.sets_data) && r.sets_data.length) {
+      setsArr = r.sets_data.map((s, i) => ({
+        set: i + 1, weight: s.weight ?? 0, reps: s.reps ?? 10
+      }));
+    } else {
+      const cnt = r.sets || 1;
+      setsArr = Array.from({ length: cnt }, (_, i) => ({
+        set: i + 1, weight: r.weight ?? 0, reps: r.reps ?? 10
+      }));
+    }
+    const pu = r.photo_urls || {};
+    return {
+      rowId:   r.id,
+      refId:   r.exercise_ref_id,
+      name:    r.custom_name || r.exercise_refs?.name_ko || r.exercise_refs?.name_en || '운동',
+      part:    r.exercise_refs?.part_unified || '',
+      tool:    r.exercise_refs?.tool_unified || '',
+      weight_mode: r.weight_mode || defaultWeightMode(r.exercise_refs?.tool_unified || ''),
+      sets:    setsArr,
+      comment: '',
+      photos:  { start: pu.start || null, end: pu.end || null },
+    };
+  });
+  renderExercises();
+}
+
+// ─── 새 수업 일지 초기화 (드래프트 복원 포함) ───
+async function initNewLog() {
+  const { data: member } = await db
+    .from('members').select('name').eq('id', memberId).single();
+  document.getElementById('hdrMember').textContent = member?.name || '회원';
+  document.getElementById('hdrMeta').textContent   = '새 수업 일지';
+
+  // 라이브러리에서 돌아온 경우 → 저장된 드래프트 복원
+  const _DRAFT_TTL = 24 * 60 * 60 * 1000; // 24시간
+  const rawDraft = sessionStorage.getItem('vg_session_draft');
+  if (rawDraft) {
+    try {
+      const draft = JSON.parse(rawDraft);
+      const isRecent = Date.now() - (draft.ts || 0) < _DRAFT_TTL;
+      if (draft.memberId === memberId && !draft.logId && isRecent) {
+        exercises = draft.exercises || [];
+        document.getElementById('metaDate').value    = draft.date || today();
+        document.getElementById('notesInput').value  = draft.notes || '';
+        sessionStorage.removeItem('vg_session_draft');
+        renderExercises();
+        showToast('작성 중이던 일지를 복원했습니다');
+        return;
+      }
+    } catch (_) {}
+    sessionStorage.removeItem('vg_session_draft');
+  }
+
+  document.getElementById('metaDate').value = scheduleDate || today();
+  // 일정에서 넘어온 경우 날짜 선택 숨김 (날짜 이미 확정)
+  if(scheduleDate){
+    document.getElementById('metaDateChip').style.display='none';
+  }
+  exercises = [];
+  renderExercises();
+}
+
+// ─── 라이브러리로 이동 (드래프트 저장 후) ───
+function goToLibrary() {
+  // 현재 입력 상태를 세트 배열에 동기화
+  syncInputsToState();
+  // 드래프트 저장
+  sessionStorage.setItem('vg_session_draft', JSON.stringify({
+    ts:        Date.now(), // TTL 검증용 타임스탬프
+    memberId,
+    logId,
+    date:      document.getElementById('metaDate').value,
+    notes:     document.getElementById('notesInput').value,
+    exercises
+  }));
+  // 복귀 URL 포함해서 이동
+  const returnUrl = encodeURIComponent(location.href);
+  location.href = `exercise-library.html?returnTo=${returnUrl}`;
+}
+
+// ─── DOM input 값을 exercises 배열에 반영 ───
+function syncInputsToState() {
+  document.querySelectorAll('.set-input').forEach(inp => {
+    const ev = new Event('change');
+    inp.dispatchEvent(ev);
+  });
+  document.querySelectorAll('.ex-comment textarea').forEach(ta => {
+    const ev = new Event('change');
+    ta.dispatchEvent(ev);
+  });
+}
+
+// ─── 내 운동 라이브러리 로드 ───
+async function loadMyLibrary() {
+  const { data, error } = await db
+    .from('trainer_exercises')
+    .select('id, is_favorite, exercise_ref_id, use_count, exercise_refs(name_ko, name_en, part_unified, tool_unified)')
+    .eq('trainer_id', trainer.id);
+  if (error) { console.error('라이브러리 오류:', error.message); showToast('운동 목록을 불러오지 못했어요'); return; }
+
+  myLibrary = (data || []).map(te => ({
+    id:          te.id,
+    refId:       te.exercise_ref_id,
+    is_favorite: te.is_favorite,
+    use_count:   te.use_count || 0,
+    name:        te.exercise_refs?.name_ko || te.exercise_refs?.name_en || '',
+    part:        te.exercise_refs?.part_unified || '',
+    tool:        te.exercise_refs?.tool_unified || '',
+  })).sort((a, b) =>
+    (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0) ||
+    b.use_count - a.use_count ||
+    a.name.localeCompare(b.name, 'ko')
+  );
+
+  buildFilterTabs();
+}
+
+// ─── 자주 사용 운동 집계 (최근 500건만 — 충분한 통계, 쿼리 부담 제한) ───
+async function loadFreqMap() {
+  const { data } = await db
+    .from('workout_log_exercises')
+    .select('exercise_ref_id, workout_logs!inner(trainer_id, session_date)')
+    .eq('workout_logs.trainer_id', trainer.id)
+    .not('exercise_ref_id', 'is', null)
+    .order('workout_logs(session_date)', { ascending: false })
+    .limit(500);
+
+  freqMap = {};
+  (data || []).forEach(r => {
+    const rid = r.exercise_ref_id;
+    if (rid) freqMap[rid] = (freqMap[rid] || 0) + 1;
+  });
+}
+
+// ─── weight_mode 헬퍼 함수 ───
+// 도구 이름으로 기본 weight_mode 반환
+function defaultWeightMode(tool) {
+  return tool === '덤벨' ? 'single' : 'total';
+}
+// 유효 중량 계산 (한쪽이면 ×2)
+function effectiveWeight(weight, weight_mode) {
+  return weight_mode === 'single' ? (weight || 0) * 2 : (weight || 0);
+}
+
+// ─── 운동 렌더 ───
+function renderExercises() {
+  const wrap = document.getElementById('exList');
+  if (!exercises.length) {
+    wrap.innerHTML = `<div class="ex-empty">아래 버튼으로 운동을 추가해보세요</div>`;
+    return;
+  }
+  wrap.innerHTML = exercises.map((ex, i) => {
+    const hasBoth = ex.photos?.start && ex.photos?.end;
+    const hasAny  = ex.photos?.start || ex.photos?.end;
+    return `
+    <div class="ex-card">
+      <div class="ex-card-head">
+        <div class="ex-order">${i + 1}</div>
+        <div class="ex-name-area">
+          <div class="ex-name">${ex.name}</div>
+          ${ex.part || ex.tool
+            ? `<div class="ex-sub">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>`
+            : ''}
+        </div>
+        <div class="ex-photo-area">
+          <button class="btn-photo ${hasAny ? 'done' : ''}"
+                  onclick="${hasAny ? `viewPhotos(${i})` : `openPhotoModal(${i})`}">
+            ${hasAny ? '사진보기' : '사진'}
+          </button>
+          <span class="photo-dot ${ex.photos?.start ? 'taken' : 'empty'}">●</span>
+          <span class="photo-dot ${ex.photos?.end   ? 'taken' : 'empty'}">●</span>
+        </div>
+        <button class="btn-del-ex" onclick="removeEx(${i})">삭제</button>
+      </div>
+
+      <div class="sets-area">
+        <div class="sets-header">
+          <span>세트</span><span>무게(kg)</span><span>횟수</span><span></span>
+        </div>
+        ${ex.sets.map((s, si) => `
+          <div class="set-row">
+            <div class="set-num">${s.set}</div>
+            <input class="set-input" type="number" step="0.5" min="0" value="${s.weight}"
+                   onchange="updSet(${i},${si},'weight',this.value)">
+            <input class="set-input" type="number" min="1" max="999" value="${s.reps}"
+                   onchange="updSet(${i},${si},'reps',this.value)">
+            <div class="set-row-end">
+              <button class="wm-chip ${ex.weight_mode === 'single' ? 'wm-single' : 'wm-total'}" onclick="toggleWeightMode(${i})">${ex.weight_mode === 'single' ? '한쪽' : '양손'}</button>
+              <button class="btn-del-set" onclick="delSet(${i},${si})"
+                      ${ex.sets.length <= 1 ? 'style="opacity:0;pointer-events:none"' : ''}>−</button>
+            </div>
+          </div>
+        `).join('')}
+        <button class="btn-add-set" onclick="addSet(${i})">＋ 세트 추가</button>
+      </div>
+
+      <div class="ex-comment">
+        <textarea placeholder="이 운동 코멘트 (선택)"
+                  onchange="updComment(${i},this.value)">${ex.comment || ''}</textarea>
+      </div>
+
+    </div>`;
+  }).join('');
+}
+
+// ─── 세트 조작 ───
+function addSet(idx) {
+  const last = exercises[idx].sets.at(-1) || { weight: 0, reps: 10 };
+  exercises[idx].sets.push({ set: exercises[idx].sets.length + 1, weight: last.weight, reps: last.reps });
+  renderExercises();
+}
+function delSet(idx, si) {
+  if (exercises[idx].sets.length <= 1) return;
+  exercises[idx].sets.splice(si, 1);
+  exercises[idx].sets.forEach((s, i) => { s.set = i + 1; });
+  renderExercises();
+}
+function updSet(idx, si, field, val) {
+  exercises[idx].sets[si][field] = field === 'weight' ? parseFloat(val) || 0 : parseInt(val) || 0;
+}
+function updComment(idx, val) { exercises[idx].comment = val; }
+function removeEx(idx) {
+  if (!confirm(`'${exercises[idx].name}' 삭제할까요?`)) return;
+  exercises.splice(idx, 1);
+  renderExercises();
+}
+function toggleWeightMode(idx) {
+  exercises[idx].weight_mode = exercises[idx].weight_mode === 'single' ? 'total' : 'single';
+  renderExercises();
+}
+
+// ─── 저장 ───
+async function saveSession() {
+  const date  = document.getElementById('metaDate').value;
+  const notes = document.getElementById('notesInput').value || null;
+  if (!date) { showToast('날짜를 입력해주세요'); return; }
+
+  const btn = document.getElementById('btnSave');
+  btn.disabled = true; btn.textContent = '저장 중...';
+
+  try {
+    // ── PT 노트 사진: 기존 사진 삭제 (교체 or 삭제 버튼) ──
+    let notePhotoPath = _notePhotoExistingPath;
+    if (_notePhotoExistingPath && (_notePhotoRemoved || _notePhotoFile)) {
+      await db.storage.from('session-photos').remove([_notePhotoExistingPath]);
+      notePhotoPath = null;
+    }
+
+    // ── 사진 업로드 헬퍼 (logId 확보 후 호출) ─────────────
+    async function uploadNotePhoto(lid) {
+      if (!_notePhotoFile) return notePhotoPath; // 새 사진 없으면 현재 경로 유지
+      const ext  = (_notePhotoFile.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${trainer.id}/pt-notes/${lid}.${ext}`;
+      const { error: upErr } = await db.storage.from('session-photos').upload(path, _notePhotoFile);
+      return upErr ? notePhotoPath : path; // 실패 시 기존 경로 유지
+    }
+
+    if (logId) {
+      // ── 기존 로그 수정 ──────────────────────────────────
+      notePhotoPath = await uploadNotePhoto(logId);
+      const updatePayload = { session_date: date, notes, note_photo_path: notePhotoPath };
+      if (scheduleId) updatePayload.schedule_id = scheduleId;
+      await db.from('workout_logs').update(updatePayload).eq('id', logId);
+      await db.from('workout_log_exercises').delete().eq('log_id', logId);
+    } else {
+      // ── 신규 로그: INSERT 먼저 → logId 확보 → 사진 업로드 ──
+      const { data: newLog, error: le } = await db
+        .from('workout_logs')
+        .insert({ trainer_id: trainer.id, member_id: memberId, session_date: date, notes,
+                  ...(scheduleId ? { schedule_id: scheduleId } : {}) })
+        .select('id').single();
+      if (le) throw le;
+      logId = newLog.id;
+      history.replaceState(null, '', `?log=${logId}`);
+
+      // logId 확보 후 사진 업로드 → UPDATE (move 불필요)
+      notePhotoPath = await uploadNotePhoto(logId);
+      if (notePhotoPath) {
+        await db.from('workout_logs').update({ note_photo_path: notePhotoPath }).eq('id', logId);
+      }
+    }
+
+    if (exercises.length) {
+      const rows = exercises.map((ex, i) => ({
+        log_id:          logId,
+        exercise_ref_id: ex.refId || null,
+        custom_name:     ex.name,
+        sets_data:       ex.sets,
+        sets:            ex.sets.length,
+        reps:            ex.sets[0]?.reps || null,
+        weight:          ex.sets[0]?.weight || null,
+        weight_mode:     ex.weight_mode || 'total',
+        order_index:     i,
+        photo_urls:      (ex.photos?.start || ex.photos?.end)
+                           ? { start: ex.photos.start || null, end: ex.photos.end || null }
+                           : null,
+      }));
+      const { error: ee } = await db.from('workout_log_exercises').insert(rows);
+      if (ee) throw ee;
+    }
+
+    showToast('저장 완료');
+    btn.textContent = '저장됨 ✓';
+    setTimeout(() => { location.replace('trainer-dash.html?tab=logs'); }, 800);
+  } catch (e) {
+    showToast('저장 실패: ' + e.message);
+    btn.disabled = false; btn.textContent = '저장';
+  }
+}
+
+// ─── 사진 기능 ───
+function openPhotoModal(idx) {
+  photoTargetIdx = idx;
+  const ex = exercises[idx];
+  document.getElementById('photoModalTitle').textContent = `${ex.name}`;
+  const startDone = !!ex.photos?.start;
+  const endDone   = !!ex.photos?.end;
+
+  const capStart = document.getElementById('capStart');
+  const capEnd   = document.getElementById('capEnd');
+  capStart.className = 'btn-capture' + (startDone ? ' done' : '');
+  capEnd.className   = 'btn-capture' + (endDone   ? ' done' : '');
+  document.getElementById('capStartStatus').textContent = startDone ? '촬영 완료' : '미촬영';
+  document.getElementById('capEndStatus').textContent   = endDone   ? '촬영 완료' : '미촬영';
+
+  document.getElementById('photoModal').classList.add('open');
+}
+
+function closePhotoModal() {
+  document.getElementById('photoModal').classList.remove('open');
+  // Step 초기화
+  document.getElementById('photoStep1').style.display = '';
+  document.getElementById('photoStep2').style.display = 'none';
+  document.getElementById('photoModalClose').style.display = '';
+}
+
+// Step1: 자세 선택 → Step2로 전환
+function selectPose(type) {
+  photoTargetType = type;
+  const label = type === 'start' ? '시작 자세' : '끝 자세';
+  document.getElementById('photoSourceLabel').textContent = label + ' — 선택';
+  document.getElementById('photoStep1').style.display = 'none';
+  document.getElementById('photoStep2').style.display = '';
+  document.getElementById('photoModalClose').style.display = 'none';
+}
+
+// Step2: 카메라 or 갤러리 선택 → 파일 input 트리거
+function triggerSource(source) {
+  const inputId = source === 'camera' ? 'photoInputCamera' : 'photoInputGallery';
+  document.getElementById(inputId).click();
+}
+
+// Step2 → Step1 뒤로가기
+function backToStep1() {
+  document.getElementById('photoStep1').style.display = '';
+  document.getElementById('photoStep2').style.display = 'none';
+  document.getElementById('photoModalClose').style.display = '';
+}
+
+async function onPhotoSelected(input) {
+  const file = input.files[0];
+  if (!file || photoTargetIdx === null) return;
+
+  const idx  = photoTargetIdx;
+  const type = photoTargetType;
+
+  // 새 일지는 저장 먼저
+  if (!logId) {
+    try { await ensureLog(); }
+    catch (e) { showToast('일지 생성 실패: ' + e.message); input.value = ''; return; }
+  }
+
+  const ex    = exercises[idx];
+  const exKey = ex.refId || ('ex' + idx);
+  const path  = `member_photos/${memberId}/${logId}/${exKey}/${type}.jpg`;
+
+  try {
+    const { error } = await db.storage
+      .from('session-photos')
+      .upload(path, file, { upsert: true, contentType: file.type || 'image/jpeg' });
+    if (error) throw error;
+
+    if (!ex.photos) ex.photos = { start: null, end: null };
+    ex.photos[type] = path;
+
+    renderExercises();
+    // 모달 닫지 않고 Step1(자세 선택 화면)으로 돌아가며 상태 업데이트
+    const exUpdated = exercises[photoTargetIdx];
+    const startDone = !!exUpdated.photos?.start;
+    const endDone   = !!exUpdated.photos?.end;
+    document.getElementById('capStart').className = 'btn-capture' + (startDone ? ' done' : '');
+    document.getElementById('capEnd').className   = 'btn-capture' + (endDone   ? ' done' : '');
+    document.getElementById('capStartStatus').textContent = startDone ? '촬영 완료' : '미촬영';
+    document.getElementById('capEndStatus').textContent   = endDone   ? '촬영 완료' : '미촬영';
+    backToStep1();
+    showToast(`${type === 'start' ? '시작' : '끝'} 자세 사진 저장됨`);
+  } catch (e) {
+    showToast('사진 업로드 실패: ' + e.message);
+  }
+  input.value = '';
+}
+
+async function ensureLog() {
+  if (logId) return;
+  const date  = document.getElementById('metaDate').value || today();
+  const notes = document.getElementById('notesInput').value || null;
+  const { data: newLog, error } = await db
+    .from('workout_logs')
+    .insert({ trainer_id: trainer.id, member_id: memberId, session_date: date, notes, ...(scheduleId ? { schedule_id: scheduleId } : {}) })
+    .select('id').single();
+  if (error) throw error;
+  logId = newLog.id;
+  history.replaceState(null, '', `?log=${logId}`);
+}
+
+async function viewPhotos(idx) {
+  const ex = exercises[idx];
+  document.getElementById('viewerTitle').textContent = ex.name + ' — 자세 사진';
+
+  const imgs = document.getElementById('viewerImgs');
+  imgs.innerHTML = `
+    <div class="photo-viewer-slot"><span style="flex:1"></span><div class="photo-viewer-label">시작 자세</div></div>
+    <div class="photo-viewer-slot"><span style="flex:1"></span><div class="photo-viewer-label">끝 자세</div></div>`;
+  document.getElementById('photoViewer').classList.add('open');
+
+  const labels = ['시작 자세', '끝 자세'];
+  const rendered = await Promise.all(['start', 'end'].map(async (type, i) => {
+    const path = ex.photos?.[type];
+    if (!path) return `<div class="photo-viewer-slot"><div style="flex:1;display:flex;align-items:center;justify-content:center;color:#3a5878;font-size:12px">미촬영</div><div class="photo-viewer-label">${labels[i]}</div></div>`;
+    const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
+    if (error) { console.error('Failed to create signed URL:', error); }
+    const url = data?.signedUrl;
+    if (!url) return `<div class="photo-viewer-slot"><div style="flex:1;display:flex;align-items:center;justify-content:center;color:#f87171;font-size:12px">불러오기 실패</div><div class="photo-viewer-label">${labels[i]}</div></div>`;
+    return `<div class="photo-viewer-slot"><img src="${url}" alt="${labels[i]}"><div class="photo-viewer-label">${labels[i]}</div></div>`;
+  }));
+  imgs.innerHTML = rendered.join('');
+}
+
+function closePhotoViewer() {
+  document.getElementById('photoViewer').classList.remove('open');
+}
+
+// ─── 검색 모달 ───
+function buildFilterTabs() {
+  const parts = [...new Set(myLibrary.map(e => e.part).filter(Boolean))].sort();
+  const wrap  = document.getElementById('filterTabs');
+  wrap.innerHTML = `<div class="ftab active" data-val="" onclick="setFilter(this,'')">전체</div>`;
+  parts.forEach(p => {
+    const t = document.createElement('div');
+    t.className = 'ftab'; t.dataset.val = p; t.textContent = p;
+    t.onclick = () => setFilter(t, p);
+    wrap.appendChild(t);
+  });
+}
+
+function setFilter(el, val) {
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  filterPart = val;
+  renderSearchResults(document.getElementById('searchInput')?.value || '');
+}
+
+function openSearch() {
+  document.getElementById('searchModal').classList.add('open');
+  renderSearchResults('');
+}
+function closeSearch() {
+  document.getElementById('searchModal').classList.remove('open');
+  document.getElementById('searchInput').value = '';
+  filterPart = '';
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  const first = document.querySelector('.ftab');
+  if (first) first.classList.add('active');
+}
+function onSearch(q) {
+  clearTimeout(searchTm);
+  searchTm = setTimeout(() => renderSearchResults(q), 150);
+}
+
+function renderSearchResults(q) {
+  const wrap = document.getElementById('searchResults');
+
+  if (!myLibrary.length) {
+    wrap.innerHTML = `<div class="search-empty">라이브러리가 비어있어요.<br>
+      <button onclick="closeSearch();goToLibrary()"
+        style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;margin-top:10px">
+        운동 라이브러리에서 추가하기
+      </button></div>`;
+    return;
+  }
+
+  let list = myLibrary;
+  if (filterPart) list = list.filter(e => e.part === filterPart);
+  if (q.trim()) {
+    const kw = q.trim().toLowerCase();
+    list = list.filter(e => e.name.toLowerCase().includes(kw));
+  }
+
+  if (!list.length) {
+    wrap.innerHTML = `<div class="search-empty">해당 조건의 운동이 없어요</div>`;
+    return;
+  }
+
+  let html = '';
+  const isDefaultView = !q.trim() && !filterPart;
+
+  if (isDefaultView) {
+    const favs = list.filter(e => e.is_favorite);
+    if (favs.length) {
+      html += `<div class="result-section-title">즐겨찾기</div>`;
+      html += favs.map(ex => resultItemHtml(ex)).join('');
+    }
+    const freqList = list
+      .filter(e => !e.is_favorite && (e.use_count > 0 || freqMap[e.refId] > 0))
+      .sort((a, b) => (freqMap[b.refId] || b.use_count) - (freqMap[a.refId] || a.use_count))
+      .slice(0, 8);
+    if (freqList.length) {
+      html += `<div class="result-section-title">자주 사용</div>`;
+      html += freqList.map(ex => resultItemHtml(ex, true)).join('');
+    }
+    const rest = list.filter(e => !e.is_favorite && (e.use_count === 0 && !freqMap[e.refId]));
+    if (rest.length) {
+      html += `<div class="result-section-title">전체 목록</div>`;
+      html += rest.map(ex => resultItemHtml(ex)).join('');
+    }
+    if (!favs.length && !freqList.length) html = list.map(ex => resultItemHtml(ex)).join('');
+  } else {
+    html = list.map(ex => resultItemHtml(ex, freqMap[ex.refId] > 0)).join('');
+  }
+
+  wrap.innerHTML = html;
+}
+
+function resultItemHtml(ex, showCount = false) {
+  const cnt = freqMap[ex.refId] || ex.use_count || 0;
+  return `
+    <div class="result-item"
+         onclick="selectEx('${ex.id}','${ex.refId}','${esc(ex.name)}','${esc(ex.part)}','${esc(ex.tool)}')">
+      <div class="result-info">
+        <div class="result-name">${ex.name}</div>
+        ${ex.part || ex.tool
+          ? `<div class="result-meta">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>`
+          : ''}
+      </div>
+      ${cnt > 0 ? `<span class="result-badge">${cnt}회</span>` : ''}
+      <button class="result-star ${ex.is_favorite ? 'active' : ''}"
+              onclick="event.stopPropagation();toggleFav('${ex.id}',${ex.is_favorite})">
+        ${ex.is_favorite ? '★' : '☆'}
+      </button>
+    </div>`;
+}
+
+function selectEx(libId, refId, name, part, tool) {
+  exercises.push({
+    rowId: null,
+    refId: (refId === 'undefined' || !refId) ? null : refId,
+    name, part, tool,
+    weight_mode: defaultWeightMode(tool),
+    sets: [{ set: 1, weight: 0, reps: 10 }],
+    comment: '',
+    photos: { start: null, end: null },
+  });
+  renderExercises();
+  closeSearch();
+  setTimeout(() => {
+    document.querySelectorAll('.ex-card').at(-1)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+async function toggleFav(libId, isFav) {
+  const newVal = !isFav;
+  const { error } = await db
+    .from('trainer_exercises').update({ is_favorite: newVal }).eq('id', libId);
+  if (error) { showToast('오류: ' + error.message); return; }
+  const ex = myLibrary.find(e => e.id === libId);
+  if (ex) {
+    ex.is_favorite = newVal;
+    myLibrary.sort((a, b) =>
+      (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0) ||
+      b.use_count - a.use_count ||
+      a.name.localeCompare(b.name, 'ko')
+    );
+  }
+  showToast(newVal ? '즐겨찾기 등록' : '즐겨찾기 해제');
+  renderSearchResults(document.getElementById('searchInput')?.value || '');
+}
+
+// ─── 유틸 ───
+function today() { return new Date().toISOString().slice(0, 10); }
+function esc(s)  { return (s||'').replace(/'/g, '&#39;').replace(/"/g, '&quot;'); }
+// ── PT 노트 사진 핸들러 ──────────────────────────────────────
+function onNotePhotoSelected(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  _notePhotoFile = file;
+  _notePhotoRemoved = false;
+  const url = URL.createObjectURL(file);
+  showNotePhotoPreview(url);
+}
+function showNotePhotoPreview(url) {
+  document.getElementById('notePhotoImg').src    = url;
+  document.getElementById('notePhotoUpload').style.display  = 'none';
+  document.getElementById('notePhotoPreview').style.display = '';
+}
+function removeNotePhoto() {
+  _notePhotoFile    = null;
+  _notePhotoRemoved = true;
+  document.getElementById('notePhotoInput').value           = '';
+  document.getElementById('notePhotoImg').src               = '';
+  document.getElementById('notePhotoPreview').style.display = 'none';
+  document.getElementById('notePhotoUpload').style.display  = '';
+}
+
+// ── PT 노트 사진 왼쪽 90° 회전 ────────────────────────────────
+async function rotateNotePhotoLeft() {
+  const btn   = document.getElementById('btnRotateNote');
+  const imgEl = document.getElementById('notePhotoImg');
+  if (!imgEl.src || imgEl.src === window.location.href) return;
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
+
+  try {
+    // 소스 blob 확보: 로컬 파일이 있으면 그대로, 없으면 현재 URL(기존 사진)에서 fetch
+    let sourceBlob;
+    if (_notePhotoFile) {
+      sourceBlob = _notePhotoFile;
+    } else {
+      const resp = await fetch(imgEl.src, { mode: 'cors' });
+      if (!resp.ok) throw new Error('fetch failed');
+      sourceBlob = await resp.blob();
+    }
+
+    // Canvas에 왼쪽(-90°) 회전 적용
+    const blobUrl = URL.createObjectURL(sourceBlob);
+    await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas  = document.createElement('canvas');
+        canvas.width  = img.naturalHeight;   // 가로↔세로 교체
+        canvas.height = img.naturalWidth;
+        const ctx = canvas.getContext('2d');
+        ctx.translate(0, canvas.height);
+        ctx.rotate(-Math.PI / 2);            // 반시계 90°
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob(blob => {
+          const newFile = new File([blob], 'photo_rotated.jpg', { type: 'image/jpeg' });
+          _notePhotoFile    = newFile;
+          _notePhotoRemoved = false;
+          const newUrl      = URL.createObjectURL(blob);
+          imgEl.src         = newUrl;
+          URL.revokeObjectURL(blobUrl);
+          resolve();
+        }, 'image/jpeg', 0.92);
+      };
+      img.onerror = reject;
+      img.src = blobUrl;
+    });
+  } catch(e) {
+    console.error('rotateNotePhotoLeft', e);
+    showToast('회전 실패 · 다시 시도해 주세요');
+  } finally {
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+  }
+}
+// ─────────────────────────────────────────────────────────────
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.opacity = 1;
+  clearTimeout(showToast._tm);
+  showToast._tm = setTimeout(() => { t.style.opacity = 0; }, 2200);
+}
+
+// ─── 타이머 정리 (페이지 이탈 시 메모리 누수 방지) ──────────
+window.addEventListener('beforeunload', () => {
+  if (searchTm) clearTimeout(searchTm);
+}, { once: true });
+
+// ─── 하드웨어 뒤로가기 차단 (Android / iOS) ─────────────────
+// 저장 버튼으로만 나갈 수 있도록 popstate 이벤트를 무력화
+function _blockBack() {
+  history.pushState(null, '', location.href);
+}
+_blockBack();
+window.addEventListener('popstate', _blockBack);
+// Android bfcache 복원 시에도 재차단 (뒤로 → 앞으로 했을 때 핸들러가 풀리는 문제 방지)
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) _blockBack();
+});
+
+init();
+
+// ─── 루틴 불러오기 콜백 ───
+async function loadRoutineExercises(routineExs) {
+  if (!routineExs || routineExs.length === 0) return;
+  const hasExisting = exercises.length > 0;
+  if (hasExisting) {
+    const replace = confirm(
+      `현재 운동 ${exercises.length}개가 있습니다.\n루틴 운동으로 교체할까요?\n(취소 시 기존 운동 뒤에 추가됩니다)`
+    );
+    if (replace) exercises = [];
+  }
+  routineExs.forEach(ex => {
+    exercises.push({
+      rowId:      null,
+      refId:      ex.refId || null,
+      name:       ex.name,
+      part:       ex.part  || '',
+      tool:       ex.tool  || '',
+      weight_mode: ex.weight_mode || defaultWeightMode(ex.tool || ''),
+      sets:       [{ set: 1, weight: 0, reps: 10 }],
+      comment:    '',
+      photos:     { start: null, end: null },
+    });
+  });
+  renderExercises();
+  showToast(`루틴 운동 ${routineExs.length}개 불러옴`);
+}
+</script>
+</body>
+</html>
