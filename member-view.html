@@ -1114,7 +1114,7 @@ function rtStartNew() {
 
 // ── 루틴 삭제 ─────────────────────────────────────────────────
 async function rtDeleteRoutine(routineId, name) {
-  if (!confirm(`"${name}" 루틴을 삭제할까요?`)) return;
+  if (!await showConfirm(`"${name}" 루틴을 삭제할까요?`, { danger: true })) return;
   const { data } = await db.rpc('member_delete_routine', { p_token: _memberToken, p_routine_id: routineId });
   showToast(data ? '루틴 삭제됨' : '삭제 실패');
   if (data) { _rtLoaded = false; rtLoadRoutines(); }
@@ -1122,7 +1122,7 @@ async function rtDeleteRoutine(routineId, name) {
 
 // ── 루틴에서 개별 운동 제거 ───────────────────────────────────
 async function rtRemoveEx(rowId, exName) {
-  if (!confirm(`"${exName}" 운동을 루틴에서 제거할까요?`)) return;
+  if (!await showConfirm(`"${exName}" 운동을 루틴에서 제거할까요?`)) return;
   const { data } = await db.rpc('member_remove_routine_exercise', { p_token: _memberToken, p_routine_exercise_id: rowId });
   showToast(data ? '운동 제거됨' : '제거 실패');
   if (data) { _rtLoaded = false; rtLoadRoutines(); }
@@ -1237,7 +1237,7 @@ async function wlogToggleDetail(idx, logId) {
 }
 
 async function wlogDelete(logId, idx) {
-  if (!confirm('이 운동일지를 삭제할까요?')) return;
+  if (!await showConfirm('이 운동일지를 삭제할까요?', { danger: true })) return;
   const { data } = await db.rpc('member_delete_workout_log', { p_token: _memberToken, p_log_id: logId });
   if (data) {
     _wlogList.splice(idx, 1);
@@ -1297,8 +1297,8 @@ async function wlogEdit(logId) {
   if (!_exLoaded) { _exLoaded = true; _loadAllExercises().then(() => _loadMyExercises()); }
 }
 
-function wlogCancel() {
-  if (_wlogExs.length && !confirm('작성을 취소할까요? 내용이 사라져요.')) return;
+async function wlogCancel() {
+  if (_wlogExs.length && !await showConfirm('작성을 취소할까요? 내용이 사라져요.')) return;
   document.getElementById('wlogWriteView').classList.remove('open');
   document.getElementById('wlogListView').style.display = '';
 }
@@ -1560,7 +1560,7 @@ async function wlogLoadRoutine(routineId) {
   document.getElementById('wlogRtPickerBg').classList.remove('open');
   const { data } = await db.rpc('member_get_routine_detail', { p_token: _memberToken, p_routine_id: routineId });
   if (!data || !data.length) { if (window.showToast) showToast('루틴이 비어있어요'); return; }
-  if (_wlogExs.length && !confirm('현재 운동 목록을 교체할까요?\n(취소 시 뒤에 추가됩니다)')) {
+  if (_wlogExs.length && !await showConfirm('현재 운동 목록을 교체할까요?\n(취소 시 뒤에 추가됩니다)', { okText: '교체', cancelText: '뒤에 추가' })) {
     // 뒤에 추가
     data.forEach(e => wlogAddEx(e.exercise_ref_id, e.name_ko, e.part, e.tool, e.weight_mode));
   } else {

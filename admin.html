@@ -1015,7 +1015,7 @@ async function doChangePw() {
 }
 
 async function toggleActive(id, name, isActive) {
-  if (!confirm(`"${name}"을(를) ${isActive ? '비활성화' : '활성화'}할까요?`)) return;
+  if (!await showConfirm(`"${name}"을(를) ${isActive ? '비활성화' : '활성화'}할까요?`)) return;
   const { error } = await db.from('trainers').update({ is_active: !isActive }).eq('id', id);
   if (error) { showToast('변경 실패'); return; }
   showToast(`${name} ${isActive ? '비활성화' : '활성화'} 완료`);
@@ -1023,7 +1023,7 @@ async function toggleActive(id, name, isActive) {
 }
 
 async function deleteTrainer(id, name) {
-  if (!confirm(`"${name}" 트레이너를 비활성화할까요?\n앱에서 숨겨지지만 계약 기록은 유지됩니다.`)) return;
+  if (!await showConfirm(`"${name}" 트레이너를 비활성화할까요?\n앱에서 숨겨지지만 계약 기록은 유지됩니다.`, { danger: true })) return;
   const { error } = await db.from('trainers').update({ is_active: false }).eq('id', id);
   if (error) { showToast('비활성화 실패: ' + error.message); return; }
   showToast(`${name} 비활성화 완료`);
@@ -1897,7 +1897,7 @@ async function completeReq(id) {
   loadRequests();
 }
 async function deleteReq(id) {
-  if (!confirm('이 요청을 삭제할까요?')) return;
+  if (!await showConfirm('이 요청을 삭제할까요?', { danger: true })) return;
   const { error } = await db.from('requests').update({ status: 'deleted' }).eq('id', id);
   if (error) { showToast('삭제 실패'); return; }
   showToast('삭제됐습니다');

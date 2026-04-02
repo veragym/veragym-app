@@ -90,6 +90,37 @@ function showToast(msg, duration = 2400) {
   el._t = setTimeout(() => { el.style.opacity = '0'; }, duration);
 }
 
+// ── 커스텀 확인 모달 ────────────────────────────────────────
+function showConfirm(message, { okText = '확인', cancelText = '취소', danger = false } = {}) {
+  return new Promise(resolve => {
+    const existing = document.getElementById('_confirmBg');
+    if (existing) existing.remove();
+
+    const bg = document.createElement('div');
+    bg.id = '_confirmBg';
+    bg.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px';
+
+    const lines = message.split('\n').map(l => `<p style="margin:0 0 4px">${esc(l)}</p>`).join('');
+    const okColor = danger ? '#ef4444' : '#3b82f6';
+    bg.innerHTML = `
+      <div style="background:#1a2a3a;border-radius:14px;padding:24px 20px 18px;max-width:320px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+        <div style="font-size:14px;color:#c8daea;line-height:1.6;margin-bottom:20px">${lines}</div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button id="_confirmCancel" style="flex:1;padding:10px;border:1px solid #2a4a6a;border-radius:8px;background:transparent;color:#7a9ab8;font-size:14px;cursor:pointer">${esc(cancelText)}</button>
+          <button id="_confirmOk" style="flex:1;padding:10px;border:none;border-radius:8px;background:${okColor};color:#fff;font-size:14px;font-weight:600;cursor:pointer">${esc(okText)}</button>
+        </div>
+      </div>`;
+
+    const cleanup = (result) => { bg.remove(); resolve(result); };
+    bg.querySelector('#_confirmOk').addEventListener('click', () => cleanup(true));
+    bg.querySelector('#_confirmCancel').addEventListener('click', () => cleanup(false));
+    bg.addEventListener('click', e => { if (e.target === bg) cleanup(false); });
+
+    document.body.appendChild(bg);
+    bg.querySelector('#_confirmOk').focus();
+  });
+}
+
 // ── 모달 열기/닫기 ─────────────────────────────────────────
 function openModal(id) {
   const bg = document.getElementById(id);
