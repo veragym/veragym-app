@@ -201,15 +201,45 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .wlog-bottom-btn:active { border-color:#4ade8044; color:#4ade80; }
 .wlog-save-btn { width:100%; background:#4ade8022; border:1.5px solid #4ade8066; border-radius:10px; padding:14px; color:#4ade80; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:6px; }
 .wlog-save-btn:active { background:#4ade8044; }
-/* 운동 추가 피커 모달 */
+/* 운동 추가 피커 모달 (트레이너앱 스타일 · 초록테마) */
 .wlog-picker-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:310; }
 .wlog-picker-bg.open { display:flex; flex-direction:column; }
-.wlog-picker { background:#0a140a; border-radius:20px 20px 0 0; margin-top:auto; max-height:85dvh; overflow-y:auto; padding:16px; animation:slideUp .25s ease; }
-.wlog-picker-search { width:100%; background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:10px; padding:11px 14px; font-size:14px; color:#fff; font-family:inherit; margin-bottom:10px; }
-.wlog-picker-item { display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid #1a3a1a22; cursor:pointer; }
-.wlog-picker-item:active { background:#4ade8011; }
-.wlog-picker-name { font-size:13px; font-weight:600; }
-.wlog-picker-sub { font-size:11px; color:#3a5840; }
+.wlog-picker { background:#0a140a; border-radius:20px 20px 0 0; margin-top:auto; max-height:90dvh; overflow-y:auto; padding:0 0 24px; animation:slideUp .25s ease; }
+/* 검색 */
+.pk-search-wrap { position:sticky; top:0; z-index:2; background:#0a140a; padding:16px 14px 0; }
+.pk-search { width:100%; background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:10px; padding:11px 40px 11px 14px; font-size:14px; color:#fff; outline:none; font-family:inherit; display:block; transition:border-color .2s; }
+.pk-search:focus { border-color:#4ade8066; }
+.pk-search::placeholder { color:#3a5840; }
+.pk-btn-x { position:absolute; right:26px; top:50%; transform:translateY(-50%); margin-top:8px; background:none; border:none; color:#3a5840; font-size:16px; cursor:pointer; padding:0; line-height:1; display:none; }
+/* 필터 칩 */
+.pk-filter-row { padding:0 14px; margin-top:10px; }
+.pk-filter-label { font-size:10px; color:#3a5840; letter-spacing:1.2px; margin-bottom:6px; font-weight:600; }
+.pk-chips { display:flex; flex-wrap:wrap; gap:5px; }
+.pk-chip { background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:20px; padding:5px 13px; font-size:12px; color:#3a5840; cursor:pointer; transition:all .15s; white-space:nowrap; font-family:inherit; }
+.pk-chip:hover { border-color:#4ade8055; color:#4ade80; }
+.pk-chip.active { background:#4ade8022; border-color:#4ade8088; color:#4ade80; font-weight:700; }
+/* 운동 수 */
+.pk-stat { padding:8px 14px 2px; font-size:12px; color:#3a5840; }
+.pk-stat span { color:#4ade80; font-weight:700; }
+/* 운동 카드 목록 */
+.pk-list { padding:0 14px; }
+.pk-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:10px 12px; margin-bottom:7px; cursor:pointer; transition:border-color .15s; }
+.pk-card:active { border-color:#4ade8044; }
+.pk-card-row { display:flex; align-items:center; gap:10px; }
+.pk-thumb { width:48px; height:48px; border-radius:8px; background:#0a1f0a; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; overflow:hidden; }
+.pk-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.pk-info { flex:1; min-width:0; }
+.pk-name { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pk-en { font-size:10px; color:#3a5840; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pk-tags { margin-top:4px; display:flex; gap:4px; flex-wrap:wrap; align-items:center; }
+.pk-tag-tool { background:#4ade8018; border:1px solid #4ade8033; border-radius:6px; padding:1px 7px; font-size:10px; color:#4ade8099; }
+.pk-tag-part { background:transparent; border:1px solid #1a3a1a55; border-radius:6px; padding:1px 7px; font-size:10px; color:#3a5840; }
+.pk-tag-mine { background:#4ade8022; border:1px solid #4ade8055; border-radius:6px; padding:1px 7px; font-size:10px; color:#4ade80; font-weight:600; }
+.pk-add { flex-shrink:0; background:#4ade8022; border:1px solid #4ade8044; border-radius:8px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; color:#4ade80; cursor:pointer; transition:all .15s; }
+.pk-add:active { background:#4ade8044; border-color:#4ade8088; }
+/* 더보기 */
+.pk-more { width:100%; background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:12px; color:#3a5840; font-size:13px; cursor:pointer; margin:4px 0; font-family:inherit; transition:all .15s; }
+.pk-more:hover { border-color:#4ade8044; color:#4ade80; }
 /* 루틴 피커/저장 모달 */
 .wlog-rt-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:320; align-items:center; justify-content:center; }
 .wlog-rt-modal-bg.open { display:flex; }
@@ -449,12 +479,29 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <div class="mv-viewer-imgs" id="memberViewerImgs"></div>
 </div>
 
-<!-- 운동 추가 피커 모달 -->
+<!-- 운동 추가 피커 모달 (트레이너앱 스타일) -->
 <div id="wlogPickerBg" class="wlog-picker-bg" onclick="if(event.target===this)wlogCloseExPicker()">
   <div class="wlog-picker">
-    <input type="text" class="wlog-picker-search" id="wlogPickerSearch"
-           placeholder="운동명 검색" oninput="wlogRenderPicker()" autocomplete="off">
-    <div id="wlogPickerList"></div>
+    <!-- 검색 -->
+    <div class="pk-search-wrap">
+      <input type="text" class="pk-search" id="wlogPickerSearch"
+             placeholder="운동 이름 검색 (한/영)" oninput="pkOnSearch()" autocomplete="off">
+      <button class="pk-btn-x" id="pkBtnX" onclick="pkClearSearch()">✕</button>
+    </div>
+    <!-- 부위 필터 -->
+    <div class="pk-filter-row">
+      <div class="pk-filter-label">부위</div>
+      <div class="pk-chips" id="pkPartChips"></div>
+    </div>
+    <!-- 도구 필터 -->
+    <div class="pk-filter-row">
+      <div class="pk-filter-label">도구</div>
+      <div class="pk-chips" id="pkToolChips"></div>
+    </div>
+    <!-- 운동 수 표시 -->
+    <div class="pk-stat" id="pkStat"></div>
+    <!-- 운동 카드 목록 -->
+    <div id="wlogPickerList" class="pk-list"></div>
   </div>
 </div>
 
@@ -1035,8 +1082,11 @@ function rtBuildDelEx(idx) {
 function rtBuildOpenPicker() {
   // 운동 추가 피커 재활용 (전체 운동 목록에서 선택)
   document.getElementById('wlogPickerSearch').value = '';
+  document.getElementById('pkBtnX').style.display = 'none';
+  _pkFilterPart = ''; _pkFilterTool = ''; _pkShowCount = 40;
   // 피커 선택 콜백을 루틴 빌더용으로 전환
   _rtPickerMode = true;
+  pkBuildChips();
   wlogRenderPicker();
   document.getElementById('wlogPickerBg').classList.add('open');
 }
@@ -1233,9 +1283,17 @@ function wlogUpdSet(idx, si, field, val) {
   else if (field === 'reps') ex.sets[si].reps = parseInt(val) || 0;
 }
 
-// ── 운동 추가 피커 ────────────────────────────────────────────
+// ── 운동 추가 피커 (트레이너앱 스타일) ──────────────────────────
+let _pkFilterPart = '';
+let _pkFilterTool = '';
+let _pkShowCount  = 40;
+let _pkSearchTm   = null;
+
 function wlogOpenExPicker() {
   document.getElementById('wlogPickerSearch').value = '';
+  document.getElementById('pkBtnX').style.display = 'none';
+  _pkFilterPart = ''; _pkFilterTool = ''; _pkShowCount = 40;
+  pkBuildChips();
   wlogRenderPicker();
   document.getElementById('wlogPickerBg').classList.add('open');
 }
@@ -1243,28 +1301,83 @@ function wlogCloseExPicker() {
   document.getElementById('wlogPickerBg').classList.remove('open');
   _rtPickerMode = false;
 }
+
+/* 필터 칩 빌드 */
+function pkBuildChips() {
+  const make = (elId, arr, cur, fn) => {
+    document.getElementById(elId).innerHTML = arr.map(v => {
+      const active = (cur === v) || (!cur && v === '전체');
+      return `<button class="pk-chip${active?' active':''}" onclick="${fn}('${v}')">${v}</button>`;
+    }).join('');
+  };
+  make('pkPartChips', EX_PARTS, _pkFilterPart || '전체', 'pkSetPart');
+  make('pkToolChips', EX_TOOLS, _pkFilterTool || '전체', 'pkSetTool');
+}
+function pkSetPart(v) { _pkFilterPart = (v==='전체') ? '' : v; pkBuildChips(); _pkShowCount=40; wlogRenderPicker(); }
+function pkSetTool(v) { _pkFilterTool = (v==='전체') ? '' : v; pkBuildChips(); _pkShowCount=40; wlogRenderPicker(); }
+
+/* 검색 */
+function pkOnSearch() {
+  const val = document.getElementById('wlogPickerSearch').value;
+  document.getElementById('pkBtnX').style.display = val ? '' : 'none';
+  clearTimeout(_pkSearchTm);
+  _pkSearchTm = setTimeout(() => { _pkShowCount=40; wlogRenderPicker(); }, 150);
+}
+function pkClearSearch() {
+  document.getElementById('wlogPickerSearch').value = '';
+  document.getElementById('pkBtnX').style.display = 'none';
+  _pkShowCount=40; wlogRenderPicker();
+}
+
+/* 메인 렌더 */
 function wlogRenderPicker() {
   const q = (document.getElementById('wlogPickerSearch').value || '').trim().toLowerCase();
   let list = _exAll.length ? _exAll : [];
+  if (_pkFilterPart) list = list.filter(e => e.part_unified === _pkFilterPart);
+  if (_pkFilterTool) list = list.filter(e => e.tool_unified === _pkFilterTool);
   if (q) list = list.filter(e =>
     (e.name_ko||'').toLowerCase().includes(q) || (e.name_en||'').toLowerCase().includes(q)
   );
-  // 내 운동 우선
+  // 정렬: 내 운동 우선 → 이름순
   list = [...list].sort((a,b) => {
     const aM = _myExIds.has(a.id) ? 0 : 1;
     const bM = _myExIds.has(b.id) ? 0 : 1;
     return aM - bM || (a.name_ko||'').localeCompare(b.name_ko||'');
   });
-  const show = list.slice(0, 80);
-  document.getElementById('wlogPickerList').innerHTML = show.length
-    ? show.map(e => `
-      <div class="wlog-picker-item" onclick="wlogPickEx('${e.id}')">
-        <div>
-          <div class="wlog-picker-name">${_myExIds.has(e.id)?'★ ':''}${esc(e.name_ko||e.name_en)}</div>
-          <div class="wlog-picker-sub">${e.tool_unified||''} · ${e.part_unified||''}</div>
+
+  const total = _exAll.length;
+  document.getElementById('pkStat').innerHTML =
+    `<span>${list.length}</span>${list.length===total ? '개 운동' : `개 / 전체 ${total}개`}`;
+
+  const wrap = document.getElementById('wlogPickerList');
+  if (!list.length) { wrap.innerHTML = '<div class="empty" style="padding:24px">해당하는 운동이 없어요</div>'; return; }
+
+  const items = list.slice(0, _pkShowCount);
+  wrap.innerHTML = items.map(ex => {
+    const isMine = _myExIds.has(ex.id);
+    const thumb = ex.image_url
+      ? `<div class="pk-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
+      : `<div class="pk-thumb"></div>`;
+    return `
+      <div class="pk-card" onclick="wlogPickEx('${ex.id}')">
+        <div class="pk-card-row">
+          ${thumb}
+          <div class="pk-info">
+            <div class="pk-name">${esc(ex.name_ko||ex.name_en)}</div>
+            ${(ex.name_en && ex.name_en !== ex.name_ko) ? `<div class="pk-en">${esc(ex.name_en)}</div>` : ''}
+            <div class="pk-tags">
+              ${ex.tool_unified ? `<span class="pk-tag-tool">${ex.tool_unified}</span>` : ''}
+              ${ex.part_unified ? `<span class="pk-tag-part">${ex.part_unified}</span>` : ''}
+              ${isMine ? `<span class="pk-tag-mine">내 운동</span>` : ''}
+            </div>
+          </div>
+          <div class="pk-add">＋</div>
         </div>
-      </div>`).join('')
-    : '<div class="empty" style="padding:20px">운동을 찾을 수 없어요</div>';
+      </div>`;
+  }).join('') +
+  (list.length > _pkShowCount
+    ? `<button class="pk-more" onclick="event.stopPropagation();_pkShowCount+=40;wlogRenderPicker()">더 보기 (${list.length-_pkShowCount}개 남음)</button>`
+    : '');
 }
 function wlogPickEx(refId) {
   const ex = _exAll.find(e => e.id === refId);
