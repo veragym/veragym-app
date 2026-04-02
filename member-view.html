@@ -298,7 +298,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .stat-card-num { font-size:28px; font-weight:800; color:#4ade80; }
 .stat-card-label { font-size:11px; color:#3a5840; margin-top:4px; }
 .stat-section { margin-bottom:20px; }
-.stat-section-title { font-size:13px; font-weight:700; color:#3a5840; margin-bottom:10px; letter-spacing:0.5px; }
+.stat-section-title { font-size:13px; font-weight:700; color:#3a5840; margin-bottom:4px; letter-spacing:0.5px; }
+.stat-section-desc  { font-size:11px; color:#2a4a2a; margin-bottom:12px; line-height:1.5; }
 .stat-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
 .stat-bar-name { font-size:12px; color:#ddd; min-width:80px; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .stat-bar-fill { height:20px; background:linear-gradient(90deg,#4ade8033,#4ade8066); border-radius:4px; min-width:2px; transition:width .3s; }
@@ -1751,7 +1752,8 @@ function statsRender(s) {
     <div style="background:linear-gradient(135deg,#0f1a0f,#1a2a1a);border-radius:14px;padding:18px 20px;margin-bottom:14px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div>
-          <div style="font-size:11px;color:#3a5840;letter-spacing:1px;margin-bottom:4px">이번 주 운동</div>
+          <div style="font-size:11px;color:#3a5840;letter-spacing:1px;margin-bottom:2px">이번 주 운동</div>
+          <div style="font-size:10px;color:#2a3a2a;margin-bottom:4px">월요일~오늘까지 운동한 날 수</div>
           <div style="display:flex;align-items:baseline;gap:4px">
             <span style="font-size:48px;font-weight:900;color:${wc.color};line-height:1">${thisWeek}</span>
             <span style="font-size:16px;color:${wc.color};font-weight:600">회</span>
@@ -1765,17 +1767,17 @@ function statsRender(s) {
           <div style="font-size:11px;color:#2a4a2a;margin-top:2px">회</div>
         </div>
       </div>
-      <div style="display:flex;gap:16px;border-top:1px solid #1a2a1a;padding-top:10px">
-        <div style="font-size:11px;color:#2a4a2a">연속 출석 <span style="color:#4a7a4a;font-weight:600">${curStreak}일</span></div>
-        <div style="font-size:11px;color:#2a4a2a">역대 최장 <span style="color:#4a7a4a;font-weight:600">${maxStreak}일</span></div>
+      <div style="display:flex;gap:16px;border-top:1px solid #1a2a1a;padding-top:10px;flex-wrap:wrap">
+        <div style="font-size:11px;color:#2a4a2a">연속 출석 <span style="color:#4a7a4a;font-weight:600">${curStreak}일</span><span style="color:#1a3a1a;font-size:10px"> · 하루도 안 빠진 날 수</span></div>
+        <div style="font-size:11px;color:#2a4a2a">역대 최장 <span style="color:#4a7a4a;font-weight:600">${maxStreak}일</span><span style="color:#1a3a1a;font-size:10px"> · 지금까지 최고 기록</span></div>
       </div>
     </div>
     <!-- 요약 카드 -->
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-card-num">${s.total_logs||0}</div><div class="stat-card-label">총 운동일지</div></div>
-      <div class="stat-card"><div class="stat-card-num">${s.total_exercises||0}</div><div class="stat-card-label">운동 종류</div></div>
-      <div class="stat-card"><div class="stat-card-num">${s.logs_this_month||0}</div><div class="stat-card-label">이번 달</div></div>
-      <div class="stat-card"><div class="stat-card-num">${s.recent_30d_count||0}</div><div class="stat-card-label">최근 30일</div></div>
+      <div class="stat-card"><div class="stat-card-num">${s.total_logs||0}</div><div class="stat-card-label">총 운동일지</div><div style="font-size:10px;color:#1a3a1a;margin-top:3px">지금까지 기록한 횟수</div></div>
+      <div class="stat-card"><div class="stat-card-num">${s.total_exercises||0}</div><div class="stat-card-label">운동 종류</div><div style="font-size:10px;color:#1a3a1a;margin-top:3px">해본 운동 가짓수</div></div>
+      <div class="stat-card"><div class="stat-card-num">${s.logs_this_month||0}</div><div class="stat-card-label">이번 달</div><div style="font-size:10px;color:#1a3a1a;margin-top:3px">이번 달 운동 횟수</div></div>
+      <div class="stat-card"><div class="stat-card-num">${s.recent_30d_count||0}</div><div class="stat-card-label">최근 30일</div><div style="font-size:10px;color:#1a3a1a;margin-top:3px">최근 한 달 운동 횟수</div></div>
     </div>`;
 
   // 많이 한 운동 TOP 5
@@ -1784,6 +1786,7 @@ function statsRender(s) {
     const maxCnt = Math.max(...top.map(t => t.cnt), 1);
     html += `<div class="stat-section">
       <div class="stat-section-title">많이 한 운동 TOP ${top.length}</div>
+      <div class="stat-section-desc">가장 자주 한 운동 순서예요. 자주 할수록 해당 근육이 꾸준히 자극된 거예요 💪</div>
       ${top.map(t => `
         <div class="stat-bar-row">
           <span class="stat-bar-name">${esc(t.name)}</span>
@@ -1799,6 +1802,7 @@ function statsRender(s) {
     const maxM = Math.max(...trend.map(t => t.cnt), 1);
     html += `<div class="stat-section">
       <div class="stat-section-title">월별 운동 횟수</div>
+      <div class="stat-section-desc">매달 운동을 얼마나 꾸준히 했는지 보여줘요. 막대가 높을수록 그달에 더 열심히 한 거예요 📅</div>
       <div class="stat-trend-row">
         ${trend.map(t => {
           const h = Math.max(Math.round(t.cnt / maxM * 80), 2);
@@ -1826,15 +1830,17 @@ function statsRender(s) {
     // 최근 일지 볼륨 추이
     html += `<div class="stat-section">
       <div class="stat-section-title">일지별 운동 볼륨</div>
-      <div style="font-size:11px;color:#3a5840;margin-bottom:12px">※ 무게 입력 운동 기준 · 한손 ×2 적용</div>
+      <div class="stat-section-desc">볼륨 = 들어올린 무게(kg) × 횟수를 모두 더한 값이에요.<br>숫자가 클수록 그날 더 많은 운동을 한 거예요. 점점 높아지면 성장 중이에요! 📈<br><span style="color:#1a3a1a">※ 무게를 직접 입력한 운동만 계산돼요 · 한쪽(한손) 운동은 2배 적용</span></div>
       <div style="display:flex;gap:10px;margin-bottom:16px">
         <div style="flex:1;background:#0f1a0f;border-radius:10px;padding:12px;text-align:center">
           <div style="font-size:18px;font-weight:800;color:#4ade80">${fmtVol(avgVol)}</div>
           <div style="font-size:11px;color:#3a5840;margin-top:3px">일지 평균</div>
+          <div style="font-size:10px;color:#1a3a1a;margin-top:2px">내 평균 운동량</div>
         </div>
         <div style="flex:1;background:#0f1a0f;border-radius:10px;padding:12px;text-align:center">
           <div style="font-size:18px;font-weight:800;color:#86efac">${fmtVol(maxVol)}</div>
           <div style="font-size:11px;color:#3a5840;margin-top:3px">최고 기록</div>
+          <div style="font-size:10px;color:#1a3a1a;margin-top:2px">가장 많이 한 날</div>
         </div>
       </div>
       <div style="position:relative">
@@ -1864,7 +1870,7 @@ function statsRender(s) {
       const maxPart = Math.max(...partEntries.map(e => e[1]), 1);
       html += `<div class="stat-section">
         <div class="stat-section-title">부위별 평균 볼륨</div>
-        <div style="font-size:11px;color:#3a5840;margin-bottom:12px">해당 부위를 운동한 일지 기준 평균</div>
+        <div class="stat-section-desc">각 신체 부위를 운동할 때 평균 운동량이에요.<br>막대가 길수록 그 부위를 더 열심히 운동한 거예요. 짧은 부위는 더 집중해볼 수 있어요 🎯</div>
         ${partEntries.map(([part, vol]) => {
           const color = PART_COLOR[part] || '#7a9ab8';
           const w = Math.round(vol / maxPart * 100);
@@ -1888,6 +1894,7 @@ function statsRender(s) {
   if (Object.keys(dowRaw).length) {
     html += `<div class="stat-section">
       <div class="stat-section-title">요일별 운동 패턴</div>
+      <div class="stat-section-desc">어느 요일에 운동을 많이 하는지 보여줘요. 가장 밝은 초록이 제일 많이 간 요일이에요 📆</div>
       <div style="display:flex;align-items:flex-end;gap:6px;height:70px;margin-bottom:6px">
         ${dowData.map(d => {
           const h   = Math.max(Math.round(d.cnt / maxDow * 60), d.cnt > 0 ? 4 : 2);
@@ -1921,7 +1928,7 @@ function statsRender(s) {
     const partsSorted = Object.entries(partVol).sort((a, b) => b[1] - a[1]);
     html += `<div class="stat-section">
       <div class="stat-section-title">전신 부위별 운동량</div>
-      <div style="font-size:11px;color:#3a5840;margin-bottom:12px">※ 무게 입력 운동 기준 (체중 운동 제외)</div>`;
+      <div class="stat-section-desc">전체 운동량 중 각 신체 부위에 얼마나 집중했는지 비율로 보여줘요.<br>예) 가슴 30% → 내 전체 운동의 30%를 가슴에 썼다는 뜻이에요.<br>아래 작은 막대는 그 부위 안에서 어느 근육을 더 많이 썼는지 보여줘요 💡<br><span style="color:#1a3a1a">※ 무게를 직접 입력한 운동만 포함 (맨몸 운동 제외)</span></div>`;
 
     for (const [part, vol] of partsSorted) {
       const partPct  = Math.round(vol / partTotal * 100);
@@ -1944,7 +1951,8 @@ function statsRender(s) {
 
       // 근육 상세 행
       if (muscles.length) {
-        html += `<div style="padding-left:54px;display:flex;flex-direction:column;gap:4px">`;
+        html += `<div style="padding-left:54px;display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:10px;color:#1a3a1a;margin-bottom:3px">${esc(part)} 운동 중 주로 사용된 근육 비율</div>`;
         for (const m of muscles) {
           const mPct = muscleTotal > 0 ? Math.round(m.vol / muscleTotal * 100) : 0;
           html += `<div style="display:flex;align-items:center;gap:8px">
@@ -1990,6 +1998,7 @@ function statsRender(s) {
     if (allItems.length) {
       html += `<div class="stat-section">
         <div class="stat-section-title">균형 체크</div>
+        <div class="stat-section-desc">운동이 특정 부위에만 치우치지 않는지 확인해줘요. 꾸준히 참고하면 더 균형 잡힌 몸을 만들 수 있어요 ⚖️</div>
         <div style="display:flex;flex-direction:column;gap:8px">
           ${allItems.map(item => `
             <div style="display:flex;align-items:flex-start;gap:10px;background:${item.icon==='⚠️'?'#1a0f0f':item.icon==='💡'?'#1a1a0f':'#0f1a0f'};border-radius:10px;padding:10px 12px">
