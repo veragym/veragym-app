@@ -852,13 +852,18 @@ preventBackExit();
 let me = null;   // 현재 로그인한 관리자 정보
 
 async function init() {
-  me = await requireAdmin();
-  if (!me) return;
+  try {
+    me = await requireAdmin();
+    if (!me) return;
 
-  document.getElementById('adminName').textContent =
-    me.is_admin ? `관리자 · ${me.name}` : `${me.name} · ${me.gym_location}`;
+    document.getElementById('adminName').textContent =
+      me.is_admin ? `관리자 · ${me.name}` : `${me.name} · ${me.gym_location}`;
 
-  loadTrainers();
+    loadTrainers();
+  } catch (e) {
+    console.error('init failed:', e);
+    document.body.innerHTML = '<div style="text-align:center;padding:60px;color:#f87171;font-family:sans-serif">연결에 실패했습니다.<br><br><a href="admin-login.html" style="color:#c9a84c">로그인 페이지로 이동</a></div>';
+  }
 }
 
 // ── 트레이너 목록 ────────────────────────────────────────────
@@ -1539,6 +1544,8 @@ async function addPtProduct() {
         member_id: _currentMemberId,
         total_sessions: sessions,
         payment_amount: Math.round(paymentAmt * 1.1),
+        net_amount: paymentAmt,
+        price_per_session: pricePerSess > 0 ? pricePerSess : null,
         trainer_id: contractTr,
         trainer_name: trainerRow ? trainerRow.name : null,
         pt_product_id: ptProductId,
@@ -1681,6 +1688,8 @@ async function addMember() {
           member_id: newMember.id,
           total_sessions: sessions,
           payment_amount: Math.round(paymentAmt * 1.1),
+          net_amount: paymentAmt,
+          price_per_session: pricePerSess > 0 ? pricePerSess : null,
           trainer_id: contractTrId || trainerId,
           trainer_name: trainerRow ? trainerRow.name : null,
           pt_product_id: ptData2.id,
@@ -2603,12 +2612,12 @@ function renderPayList() {
     const date = p.payment_date || '';
     return `<div class="pay-item">
       <div class="pay-item-top">
-        <span class="pay-item-name">${p.member_name||'-'}</span>
+        <span class="pay-item-name">${esc(p.member_name)||'-'}</span>
         <span class="pay-item-amt">${_admFmtWon(p.payment_amount)}</span>
       </div>
       <div class="pay-item-sub">
         <span>${date}</span>
-        <span>${p.trainer_name||'-'}</span>
+        <span>${esc(p.trainer_name)||'-'}</span>
         <span>${p.total_sessions||0}회</span>
         <span>순매출 ${_admFmtWon(p.net_amount)}</span>
       </div>
@@ -2739,7 +2748,7 @@ function renderAdminRevSummary() {
   // 당월 달성매출 (payment_records)
   const achieved = _admRevPayments
     .filter(p => p.payment_date.slice(0,7) === cm)
-    .reduce((s,p) => s + p.net_amount, 0);
+    .reduce((s,p) => s + (p.net_amount||0), 0);
   document.getElementById('adminRevAchieved').textContent = _admFmtWon(achieved);
 }
 

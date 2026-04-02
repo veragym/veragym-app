@@ -31,7 +31,7 @@ async function requireAdmin() {
     .single();
 
   if (error || !trainer || !trainer.is_admin || !trainer.is_active) {
-    await db.auth.signOut();
+    try { await db.auth.signOut(); } catch (_) { localStorage.removeItem('vg_session'); }
     location.replace('admin-login.html');
     return null;
   }
@@ -62,7 +62,8 @@ async function requireTrainer() {
     .select('id, name, gym_location, is_active, is_admin')
     .eq('auth_id', session.user.id).single();
   if (error || !trainer || !trainer.is_active) {
-    await db.auth.signOut();
+    try { await db.auth.signOut(); } catch (_) { localStorage.removeItem('vg_session'); }
+    localStorage.removeItem('vg_trainer');
     location.replace('trainer-login.html');
     return null;
   }

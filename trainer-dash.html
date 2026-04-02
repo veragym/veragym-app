@@ -539,7 +539,7 @@ function switchTab(id, btn) {
 async function loadMembers() {
   document.getElementById('memberList').innerHTML = '<div class="loading">불러오는 중...</div>';
   const { data, error } = await db.from('members')
-    .select('id,name,gym_location,notes,is_active,token,member_status').eq('trainer_id', me.id).eq('member_status','active').order('name');
+    .select('id,name,gym_location,notes,is_active,member_status').eq('trainer_id', me.id).eq('member_status','active').order('name');
   if (await handleDbError(error, '회원 불러오기 실패')) {
     document.getElementById('memberList').innerHTML = '<div class="empty">불러오기 실패<br><button class="retry-btn" onclick="loadMembers()">다시 시도</button></div>';
     return;
@@ -592,15 +592,18 @@ async function showMemberDetail(memberId) {
   document.getElementById('detailName').textContent = m.name;
   document.getElementById('detailSub').textContent = `${m.gym_location}${m.notes ? ' · ' + m.notes : ''}`;
 
-  // 토큰 링크
-  const tokenUrl = `${APP_URL}?token=${m.token}`;
-  document.getElementById('detailTokenBox').innerHTML = `
-    <div class="token-box" onclick="copyToken('${tokenUrl}')">
-      <span style="font-size:11px;color:#3a5878">링크</span>
-      <span class="token-url">${tokenUrl}</span>
-      <span style="font-size:11px;color:#60a5fa;flex-shrink:0">복사</span>
-    </div>
-    <div style="font-size:11px;color:#2a4060;margin-top:6px">이 링크를 회원에게 전달하면 수업 기록을 볼 수 있습니다</div>`;
+  // 토큰 링크 — 개별 조회 (목록 SELECT에서 token 제거로 보안 강화)
+  document.getElementById('detailTokenBox').innerHTML = '<div class="loading" style="font-size:12px">링크 불러오는 중...</div>';
+  const { data: tokenData } = await db.from('members').select('token').eq('id', memberId).single();
+  const tokenUrl = tokenData?.token ? `${APP_URL}?token=${tokenData.token}` : null;
+  document.getElementById('detailTokenBox').innerHTML = tokenUrl
+    ? `<div class="token-box" onclick="copyToken('${tokenUrl}')">
+        <span style="font-size:11px;color:#3a5878">링크</span>
+        <span class="token-url">${tokenUrl}</span>
+        <span style="font-size:11px;color:#60a5fa;flex-shrink:0">복사</span>
+       </div>
+       <div style="font-size:11px;color:#2a4060;margin-top:6px">이 링크를 회원에게 전달하면 수업 기록을 볼 수 있습니다</div>`
+    : '<div style="font-size:12px;color:#888">링크를 불러올 수 없습니다</div>';
 
   // 해당 회원 수업 기록 (필요 필드만 선택)
   document.getElementById('memberLogs').innerHTML = '<div class="loading">불러오는 중...</div>';
@@ -1358,6 +1361,9 @@ async function loadRevenue() {
       db.from('sales_forecasts').select('*').eq('trainer_id', me.id).order('created_at'),
       db.from('sales_targets').select('*').eq('trainer_id', me.id)
     ]);
+    if (pRes.error) throw pRes.error;
+    if (fRes.error) throw fRes.error;
+    if (tRes.error) throw tRes.error;
     _revPayments = pRes.data || [];
     _revForecasts = fRes.data || [];
     const targets = tRes.data || [];
