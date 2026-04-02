@@ -304,7 +304,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .stat-bar-name { font-size:12px; color:#ddd; min-width:80px; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .stat-bar-fill { height:20px; background:linear-gradient(90deg,#4ade8033,#4ade8066); border-radius:4px; min-width:2px; transition:width .3s; }
 .stat-bar-cnt { font-size:11px; color:#3a5840; min-width:28px; }
-.stat-trend-row { display:flex; align-items:flex-end; gap:4px; height:100px; padding:0 4px; }
+.stat-trend-row { display:flex; align-items:flex-end; gap:4px; height:100px; padding:0 4px; margin-top:20px; }
 .stat-trend-col { flex:1; display:flex; flex-direction:column; align-items:center; }
 .stat-trend-bar { width:100%; background:#4ade8044; border-radius:4px 4px 0 0; min-height:2px; transition:height .3s; }
 .stat-trend-label { font-size:9px; color:#2a4a2a; margin-top:4px; }
@@ -1895,7 +1895,7 @@ function statsRender(s) {
     html += `<div class="stat-section">
       <div class="stat-section-title">요일별 운동 패턴</div>
       <div class="stat-section-desc">어느 요일에 운동을 많이 하는지 보여줘요. 가장 밝은 초록이 제일 많이 간 요일이에요 📆</div>
-      <div style="display:flex;align-items:flex-end;gap:6px;height:70px;margin-bottom:6px">
+      <div style="display:flex;align-items:flex-end;gap:6px;height:70px;margin-top:20px;margin-bottom:6px">
         ${dowData.map(d => {
           const h   = Math.max(Math.round(d.cnt / maxDow * 60), d.cnt > 0 ? 4 : 2);
           const col = d.cnt === Math.max(...dowData.map(x => x.cnt)) ? '#4ade80'
