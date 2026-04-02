@@ -638,7 +638,7 @@ async function loadMemberSelfLogs(memberId) {
         const isUni = (wm === 'each' || wm === 'single');
         const wmTag = isUni ? '<span style="display:inline-block;font-size:10px;background:#1a3a1a;color:#4ade80;padding:2px 6px;border-radius:4px;margin-left:6px">한손</span>' : '';
         const thumbHtml = imgUrl
-          ? `<div style="width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#0a1428"><img src="${imgUrl}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>`
+          ? `<div style="width:100%;height:120px;border-radius:10px;overflow:hidden;background:#0a1428;margin-top:6px"><img src="${imgUrl}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>`
           : '';
         const setsStr = sets.length
           ? `<table class="sets-table"><tr><th>세트</th><th>무게</th><th>횟수</th></tr>` +
@@ -652,9 +652,9 @@ async function loadMemberSelfLogs(memberId) {
         return `<div style="margin-bottom:10px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
             <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#1a3a5f;color:#60a5fa;font-size:11px;font-weight:700;flex-shrink:0">${idx+1}</span>
-            ${thumbHtml}
             <div><div style="font-size:13px;font-weight:600">${esc(e.name)}${wmTag}</div></div>
           </div>
+          ${thumbHtml}
           ${setsStr}${commentHtml}
         </div>`;
       }).join('');
