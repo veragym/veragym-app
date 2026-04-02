@@ -614,10 +614,10 @@ async function showMemberDetail(memberId) {
     .order('session_date', { ascending: false })
     .limit(30);
 
-  if (logErr) { document.getElementById('memberLogs').innerHTML = '<div class="empty">수업 기록 불러오기 실패</div>'; return; }
-  renderLogCards('memberLogs', logs || [], false);
+  if (logErr) { document.getElementById('memberLogs').innerHTML = '<div class="empty">수업 기록 불러오기 실패</div>'; }
+  else { renderLogCards('memberLogs', logs || [], false); }
 
-  // 회원 운동일지 (회원이 직접 작성한 기록) — 읽기 전용
+  // 회원 운동일지 (회원이 직접 작성한 기록) — 읽기 전용 (수업기록 오류와 무관하게 항상 실행)
   loadMemberSelfLogs(memberId);
 }
 
@@ -626,7 +626,12 @@ async function loadMemberSelfLogs(memberId) {
   wrap.innerHTML = '<div class="loading">불러오는 중...</div>';
   try {
     const { data, error } = await db.rpc('trainer_get_member_workout_logs', { p_member_id: memberId });
-    if (error || !data || !data.length) {
+    if (error) {
+      console.error('loadMemberSelfLogs RPC error:', error);
+      wrap.innerHTML = '<div class="empty">운동일지를 불러오지 못했어요</div>';
+      return;
+    }
+    if (!data || !data.length) {
       wrap.innerHTML = '<div class="empty">회원이 작성한 운동일지가 없어요</div>';
       return;
     }
