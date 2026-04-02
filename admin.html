@@ -919,37 +919,51 @@ async function loadTrainers() {
     .select('id,name,gym_location,is_admin,is_active,created_at').order('is_admin', { ascending: false }).order('created_at');
   if (error) { showToast('불러오기 실패'); return; }
 
-  const admins   = data.filter(t => t.is_admin);
-  const trainers = data.filter(t => !t.is_admin);
-  document.getElementById('trainerCount').textContent = `(${data.length}명)`;
+  const admins          = data.filter(t => t.is_admin);
+  const activeTrainers  = data.filter(t => !t.is_admin && t.is_active);
+  const inactiveTrainers= data.filter(t => !t.is_admin && !t.is_active);
+  const activeCount     = admins.length + activeTrainers.length;
+  document.getElementById('trainerCount').textContent = `(${activeCount}명${inactiveTrainers.length ? ` · 퇴사 ${inactiveTrainers.length}명` : ''})`;
 
   const wrap = document.getElementById('trainerList');
   if (!data.length) { wrap.innerHTML = '<div class="empty">등록된 계정이 없어요</div>'; return; }
 
   const card = t => `
     <div class="card">
-      <div class="avatar">${(esc(t.name)||'?').charAt(0)}</div>
+      <div class="avatar" style="${!t.is_active ? 'opacity:0.4;filter:grayscale(1)' : ''}">${(esc(t.name)||'?').charAt(0)}</div>
       <div class="info">
         <div class="name-row">
-          ${esc(t.name)}
+          <span style="${!t.is_active ? 'color:#666' : ''}">${esc(t.name)}</span>
           <span class="badge ${t.is_admin ? 'badge-admin' : 'badge-trainer'}">${t.is_admin ? '관리자' : '트레이너'}</span>
-          ${!t.is_active ? '<span class="badge badge-inactive">비활성</span>' : ''}
         </div>
         <div class="sub-row">${esc(t.gym_location)}</div>
       </div>
       <div class="actions">
         <button class="btn-sm" onclick="openChangePw('${t.id}','${esc(t.name)}')">비번변경</button>
         <button class="btn-sm" onclick="toggleActive('${t.id}','${esc(t.name)}',${t.is_active})">
-          ${t.is_active ? '비활성화' : '활성화'}
+          ${t.is_active ? '비활성화' : '복직'}
         </button>
         ${!t.is_admin && me?.is_admin ? `<button class="btn-sm btn-danger" onclick="deleteTrainer('${t.id}','${esc(t.name)}')">삭제</button>` : ''}
       </div>
     </div>`;
 
   let html = '';
-  if (admins.length)   html += `<div class="group-label">관리자 (${admins.length})</div>` + admins.map(card).join('');
-  if (trainers.length) html += `<div class="group-label">트레이너 (${trainers.length})</div>` + trainers.map(card).join('');
-  else html += '<div style="text-align:center;padding:16px;color:#444;font-size:13px">트레이너 없음 — 위에서 추가하세요</div>';
+  if (admins.length)         html += `<div class="group-label">관리자 (${admins.length})</div>` + admins.map(card).join('');
+  if (activeTrainers.length) html += `<div class="group-label">트레이너 (${activeTrainers.length})</div>` + activeTrainers.map(card).join('');
+  else                       html += '<div style="text-align:center;padding:16px;color:#444;font-size:13px">트레이너 없음 — 위에서 추가하세요</div>';
+
+  if (inactiveTrainers.length) {
+    html += `
+      <div class="group-label" style="color:#666;margin-top:20px;cursor:pointer;display:flex;align-items:center;gap:6px"
+           onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.resign-arrow').textContent=this.nextElementSibling.style.display==='none'?'▶':'▼'">
+        <span class="resign-arrow">▶</span> 퇴사자 (${inactiveTrainers.length}명)
+        <span style="font-size:10px;color:#444;font-weight:400">— 클릭하여 펼치기</span>
+      </div>
+      <div style="display:none">
+        ${inactiveTrainers.map(card).join('')}
+      </div>`;
+  }
+
   wrap.innerHTML = html;
 }
 
