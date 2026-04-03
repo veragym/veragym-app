@@ -2042,7 +2042,9 @@ function openSchedInfo(schedId){
       const ptSorted=scheduleData.filter(x=>x.type==='PT'&&x.status==='scheduled'&&x.pt_product_id===s.pt_product_id&&x.sched_date>=_siTodayYMD).sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
       const inViewIdx=ptSorted.findIndex(x=>x.id===s.id);
       const offset=s.status==='scheduled'?(s.sched_date>=_siTodayYMD?(inViewIdx>=0?inViewIdx:0):0):0;
-      const sessionNum=s.status==='scheduled'?used+offset+1:(s.session_number??null);
+      // 어제 미완료 scheduled 수업은 offset 계산 불가 → ?/N회차 표시 (FIX-4 2차결함 방어)
+      const isPastScheduled=s.status==='scheduled'&&s.sched_date<_siTodayYMD;
+      const sessionNum=isPastScheduled?null:s.status==='scheduled'?used+offset+1:(s.session_number??null);
       document.getElementById('siSession').textContent=sessionNum!=null?`${sessionNum}/${s.pt_products.total_sessions||0}회차`:`?/${s.pt_products.total_sessions||0}회차`;
     }
     else document.getElementById('siSession').textContent='-';
@@ -2198,7 +2200,8 @@ async function siCancelCompleted(){
     return;
   }
   _siCancelCompletedPending=false;
-  if(btn)btn.disabled=true;
+  // FIX-6 2차결함 방어: 전체 액션 버튼 즉시 disabled (siRollback 동시 탭 차단)
+  document.getElementById('siActions')?.querySelectorAll('button').forEach(b=>b.disabled=true);
   try{
     const{data,error}=await db.rpc('cancel_completed_session',{p_schedule_id:_siTarget.id});
     if(error||!data?.ok)throw new Error(error?.message||data?.error||'취소 실패');
@@ -2226,7 +2229,8 @@ async function siRollback(){
     return;
   }
   _siRollbackPending=false;
-  if(btn)btn.disabled=true;
+  // FIX-6 2차결함 방어: 전체 액션 버튼 즉시 disabled (siCancelCompleted 동시 탭 차단)
+  document.getElementById('siActions')?.querySelectorAll('button').forEach(b=>b.disabled=true);
   try{
     const{data,error}=await db.rpc('rollback_session',{p_schedule_id:_siTarget.id});
     if(error||!data?.ok)throw new Error(error?.message||data?.error||'롤백 실패');

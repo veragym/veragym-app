@@ -178,10 +178,15 @@ async function routinePickerOpen(options) {
       nameSpan.style.cssText = 'flex:1;font-size:14px;color:#e0eaf4;';
       nameSpan.textContent = r.name;
       item.appendChild(nameSpan);
+      const copyBtn = document.createElement('button');
+      copyBtn.textContent = '링크복사';
+      copyBtn.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:6px;background:transparent;border:1px solid #1e3a5f44;color:#8aa8c4;cursor:pointer;margin-left:4px;font-family:inherit;flex-shrink:0;';
+      copyBtn.addEventListener('click', (ev) => { ev.stopPropagation(); copyShareLink(r.id, 'trainer_routines'); });
       const dateSpan = document.createElement('span');
       dateSpan.style.cssText = 'font-size:11px;color:#8aa8c4;';
       dateSpan.textContent = r.created_at.slice(0,10);
       item.appendChild(dateSpan);
+      item.appendChild(copyBtn);
       fragment.appendChild(item);
     });
     list.appendChild(fragment); // 단 1회 DOM 삽입
@@ -241,6 +246,73 @@ async function routinePickerOpen(options) {
    exercises: 현재 exercises 배열
    trainerId: string
 ───────────────────────────────────────────── */
+// ─── 루틴 공유 링크 유틸 ───────────────────────────────────────
+/**
+ * URL에서 share_code(r 파라미터) 추출
+ */
+function shareCodeFromUrl(url) {
+  try {
+    const u = new URL(url);
+    return u.searchParams.get('r') || null;
+  } catch {
+    // 전체 URL이 아닌 경우 코드 자체일 수 있음
+    const trimmed = url.trim();
+    if (/^[A-Z0-9]{8}$/i.test(trimmed)) return trimmed.toUpperCase();
+    return null;
+  }
+}
+
+/**
+ * 루틴의 공유 링크 생성
+ * @param {string} routineId
+ * @param {'trainer_routines'|'member_routines'} table
+ * @returns {Promise<string|null>}
+ */
+async function getShareLink(routineId, table = 'trainer_routines') {
+  try {
+    const { data, error } = await db.from(table).select('share_code').eq('id', routineId).single();
+    if (error || !data?.share_code) { console.error('getShareLink', error); return null; }
+    return `${location.origin}/share?r=${data.share_code}`;
+  } catch (e) {
+    console.error('getShareLink failed:', e);
+    return null;
+  }
+}
+
+/**
+ * 공유 링크 또는 코드로 루틴 조회
+ * @param {string} urlOrCode - 공유 링크 전체 또는 8자리 코드
+ * @returns {Promise<{routine_name, owner_name, source_type, exercises}|null>}
+ */
+async function lookupByShareLink(urlOrCode) {
+  try {
+    const code = shareCodeFromUrl(urlOrCode);
+    if (!code) return null;
+    const { data, error } = await db.rpc('lookup_routine_by_share_code', { p_code: code });
+    if (error) { console.error('lookupByShareLink', error); return null; }
+    return data || null;
+  } catch (e) {
+    console.error('lookupByShareLink failed:', e);
+    return null;
+  }
+}
+
+/**
+ * 클립보드에 공유 링크 복사
+ * @param {string} routineId
+ * @param {'trainer_routines'|'member_routines'} table
+ */
+async function copyShareLink(routineId, table = 'trainer_routines') {
+  const link = await getShareLink(routineId, table);
+  if (!link) { showToast('링크 생성에 실패했습니다.'); return; }
+  try {
+    await navigator.clipboard.writeText(link);
+    showToast('링크가 복사되었습니다.');
+  } catch {
+    showToast('복사 실패. 직접 복사해주세요: ' + link);
+  }
+}
+
 function routineSaveModalOpen(trainerId, exercises) {
   if (!exercises || exercises.length === 0) {
     if (window.showToast) showToast('운동을 먼저 추가해 주세요');

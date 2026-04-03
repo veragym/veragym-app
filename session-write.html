@@ -362,6 +362,77 @@ body {
 .wm-chip { font-size:12px; font-weight:700; border:1.5px solid #1e3a5f44; border-radius:10px; cursor:pointer; flex:1; height:38px; transition:background 0.15s; }
 .wm-total { background:#1e3a5f; color:#60a5fa; }
 .wm-single { background:#1a3a20; color:#4ade80; }
+
+/* 루틴 공유 링크 */
+.import-link-card {
+  background: #141f35;
+  border: 1px solid #1e3a5f44;
+  border-radius: 12px;
+  padding: 14px;
+  margin: 6px 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.import-link-card input[type="text"] {
+  background: #0d1a2e;
+  border: 1px solid #1e3a5f44;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  outline: none;
+}
+.import-link-card input[type="text"]:focus { border-color: #3b82f6; }
+.import-link-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.import-link-actions .btn-add {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  background: #3b82f6;
+  color: #fff;
+  font-family: inherit;
+}
+.import-link-actions .btn-cancel {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  background: #1e2e3e;
+  color: #8aa8c4;
+  font-family: inherit;
+}
+.btn-link-copy {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid #1e3a5f44;
+  color: #8aa8c4;
+  cursor: pointer;
+  margin-left: 6px;
+  font-family: inherit;
+}
+.btn-link-import {
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid #3b82f6;
+  color: #60a5fa;
+  cursor: pointer;
+  font-family: inherit;
+}
 </style>
 </head>
 <body>
@@ -428,6 +499,16 @@ body {
       onclick="routineSaveModalOpen(trainer?.id, exercises)">
       루틴으로 저장
     </button>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+    <button class="btn-link-import" onclick="toggleTrainerImportCard()">링크로 루틴 추가</button>
+  </div>
+  <div id="trainerImportCard" class="import-link-card" style="display:none;">
+    <input type="text" id="trainerLinkInput" placeholder="공유 링크를 여기에 붙여넣기" />
+    <div class="import-link-actions">
+      <button class="btn-cancel" onclick="toggleTrainerImportCard()">취소</button>
+      <button class="btn-add" onclick="doImportRoutineByLink()">추가</button>
+    </div>
   </div>
 </div>
 
@@ -1297,6 +1378,47 @@ async function loadRoutineExercises(routineExs) {
   });
   renderExercises();
   showToast(`루틴 운동 ${routineExs.length}개 불러옴`);
+}
+
+// ─── 링크로 루틴 가져오기 ───
+function toggleTrainerImportCard() {
+  const card = document.getElementById('trainerImportCard');
+  if (!card) return;
+  const isHidden = card.style.display === 'none';
+  card.style.display = isHidden ? 'flex' : 'none';
+  if (isHidden) {
+    const input = document.getElementById('trainerLinkInput');
+    if (input) { input.value = ''; input.focus(); }
+  }
+}
+
+async function doImportRoutineByLink() {
+  const input = document.getElementById('trainerLinkInput');
+  if (!input || !input.value.trim()) { showToast('링크를 먼저 붙여넣어 주세요.'); return; }
+  const preview = await lookupByShareLink(input.value.trim());
+  if (!preview) { showToast('유효하지 않은 링크입니다.'); return; }
+
+  const exList = (preview.exercises || []).map(ex => ({
+    refId: ex.exercise_ref_id,
+    name: ex.name_ko,
+    part: ex.part,
+    tool: ex.tool || '',
+    weight_mode: ex.weight_mode || 'total'
+  }));
+  const routineName = preview.routine_name + ' (공유)';
+
+  try {
+    const ok = await routineSave(trainer?.id, routineName, exList);
+    if (ok) {
+      showToast('루틴을 가져왔습니다!');
+      toggleTrainerImportCard();
+    } else {
+      showToast('루틴 추가에 실패했습니다.');
+    }
+  } catch (e) {
+    console.error('doImportRoutineByLink', e);
+    showToast('루틴 추가에 실패했습니다.');
+  }
 }
 </script>
 </body>
