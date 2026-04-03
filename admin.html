@@ -2138,9 +2138,8 @@ function scRenderDayView(){
         const sType=s.type||'PT';
         let stxt='';
         if((sType==='PT'||sType==='SPT')&&s.pt_products){
-          const u=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
-          const offset=s.status==='scheduled'?1:0;
-          stxt=`${sType} ${u+offset}/${s.pt_products.total_sessions||0}`;
+          const ps=calcPtSession(s,scData);
+          stxt=`${sType} ${ps.num!=null?ps.num:'?'}/${ps.total}`;
         }
         const memName=s.members?.name||sType;
         const sid=s.id;
@@ -2185,13 +2184,6 @@ function scRenderCal(){
   }
   timeCol+=`<div style="position:absolute;top:${TOTAL}px;width:1px;height:1px"></div></div>`;
 
-  // 예약 중 PT 세션 오프셋 계산 (trainer-dash와 동일 방식)
-  const _scPtSorted=scData.filter(s=>s.type==='PT'&&s.status==='scheduled'&&s.pt_product_id)
-    .sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
-  const _scPtOffsetMap=new Map();
-  const _scPtCnt={};
-  _scPtSorted.forEach(s=>{const k=s.pt_product_id;if(!_scPtCnt[k])_scPtCnt[k]=0;_scPtOffsetMap.set(s.id,_scPtCnt[k]++);});
-
   // 날짜 컬럼
   const dayCols=days.map(d=>{
     const ymd=scYMD(d),isT=ymd===todayISO;
@@ -2219,7 +2211,7 @@ function scRenderCal(){
       const memName=s.members?.name||'';
       const trainerName=s.trainers?.name||'';
       let stxt='';
-      if(sType==='PT'&&s.pt_products){const u=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);const offset=s.status==='scheduled'?(_scPtOffsetMap.get(s.id)||0):0;stxt=`${u+offset}/${s.pt_products.total_sessions||0}`;}
+      if(sType==='PT'&&s.pt_products){const ps=calcPtSession(s,scData);stxt=`${ps.num!=null?ps.num:'?'}/${ps.total}`;}
       const line1=memName||sType;
       // PT: 항상 회차 표시. 전체 트레이너 시 트레이너명 앞에 붙임
       let line2='';
@@ -2253,7 +2245,7 @@ function scRenderList(){
       const tStr=s.start_time?s.start_time.slice(0,5):'--:--';
       const dur=scDurMin(s.start_time,s.end_time);
       const sType=s.type||'PT';
-      let stxt='';if(sType==='PT'&&s.pt_products){const u=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);stxt=` ${u}/${s.pt_products.total_sessions||0}`;}
+      let stxt='';if(sType==='PT'&&s.pt_products){const ps=calcPtSession(s,scData);stxt=` ${ps.num!=null?ps.num:'?'}/${ps.total}`;}
       const memberLine=s.members?.name?`${s.members.name} <span class="sc-card-dur">${sType}${stxt} (${dur}분)</span>`:`<span class="sc-card-dur">${sType} (${dur}분)</span>`;
       html+=`<div class="sc-card">
         <div class="sc-card-top">
@@ -2299,15 +2291,8 @@ function scOpenInfo(sched){
   document.getElementById('scInfoStatus').innerHTML=`<span style="background:${scBg[sc]||'#22222222'};border:1px solid ${scColor[sc]||'#666'}44;color:${scColor[sc]||'#666'};padding:3px 12px;border-radius:99px;font-size:12px;font-weight:700;">${SC_SL[sc]||sc}</span>`;
   let sessTxt='-';
   if(sched.pt_products){
-    const u=(sched.pt_products.total_sessions||0)-(sched.pt_products.remaining_sessions||0);
-    let infoOffset=0;
-    if(sched.status==='scheduled'&&sched.type==='PT'&&sched.pt_product_id){
-      const ptSorted=scData.filter(x=>x.type==='PT'&&x.status==='scheduled'&&x.pt_product_id===sched.pt_product_id)
-        .sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
-      infoOffset=ptSorted.findIndex(x=>x.id===sched.id);
-      if(infoOffset<0)infoOffset=0;
-    }
-    sessTxt=`${u+infoOffset}/${sched.pt_products.total_sessions||0}회 사용`;
+    const ps=calcPtSession(sched,scData);
+    sessTxt=`${ps.num!=null?ps.num:'?'}/${ps.total}회 사용`;
   }
   document.getElementById('scInfoDetail').innerHTML=`
     <div class="sc-dr"><span class="sc-dl">날짜/시간</span><span class="sc-dv">${mo}/${d}(${SC_DAY[dateObj.getDay()]}) ${tStr} (${dur}분)</span></div>
@@ -2596,11 +2581,9 @@ function drawBranchCanvas(dateStr){
       ctx.fillStyle='#222';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';
       if(sType==='PT'||sType==='SPT'){
         const name=cleanName(sess.members?.name||sess.notes||'');
-        const usedM=(sess.pt_products?.total_sessions||0)-(sess.pt_products?.remaining_sessions||0);
-        const total=sess.pt_products?.total_sessions||0;
-        const num=sess.status==='scheduled'?usedM+1:usedM;
+        const ps=calcPtSession(sess,_bsSchedules);
         ctx.fillText(name||sType,cellX+COL_W/2,rowY+ROW_H/2-3);
-        ctx.fillStyle='#111';ctx.font=`9px ${FONT}`;ctx.fillText(sType==='SPT'?'SPT':(total>0?`PT${num}/${total}`:'PT'),cellX+COL_W/2,rowY+ROW_H/2+8);
+        ctx.fillStyle='#111';ctx.font=`9px ${FONT}`;ctx.fillText(sType==='SPT'?'SPT':(ps.total>0?`PT${ps.num!=null?ps.num:'?'}/${ps.total}`:'PT'),cellX+COL_W/2,rowY+ROW_H/2+8);
         if(sType==='SPT')cntSPT++;else cntPT++;
       }else{
         ctx.fillText(sType,cellX+COL_W/2,rowY+ROW_H/2+4);

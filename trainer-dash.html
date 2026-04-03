@@ -1257,15 +1257,6 @@ function renderCalGrid(dates){
   // 마지막 라인 표시용 더미
   timeCol+=`<div style="position:absolute;top:${TOTAL_PX}px;width:1px;height:1px"></div></div>`;
   // ── 예약 중 PT 세션 오프셋 계산 (오늘 이후 scheduled만 시간순 정렬, +1씩)
-  // 과거 미완료 scheduled가 오늘 수업 회차를 밀어올리지 않도록 오늘부터만 포함 (전체시간표와 동일 기준)
-  const _todayYMD=toYMD(new Date());
-  const _ptSorted=scheduleData
-    .filter(s=>s.type==='PT'&&s.status==='scheduled'&&s.pt_product_id&&s.sched_date>=_todayYMD)
-    .sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
-  const _ptOffsetMap=new Map();
-  const _ptCnt={};
-  _ptSorted.forEach(s=>{const k=s.pt_product_id;if(!_ptCnt[k])_ptCnt[k]=0;_ptOffsetMap.set(s.id,_ptCnt[k]++);});
-
   // ── 날짜 컬럼 (absolute 이벤트 포지셔닝) ──
   const dayCols=dates.map(d=>{
     const ymd=toYMD(d),isToday=ymd===todayYMD;
@@ -1308,10 +1299,8 @@ function renderCalGrid(dates){
       }
       let sessionTxt='';
       if(sType==='PT'&&s.pt_products){
-        const used=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
-        const offset=s.status==='scheduled'?(_ptOffsetMap.get(s.id)||0):0;
-        const sessionNum=s.status==='scheduled'?used+offset+1:(s.session_number??null);
-        sessionTxt=sessionNum!=null?` ${sessionNum}/${s.pt_products.total_sessions||0}`:` ?/${s.pt_products.total_sessions||0}`;
+        const ps=calcPtSession(s,scheduleData);
+        sessionTxt=ps.num!=null?` ${ps.num}/${ps.total}`:` ?/${ps.total}`;
       }
       let evLine1,evLine2;
       if(sType==='PT'){
@@ -1916,15 +1905,13 @@ function drawBranchCanvas(dateStr){
       ctx.textAlign='center';
       if(sType==='PT'||sType==='SPT'){
         const name=cleanName(sess.members?.name||sess.notes||'');
-        const usedM=(sess.pt_products?.total_sessions||0)-(sess.pt_products?.remaining_sessions||0);
-        const total=sess.pt_products?.total_sessions||0;
-        const sessionNumM=sess.status==='scheduled'?usedM+1:usedM;
+        const ps=calcPtSession(sess,scheduleData);
         const line1Y=rowY+ROW_H/2-6;
         const line2Y=rowY+ROW_H/2+9;
         ctx.fillStyle='#111';ctx.font=`bold 11px ${FONT}`;
         ctx.fillText(name||sType,cellX+COL_W/2,line1Y);
         ctx.fillStyle='#111';ctx.font=`10px ${FONT}`;
-        ctx.fillText(sType==='SPT'?'SPT':(total>0?`PT${sessionNumM}/${total}`:'PT'),cellX+COL_W/2,line2Y);
+        ctx.fillText(sType==='SPT'?'SPT':(ps.total>0?`PT${ps.num!=null?ps.num:'?'}/${ps.total}`:'PT'),cellX+COL_W/2,line2Y);
         if(sType==='SPT')cntSPT++;else cntPT++;
       }else{
         ctx.fillStyle='#333';ctx.font=`bold 10px ${FONT}`;
@@ -2035,17 +2022,8 @@ function openSchedInfo(schedId){
   if(s.type==='PT'){
     sessRow.style.display='flex';
     if(s.pt_products){
-      const used=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
-      // scheduled 상태면 같은 pt_product 중 앞에 있는 예약 수만큼 +N+1 표시
-      // 오늘 이후 scheduled만 기준 (과거 미완료 scheduled가 회차 번호를 밀지 않도록)
-      const _siTodayYMD=toYMD(new Date());
-      const ptSorted=scheduleData.filter(x=>x.type==='PT'&&x.status==='scheduled'&&x.pt_product_id===s.pt_product_id&&x.sched_date>=_siTodayYMD).sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
-      const inViewIdx=ptSorted.findIndex(x=>x.id===s.id);
-      const offset=s.status==='scheduled'?(s.sched_date>=_siTodayYMD?(inViewIdx>=0?inViewIdx:0):0):0;
-      // 어제 미완료 scheduled 수업은 offset 계산 불가 → ?/N회차 표시 (FIX-4 2차결함 방어)
-      const isPastScheduled=s.status==='scheduled'&&s.sched_date<_siTodayYMD;
-      const sessionNum=isPastScheduled?null:s.status==='scheduled'?used+offset+1:(s.session_number??null);
-      document.getElementById('siSession').textContent=sessionNum!=null?`${sessionNum}/${s.pt_products.total_sessions||0}회차`:`?/${s.pt_products.total_sessions||0}회차`;
+      const ps=calcPtSession(s,scheduleData);
+      document.getElementById('siSession').textContent=ps.num!=null?`${ps.num}/${ps.total}회차`:`?/${ps.total}회차`;
     }
     else document.getElementById('siSession').textContent='-';
   }else{sessRow.style.display='none';}

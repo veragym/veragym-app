@@ -152,6 +152,51 @@ function preventBackExit() {
   }, { once: true });
 }
 
+// ── PT 회차 계산 (통일 함수) ────────────────────────────────
+// schedule: 단일 일정 객체 (pt_products, status, pt_product_id, sched_date, start_time, session_number 필요)
+// allSchedules: 전체 일정 배열 (offset 계산용)
+// 반환: { num: 표시할 회차 (null이면 ?), total: 총 회차 }
+function calcPtSession(schedule, allSchedules) {
+  const pt = schedule.pt_products;
+  if (!pt) return { num: null, total: 0 };
+  const total = pt.total_sessions || 0;
+  const used = total - (pt.remaining_sessions || 0);
+
+  // 완료/노쇼: DB에 기록된 session_number 사용, 없으면 used
+  if (schedule.status === 'completed' || schedule.status === 'noshow') {
+    return { num: schedule.session_number ?? used, total };
+  }
+
+  // 취소: used만 표시
+  if (schedule.status === 'cancelled') {
+    return { num: used, total };
+  }
+
+  // 예약(scheduled): 같은 상품의 예약들 중 몇 번째인지 계산
+  const today = new Date();
+  const todayYMD = today.getFullYear() + '-'
+    + String(today.getMonth() + 1).padStart(2, '0') + '-'
+    + String(today.getDate()).padStart(2, '0');
+
+  // 과거 미완료 예약은 회차 확정 불가
+  if (schedule.sched_date < todayYMD) {
+    return { num: null, total };
+  }
+
+  // 오늘 이후 scheduled 중 같은 pt_product_id만 추출, 날짜+시간순 정렬
+  const sameProd = allSchedules
+    .filter(s => s.type === 'PT'
+      && s.status === 'scheduled'
+      && s.pt_product_id === schedule.pt_product_id
+      && s.sched_date >= todayYMD)
+    .sort((a, b) => (a.sched_date + a.start_time) < (b.sched_date + b.start_time) ? -1 : 1);
+
+  const idx = sameProd.findIndex(s => s.id === schedule.id);
+  const offset = idx >= 0 ? idx : 0;
+
+  return { num: used + offset + 1, total };
+}
+
 // ── XSS 방어 이스케이프 유틸 ────────────────────────────────
 function esc(str) {
   if (str == null) return '';
