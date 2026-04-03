@@ -333,6 +333,77 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 
 /* ── Toast ───────────────────────────────────────────────── */
 .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#111f11; color:#4ade80; border:1px solid #4ade8044; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; }
+
+/* 루틴 공유 링크 */
+.import-link-card {
+  background: #0d1a0d;
+  border: 1px solid #1a3a1a44;
+  border-radius: 12px;
+  padding: 14px;
+  margin: 6px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.import-link-card input[type="text"] {
+  background: #080e08;
+  border: 1px solid #1a3a1a55;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  outline: none;
+}
+.import-link-card input[type="text"]:focus { border-color: #4ade80; }
+.import-link-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.import-link-actions .btn-add {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  background: #4CAF50;
+  color: #fff;
+  font-family: inherit;
+}
+.import-link-actions .btn-cancel {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  background: #1a3a1a44;
+  color: #3a5840;
+  font-family: inherit;
+}
+.btn-link-copy {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid #1a3a1a44;
+  color: #3a5840;
+  cursor: pointer;
+  margin-left: 6px;
+  font-family: inherit;
+}
+.btn-link-import {
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid #4ade80;
+  color: #4ade80;
+  cursor: pointer;
+  font-family: inherit;
+}
 </style>
 </head>
 <body>
@@ -465,8 +536,16 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     </div>
     <!-- 루틴 -->
     <div id="exSubRoutine" class="ex-sub-content">
-      <div style="display:flex;justify-content:flex-end;padding:12px 14px 0;">
+      <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:12px 14px 0;">
+        <button class="btn-link-import" onclick="toggleMemberImportCard()">링크로 루틴 추가</button>
         <button class="rt-new-btn" onclick="rtStartNew()">+ 새 루틴</button>
+      </div>
+      <div id="memberImportCard" class="import-link-card" style="display:none;">
+        <input type="text" id="memberLinkInput" placeholder="공유 링크를 여기에 붙여넣기" />
+        <div class="import-link-actions">
+          <button class="btn-cancel" onclick="toggleMemberImportCard()">취소</button>
+          <button class="btn-add" onclick="doMemberImportRoutineByLink()">추가</button>
+        </div>
       </div>
       <div id="routineList" style="padding:0 14px 16px;"><div class="loading">불러오는 중...</div></div>
     </div>
@@ -580,6 +659,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
+<script src="routine-utils.js"></script>
 <script>
 init_db();
 
@@ -649,6 +729,33 @@ async function init() {
   else token = localStorage.getItem('vg_member_token');
   if (!token) { showError(); return; }
   _memberToken = token;
+
+  // ── iOS PWA 홈화면 추가 대응 ─────────────────────────────
+  // iOS standalone 모드는 Safari와 localStorage를 공유하지 않아
+  // 홈화면 아이콘으로 열면 토큰이 사라짐.
+  // manifest start_url에 토큰을 직접 포함시키면 iOS가 그 URL을 저장 →
+  // 홈화면 실행 시 ?token=xxx 포함된 URL로 열려 정상 동작.
+  try {
+    const _dynManifest = JSON.stringify({
+      name: 'VERA GYM 회원', short_name: '베라짐',
+      id: 'veragym-member',
+      description: 'VERA GYM 회원 수업 기록 확인',
+      start_url: `${location.origin}/veragym-app/member-view.html?token=${encodeURIComponent(token)}`,
+      scope: '/veragym-app/',
+      display: 'standalone',
+      orientation: 'portrait',
+      background_color: '#080e1a',
+      theme_color: '#3b82f6',
+      icons: [
+        { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+        { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+      ]
+    });
+    const _mBlob = new Blob([_dynManifest], { type: 'application/json' });
+    const _mUrl = URL.createObjectURL(_mBlob);
+    const _mEl = document.querySelector('link[rel="manifest"]');
+    if (_mEl) _mEl.setAttribute('href', _mUrl);
+  } catch(_e) { /* 무시 */ }
 
   const { data, error } = await db.rpc('member_get_by_token', { p_token: token });
   if (error || !data || !data.length) { showError(); return; }
@@ -1100,6 +1207,7 @@ async function rtRenderRoutines() {
       </div>
       <div class="rt-card-bottom">
         <span class="rt-card-info">${r.exs.length}개 운동 · ${(r.created_at||'').slice(0,10)}</span>
+        <button class="btn-link-copy" onclick="event.stopPropagation();copyShareLink('${r.id}','member_routines')">링크복사</button>
         <button class="rt-card-add-btn" onclick="rtOpenAddEx('${r.id}','${esc(r.name)}',${r.exs.length})">운동 추가</button>
       </div>
     </div>
@@ -2101,6 +2209,49 @@ function fmtDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   const DAYS = ['일','월','화','수','목','금','토'];
   return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${DAYS[d.getDay()]})`;
+}
+
+// ─── 링크로 루틴 가져오기 ───
+function toggleMemberImportCard() {
+  const card = document.getElementById('memberImportCard');
+  if (!card) return;
+  const isHidden = card.style.display === 'none';
+  card.style.display = isHidden ? 'flex' : 'none';
+  if (isHidden) {
+    const input = document.getElementById('memberLinkInput');
+    if (input) { input.value = ''; input.focus(); }
+  }
+}
+
+async function doMemberImportRoutineByLink() {
+  const input = document.getElementById('memberLinkInput');
+  if (!input || !input.value.trim()) { showToast('링크를 먼저 붙여넣어 주세요.'); return; }
+  const preview = await lookupByShareLink(input.value.trim());
+  if (!preview) { showToast('유효하지 않은 링크입니다.'); return; }
+
+  const exercises = (preview.exercises || []).map(ex => ({
+    exercise_ref_id: ex.exercise_ref_id,
+    name_ko: ex.name_ko,
+    part: ex.part,
+    tool: ex.tool || '',
+    weight_mode: ex.weight_mode || 'total'
+  }));
+
+  try {
+    const { error } = await db.rpc('member_save_routine', {
+      p_token: _memberToken,
+      p_name: preview.routine_name + ' (공유)',
+      p_exercises: exercises
+    });
+    if (error) throw error;
+    showToast('루틴을 가져왔습니다!');
+    toggleMemberImportCard();
+    _rtLoaded = false;
+    rtLoadRoutines();
+  } catch (e) {
+    console.error('doMemberImportRoutineByLink', e);
+    showToast('루틴 추가에 실패했습니다.');
+  }
 }
 
 init();

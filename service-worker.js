@@ -1,5 +1,5 @@
 // VERA GYM App - Service Worker
-const CACHE_NAME = 'veragym-app-v41';
+const CACHE_NAME = 'veragym-app-v42';
 const IMG_CACHE  = 'veragym-app-img-v1'; // 운동 이미지 전용 캐시 (별도 관리)
 const MAX_IMG_ENTRIES = 200; // 이미지 캐시 최대 항목 수 (~50MB 기준)
 
