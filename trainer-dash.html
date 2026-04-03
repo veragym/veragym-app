@@ -1201,6 +1201,7 @@ window.addEventListener('pageshow', (e) => {
 // ══════════ 일정 탭 – 구글캘린더 그리드 (오늘~3일 후, 고정) ══════════
 const CAL_START_H=6,CAL_END_H=23,CAL_SLOT_PX=56;
 let scheduleData=[],myMembersForSched=[],_schedEditId=null,_midnightTimer=null;
+let _ptPreOffsetMap = new Map(); // pt_product_id → 뷰 시작일 이전 scheduled 수 (BUG1 fix)
 const TYPE_COLORS={PT:'#6c63ff',SPT:'#ffd54f',업무:'#81c784',청소:'#42a5f5',홍보:'#f06292',식사:'#ef9a9a'};
 const DAY_KO=['일','월','화','수','목','금','토'];
 // 로컬 타임존 기준 YYYY-MM-DD (toISOString은 UTC → KST +9 시차 버그)
@@ -1224,6 +1225,29 @@ async function loadScheduleView(){
     .gte('sched_date',toYMD(dates[0])).lte('sched_date',toYMD(dates[3])).order('start_time');
   if(error){await handleDbError(error,'일정 불러오기 실패');scheduleData=[];}
   else scheduleData=data||[];
+
+  // BUG1: 뷰 밖 scheduled 수업 수 조회 (회차 번호 정확성)
+  _ptPreOffsetMap = new Map();
+  const _ptProductIdsInView = [...new Set(
+    scheduleData
+      .filter(s => s.type === 'PT' && s.status === 'scheduled' && s.pt_product_id)
+      .map(s => s.pt_product_id)
+  )];
+  if (_ptProductIdsInView.length) {
+    const viewStart = toYMD(dates[0]);
+    const { data: preScheds } = await db
+      .from('schedules')
+      .select('pt_product_id')
+      .in('pt_product_id', _ptProductIdsInView)
+      .eq('status', 'scheduled')
+      .lt('sched_date', viewStart);
+    if (preScheds) {
+      preScheds.forEach(s => {
+        _ptPreOffsetMap.set(s.pt_product_id, (_ptPreOffsetMap.get(s.pt_product_id) || 0) + 1);
+      });
+    }
+  }
+
   renderCalGrid(dates);
   scheduleMidnightRefresh();
 }
@@ -1261,7 +1285,12 @@ function renderCalGrid(dates){
     .sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
   const _ptOffsetMap=new Map();
   const _ptCnt={};
-  _ptSorted.forEach(s=>{const k=s.pt_product_id;if(!_ptCnt[k])_ptCnt[k]=0;_ptOffsetMap.set(s.id,_ptCnt[k]++);});
+  _ptSorted.forEach(s=>{
+    const k=s.pt_product_id;
+    const preOff=_ptPreOffsetMap.get(k)||0;
+    if(!_ptCnt[k])_ptCnt[k]=0;
+    _ptOffsetMap.set(s.id, preOff+_ptCnt[k]++);
+  });
 
   // ── 날짜 컬럼 (absolute 이벤트 포지셔닝) ──
   const dayCols=dates.map(d=>{
@@ -1307,8 +1336,8 @@ function renderCalGrid(dates){
       if(sType==='PT'&&s.pt_products){
         const used=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
         const offset=s.status==='scheduled'?(_ptOffsetMap.get(s.id)||0):0;
-        const sessionNum=s.status==='scheduled'?used+offset+1:(s.session_number||used);
-        sessionTxt=` ${sessionNum}/${s.pt_products.total_sessions||0}`;
+        const sessionNum=s.status==='scheduled'?used+offset+1:(s.session_number??null);
+        sessionTxt=sessionNum!=null?` ${sessionNum}/${s.pt_products.total_sessions||0}`:` ?/${s.pt_products.total_sessions||0}`;
       }
       let evLine1,evLine2;
       if(sType==='PT'){
@@ -2035,9 +2064,11 @@ function openSchedInfo(schedId){
       const used=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
       // scheduled 상태면 같은 pt_product 중 앞에 있는 예약 수만큼 +N+1 표시
       const ptSorted=scheduleData.filter(x=>x.type==='PT'&&x.status==='scheduled'&&x.pt_product_id===s.pt_product_id).sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
-      const offset=s.status==='scheduled'?ptSorted.findIndex(x=>x.id===s.id):0;
-      const sessionNum=s.status==='scheduled'?used+(offset>=0?offset:0)+1:(s.session_number||used);
-      document.getElementById('siSession').textContent=`${sessionNum}/${s.pt_products.total_sessions||0}회차`;
+      const preOff=_ptPreOffsetMap.get(s.pt_product_id)||0;
+      const inViewIdx=ptSorted.findIndex(x=>x.id===s.id);
+      const offset=s.status==='scheduled'?preOff+(inViewIdx>=0?inViewIdx:0):0;
+      const sessionNum=s.status==='scheduled'?used+offset+1:(s.session_number??null);
+      document.getElementById('siSession').textContent=sessionNum!=null?`${sessionNum}/${s.pt_products.total_sessions||0}회차`:`?/${s.pt_products.total_sessions||0}회차`;
     }
     else document.getElementById('siSession').textContent='-';
   }else{sessRow.style.display='none';}
@@ -2126,6 +2157,8 @@ async function siAction(action){
       closeSchedInfo();
       showToast(action==='complete'?'수업 완료 처리되었습니다':'노쇼 처리되었습니다');
       await loadScheduleView();
+      // BUG3 fix: 회원 탭 PT 잔여수업수 캐시 무효화 + 갱신
+      try { _tabCache.members = 0; if (typeof loadMembers === 'function') await loadMembers(); } catch(e) { console.warn('member refresh after session complete:', e); }
       // 수업일지 연결 모달: PT 완료 시에만 (SPT·기타는 개인 일지 없음)
       if(action==='complete'&&schedType==='PT'&&memberId){
         await openLinkLogModal(targetId,memberId,schedDate,memberName);
@@ -2136,6 +2169,8 @@ async function siAction(action){
       closeSchedInfo();
       showToast('예약이 취소되었습니다');
       await loadScheduleView();
+      // BUG3 fix: 회원 탭 캐시 무효화
+      _tabCache.members = 0;
     }
   }catch(e){
     errEl.textContent=e.message;errEl.style.display='block';
@@ -2167,6 +2202,7 @@ async function siToggleNoshow(){
     renderCalGrid(getCalDates());
     showToast(newStatus==='noshow'?'노쇼로 변경됐습니다':'완료로 변경됐습니다');
     await loadScheduleView();
+    _tabCache.members = 0; // BUG3 fix
   }catch(e){
     if(errEl){errEl.textContent=e.message;errEl.style.display='block';}
     if(btn){btn.disabled=false;btn.style.opacity='1';}
@@ -2194,6 +2230,7 @@ async function siCancelCompleted(){
     closeSchedInfo();
     showToast('예약이 취소됐습니다 (잔여 횟수 복원)');
     await loadScheduleView();
+    _tabCache.members = 0; // BUG3 fix
   }catch(e){
     errEl.textContent=e.message;errEl.style.display='block';
     if(btn)btn.disabled=false;
@@ -2221,6 +2258,7 @@ async function siRollback(){
     closeSchedInfo();
     showToast('수업이 예약 상태로 복원됐습니다');
     await loadScheduleView();
+    _tabCache.members = 0; // BUG3 fix
   }catch(e){
     errEl.textContent=e.message;errEl.style.display='block';
     if(btn)btn.disabled=false;
