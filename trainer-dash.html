@@ -1201,7 +1201,6 @@ window.addEventListener('pageshow', (e) => {
 // ══════════ 일정 탭 – 구글캘린더 그리드 (오늘~3일 후, 고정) ══════════
 const CAL_START_H=6,CAL_END_H=23,CAL_SLOT_PX=56;
 let scheduleData=[],myMembersForSched=[],_schedEditId=null,_midnightTimer=null;
-let _ptPreOffsetMap = new Map(); // pt_product_id → 뷰 시작일 이전 scheduled 수 (BUG1 fix)
 const TYPE_COLORS={PT:'#6c63ff',SPT:'#ffd54f',업무:'#81c784',청소:'#42a5f5',홍보:'#f06292',식사:'#ef9a9a'};
 const DAY_KO=['일','월','화','수','목','금','토'];
 // 로컬 타임존 기준 YYYY-MM-DD (toISOString은 UTC → KST +9 시차 버그)
@@ -1225,28 +1224,6 @@ async function loadScheduleView(){
     .gte('sched_date',toYMD(dates[0])).lte('sched_date',toYMD(dates[3])).order('start_time');
   if(error){await handleDbError(error,'일정 불러오기 실패');scheduleData=[];}
   else scheduleData=data||[];
-
-  // BUG1: 뷰 밖 scheduled 수업 수 조회 (회차 번호 정확성)
-  _ptPreOffsetMap = new Map();
-  const _ptProductIdsInView = [...new Set(
-    scheduleData
-      .filter(s => s.type === 'PT' && s.status === 'scheduled' && s.pt_product_id)
-      .map(s => s.pt_product_id)
-  )];
-  if (_ptProductIdsInView.length) {
-    const viewStart = toYMD(dates[0]);
-    const { data: preScheds } = await db
-      .from('schedules')
-      .select('pt_product_id')
-      .in('pt_product_id', _ptProductIdsInView)
-      .eq('status', 'scheduled')
-      .lt('sched_date', viewStart);
-    if (preScheds) {
-      preScheds.forEach(s => {
-        _ptPreOffsetMap.set(s.pt_product_id, (_ptPreOffsetMap.get(s.pt_product_id) || 0) + 1);
-      });
-    }
-  }
 
   renderCalGrid(dates);
   scheduleMidnightRefresh();
@@ -1279,18 +1256,15 @@ function renderCalGrid(dates){
   }
   // 마지막 라인 표시용 더미
   timeCol+=`<div style="position:absolute;top:${TOTAL_PX}px;width:1px;height:1px"></div></div>`;
-  // ── 예약 중 PT 세션 오프셋 계산 (같은 pt_product_id의 scheduled 건을 시간순 정렬 후 +1씩) ──
+  // ── 예약 중 PT 세션 오프셋 계산 (오늘 이후 scheduled만 시간순 정렬, +1씩)
+  // 과거 미완료 scheduled가 오늘 수업 회차를 밀어올리지 않도록 오늘부터만 포함 (전체시간표와 동일 기준)
+  const _todayYMD=toYMD(new Date());
   const _ptSorted=scheduleData
-    .filter(s=>s.type==='PT'&&s.status==='scheduled'&&s.pt_product_id)
+    .filter(s=>s.type==='PT'&&s.status==='scheduled'&&s.pt_product_id&&s.sched_date>=_todayYMD)
     .sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
   const _ptOffsetMap=new Map();
   const _ptCnt={};
-  _ptSorted.forEach(s=>{
-    const k=s.pt_product_id;
-    const preOff=_ptPreOffsetMap.get(k)||0;
-    if(!_ptCnt[k])_ptCnt[k]=0;
-    _ptOffsetMap.set(s.id, preOff+_ptCnt[k]++);
-  });
+  _ptSorted.forEach(s=>{const k=s.pt_product_id;if(!_ptCnt[k])_ptCnt[k]=0;_ptOffsetMap.set(s.id,_ptCnt[k]++);});
 
   // ── 날짜 컬럼 (absolute 이벤트 포지셔닝) ──
   const dayCols=dates.map(d=>{
@@ -2063,10 +2037,11 @@ function openSchedInfo(schedId){
     if(s.pt_products){
       const used=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
       // scheduled 상태면 같은 pt_product 중 앞에 있는 예약 수만큼 +N+1 표시
-      const ptSorted=scheduleData.filter(x=>x.type==='PT'&&x.status==='scheduled'&&x.pt_product_id===s.pt_product_id).sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
-      const preOff=_ptPreOffsetMap.get(s.pt_product_id)||0;
+      // 오늘 이후 scheduled만 기준 (과거 미완료 scheduled가 회차 번호를 밀지 않도록)
+      const _siTodayYMD=toYMD(new Date());
+      const ptSorted=scheduleData.filter(x=>x.type==='PT'&&x.status==='scheduled'&&x.pt_product_id===s.pt_product_id&&x.sched_date>=_siTodayYMD).sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
       const inViewIdx=ptSorted.findIndex(x=>x.id===s.id);
-      const offset=s.status==='scheduled'?preOff+(inViewIdx>=0?inViewIdx:0):0;
+      const offset=s.status==='scheduled'?(s.sched_date>=_siTodayYMD?(inViewIdx>=0?inViewIdx:0):0):0;
       const sessionNum=s.status==='scheduled'?used+offset+1:(s.session_number??null);
       document.getElementById('siSession').textContent=sessionNum!=null?`${sessionNum}/${s.pt_products.total_sessions||0}회차`:`?/${s.pt_products.total_sessions||0}회차`;
     }
