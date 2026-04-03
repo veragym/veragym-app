@@ -501,8 +501,8 @@ function renderSearchResults(q) {
   let list = myLibrary;
   if (filterPart) list = list.filter(e => e.part === filterPart);
   if (q.trim()) {
-    const kw = q.trim().toLowerCase();
-    list = list.filter(e => e.name.toLowerCase().includes(kw));
+    const kw = q.trim().toLowerCase().replace(/\s/g, '');
+    list = list.filter(e => e.name.toLowerCase().replace(/\s/g,'').includes(kw));
   }
   if (!list.length) {
     wrap.innerHTML = '<div class="search-empty">해당 조건의 운동이 없어요</div>';

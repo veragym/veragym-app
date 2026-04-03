@@ -653,12 +653,13 @@ function openRoutineAddExerciseModal(routineId, routineName, currentExCount) {
 
   window.renderRoutineAddList = function() {
     const q = (document.getElementById('routineAddSearch')?.value || '').trim().toLowerCase();
+    const qNoSp = q.replace(/\s/g, '');
     let list = allExs;
     if (window._raeFilterPart) list = list.filter(e => e.part_unified === window._raeFilterPart);
     if (window._raeFilterTool) list = list.filter(e => e.tool_unified === window._raeFilterTool);
     if (q) list = list.filter(e =>
-      (e.name_ko||'').toLowerCase().includes(q) ||
-      (e.name_en||'').toLowerCase().includes(q)
+      (e.name_ko||'').toLowerCase().replace(/\s/g,'').includes(qNoSp) ||
+      (e.name_en||'').toLowerCase().replace(/\s/g,'').includes(qNoSp)
     );
 
     const total = list.length;
@@ -784,14 +785,15 @@ function openNewRoutineModal() {
 function renderList() {
   const wrap = document.getElementById('exList');
   const q    = document.getElementById('searchInput').value.trim().toLowerCase();
+  const qNoSp = q.replace(/\s/g, '');
 
   let list = allExs;
   if (curView === 'mine') list = list.filter(e => myLibIds.has(e.id));
   if (filterTool) list = list.filter(e => e.tool_unified === filterTool);
   if (filterPart) list = list.filter(e => e.part_unified === filterPart);
   if (q) list = list.filter(e =>
-    (e.name_ko||'').toLowerCase().includes(q) ||
-    (e.name_en||'').toLowerCase().includes(q)
+    (e.name_ko||'').toLowerCase().replace(/\s/g,'').includes(qNoSp) ||
+    (e.name_en||'').toLowerCase().replace(/\s/g,'').includes(qNoSp)
   );
 
   // 정렬: 즐겨찾기 → use_count → 내 목록 → 나머지

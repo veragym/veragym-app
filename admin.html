@@ -1818,12 +1818,13 @@ function clearExSearch() {
 
 function filterExercise() {
   const q = (document.getElementById('exSearch')?.value || '').trim().toLowerCase();
+  const qNoSp = q.replace(/\s/g, '');
   document.getElementById('exClear').style.display = q ? '' : 'none';
   let list = _allExercises;
   if (_exToolFilter !== '전체') list = list.filter(e => e.tool_unified === _exToolFilter);
   if (_exPartFilter !== '전체') list = list.filter(e => e.part_unified === _exPartFilter);
   if (q) list = list.filter(e =>
-    e.name_ko?.toLowerCase().includes(q) || e.name_en?.toLowerCase().includes(q));
+    (e.name_ko||'').toLowerCase().replace(/\s/g,'').includes(qNoSp) || (e.name_en||'').toLowerCase().replace(/\s/g,'').includes(qNoSp));
   _exFiltered = list;
   _exShowCount = 50;
   const total = _allExercises.length;

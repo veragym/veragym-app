@@ -2481,12 +2481,13 @@ function igSearchEx() {
   clearTimeout(_igSearchTimer);
   _igSearchTimer = setTimeout(async () => {
     const q = (document.getElementById('igExSearch').value || '').trim().toLowerCase();
+    const qNoSp = q.replace(/\s/g, '');
     const res = document.getElementById('igExResults');
     if (!q) { res.style.display = 'none'; return; }
     await igLoadExCache();
     const hits = _igExCache.filter(e =>
-      (e.name_ko || '').toLowerCase().includes(q) ||
-      (e.name_en || '').toLowerCase().includes(q)
+      (e.name_ko || '').toLowerCase().replace(/\s/g,'').includes(qNoSp) ||
+      (e.name_en || '').toLowerCase().replace(/\s/g,'').includes(qNoSp)
     ).slice(0, 8);
     if (!hits.length) { res.style.display = 'none'; return; }
     res.innerHTML = hits.map(e =>

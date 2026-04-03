@@ -1054,14 +1054,15 @@ function exClearSearch() {
 function exRenderList() {
   const wrap = document.getElementById('exList');
   const q    = document.getElementById('exSearchInput').value.trim().toLowerCase();
+  const qNoSp = q.replace(/\s/g, '');
   let list   = _exAll;
   // 내 운동 서브탭이면 내 목록만 표시
   if (_exSubView === 'mine') list = list.filter(e => _myExIds.has(e.id));
   if (_exFilterTool) list = list.filter(e => e.tool_unified === _exFilterTool);
   if (_exFilterPart) list = list.filter(e => e.part_unified === _exFilterPart);
   if (q) list = list.filter(e =>
-    (e.name_ko||'').toLowerCase().includes(q) ||
-    (e.name_en||'').toLowerCase().includes(q)
+    (e.name_ko||'').toLowerCase().replace(/\s/g,'').includes(qNoSp) ||
+    (e.name_en||'').toLowerCase().replace(/\s/g,'').includes(qNoSp)
   );
   // 내 운동: 즐겨찾기 우선 정렬
   if (_exSubView === 'mine') {
@@ -1606,11 +1607,12 @@ function pkClearSearch() {
 /* 메인 렌더 */
 function wlogRenderPicker() {
   const q = (document.getElementById('wlogPickerSearch').value || '').trim().toLowerCase();
+  const qNoSp = q.replace(/\s/g, '');
   let list = _exAll.length ? _exAll : [];
   if (_pkFilterPart) list = list.filter(e => e.part_unified === _pkFilterPart);
   if (_pkFilterTool) list = list.filter(e => e.tool_unified === _pkFilterTool);
   if (q) list = list.filter(e =>
-    (e.name_ko||'').toLowerCase().includes(q) || (e.name_en||'').toLowerCase().includes(q)
+    (e.name_ko||'').toLowerCase().replace(/\s/g,'').includes(qNoSp) || (e.name_en||'').toLowerCase().replace(/\s/g,'').includes(qNoSp)
   );
   // 정렬: 내 운동 우선 → 이름순
   list = [...list].sort((a,b) => {
