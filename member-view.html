@@ -1613,6 +1613,14 @@ function pkClearSearch() {
   _pkShowCount=40; wlogRenderPicker();
 }
 
+/* 피커 내 즐겨찾기 토글 */
+async function pkToggleFav(exId) {
+  if (!_memberToken) return;
+  const { data } = await db.rpc('member_toggle_exercise_favorite', { p_token: _memberToken, p_exercise_ref_id: exId });
+  if (data) _myExFavIds.add(exId); else _myExFavIds.delete(exId);
+  wlogRenderPicker();
+}
+
 /* 메인 렌더 */
 function wlogRenderPicker() {
   const q = (document.getElementById('wlogPickerSearch').value || '').trim().toLowerCase();
@@ -1640,6 +1648,7 @@ function wlogRenderPicker() {
   const items = list.slice(0, _pkShowCount);
   wrap.innerHTML = items.map(ex => {
     const isMine = _myExIds.has(ex.id);
+    const isFav = _myExFavIds.has(ex.id);
     const thumb = ex.image_url
       ? `<div class="pk-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
       : `<div class="pk-thumb"></div>`;
@@ -1657,6 +1666,7 @@ function wlogRenderPicker() {
               ${isMine ? `<span class="pk-tag-mine">내 운동</span>` : ''}
             </div>
           </div>
+          <span style="font-size:20px;cursor:pointer;color:${isFav ? '#f5c518' : '#1e3a1e'};flex-shrink:0;line-height:1;" onclick="event.stopPropagation();pkToggleFav('${ex.id}')">★</span>
           <div class="pk-add" onclick="event.stopPropagation();wlogPickEx('${ex.id}',this)">＋</div>
         </div>
       </div>`;
