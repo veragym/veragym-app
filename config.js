@@ -216,6 +216,10 @@ function closeModal(id, e) {
   document.getElementById(id).classList.remove('open');
 }
 
+// ── 페이지 열 때 항상 상단 스크롤 ──────────────────────────────
+window.addEventListener('DOMContentLoaded', () => { window.scrollTo(0, 0); });
+window.addEventListener('pageshow', () => { window.scrollTo(0, 0); });
+
 // ── PWA 뒤로가기 앱 종료 방지 ────────────────────────────────
 function preventBackExit() {
   history.pushState(null, '', location.href);

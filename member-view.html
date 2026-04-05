@@ -1076,14 +1076,12 @@ function exRenderList() {
     (e.name_ko||'').toLowerCase().replace(/\s/g,'').includes(qNoSp) ||
     (e.name_en||'').toLowerCase().replace(/\s/g,'').includes(qNoSp)
   );
-  // 내 운동: 즐겨찾기 우선 정렬
-  if (_exSubView === 'mine') {
-    list = [...list].sort((a,b) => {
-      const aF = _myExFavIds.has(a.id) ? 0 : 1;
-      const bF = _myExFavIds.has(b.id) ? 0 : 1;
-      return aF - bF || (a.name_ko||'').localeCompare(b.name_ko||'');
-    });
-  }
+  // 즐겨찾기 우선 정렬 (전체/내운동 모두)
+  list = [...list].sort((a,b) => {
+    const aF = _myExFavIds.has(a.id) ? 0 : 1;
+    const bF = _myExFavIds.has(b.id) ? 0 : 1;
+    return aF - bF || (a.name_ko||'').localeCompare(b.name_ko||'');
+  });
   const base = _exSubView === 'mine' ? _myExIds.size : _exAll.length;
   document.getElementById('exStatBar').innerHTML =
     `<span>${list.length}</span>${list.length===base ? '개 운동' : `개 / 전체 ${base}개`}`;
@@ -1099,10 +1097,12 @@ function exRenderList() {
       ? `<div class="ex-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
       : `<div class="ex-thumb"></div>`;
     const isMine = _myExIds.has(ex.id);
-    // 전체운동 & 내운동 모두: [＋ 추가] / [추가됨 / 해제] 버튼
+    const isFav = _myExFavIds.has(ex.id);
     const actionBtn = `<button class="ex-btn-add${isMine?' added':''}"
       onclick="event.stopPropagation();exToggleMy('${ex.id}')">
       ${isMine ? '추가됨 / 해제' : '＋ 추가'}</button>`;
+    const favBtn = `<span style="font-size:20px;cursor:pointer;color:${isFav ? '#f5c518' : '#1e3a1e'};flex-shrink:0;line-height:1;"
+      onclick="event.stopPropagation();exToggleFav('${ex.id}',event)">★</span>`;
     return `
       <div class="ex-card" onclick="exOpenDetail('${ex.id}')">
         <div class="ex-card-row">
@@ -1115,6 +1115,7 @@ function exRenderList() {
               ${ex.part_unified ? `<span class="ex-tag-part">${esc(ex.part_unified)}</span>` : ''}
             </div>
           </div>
+          ${favBtn}
           ${actionBtn}
         </div>
       </div>`;
@@ -1622,11 +1623,11 @@ function wlogRenderPicker() {
   if (q) list = list.filter(e =>
     (e.name_ko||'').toLowerCase().replace(/\s/g,'').includes(qNoSp) || (e.name_en||'').toLowerCase().replace(/\s/g,'').includes(qNoSp)
   );
-  // 정렬: 내 운동 우선 → 이름순
+  // 정렬: 즐겨찾기 → 내 운동 → 이름순
   list = [...list].sort((a,b) => {
-    const aM = _myExIds.has(a.id) ? 0 : 1;
-    const bM = _myExIds.has(b.id) ? 0 : 1;
-    return aM - bM || (a.name_ko||'').localeCompare(b.name_ko||'');
+    const aF = _myExFavIds.has(a.id) ? 0 : _myExIds.has(a.id) ? 1 : 2;
+    const bF = _myExFavIds.has(b.id) ? 0 : _myExIds.has(b.id) ? 1 : 2;
+    return aF - bF || (a.name_ko||'').localeCompare(b.name_ko||'');
   });
 
   const total = _exAll.length;
