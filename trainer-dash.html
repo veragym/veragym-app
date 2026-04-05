@@ -2,2910 +2,342 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<link rel="manifest" href="manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="베라짐 트레이너">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#3b82f6">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="베라짐 트레이너">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
 <title>VERA GYM | 트레이너</title>
-<style>
-/* ── Reset & Base ─────────────────────────────────────────── */
-* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e1a; color:#fff; min-height:100dvh; overscroll-behavior:none; padding-bottom:90px; }
-
-/* ── 회원 상세 하단 작성 버튼 ─────────────────────────────── */
-.write-bar { position:fixed; bottom:0; left:0; right:0; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:#080e1a; border-top:1px solid #1e3a5f44; }
-.btn-write { width:100%; background:#1a3a5c; border:1.5px solid #3b82f655; border-radius:12px; padding:14px; font-size:15px; font-weight:700; color:#3b82f6; cursor:pointer; font-family:inherit; }
-.btn-write:hover { background:#243d5c; }
-.msl-detail.open { display:block !important; }
-
-/* ── Header ──────────────────────────────────────────────── */
-.header { background:#0d1525; border-bottom:1px solid #1e3a5f44; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
-.header-title { font-size:16px; font-weight:800; }
-.header-title span { color:#3b82f6; }
-.header-sub { font-size:11px; color:#4a6580; }
-.btn-logout { background:none; border:1px solid #1e3a5f44; border-radius:8px; color:#4a6580; font-size:12px; padding:6px 12px; cursor:pointer; transition:all 0.15s; }
-.btn-logout:hover { border-color:#3b82f644; color:#3b82f6; }
-
-/* ── Top Tab Navigation ──────────────────────────────────── */
-.tabs { display:flex; background:#0d1525; border-bottom:1px solid #1e3a5f44; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
-.tabs::-webkit-scrollbar { display:none; }
-.tab-btn { flex:none; min-width:70px; padding:13px 16px; font-size:12px; font-weight:600; color:#4a6580; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; }
-.tab-btn.active { color:#3b82f6; border-bottom-color:#3b82f6; }
-.rev-month-btn { background:#0f1a2e;border:1px solid #3b82f633;border-radius:8px;padding:6px 14px;font-size:12px;color:#888;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s }
-.rev-month-btn.active { background:#3b82f622;color:#60a5fa;border-color:#3b82f655 }
-.fc-card { background:#0a1525;border:1px solid #3b82f622;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s }
-.fc-card:active { transform:scale(.98) }
-.fc-card.unregistered { border-color:#7f1d1d55;background:#1a0a0a }
-
-/* ── Tab Content ─────────────────────────────────────────── */
-.tab-content { display:none; padding:16px 14px; }
-.tab-content.active { display:block; }
-
-/* ── Section Header ──────────────────────────────────────── */
-.sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-.sec-title { font-size:15px; font-weight:700; }
-.sec-count { font-size:12px; color:#3a5878; margin-left:6px; }
-.btn-add { background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; border:none; border-radius:10px; padding:8px 16px; font-size:13px; font-weight:700; cursor:pointer; }
-.btn-add:active { opacity:0.8; }
-
-/* ── Cards ───────────────────────────────────────────────── */
-.card { background:#0d1525; border:1px solid #1e3a5f44; border-radius:14px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:border-color 0.15s; }
-.card:hover, .card:active { border-color:#3b82f644; }
-.avatar { width:44px; height:44px; border-radius:50%; background:#141f35; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
-.card-info { flex:1; min-width:0; }
-.card-name { font-size:15px; font-weight:700; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-.card-sub { font-size:12px; color:#3a5878; margin-top:3px; }
-.badge { font-size:10px; padding:2px 8px; border-radius:20px; font-weight:600; }
-.badge-active { background:#3b82f622; border:1px solid #3b82f644; color:#60a5fa; }
-.badge-inactive { background:#33000088; border:1px solid #550000; color:#f87171; }
-.badge-req-pending { background:#f59e0b22; border:1px solid #f59e0b44; color:#fbbf24; }
-.badge-req-done { background:#22c55e22; border:1px solid #22c55e44; color:#4ade80; }
-.card-arrow { color:#1e3a5f; font-size:18px; flex-shrink:0; }
-
-/* ── Log Cards ───────────────────────────────────────────── */
-.log-card { background:#0d1525; border:1px solid #1e3a5f44; border-radius:14px; padding:14px 16px; margin-bottom:10px; }
-.log-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-.log-date { font-size:13px; font-weight:700; color:#60a5fa; }
-.log-member { font-size:12px; color:#3a5878; }
-.log-notes { font-size:13px; color:#8ba4c0; line-height:1.5; margin-bottom:8px; }
-.log-exercises { display:flex; flex-wrap:wrap; gap:5px; }
-.ex-tag { background:#141f35; border:1px solid #1e3a5f; border-radius:99px; font-size:11px; color:#60a5fa; padding:3px 9px; }
-.log-actions { display:flex; gap:8px; margin-top:10px; padding-top:10px; border-top:1px solid #1e3a5f22; }
-.btn-sm { flex:1; background:#141f35; border:1px solid #1e3a5f44; border-radius:8px; padding:8px 10px; font-size:12px; color:#60a5fa; cursor:pointer; font-family:inherit; text-align:center; }
-.btn-sm:hover { border-color:#3b82f644; }
-
-/* ── 이미지생성 탭 ──────────────────────────────────────────── */
-.ig-field { margin-bottom:14px; }
-.ig-label { font-size:11px; color:#3a5878; font-weight:600; letter-spacing:0.8px; margin-bottom:6px; }
-.ig-input { width:100%; background:#0d1525; border:1px solid #1e3a5f44; border-radius:10px; padding:11px 14px; color:#fff; font-size:14px; font-family:inherit; box-sizing:border-box; }
-.ig-input:focus { outline:none; border-color:#3b82f6; }
-.ig-search-wrap { position:relative; margin-bottom:8px; }
-.ig-search { width:100%; background:#0d1525; border:1px solid #1e3a5f44; border-radius:10px; padding:11px 14px; color:#fff; font-size:13px; font-family:inherit; box-sizing:border-box; }
-.ig-search:focus { outline:none; border-color:#3b82f6; }
-.ig-results { position:absolute; top:100%; left:0; right:0; background:#0d1525; border:1px solid #1e3a5f66; border-radius:10px; z-index:200; max-height:220px; overflow-y:auto; margin-top:4px; box-shadow:0 8px 24px #00000066; }
-.ig-result { padding:11px 14px; cursor:pointer; border-bottom:1px solid #1e3a5f22; }
-.ig-result:last-child { border-bottom:none; }
-.ig-result:active { background:#1e3a5f33; }
-.ig-result-name { font-size:13px; font-weight:600; color:#e2e8f0; }
-.ig-result-sub { font-size:11px; color:#4a6580; margin-top:2px; }
-.ig-ex-card { background:#0d1525; border:1px solid #1e3a5f44; border-radius:12px; padding:13px 14px; margin-bottom:10px; }
-.ig-ex-head { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
-.ig-ex-num { width:26px; height:26px; background:#1e3a5f; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#60a5fa; flex-shrink:0; margin-top:2px; }
-.ig-ex-name { font-size:14px; font-weight:700; flex:1; line-height:1.4; }
-.ig-ex-sub { font-size:11px; color:#4a6580; margin-top:2px; }
-.ig-ex-del { background:none; border:none; color:#4a6580; font-size:20px; cursor:pointer; padding:0 4px; line-height:1; }
-.ig-sets-hdr { display:grid; grid-template-columns:34px 1fr 1fr auto; gap:6px; margin-bottom:4px; align-items:center; }
-.ig-sets-hdr span { font-size:10px; color:#3a5878; font-weight:600; text-align:center; letter-spacing:0.5px; }
-.ig-set-row { display:grid; grid-template-columns:34px 1fr 1fr auto; gap:6px; align-items:center; margin-bottom:4px; }
-.ig-set-row-end { display:flex; align-items:center; gap:4px; }
-.ig-set-num { font-size:12px; color:#5a7898; font-weight:600; text-align:center; }
-.ig-set-input { background:#091422; border:1px solid #1e3a5f33; border-radius:8px; padding:8px 6px; color:#fff; font-size:13px; text-align:center; font-family:inherit; width:100%; box-sizing:border-box; }
-.ig-set-input:focus { outline:none; border-color:#3b82f666; }
-.ig-del-set { background:none; border:none; color:#3a5878; font-size:18px; cursor:pointer; text-align:center; padding:0; }
-.ig-add-set { width:100%; background:none; border:1px dashed #1e3a5f55; border-radius:8px; color:#3a5878; font-size:12px; font-weight:600; padding:7px; cursor:pointer; font-family:inherit; margin-top:4px; }
-.ig-add-set:active { background:#1e3a5f22; }
-.ig-empty { color:#3a5878; font-size:13px; text-align:center; padding:24px 0 16px; }
-.ig-actions { display:flex; gap:10px; margin-top:20px; padding-bottom:20px; }
-.ig-btn-save { flex:1; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; border:none; border-radius:12px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
-.ig-btn-share { flex:1; background:#0d1525; border:1px solid #3b82f644; color:#60a5fa; border-radius:12px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
-.ig-btn-save:active, .ig-btn-share:active { opacity:0.8; }
-.btn-danger { color:#f87171; border-color:#3a1a1a; }
-.btn-danger:hover { border-color:#f87171 !important; }
-.wm-chip { font-size:12px; font-weight:700; border:1px solid #1e3a5f44; border-radius:8px; cursor:pointer; flex:1; height:34px; transition:background 0.15s; }
-.wm-total { background:#1e3a5f; color:#60a5fa; }
-.wm-single { background:#1a3a20; color:#4ade80; }
-
-/* ── Request Cards ───────────────────────────────────────── */
-.req-card { background:#0d1525; border:1px solid #1e3a5f44; border-radius:12px; padding:14px 16px; margin-bottom:10px; }
-.req-top { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-.req-type-tag { font-size:11px; font-weight:600; padding:3px 9px; border-radius:99px; }
-.type-db { background:#3b82f622; border:1px solid #3b82f644; color:#60a5fa; }
-.type-bug { background:#f8717122; border:1px solid #f8717144; color:#f87171; }
-.type-other { background:#aaaaaa22; border:1px solid #aaaaaa44; color:#aaaaaa; }
-.req-content { font-size:14px; line-height:1.5; margin-bottom:6px; }
-.req-meta { font-size:11px; color:#3a5878; }
-
-/* ── Modal ───────────────────────────────────────────────── */
-.modal-bg { display:none; position:fixed; inset:0; background:#000000cc; z-index:200; align-items:flex-end; justify-content:center; }
-.modal-bg.open { display:flex; }
-.modal { background:#0d1525; border-radius:24px 24px 0 0; border-top:1px solid #1e3a5f44; width:100%; max-width:520px; padding:0 20px calc(24px + env(safe-area-inset-bottom)); max-height:92dvh; overflow-y:auto; animation:slideUp .22s ease; }
-@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-.modal-handle { width:36px; height:4px; background:#1e3a5f; border-radius:99px; margin:14px auto 18px; }
-.modal-title { font-size:17px; font-weight:700; margin-bottom:18px; }
-.modal-close-x { position:absolute; top:14px; right:16px; background:none; border:none; color:#60a5fa; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; line-height:1; transition:opacity 0.15s; }
-.modal-close-x:active { opacity:0.5; }
-.field { margin-bottom:14px; }
-.field label { display:block; font-size:12px; color:#4a6580; margin-bottom:6px; font-weight:500; }
-.field input, .field select, .field textarea { width:100%; background:#080e1a; border:1.5px solid #1e3a5f44; border-radius:10px; padding:12px 14px; font-size:14px; color:#fff; outline:none; font-family:inherit; transition:border-color .2s; resize:none; }
-.field input:focus, .field select:focus, .field textarea:focus { border-color:#3b82f6; }
-.field input::placeholder, .field textarea::placeholder { color:#253a52; }
-.field select option { background:#0d1525; }
-.field .hint { font-size:11px; color:#2a4060; margin-top:4px; }
-.modal-btns { display:flex; gap:10px; margin-top:18px; }
-.btn-cancel { flex:1; background:#141f35; border:1px solid #1e3a5f44; border-radius:12px; padding:14px; font-size:15px; color:#4a6580; cursor:pointer; font-weight:600; }
-.btn-save { flex:2; background:linear-gradient(135deg,#3b82f6,#1d4ed8); border:none; border-radius:12px; padding:14px; font-size:15px; color:#fff; font-weight:700; cursor:pointer; }
-.btn-save:disabled { opacity:0.4; cursor:default; }
-.err-box { display:none; background:#1a0d20; border:1px solid #5a2080; border-radius:8px; padding:10px 14px; font-size:13px; color:#c084fc; margin-bottom:12px; }
-
-
-/* ── Token Link ──────────────────────────────────────────── */
-.token-box { background:#141f35; border:1px solid #1e3a5f44; border-radius:10px; padding:10px 14px; font-size:12px; color:#3a5878; display:flex; align-items:center; gap:8px; margin-top:8px; cursor:pointer; }
-.token-box:hover { border-color:#3b82f644; }
-.token-url { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; }
-
-/* ── Member Detail View ──────────────────────────────────── */
-.detail-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid #1e3a5f22; }
-.btn-back { background:#141f35; border:1px solid #1e3a5f44; border-radius:8px; padding:6px 12px; font-size:13px; color:#60a5fa; cursor:pointer; flex-shrink:0; }
-
-/* ── Misc ────────────────────────────────────────────────── */
-.loading { text-align:center; padding:40px; color:#2a4060; }
-.empty { text-align:center; padding:40px; color:#2a4060; font-size:14px; line-height:1.8; }
-.retry-btn { margin-top:10px; background:#1e3a5f22; border:1px solid #3b82f644; color:#60a5fa; border-radius:8px; padding:8px 18px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
-.retry-btn:active { background:#3b82f633; }
-.divider { font-size:11px; font-weight:700; color:#3b82f6; letter-spacing:1px; margin:16px 0 10px; display:flex; align-items:center; gap:8px; }
-.divider::after { content:''; flex:1; height:1px; background:#1e3a5f44; }
-.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#141f35; color:#60a5fa; border:1px solid #3b82f644; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; }
-.spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; margin-right:6px; vertical-align:middle; }
-@keyframes spin { to{transform:rotate(360deg)} }
-
-/* ──── 일정 탭 (Google Calendar Grid) ─────── */
-#tab-schedule{padding:0;overflow:hidden}
-.cal-wrap{display:flex;flex-direction:column}
-.cal-date-row{display:flex;background:#0d1525;border-bottom:2px solid #1e3a5f66;padding:4px 0;position:sticky;top:0;z-index:10}
-.cal-gutter{width:52px;flex-shrink:0;border-right:1px solid #1e3a5f44}
-.cal-day-hdr{flex:1;text-align:center;padding:4px 2px}
-.cal-dhdr-name{font-size:10px;color:#4a6580;margin-bottom:1px;text-transform:uppercase}
-.cal-dhdr-num{font-size:18px;font-weight:700;color:#c0c8d8;display:inline-block;width:34px;height:34px;line-height:34px;text-align:center;border-radius:50%}
-.cal-day-hdr.today .cal-dhdr-num{color:#fff;background:#6c63ff}
-.cal-day-hdr.past .cal-dhdr-name{color:#2a3a4a}
-.cal-day-hdr.past .cal-dhdr-num{color:#3a5060}
-.cal-grid-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;height:calc(100svh - 165px)}
-.cal-grid{display:grid;grid-template-columns:52px repeat(4,1fr)}
-/* ── 30분 절대위치 그리드 ── */
-.cal-time-col{position:relative}
-.cal-time-label{position:absolute;font-size:10px;font-weight:500;color:#6a88a8;text-align:right;right:6px;transform:translateY(-50%);line-height:1.2;pointer-events:none;white-space:nowrap}
-.cal-day-col-body{position:relative;border-left:1px solid #1e3a5f33}
-.cal-gridline-hr{position:absolute;left:0;right:0;height:1px;background:#1e3a5f44;pointer-events:none}
-.cal-gridline-half{position:absolute;left:4px;right:0;height:0;border-top:1px dashed #1e3a5f22;pointer-events:none}
-.cal-click-zone{position:absolute;left:0;right:0;-webkit-tap-highlight-color:transparent;cursor:pointer}
-.cal-click-zone:active{background:#1a2a3a55}
-.cal-click-zone.past{background:#080c1422;cursor:default}
-.cal-now-line{position:absolute;left:0;right:0;height:2px;background:#6c63ff;z-index:3;pointer-events:none}
-.cal-now-line::before{content:'';position:absolute;left:-3px;top:-3px;width:8px;height:8px;background:#6c63ff;border-radius:50%}
-.cal-event{position:absolute;left:2px;right:2px;border-radius:6px;padding:3px 4px;overflow:hidden;cursor:pointer;z-index:2;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.cal-event-title{font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4;width:100%;text-align:center}
-.cal-event-sub{font-size:10px;color:rgba(255,255,255,0.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;font-weight:600}
-</style>
+<link rel="stylesheet" href="./styles/tokens.css">
+<link rel="stylesheet" href="./styles/components.css">
+<link rel="stylesheet" href="./styles/trainer.css">
 </head>
 <body>
 
-<!-- ── Header ─────────────────────────────────────────────── -->
+<!-- ── Header ──────────────────────────────────────────────── -->
 <div class="header">
   <div>
-    <div class="header-title">VERA<span>GYM트레이너</span></div>
-    <div class="header-sub" id="trainerInfo">불러오는 중...</div>
+    <div class="header-title">VERA <span>GYM</span></div>
+    <div class="header-sub" id="trainerInfo"></div>
   </div>
-  <button class="btn-logout" onclick="doLogout()">로그아웃</button>
+  <button class="btn btn-sm btn-ghost" id="btnLogout">Logout</button>
 </div>
 
-<!-- ── Top Tab Navigation ──────────────────────────────────── -->
+<!-- ── Tabs ────────────────────────────────────────────────── -->
 <div class="tabs">
-  <button class="tab-btn active" id="nav-members" onclick="switchTab('members',this)">내 회원</button>
-  <button class="tab-btn" id="nav-logs" onclick="switchTab('logs',this)">수업일지</button>
-  <button class="tab-btn" id="nav-schedule" onclick="switchTab('schedule',this)">일정</button>
-  <button class="tab-btn" id="nav-revenue" onclick="switchTab('revenue',this)">매출관리</button>
-  <button class="tab-btn" onclick="location.href='exercise-library.html'">운동DB</button>
-  <button class="tab-btn" id="nav-requests" onclick="switchTab('requests',this)">요청사항</button>
-  <button class="tab-btn" id="nav-imggen" onclick="location.href='image-card.html'">이미지생성</button>
+  <button class="tab-btn active" data-tab="members">내 회원</button>
+  <button class="tab-btn" data-tab="logs">수업일지</button>
+  <button class="tab-btn" data-tab="schedule">일정</button>
+  <button class="tab-btn" data-tab="revenue">매출</button>
+  <button class="tab-btn" data-tab="requests">요청</button>
+  <a class="tab-btn" href="exercise-library.html" style="text-decoration:none;">운동DB</a>
+  <a class="tab-btn" href="image-card.html" style="text-decoration:none;">이미지</a>
 </div>
 
-<!-- ── Tab: 회원 ───────────────────────────────────────────── -->
-<div id="tab-members" class="tab-content active">
-  <!-- 회원 목록 -->
+<!-- ── Tab: 내 회원 ────────────────────────────────────────── -->
+<div class="tab-content active" id="tab-members">
+  <!-- 회원 목록 뷰 -->
   <div id="view-member-list">
     <div class="sec-header">
-      <div><span class="sec-title">내 회원</span><span class="sec-count" id="memberCount"></span></div>
+      <span class="sec-title">내 회원</span>
+      <span class="sec-count" id="memberCount"></span>
     </div>
-    <div id="memberList"><div class="loading">불러오는 중...</div></div>
+    <div id="memberList"></div>
   </div>
-  <!-- 회원 상세 -->
-  <div id="view-member-detail" style="display:none">
-    <div class="detail-header">
-      <button class="btn-back" onclick="showMemberList()">목록</button>
-      <div>
-        <div class="sec-title" id="detailName"></div>
-        <div style="font-size:12px;color:#3a5878;margin-top:2px" id="detailSub"></div>
-      </div>
+  <!-- 회원 상세 뷰 -->
+  <div id="view-member-detail" style="display:none;">
+    <button class="btn btn-sm btn-ghost mb-3" id="btnBackToList">← 목록</button>
+    <div class="sec-title" id="detailName"></div>
+    <div class="card-sub mb-3" id="detailSub"></div>
+    <div id="detailTokenBox" class="mb-3"></div>
+    <div class="sec-header mt-4">
+      <span class="sec-title" style="font-size:var(--text-sm)">수업 기록</span>
     </div>
-    <div id="detailTokenBox"></div>
-    <div style="margin-top:16px">
-      <div class="divider">수업 기록</div>
-      <div id="memberLogs"><div class="loading">불러오는 중...</div></div>
+    <div id="memberLogs"></div>
+    <div class="sec-header mt-4">
+      <span class="sec-title" style="font-size:var(--text-sm)">회원 운동일지</span>
     </div>
-    <div style="margin-top:16px">
-      <div class="divider">회원 운동일지 <span style="font-size:10px;color:#2a4060;font-weight:400">(회원이 직접 작성)</span></div>
-      <div id="memberSelfLogs"><div class="loading">불러오는 중...</div></div>
-    </div>
+    <div id="memberSelfLogs"></div>
   </div>
 </div>
 
-<!-- ── Tab: 수업일지 ────────────────────────────────────────── -->
-<div id="tab-logs" class="tab-content">
+<!-- ── Tab: 수업일지 ──────────────────────────────────────── -->
+<div class="tab-content" id="tab-logs">
   <div class="sec-header">
-    <div><span class="sec-title">수업 일지</span><span class="sec-count" id="logCount"></span></div>
+    <span class="sec-title">수업일지</span>
+    <span class="sec-count" id="logCount"></span>
   </div>
-  <div id="logList"><div class="loading">불러오는 중...</div></div>
+  <div id="logList"></div>
 </div>
 
-<!-- ── Tab: 일정 ─────────────────────────────────────────── -->
-<div id="tab-schedule" class="tab-content">
+<!-- ── Tab: 일정 ──────────────────────────────────────────── -->
+<div class="tab-content" id="tab-schedule">
+  <div class="cal-controls">
+    <button class="btn btn-sm btn-ghost" id="calPrev">‹</button>
+    <span class="cal-range" id="calRange"></span>
+    <button class="btn btn-sm btn-ghost" id="calNext">›</button>
+    <button class="btn btn-sm btn-secondary" id="btnBranchSched" style="margin-left:auto;">전체 시간표</button>
+  </div>
   <div class="cal-wrap">
-    <div class="cal-date-row" id="calDateRow">
-      <div class="cal-gutter"></div>
-    </div>
-    <div class="cal-grid-scroll" id="calGridScroll">
-      <div class="cal-grid" id="calGrid"></div>
+    <div id="calDateRow" class="cal-date-row"></div>
+    <div id="calGridScroll" class="cal-grid-scroll">
+      <div id="calGrid" class="cal-grid"></div>
     </div>
   </div>
 </div>
 
-<!-- ── 전체 시간표 모달 ───────────────────────────────────── -->
-<div id="branchSchedModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.7);flex-direction:column;align-items:center;justify-content:center;" onclick="if(event.target===this)closeBranchSchedModal()">
-  <div style="background:#0d1525;border-radius:16px;width:96vw;max-width:520px;max-height:92dvh;display:flex;flex-direction:column;overflow:hidden;">
-    <!-- 헤더 -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #1e3a5f44;flex-shrink:0;">
-      <div>
-        <div style="font-size:15px;font-weight:700;color:#fff;">전체 시간표</div>
-        <div style="font-size:11px;color:#6a88a8;margin-top:2px;" id="bsSubtitle"></div>
-      </div>
-      <button onclick="closeBranchSchedModal()" class="modal-close-x" style="position:static;">✕</button>
+<!-- ── Tab: 매출관리 ──────────────────────────────────────── -->
+<div class="tab-content" id="tab-revenue">
+  <!-- 평균 매출 -->
+  <div class="card mb-3">
+    <div class="card-sub mb-2">전체 평균 매출</div>
+    <div class="stat-num" id="revAvgAll">0원</div>
+  </div>
+  <div style="display:flex; gap:var(--space-2); margin-bottom:var(--space-3);">
+    <select class="field-select" id="revYear"></select>
+    <select class="field-select" id="revPeriodType">
+      <option value="year">연도</option>
+      <option value="half">반기</option>
+      <option value="quarter">분기</option>
+    </select>
+    <select class="field-select" id="revPeriodSub" style="display:none;"></select>
+  </div>
+  <div class="card mb-4">
+    <div class="card-sub mb-2">기간 평균 매출</div>
+    <div class="stat-num" id="revAvgPeriod">0원</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 목표/달성/예상 -->
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--space-2); margin-bottom:var(--space-3);">
+    <div class="stat-box">
+      <div class="stat-label">목표</div>
+      <input class="field-input" id="revTargetInput" type="number" placeholder="0" style="text-align:center;font-weight:700;">
     </div>
-    <!-- 날짜 선택 (오늘/내일) -->
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid #1e3a5f33;flex-shrink:0;">
-      <button id="bsBtnToday" onclick="onBsDay(0)" style="flex:1;background:#6c63ff;border:none;color:#fff;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">오늘</button>
-      <button id="bsBtnTomorrow" onclick="onBsDay(1)" style="flex:1;background:#1e3a5f;border:1px solid #2a5a8f55;color:#7fb3d3;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">내일</button>
-      <input type="hidden" id="bsDatePicker" value="">
+    <div class="stat-box">
+      <div class="stat-label">예상</div>
+      <div class="stat-num" id="revForecastTotal">0원</div>
     </div>
-    <!-- 캔버스 영역 -->
-    <div style="overflow:auto;-webkit-overflow-scrolling:touch;flex:1;display:flex;align-items:flex-start;justify-content:flex-start;background:#f4f4f4;" id="bsCanvasWrap">
-      <canvas id="bsCanvas" style="display:block;"></canvas>
-    </div>
-    <!-- 저장/공유 버튼 -->
-    <div style="padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #1e3a5f33;flex-shrink:0;">
-      <button onclick="downloadBranchSched()" style="width:100%;background:linear-gradient(135deg,#6c63ff,#4a43cc);border:none;color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">📥 저장 / 공유</button>
+    <div class="stat-box">
+      <div class="stat-label">달성</div>
+      <div class="stat-num" id="revAchieved" style="color:var(--color-success);">0원</div>
     </div>
   </div>
+
+  <!-- 예상매출 목록 -->
+  <div class="sec-header">
+    <span class="sec-title">예상매출</span>
+    <div style="display:flex;gap:var(--space-1);margin-left:auto;">
+      <button class="btn btn-sm btn-secondary" id="revMonthCur">이번 달</button>
+      <button class="btn btn-sm btn-ghost" id="revMonthNext">다음 달</button>
+    </div>
+  </div>
+  <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-3);">
+    <button class="btn btn-sm btn-primary" id="btnAddForecast">등록</button>
+    <button class="btn btn-sm btn-ghost" id="btnCopyForecast">복사</button>
+  </div>
+  <div id="revForecastList"></div>
 </div>
 
-<!-- ── Tab: 매출관리 ──────────────────────── -->
-<div id="tab-revenue" class="tab-content">
+<!-- ── Tab: 요청사항 ──────────────────────────────────────── -->
+<div class="tab-content" id="tab-requests">
+  <div class="sec-header">
+    <span class="sec-title">요청사항</span>
+    <span class="sec-count" id="reqCount"></span>
+    <button class="btn btn-sm btn-primary" id="btnAddReq">요청 추가</button>
+  </div>
+  <div id="reqList"></div>
+</div>
 
-  <!-- <1> 평균매출 섹션 -->
-  <div style="background:#0d1520;border:1px solid #3b82f622;border-radius:12px;padding:16px;margin-bottom:12px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <span style="font-size:13px;color:#888;font-weight:600">총 평균매출 (월)</span>
-      <span id="revAvgAll" style="font-size:18px;font-weight:700;color:#60a5fa">0원</span>
+<!-- ── Write Bar (회원 상세에서만 표시) ─────────────────────── -->
+<div class="write-bar" id="writeBar" style="display:none;">
+  <button class="btn btn-lg btn-primary btn-block" id="btnWriteSession">수업일지 작성</button>
+</div>
+
+<!-- ── Toast ───────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── Modals ──────────────────────────────────────────────── -->
+
+<!-- 일정 추가/수정 -->
+<div class="modal-bg" id="schedModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="schedModalTitle">일정 추가</div>
+    <div class="err-box" id="schedModalErr"></div>
+    <div class="field">
+      <label class="field-label">날짜</label>
+      <input class="field-input" id="schedDate" type="date">
     </div>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-      <select id="revYear" style="background:#0a1525;border:1px solid #3b82f633;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none" onchange="updateRevPeriodUI()"></select>
-      <select id="revPeriodType" style="background:#0a1525;border:1px solid #3b82f633;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none" onchange="updateRevPeriodUI()">
-        <option value="year">연</option>
-        <option value="half">반기</option>
-        <option value="quarter">분기</option>
+    <div class="field">
+      <label class="field-label">시작 시간</label>
+      <input class="field-input" id="schedStart" type="time">
+      <div class="field-hint" id="schedStartLabel"></div>
+    </div>
+    <div class="field">
+      <label class="field-label">종료 시간</label>
+      <input class="field-input" id="schedEnd" type="time">
+      <div class="field-hint" id="schedEndDisplay"></div>
+    </div>
+    <div class="field">
+      <label class="field-label">유형</label>
+      <select class="field-select" id="schedType">
+        <option value="PT">PT</option>
+        <option value="SPT">SPT</option>
+        <option value="업무">업무</option>
+        <option value="청소">청소</option>
+        <option value="홍보">홍보</option>
+        <option value="식사">식사</option>
       </select>
-      <select id="revPeriodSub" style="background:#0a1525;border:1px solid #3b82f633;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none;display:none" onchange="calcRevPeriod()"></select>
-      <span style="font-size:11px;color:#666;margin-left:4px">:</span>
-      <span id="revAvgPeriod" style="font-size:16px;font-weight:700;color:#fff">0원</span>
     </div>
-  </div>
-
-  <!-- <2> 목표/예상/달성 매출 -->
-  <div style="background:#0d1520;border:1px solid #3b82f622;border-radius:12px;padding:16px;margin-bottom:12px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:13px;color:#888;font-weight:600">당월 목표매출</span>
-      <div style="display:flex;align-items:center;gap:6px">
-        <input id="revTargetInput" type="number" min="0" placeholder="0" style="width:120px;background:#0a1525;border:1px solid #3b82f633;border-radius:8px;padding:6px 10px;font-size:15px;color:#60a5fa;text-align:right;outline:none;font-weight:700" onchange="saveTarget()">
-        <span style="font-size:13px;color:#60a5fa;font-weight:700">원</span>
-      </div>
+    <div class="field" id="schedMemberRow">
+      <label class="field-label">회원</label>
+      <select class="field-select" id="schedMember"></select>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:13px;color:#888;font-weight:600">당월 예상매출</span>
-      <span id="revForecastTotal" style="font-size:16px;font-weight:700;color:#fff">0원</span>
+    <div class="field" id="schedMemberTextRow" style="display:none;">
+      <label class="field-label">대상</label>
+      <input class="field-input" id="schedMemberText" placeholder="이름/설명">
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:13px;color:#888;font-weight:600">당월 달성매출</span>
-      <span id="revAchieved" style="font-size:16px;font-weight:700;color:#4ade80">0원</span>
+    <div class="field" id="schedNotesRow">
+      <label class="field-label" id="schedNotesLabel">메모</label>
+      <textarea class="field-textarea" id="schedNotes" rows="2"></textarea>
     </div>
-  </div>
-
-  <!-- <3> 예상매출 목록 -->
-  <div style="background:#0d1520;border:1px solid #3b82f622;border-radius:12px;padding:16px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div style="display:flex;gap:4px">
-        <button id="revMonthCur" class="rev-month-btn active" onclick="switchRevMonth('cur')">당월</button>
-        <button id="revMonthNext" class="rev-month-btn" onclick="switchRevMonth('next')">다음 달</button>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button onclick="copyForecastText()" title="카카오톡 공유" style="background:#1e3a5f;border:1px solid #3b82f633;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;color:#60a5fa;cursor:pointer;line-height:1">공유</button>
-        <button onclick="openForecastModal()" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">+ 예상매출 등록</button>
-      </div>
-    </div>
-    <div id="revForecastList" style="display:flex;flex-direction:column;gap:8px">
-      <div style="text-align:center;color:#555;font-size:13px;padding:20px 0">등록된 예상매출이 없습니다.</div>
+    <div class="btn-group">
+      <button class="btn btn-lg btn-cancel" id="schedCancelBtn">취소</button>
+      <button class="btn btn-lg btn-danger" id="schedDeleteBtn" style="display:none;">삭제</button>
+      <button class="btn btn-lg btn-primary" id="schedSaveBtn">저장</button>
     </div>
   </div>
 </div>
 
-<!-- 예상매출 등록 모달 -->
-<div id="forecastModal" class="modal-bg" onclick="closeModal('forecastModal',event)">
+<!-- 일정 상세/액션 -->
+<div class="modal-bg" id="schedInfoModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="siMember"></div>
+    <div id="siStatus"></div>
+    <div id="siDateTime" class="card-sub mt-2"></div>
+    <div id="siType" class="card-sub"></div>
+    <div id="siSessionRow" style="display:none;">
+      <span class="badge badge-accent" id="siSession"></span>
+    </div>
+    <div class="err-box" id="siErr" style="display:none;"></div>
+    <div id="siActions" class="mt-3"></div>
+  </div>
+</div>
+
+<!-- 수업일지 연결 -->
+<div class="modal-bg" id="linkLogModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">수업일지 연결</div>
+    <div class="card-sub mb-3" id="linkLogSubtitle"></div>
+    <div id="linkLogList"></div>
+    <div class="btn-group mt-3">
+      <button class="btn btn-lg btn-ghost" id="linkLogSkipBtn">나중에</button>
+      <button class="btn btn-lg btn-primary" id="linkLogWriteBtn">새로 작성</button>
+    </div>
+  </div>
+</div>
+
+<!-- 예상매출 등록/수정 -->
+<div class="modal-bg" id="forecastModal">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title" id="forecastModalTitle">예상매출 등록</div>
     <div class="err-box" id="forecastErr"></div>
     <div class="field">
-      <label>회원명</label>
-      <input id="fcName" type="text" placeholder="임의로 입력" autocomplete="off">
-    </div>
-    <div style="display:flex;gap:10px">
-      <div class="field" style="flex:1">
-        <label>세션단가</label>
-        <input id="fcPPS" type="number" min="0" placeholder="55000" oninput="calcFcAmount()">
-      </div>
-      <div class="field" style="flex:1">
-        <label>세션 수</label>
-        <input id="fcCount" type="number" min="1" placeholder="30" oninput="calcFcAmount()">
-      </div>
+      <label class="field-label">회원/이름</label>
+      <input class="field-input" id="fcName" placeholder="회원 이름">
     </div>
     <div class="field">
-      <label>예상금액</label>
-      <input id="fcAmount" type="text" readonly style="color:#60a5fa;font-weight:700" value="0원">
+      <label class="field-label">회당 금액</label>
+      <input class="field-input" id="fcPPS" type="number" placeholder="50000">
     </div>
     <div class="field">
-      <label>결제예정일</label>
-      <input id="fcDueDate" type="date" style="color-scheme:dark">
+      <label class="field-label">횟수</label>
+      <input class="field-input" id="fcCount" type="number" placeholder="12">
     </div>
     <div class="field">
-      <label>매출계획</label>
-      <textarea id="fcMemo" placeholder="메모 입력" rows="2" style="width:100%;background:#080e1a;border:1.5px solid #1e3a5f44;border-radius:10px;padding:12px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;resize:none"></textarea>
+      <label class="field-label">예상 금액</label>
+      <input class="field-input" id="fcAmount" type="number" readonly>
     </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('forecastModal')">취소</button>
-      <button class="btn-save" id="btnSaveForecast" onclick="saveForecast()">등록</button>
+    <div class="field">
+      <label class="field-label">예상 결제일</label>
+      <input class="field-input" id="fcDueDate" type="date">
+    </div>
+    <div class="field">
+      <label class="field-label">메모</label>
+      <textarea class="field-textarea" id="fcMemo" rows="2"></textarea>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-lg btn-cancel" onclick="closeModal('forecastModal')">취소</button>
+      <button class="btn btn-lg btn-primary" id="btnSaveForecast">등록</button>
     </div>
   </div>
 </div>
 
-<!-- ── Tab: 요청사항 ────────────────────────────────────────── -->
-<div id="tab-requests" class="tab-content">
-  <div class="sec-header">
-    <div><span class="sec-title">요청사항</span><span class="sec-count" id="reqCount"></span></div>
-    <button class="btn-add" onclick="openAddReq()">+ 요청 추가</button>
-  </div>
-  <div id="reqList"><div class="loading">불러오는 중...</div></div>
-</div>
-
-<div id="tab-imggen" class="tab-content">
-  <div class="sec-header"><span class="sec-title">이미지 생성</span></div>
-
-  <!-- 기본 정보 -->
-  <div class="ig-field">
-    <div class="ig-label">회원명</div>
-    <input class="ig-input" id="ig-member" type="text" placeholder="홍길동">
-  </div>
-  <div class="ig-field">
-    <div class="ig-label">운동 프로그램명</div>
-    <input class="ig-input" id="ig-program" type="text" placeholder="하체, 상체, 전신 등">
-  </div>
-
-  <!-- 운동 검색 -->
-  <div class="ig-label" style="margin-bottom:8px">운동 목록</div>
-  <div class="ig-search-wrap">
-    <input class="ig-search" id="igExSearch" type="text" placeholder="운동 이름으로 검색..." oninput="igSearchEx()" autocomplete="off" onclick="igSearchEx()">
-    <div class="ig-results" id="igExResults" style="display:none"></div>
-  </div>
-
-  <!-- 운동 카드 목록 -->
-  <div id="igExList"><div class="ig-empty">운동을 검색해서 추가하세요</div></div>
-
-  <!-- 버튼 -->
-  <div class="ig-actions">
-    <button class="ig-btn-save" onclick="igGenerateAndSave()">📥 이미지 저장</button>
-    <button class="ig-btn-share" onclick="igGenerateAndShare()">📤 공유하기</button>
-  </div>
-</div>
-
-<div id="toast" class="toast"></div>
-
-<!-- 회원 상세 하단 고정 작성 버튼 -->
-<div id="writeBar" class="write-bar" style="display:none">
-  <button class="btn-write" onclick="goWriteSession()">＋ 작성</button>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════
-     MODALS
-═══════════════════════════════════════════════════════════ -->
-
-
-<!-- 요청사항 추가 모달 -->
-<div id="addReqModal" class="modal-bg" onclick="closeModal('addReqModal',event)">
+<!-- 요청사항 추가 -->
+<div class="modal-bg" id="addReqModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">요청사항 추가</div>
+    <div class="modal-title">요청사항</div>
     <div class="err-box" id="reqErr"></div>
     <div class="field">
-      <label>요청 유형</label>
-      <select id="reqType">
-        <option value="db_add">운동DB 추가 요청</option>
-        <option value="bug_report">버그/오류 신고</option>
+      <label class="field-label">유형</label>
+      <select class="field-select" id="reqType">
+        <option value="db_add">운동 DB 추가</option>
+        <option value="bug_report">버그 리포트</option>
         <option value="other">기타</option>
       </select>
     </div>
     <div class="field">
-      <label>내용 <span style="color:#f87171">*</span></label>
-      <textarea id="reqContent" placeholder="요청 내용을 자세히 적어주세요" rows="4"></textarea>
+      <label class="field-label">내용</label>
+      <textarea class="field-textarea" id="reqContent" rows="4" placeholder="요청 내용을 입력하세요"></textarea>
     </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('addReqModal')">취소</button>
-      <button class="btn-save" id="btnAddReq" onclick="saveReq()">제출</button>
+    <div class="btn-group">
+      <button class="btn btn-lg btn-cancel" onclick="closeModal('addReqModal')">취소</button>
+      <button class="btn btn-lg btn-primary" id="btnSaveReq">등록</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════
-     SCRIPTS
-═══════════════════════════════════════════════════════════ -->
+<!-- 전체 시간표 (Canvas) -->
+<div class="modal-bg" id="branchSchedModal" style="align-items:center;">
+  <div class="modal" style="border-radius:var(--radius-md);max-height:95dvh;">
+    <div class="modal-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-3);">
+      <div>
+        <div class="modal-title" style="margin-bottom:2px;">전체 시간표</div>
+        <div class="card-sub" id="bsSubtitle"></div>
+      </div>
+      <button class="btn btn-sm btn-ghost" id="bsCloseBtn">닫기</button>
+    </div>
+    <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-3);">
+      <button class="btn btn-sm btn-secondary" id="bsBtnToday">오늘</button>
+      <button class="btn btn-sm btn-ghost" id="bsBtnTomorrow">내일</button>
+      <input type="date" id="bsDatePicker" class="field-input" style="flex:1;">
+    </div>
+    <div id="bsCanvasWrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <canvas id="bsCanvas"></canvas>
+    </div>
+    <button class="btn btn-md btn-primary btn-block mt-3" id="btnDownloadBs">이미지 저장</button>
+  </div>
+</div>
+
+<!-- ── Scripts ─────────────────────────────────────────────── -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script>
-(function () {
-
-init_db();
-preventBackExit();
-
-let me = null;          // 현재 로그인한 트레이너 정보
-let myMembers = [];     // 내 회원 캐시
-let currentDetailMemberId = null; // 현재 열린 회원 상세 ID
-const APP_URL = 'https://veragym.github.io/veragym-app/member-view.html';
-
-// ── 탭 데이터 캐시 (30초) ──────────────────────────────────
-const _tabCache = { members: 0, logs: 0, requests: 0 };
-const TAB_CACHE_MS = 30_000;
-function _cacheValid(tab) { return Date.now() - (_tabCache[tab] || 0) < TAB_CACHE_MS; }
-function _cacheSet(tab)   { _tabCache[tab] = Date.now(); }
-
-// ── 초기화 ─────────────────────────────────────────────────
-async function init() {
-  me = await requireTrainer();
-  if (!me) return;
-  document.getElementById('trainerInfo').textContent = `${me.name} · ${me.gym_location}`;
-
-  // myMembers 는 회원 선택 모달에서도 사용 → 어느 탭이든 항상 로드
-  loadMembers();
-  checkPendingReqs();
-
-  // URL 파라미터로 탭 지정 처리 (me 설정 이후 실행해야 loadLogs 등이 정상 동작)
-  const _urlTab = new URLSearchParams(location.search).get('tab');
-  if (_urlTab) {
-    const _btn = document.getElementById(`nav-${_urlTab}`);
-    if (_btn) switchTab(_urlTab, _btn);
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-// 탭 전환
-// ══════════════════════════════════════════════════════════════
-function switchTab(id, btn) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(`tab-${id}`).classList.add('active');
-  btn.classList.add('active');
-
-  // 탭 전환 시 회원 상세 작성 버튼 숨기기
-  document.getElementById('writeBar').style.display = 'none';
-
-  // 뒤로가기로 열린 detail 닫기
-  if (id === 'members') { showMemberList(); if (!_cacheValid('members')) loadMembers(); }
-  if (id === 'logs')    { if (!_cacheValid('logs'))     loadLogs(); }
-  if (id === 'requests') { if (!_cacheValid('requests')) loadRequests(); }
-}
-
-// ══════════════════════════════════════════════════════════════
-// 회원 관리
-// ══════════════════════════════════════════════════════════════
-async function loadMembers() {
-  document.getElementById('memberList').innerHTML = '<div class="loading">불러오는 중...</div>';
-  const { data, error } = await db.from('members')
-    .select('id,name,gym_location,notes,is_active,member_status').eq('trainer_id', me.id).eq('member_status','active').order('name');
-  if (await handleDbError(error, '회원 불러오기 실패')) {
-    document.getElementById('memberList').innerHTML = '<div class="empty">불러오기 실패<br><button class="retry-btn" onclick="loadMembers()">다시 시도</button></div>';
-    return;
-  }
-  myMembers = data || [];
-  document.getElementById('memberCount').textContent = `(${myMembers.length}명)`;
-  renderMemberList();
-  _cacheSet('members');
-}
-
-function renderMemberList() {
-  const wrap = document.getElementById('memberList');
-  const active   = myMembers.filter(m => m.is_active);
-  const inactive = myMembers.filter(m => !m.is_active);
-
-  if (!myMembers.length) {
-    wrap.innerHTML = `<div class="empty">아직 등록된 회원이 없어요<br>위 추가 버튼으로 첫 회원을 등록해보세요</div>`;
-    return;
-  }
-
-  const card = m => `
-    <div class="card" onclick="showMemberDetail('${m.id}')">
-      <div class="avatar">${esc((m.name||'?').charAt(0))}</div>
-      <div class="card-info">
-        <div class="card-name">
-          ${esc(m.name)}
-          <span class="badge ${m.is_active ? 'badge-active' : 'badge-inactive'}">${m.is_active ? '활성' : '비활성'}</span>
-        </div>
-        <div class="card-sub">${esc(m.gym_location)}${m.notes ? ' · ' + esc(m.notes.slice(0,20)) : ''}</div>
-      </div>
-      <div class="card-arrow">›</div>
-    </div>`;
-
-  let html = '';
-  if (active.length)   html += active.map(card).join('');
-  if (inactive.length) html += `<div class="divider">비활성 (${inactive.length})</div>` + inactive.map(card).join('');
-  wrap.innerHTML = html;
-}
-
-
-// ── 회원 상세 ──────────────────────────────────────────────
-async function showMemberDetail(memberId) {
-  const m = myMembers.find(x => x.id === memberId);
-  if (!m) return;
-
-  currentDetailMemberId = memberId;
-  document.getElementById('view-member-list').style.display = 'none';
-  document.getElementById('view-member-detail').style.display = 'block';
-  document.getElementById('writeBar').style.display = '';
-  document.getElementById('detailName').textContent = m.name;
-  document.getElementById('detailSub').textContent = `${m.gym_location}${m.notes ? ' · ' + m.notes : ''}`;
-
-  // 토큰 링크 — 개별 조회 (목록 SELECT에서 token 제거로 보안 강화)
-  document.getElementById('detailTokenBox').innerHTML = '<div class="loading" style="font-size:12px">링크 불러오는 중...</div>';
-  const { data: tokenData } = await db.from('members').select('token').eq('id', memberId).single();
-  const tokenUrl = tokenData?.token ? `${APP_URL}?token=${tokenData.token}` : null;
-  document.getElementById('detailTokenBox').innerHTML = tokenUrl
-    ? `<div class="token-box" onclick="copyToken('${tokenUrl}')">
-        <span style="font-size:11px;color:#3a5878">링크</span>
-        <span class="token-url">${tokenUrl}</span>
-        <span style="font-size:11px;color:#60a5fa;flex-shrink:0">복사</span>
-       </div>
-       <div style="font-size:11px;color:#2a4060;margin-top:6px">이 링크를 회원에게 전달하면 수업 기록을 볼 수 있습니다</div>`
-    : '<div style="font-size:12px;color:#888">링크를 불러올 수 없습니다</div>';
-
-  // 해당 회원 수업 기록 (필요 필드만 선택)
-  document.getElementById('memberLogs').innerHTML = '<div class="loading">불러오는 중...</div>';
-  const { data: logs, error: logErr } = await db.from('workout_logs')
-    .select('id,session_date,notes,member_id,note_photo_path,workout_log_exercises(custom_name,sets_data,sets,reps)')
-    .eq('member_id', memberId)
-    .eq('is_deleted', false)
-    .order('session_date', { ascending: false })
-    .limit(30);
-
-  if (logErr) { document.getElementById('memberLogs').innerHTML = '<div class="empty">수업 기록 불러오기 실패</div>'; }
-  else {
-    renderLogCards('memberLogs', logs || [], false);
-    if ((logs || []).length === 30) {
-      const moreBtn = document.createElement('button');
-      moreBtn.textContent = '더 보기';
-      moreBtn.style.cssText = 'display:block;width:100%;margin-top:10px;padding:10px;background:transparent;border:1px solid #1a3a60;border-radius:8px;color:#7a9ab8;font-size:13px;cursor:pointer';
-      moreBtn.onclick = async () => {
-        moreBtn.textContent = '불러오는 중...'; moreBtn.disabled = true;
-        const { data: all } = await db.from('workout_logs')
-          .select('id,session_date,notes,member_id,note_photo_path,workout_log_exercises(custom_name,sets_data,sets,reps)')
-          .eq('member_id', memberId).eq('is_deleted', false)
-          .order('session_date', { ascending: false }).limit(200);
-        renderLogCards('memberLogs', all || [], false);
-      };
-      document.getElementById('memberLogs').appendChild(moreBtn);
-    }
-  }
-
-  // 회원 운동일지 (회원이 직접 작성한 기록) — 읽기 전용 (수업기록 오류와 무관하게 항상 실행)
-  loadMemberSelfLogs(memberId);
-}
-
-async function loadMemberSelfLogs(memberId) {
-  const wrap = document.getElementById('memberSelfLogs');
-  wrap.innerHTML = '<div class="loading">불러오는 중...</div>';
-  try {
-    const { data, error } = await db.rpc('trainer_get_member_workout_logs', { p_member_id: memberId });
-    if (error) {
-      console.error('loadMemberSelfLogs RPC error:', error);
-      wrap.innerHTML = '<div class="empty">운동일지를 불러오지 못했어요</div>';
-      return;
-    }
-    if (!data || !data.length) {
-      wrap.innerHTML = '<div class="empty">회원이 작성한 운동일지가 없어요</div>';
-      return;
-    }
-    wrap.innerHTML = data.map((log, i) => {
-      const dateStr = log.log_date;
-      const exs = log.exercises || [];
-      const firstName = exs[0]?.name || '';
-      const exHtml = exs.map((e, idx) => {
-        const sets = e.sets_data || [];
-        const imgUrl = e.image_url || '';
-        const wm = e.weight_mode;
-        const isUni = (wm === 'each' || wm === 'single');
-        const wmTag = isUni ? '<span style="font-size:10px;background:#1a3a1a;color:#4ade80;padding:2px 5px;border-radius:4px;margin-left:5px">한손</span>' : '';
-        const thumbHtml = imgUrl
-          ? `<div style="width:100%;border-radius:10px;overflow:hidden;background:#0a1428;margin:6px 0"><img src="${esc(imgUrl)}" loading="lazy" style="width:100%;display:block;object-fit:cover;max-height:180px" onerror="this.parentElement.style.display='none'"></div>`
-          : '';
-        const setsStr = sets.length
-          ? `<table style="width:100%;table-layout:fixed;border-collapse:collapse;margin-top:6px;font-size:12px">
-               <tr style="color:#3a5878;border-bottom:1px solid #1a3a6033">
-                 <th style="padding:5px 0;text-align:center;font-weight:600">세트</th>
-                 <th style="padding:5px 0;text-align:center;font-weight:600">무게</th>
-                 <th style="padding:5px 0;text-align:center;font-weight:600">횟수</th>
-               </tr>` +
-            sets.map(s => {
-              const wmLabel = isUni ? '<span style="font-size:10px;color:#4ade80"> (한쪽)</span>' : '';
-              return `<tr style="border-bottom:1px solid #0d2a4a22;color:#c8d8f0">
-                <td style="padding:5px 0;text-align:center">${s.set||''}</td>
-                <td style="padding:5px 0;text-align:center">${s.weight||0}kg${wmLabel}</td>
-                <td style="padding:5px 0;text-align:center">${s.reps||0}회</td>
-              </tr>`;
-            }).join('') +
-            `</table>`
-          : '';
-        const commentHtml = e.comment ? `<div style="font-size:11px;color:#6b8ab0;margin-top:5px;padding:4px 8px;background:#0a142833;border-radius:6px">${esc(e.comment)}</div>` : '';
-        return `<div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #1a3a6022">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-            <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#1a3a5f;color:#60a5fa;font-size:10px;font-weight:700;flex-shrink:0">${idx+1}</span>
-            <span style="font-size:13px;font-weight:600;color:#e0eeff">${esc(e.name)}${wmTag}</span>
-          </div>
-          ${thumbHtml}${setsStr}${commentHtml}
-        </div>`;
-      }).join('');
-      return `
-        <div class="card" style="margin-bottom:8px;padding:14px;cursor:pointer" onclick="this.querySelector('.msl-detail').classList.toggle('open')">
-          <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px">
-            <span style="font-size:13px;font-weight:600;color:#60a5fa">${dateStr}</span>
-            <span style="font-size:11px;color:#3a5878;white-space:nowrap">(${exs.length}종목)</span>
-            <span style="font-size:12px;color:#a0b8d8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(firstName)}</span>
-          </div>
-          ${log.notes ? `<div style="font-size:11px;color:#2a4060;margin-top:4px">${esc(log.notes)}</div>` : ''}
-          <div class="msl-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #1a3a6033">${exHtml || '<div style="color:#2a4060;font-size:12px">운동 기록 없음</div>'}</div>
-        </div>`;
-    }).join('');
-  } catch (e) {
-    wrap.innerHTML = '<div class="empty">운동일지를 불러올 수 없어요</div>';
-    console.error('loadMemberSelfLogs:', e);
-  }
-}
-
-function showMemberList() {
-  document.getElementById('view-member-list').style.display = 'block';
-  document.getElementById('view-member-detail').style.display = 'none';
-  document.getElementById('writeBar').style.display = 'none';
-  currentDetailMemberId = null;
-}
-
-function goWriteSession() {
-  if (!currentDetailMemberId) return;
-  location.href = 'session-write.html?member=' + currentDetailMemberId;
-}
-
-async function shareToken(memberName, url) {
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: `${memberName}님 수업 기록 — VERA GYM`,
-        text: `${memberName}님의 VERA GYM 수업 기록을 확인해보세요!`,
-        url: url
-      });
-    } catch (_) {}
-  } else {
-    copyToken(url);
-  }
-}
-
-async function copyToken(url) {
-  try {
-    await navigator.clipboard.writeText(url);
-    showToast('링크 복사 완료!');
-  } catch {
-    showToast('링크: ' + url);
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-// 수업 일지
-// ══════════════════════════════════════════════════════════════
-async function loadLogs() {
-  document.getElementById('logList').innerHTML = '<div class="loading">불러오는 중...</div>';
-
-  // ① 로그 기본정보 먼저 로드 (빠름 ~200ms) → 즉시 렌더
-  const { data: logs, error } = await db.from('workout_logs')
-    .select('id,session_date,notes,member_id,is_noshow,note_photo_path,members(name)')
-    .eq('trainer_id', me.id).eq('is_deleted', false)
-    .order('session_date', { ascending: false }).limit(50);
-  if (await handleDbError(error, '수업일지 불러오기 실패')) {
-    document.getElementById('logList').innerHTML = '<div class="empty">불러오기 실패<br><button class="retry-btn" onclick="loadLogs()">다시 시도</button></div>';
-    return;
-  }
-
-  const cnt = logs?.length || 0;
-  document.getElementById('logCount').textContent = cnt ? `(${cnt}개)` : '';
-  if (!cnt) {
-    document.getElementById('logList').innerHTML =
-      '<div class="empty">수업 일지가 없어요<br>위 작성 버튼으로 첫 일지를 기록해보세요</div>';
-    return;
-  }
-
-  // 운동 태그 없이 먼저 렌더 (체감 속도 향상)
-  renderLogCards('logList', logs.map(l => ({ ...l, workout_log_exercises: [] })), true);
-
-  // ② 운동 태그 별도 로드 후 업데이트 (~300ms)
-  const ids = logs.map(l => l.id);
-  const { data: exs, error: exsErr } = await db.from('workout_log_exercises')
-    .select('log_id,custom_name,sets_data,sets,reps')
-    .in('log_id', ids);
-  if (exsErr || !exs?.length) return;
-
-  const exMap = {};
-  exs.forEach(e => { (exMap[e.log_id] = exMap[e.log_id] || []).push(e); });
-  renderLogCards('logList', logs.map(l => ({ ...l, workout_log_exercises: exMap[l.id] || [] })), true);
-  _cacheSet('logs');
-}
-
-const _logDataMap = {}; // logId → { date, member, notes }
-
-function renderLogCards(containerId, logs, showMember) {
-  const wrap = document.getElementById(containerId);
-  if (!logs?.length) {
-    wrap.innerHTML = `<div class="empty">수업 일지가 없어요<br>${showMember ? '위 작성 버튼으로 첫 일지를 기록해보세요' : '아직 기록이 없습니다'}</div>`;
-    return;
-  }
-
-  wrap.innerHTML = logs.map(log => {
-    const exs = log.workout_log_exercises || [];
-    const isNoshow = log.is_noshow === true;
-    const dateStr = new Date(log.session_date).toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'short' });
-    // 이미지 생성용 데이터 저장
-    _logDataMap[log.id] = { date: log.session_date, member: log.members?.name || '', notes: log.notes || '' };
-    const canShare = !isNoshow && exs.length > 0;
-    return `
-      <div class="log-card" style="${isNoshow ? 'opacity:0.6;border-color:#f59e0b44;' : ''}">
-        <div class="log-header">
-          <span class="log-date">${dateStr}</span>
-          ${isNoshow ? `<span style="background:#f59e0b22;border:1px solid #f59e0b66;color:#f59e0b;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;margin-left:6px;">노쇼</span>` : ''}
-          ${showMember ? `<span class="log-member">${esc(log.members?.name || '-')}</span>` : ''}
-        </div>
-        ${isNoshow
-          ? `<div style="color:#6a6a8a;font-size:13px;padding:6px 0;">운동 내용 없음</div>`
-          : (exs.length ? `<div class="log-exercises">${exs.map(e => {
-              const nm = esc(e.custom_name || '운동');
-              const setInfo = e.sets_data?.length
-                ? `${e.sets_data.length}세트`
-                : (e.sets ? `${e.sets}×${e.reps}` : '');
-              return `<span class="ex-tag">${nm}${setInfo ? ' ' + setInfo : ''}</span>`;
-            }).join('')}</div>` : '')
-        }
-        ${log.notes ? `<div class="log-notes" style="margin-top:8px">${esc(log.notes)}</div>` : ''}
-        <div class="log-actions">
-          ${isNoshow ? '' : `<button class="btn-sm" onclick="location.href='session-write.html?log=${log.id}'">수정</button>`}
-          ${log.note_photo_path ? `<button class="btn-sm" onclick="viewNotePhoto('${log.note_photo_path}')">노트 사진</button>` : ''}
-          ${canShare ? `<button class="btn-sm" style="color:#4ade80;border-color:#16a34a44" onclick="generateWorkoutCard('${log.id}')">이미지 저장</button>` : ''}
-          <button class="btn-sm btn-danger" onclick="deleteLog('${log.id}')">삭제</button>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-
-async function deleteLog(id) {
-  if (!await showConfirm('이 수업 일지를 삭제할까요?\n(관리자는 복구할 수 있습니다)', { danger: true })) return;
-  const { error } = await db.from('workout_logs').update({ is_deleted: true }).eq('id', id);
-  if (error) { showToast('삭제 실패'); return; }
-  showToast('삭제됐습니다');
-  _tabCache.logs = 0;
-  loadLogs();
-}
-
-async function viewNotePhoto(path) {
-  // Supabase Storage signed URL 생성 (1시간 유효)
-  const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
-  if (error || !data?.signedUrl) { showToast('사진을 불러올 수 없습니다'); return; }
-
-  // 전체화면 오버레이로 표시
-  const overlay = document.createElement('div');
-  overlay.id = 'notePhotoOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#000000ee;display:flex;align-items:center;justify-content:center;';
-  overlay.innerHTML = `
-    <button onclick="document.getElementById('notePhotoOverlay').remove()"
-      style="position:absolute;top:16px;right:16px;background:#1e3a5f;border:none;border-radius:50%;width:40px;height:40px;font-size:22px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1">✕</button>
-    <img src="${esc(data.signedUrl)}" alt="PT 노트"
-      style="max-width:96vw;max-height:92dvh;object-fit:contain;border-radius:10px;box-shadow:0 0 40px #00000088;">
-  `;
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-}
-
-// ══════════════════════════════════════════════════════════════
-// 운동 카드 이미지 생성 (Canvas 기반, PNG 저장)
-// ══════════════════════════════════════════════════════════════
-async function generateWorkoutCard(logId) {
-  const meta = _logDataMap[logId] || {};
-  showToast('이미지 생성 중...');
-
-  // 운동 상세 + exercise_refs 정보 조회
-  const { data: exs, error } = await db.from('workout_log_exercises')
-    .select('custom_name,sets_data,sets,reps,order_index,weight_mode,exercise_refs(name_ko,image_url,part_unified,tool_unified)')
-    .eq('log_id', logId)
-    .order('order_index');
-  if (error || !exs?.length) { showToast('운동 기록이 없어요'); return; }
-
-  // ── 상수 ─────────────────────────────────────────────────────
-  const W = 1080, PAD = 52;
-  const COL = W - PAD * 2;
-  const HEADER_H = 116, FOOTER_H = 72;
-  const EX_TOP = 56, NAME_H = 70, SET_HDR = 38, SET_ROW = 38, EX_SEP = 28;
-  const notesText = meta.notes || '';
-  const memberName = meta.member || '';
-  const sessionDate = meta.date || '';
-
-  // 운동 이미지 로드 시도 (CORS 실패 시 null)
-  const imgMap = {};
-  await Promise.all(exs.map(async (ex, i) => {
-    const url = ex.exercise_refs?.image_url;
-    if (!url) return;
-    imgMap[i] = await new Promise(resolve => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload  = () => resolve(img);
-      img.onerror = () => resolve(null);
-      setTimeout(() => resolve(null), 4000);
-      img.src = url;
-    });
-  }));
-
-  // ── 높이 계산 ──────────────────────────────────────────────────
-  let totalH = HEADER_H + EX_TOP;
-  exs.forEach((ex, i) => {
-    const sets = ex.sets_data?.length || (ex.sets ? parseInt(ex.sets) || 0 : 0);
-    const hasImg = !!imgMap[i];
-    if (hasImg) totalH += Math.round(COL * 9 / 16); // 16:9 비율
-    totalH += NAME_H + (sets > 0 ? SET_HDR + sets * SET_ROW : 32);
-    if (i < exs.length - 1) totalH += EX_SEP + 24; // separator
-    else totalH += EX_SEP;
-  });
-  const notesH = notesText ? 100 : 0;
-  totalH += notesH + FOOTER_H + 20;
-
-  // ── 캔버스 생성 ────────────────────────────────────────────────
-  const canvas = document.createElement('canvas');
-  canvas.width = W; canvas.height = totalH;
-  const ctx = canvas.getContext('2d');
-
-  // ── Helper: 둥근 사각형 ───────────────────────────────────────
-  function rRect(x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-  }
-
-  // ── Helper: 긴 텍스트 줄 바꿈 ──────────────────────────────────
-  function wrapText(text, x, y, maxW, lh) {
-    let line = '', lines = [];
-    for (const ch of text) {
-      if (ctx.measureText(line + ch).width > maxW && line) { lines.push(line); line = ch; }
-      else line += ch;
-    }
-    if (line) lines.push(line);
-    lines.slice(0, 3).forEach((l, i) => ctx.fillText(l, x, y + i * lh));
-    return Math.min(lines.length, 3) * lh;
-  }
-
-  // ── 배경 ──────────────────────────────────────────────────────
-  ctx.fillStyle = '#080e1a'; ctx.fillRect(0, 0, W, totalH);
-
-  // ── 헤더 ──────────────────────────────────────────────────────
-  ctx.fillStyle = '#0d1525'; ctx.fillRect(0, 0, W, HEADER_H);
-  ctx.fillStyle = '#1e3a5f44'; ctx.fillRect(0, HEADER_H - 1, W, 1);
-
-  // 로고
-  ctx.font = 'bold 44px -apple-system, "Apple SD Gothic Neo", sans-serif';
-  ctx.fillStyle = '#ffffff'; ctx.fillText('VERA', PAD, 68);
-  const vW = ctx.measureText('VERA').width;
-  ctx.fillStyle = '#3b82f6'; ctx.fillText('GYM', PAD + vW + 6, 68);
-
-  // 날짜
-  const dateFmt = sessionDate
-    ? new Date(sessionDate + 'T00:00:00').toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' })
-    : '';
-  ctx.font = '26px -apple-system, "Apple SD Gothic Neo", sans-serif';
-  ctx.fillStyle = '#4a6580';
-  const dtW = ctx.measureText(dateFmt).width;
-  ctx.fillText(dateFmt, W - PAD - dtW, 68);
-
-  // 회원명
-  if (memberName) {
-    ctx.font = '24px -apple-system, "Apple SD Gothic Neo", sans-serif';
-    ctx.fillStyle = '#3b82f688';
-    ctx.fillText(memberName + '님', PAD, 100);
-  }
-
-  // ── 운동 목록 ──────────────────────────────────────────────────
-  let y = HEADER_H + EX_TOP;
-
-  for (let i = 0; i < exs.length; i++) {
-    const ex = exs[i];
-    const ref = ex.exercise_refs;
-    const name = ref?.name_ko || ex.custom_name || '운동';
-    const cat  = [ref?.part_unified, ref?.tool_unified].filter(Boolean).join(' · ');
-    const setsData = Array.isArray(ex.sets_data) ? ex.sets_data : [];
-
-    // 운동 사진 (CORS 성공 시)
-    const img = imgMap[i];
-    if (img) {
-      const imgH = Math.round(COL * 9 / 16);
-      rRect(PAD, y, COL, imgH, 14); ctx.save(); ctx.clip();
-      // 이미지 contain 방식으로 그리기
-      const scale = Math.min(COL / img.naturalWidth, imgH / img.naturalHeight);
-      const iW = img.naturalWidth * scale, iH = img.naturalHeight * scale;
-      ctx.fillStyle = '#0d1a2e'; ctx.fillRect(PAD, y, COL, imgH);
-      ctx.drawImage(img, PAD + (COL - iW) / 2, y + (imgH - iH) / 2, iW, iH);
-      ctx.restore();
-      y += imgH + 16;
-    }
-
-    // 번호 + 이름
-    ctx.font = 'bold 30px -apple-system, "Apple SD Gothic Neo", sans-serif';
-    ctx.fillStyle = '#3b82f6';
-    ctx.fillText(`${i + 1}.`, PAD, y + 30);
-    const numW = ctx.measureText(`${i + 1}. `).width + 2;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(name, PAD + numW, y + 30);
-
-    // 카테고리
-    if (cat) {
-      ctx.font = '22px -apple-system, "Apple SD Gothic Neo", sans-serif';
-      ctx.fillStyle = '#4a6580';
-      ctx.fillText(cat, PAD + numW, y + 56);
-    }
-    y += NAME_H;
-
-    // 세트 표
-    const colW = COL / 3;
-    if (setsData.length > 0) {
-      // 헤더
-      ctx.fillStyle = '#0a1525'; rRect(PAD, y, COL, SET_HDR, 8); ctx.fill();
-      ctx.font = '20px -apple-system, "Apple SD Gothic Neo", sans-serif';
-      ctx.fillStyle = '#3a5878'; ctx.textAlign = 'center';
-      ctx.fillText('세트', PAD + colW * 0.5, y + 25);
-      ctx.fillText('무게 (kg)', PAD + colW * 1.5, y + 25);
-      ctx.fillText('횟수', PAD + colW * 2.5, y + 25);
-      ctx.textAlign = 'left';
-      y += SET_HDR;
-
-      setsData.forEach((set, si) => {
-        ctx.fillStyle = si % 2 === 0 ? '#0d1a2e' : '#091422';
-        ctx.fillRect(PAD, y, COL, SET_ROW);
-        ctx.textAlign = 'center';
-        ctx.font = '22px -apple-system, "Apple SD Gothic Neo", sans-serif';
-        ctx.fillStyle = '#5a7898'; ctx.fillText(String(si + 1), PAD + colW * 0.5, y + 26);
-        ctx.fillStyle = '#ffffff';
-        const wDisp = (ex.weight_mode === 'single' && set.weight > 0)
-          ? `${set.weight}×2`
-          : (set.weight != null ? String(set.weight) : '─');
-        ctx.fillText(wDisp, PAD + colW * 1.5, y + 26);
-        ctx.fillText(set.reps   != null ? String(set.reps)   : '─', PAD + colW * 2.5, y + 26);
-        ctx.textAlign = 'left';
-        y += SET_ROW;
-      });
-    } else if (ex.sets) {
-      ctx.font = '24px -apple-system, "Apple SD Gothic Neo", sans-serif';
-      ctx.fillStyle = '#60a5fa';
-      ctx.fillText(`${ex.sets}세트 × ${ex.reps || 0}회`, PAD, y + 26);
-      y += 38;
-    }
-
-    // 구분선 (마지막 제외)
-    if (i < exs.length - 1) {
-      y += 16;
-      ctx.fillStyle = '#1e3a5f33'; ctx.fillRect(PAD, y, COL, 1);
-      y += EX_SEP;
-    } else {
-      y += EX_SEP;
-    }
-  }
-
-  // ── 메모 ─────────────────────────────────────────────────────
-  if (notesText) {
-    y += 8;
-    ctx.fillStyle = '#0d1a2e'; rRect(PAD, y, COL, notesH - 8, 12); ctx.fill();
-    ctx.font = 'bold 22px -apple-system, "Apple SD Gothic Neo", sans-serif';
-    ctx.fillStyle = '#3b82f6';
-    ctx.fillText('트레이너 메모', PAD + 18, y + 32);
-    ctx.font = '21px -apple-system, "Apple SD Gothic Neo", sans-serif';
-    ctx.fillStyle = '#8ba4c0';
-    wrapText(notesText, PAD + 18, y + 62, COL - 36, 30);
-    y += notesH;
-  }
-
-  // ── 푸터 ─────────────────────────────────────────────────────
-  const fy = totalH - FOOTER_H;
-  ctx.fillStyle = '#1e3a5f22'; ctx.fillRect(0, fy, W, 1);
-  ctx.font = '22px -apple-system, "Apple SD Gothic Neo", sans-serif';
-  ctx.fillStyle = '#2a4060'; ctx.textAlign = 'center';
-  ctx.fillText('VERA GYM | 트레이너 수업 기록', W / 2, fy + 44);
-  ctx.textAlign = 'left';
-
-  // ── 이미지 저장 ───────────────────────────────────────────────
-  try {
-    canvas.toBlob(blob => {
-      if (!blob) { showToast('이미지 생성 실패'); return; }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `veragym_${sessionDate || 'workout'}.png`;
-      document.body.appendChild(a); a.click();
-      document.body.removeChild(a); URL.revokeObjectURL(url);
-      showToast('이미지 저장 완료');
-    }, 'image/png');
-  } catch (e) {
-    // 이미지 CORS 오염 시 이미지 없이 재시도
-    showToast('이미지 재생성 중 (사진 제외)...');
-    Object.keys(imgMap).forEach(k => { imgMap[k] = null; });
-    // 재귀 대신 간단히 사용자에게 안내
-    showToast('운동 이미지 로드 실패 — 사진 없이 다시 눌러주세요');
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-// 요청사항
-// ══════════════════════════════════════════════════════════════
-async function checkPendingReqs() {
-  const { count } = await db.from('requests').select('id', { count: 'exact', head: true })
-    .eq('trainer_id', me.id).eq('status', 'pending');
-  if (count > 0) {
-    // Badge will be shown by CSS
-  }
-}
-
-async function loadRequests() {
-  document.getElementById('reqList').innerHTML = '<div class="loading">불러오는 중...</div>';
-  const { data, error } = await db.from('requests')
-    .select('id,type,content,status,admin_note,created_at').eq('trainer_id', me.id).order('created_at', { ascending: false });
-  if (await handleDbError(error, '요청사항 불러오기 실패')) {
-    document.getElementById('reqList').innerHTML = '<div class="empty">불러오기 실패<br><button class="retry-btn" onclick="loadRequests()">다시 시도</button></div>';
-    return;
-  }
-
-  const pending = data?.filter(r => r.status === 'pending') || [];
-  document.getElementById('reqCount').textContent = pending.length ? `(미처리 ${pending.length})` : `(${data?.length || 0}건)`;
-
-  const wrap = document.getElementById('reqList');
-  if (!data?.length) {
-    wrap.innerHTML = `<div class="empty">요청사항이 없어요<br>운동DB 추가, 버그 신고 등을 관리자에게 전달하세요</div>`;
-    return;
-  }
-
-  const TYPE = { db_add:'운동DB 추가', bug_report:'버그 신고', other:'기타' };
-  const TYPE_CLASS = { db_add:'type-db', bug_report:'type-bug', other:'type-other' };
-  const STATUS = { pending:'처리중', completed:'완료', deleted:'삭제됨' };
-
-  wrap.innerHTML = data.map(r => `
-    <div class="req-card">
-      <div class="req-top">
-        <span class="req-type-tag ${TYPE_CLASS[r.type]}">${TYPE[r.type]}</span>
-        <span class="badge ${r.status === 'completed' ? 'badge-req-done' : 'badge-req-pending'}">${STATUS[r.status] || r.status}</span>
-      </div>
-      <div class="req-content">${r.content}</div>
-      <div class="req-meta">${new Date(r.created_at).toLocaleDateString('ko-KR')}${r.admin_note ? ' · 관리자 메모: ' + r.admin_note : ''}</div>
-    </div>`).join('');
-  _cacheSet('requests');
-}
-
-function openAddReq() {
-  document.getElementById('reqContent').value = '';
-  document.getElementById('reqErr').style.display = 'none';
-  openModal('addReqModal');
-}
-
-async function saveReq() {
-  const type    = document.getElementById('reqType').value;
-  const content = document.getElementById('reqContent').value.trim();
-  const btn     = document.getElementById('btnAddReq');
-
-  document.getElementById('reqErr').style.display = 'none';
-  if (!content) { showModalErr('reqErr', '내용을 입력해주세요'); return; }
-
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>제출 중...';
-  const { error } = await db.from('requests').insert({
-    trainer_id: me.id, type, content, status: 'pending'
-  });
-
-  if (error) {
-    showModalErr('reqErr', '제출 실패: ' + error.message);
-  } else {
-    closeModal('addReqModal');
-    showToast('요청 제출 완료!');
-    loadRequests();
-  }
-  btn.disabled = false; btn.textContent = '제출';
-}
-
-// ══════════════════════════════════════════════════════════════
-// 공통 유틸
-// ══════════════════════════════════════════════════════════════
-function showModalErr(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg; el.style.display = 'block';
-}
-
-async function doLogout() {
-  await db.auth.signOut();
-  localStorage.removeItem('vg_trainer');
-  localStorage.removeItem('vg_exdb_cache_v2');
-  sessionStorage.removeItem('vg_session_draft');
-  location.replace('trainer-login.html');
-}
-
-init();
-
-// ─── 타이머 정리 (페이지 이탈 시 메모리 누수 방지) ──────────
-window.addEventListener('beforeunload', () => {
-  if (_midnightTimer)  clearTimeout(_midnightTimer);
-  if (_igSearchTimer)  clearTimeout(_igSearchTimer);
-}, { once: true });
-
-// ─── bfcache 복원 시 재초기화 ─────────────────────────────
-// exercise-library ↔ trainer-dash 탭 이동 시 bfcache 복원되면
-// me=null 상태로 자막·회원목록이 비어있을 수 있음
-window.addEventListener('pageshow', (e) => {
-  if (e.persisted && !me) init();
-});
-
-// ══════════ 일정 탭 – 구글캘린더 그리드 (오늘~3일 후, 고정) ══════════
-const CAL_START_H=6,CAL_END_H=23,CAL_SLOT_PX=56;
-let scheduleData=[],myMembersForSched=[],_schedEditId=null,_midnightTimer=null;
-const TYPE_COLORS={PT:'#6c63ff',SPT:'#ffd54f',업무:'#81c784',청소:'#42a5f5',홍보:'#f06292',식사:'#ef9a9a'};
-const DAY_KO=['일','월','화','수','목','금','토'];
-// 로컬 타임존 기준 YYYY-MM-DD (toISOString은 UTC → KST +9 시차 버그)
-function toYMD(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function fromYMD(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
-function toHM(t){return t?t.slice(0,5):'';}
-function getCalDates(){
-  const t=new Date();t.setHours(0,0,0,0);
-  // 어제(-1), 오늘(0), 내일(+1), 내일모레(+2)
-  return[-1,0,1,2].map(i=>{const d=new Date(t);d.setDate(d.getDate()+i);return d;});
-}
-async function loadScheduleView(){
-  const dates=getCalDates();
-  if(!myMembersForSched.length&&me){
-    const{data:mems}=await db.from('members').select('id,name').eq('trainer_id',me.id).eq('is_active',true).order('name');
-    myMembersForSched=mems||[];
-  }
-  const{data,error}=await db.from('schedules')
-    .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,color,pt_product_id,session_number,auto_completed,pt_products(remaining_sessions,total_sessions)')
-    .eq('trainer_id',me.id)
-    .gte('sched_date',toYMD(dates[0])).lte('sched_date',toYMD(dates[3])).order('start_time');
-  if(error){await handleDbError(error,'일정 불러오기 실패');scheduleData=[];}
-  else scheduleData=data||[];
-  renderCalGrid(dates);
-  scheduleMidnightRefresh();
-}
-// 시간(hh,mm) → 픽셀 Y 좌표 (캘린더 시작 기준)
-function timeToY(hh,mm){return((hh-CAL_START_H)+mm/60)*CAL_SLOT_PX;}
-function renderCalGrid(dates){
-  const todayYMD=toYMD(new Date()),now=new Date(),nowH=now.getHours(),nowM=now.getMinutes();
-  const TOTAL_PX=(CAL_END_H-CAL_START_H+1)*CAL_SLOT_PX; // 전체 높이
-  // ── 날짜 헤더 ──
-  // gutter에 시간표 버튼 삽입
-  document.getElementById('calDateRow').innerHTML=
-    '<div class="cal-gutter" onclick="openBranchSchedModal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none;border:1px solid #6c63ff55;border-radius:6px;margin:3px;">'+
-    '<span style="font-size:9px;color:#6c63ff;font-weight:700;line-height:1.5;text-align:center;">전체</span>'+
-    '<span style="font-size:9px;color:#6c63ff;font-weight:700;line-height:1.5;text-align:center;">시간표</span>'+
-    '</div>'+
-    dates.map(d=>{
-      const isToday=toYMD(d)===todayYMD;
-      const isPast=toYMD(d)<todayYMD;
-      return`<div class="cal-day-hdr${isToday?' today':isPast?' past':''}"><div class="cal-dhdr-name">${DAY_KO[d.getDay()]}</div><div class="cal-dhdr-num">${d.getDate()}</div></div>`;
-    }).join('');
-  // ── 시간 레이블 컬럼 (absolute) ──
-  let timeCol=`<div class="cal-time-col" style="height:${TOTAL_PX}px">`;
-  for(let h=CAL_START_H;h<=CAL_END_H;h++){
-    const y=timeToY(h,0);
-    const lbl=h<12?`오전 ${h}시`:h===12?`오후 12시`:`오후 ${h-12}시`;
-    // 첫 레이블(y=0)은 translateY(-50%)시 위로 잘리므로 top:0에서 내리지 않음
-    const transform=h===CAL_START_H?'translateY(2px)':'translateY(-50%)';
-    timeCol+=`<div class="cal-time-label" style="top:${y}px;transform:${transform}">${lbl}</div>`;
-  }
-  // 마지막 라인 표시용 더미
-  timeCol+=`<div style="position:absolute;top:${TOTAL_PX}px;width:1px;height:1px"></div></div>`;
-  // ── 예약 중 PT 세션 오프셋 계산 (같은 pt_product_id의 scheduled 건을 시간순 정렬 후 +1씩) ──
-  const _ptSorted=scheduleData
-    .filter(s=>s.type==='PT'&&s.status==='scheduled'&&s.pt_product_id)
-    .sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
-  const _ptOffsetMap=new Map();
-  const _ptCnt={};
-  _ptSorted.forEach(s=>{const k=s.pt_product_id;if(!_ptCnt[k])_ptCnt[k]=0;_ptOffsetMap.set(s.id,_ptCnt[k]++);});
-
-  // ── 날짜 컬럼 (absolute 이벤트 포지셔닝) ──
-  const dayCols=dates.map(d=>{
-    const ymd=toYMD(d),isToday=ymd===todayYMD;
-    let col=`<div class="cal-day-col-body" style="height:${TOTAL_PX}px">`;
-    // 그리드라인 + 30분 클릭존
-    for(let h=CAL_START_H;h<=CAL_END_H;h++){
-      const y0=timeToY(h,0),y30=timeToY(h,30);
-      const t00=`${String(h).padStart(2,'0')}:00`,t30=`${String(h).padStart(2,'0')}:30`;
-      const past00=isToday&&(h<nowH||(h===nowH&&nowM>=60));
-      const past30=isToday&&(h<nowH||(h===nowH&&nowM>=30));
-      col+=`<div class="cal-gridline-hr" style="top:${y0}px"></div>`;
-      col+=`<div class="cal-click-zone${past00?' past':''}" style="top:${y0}px;height:${CAL_SLOT_PX/2}px" onclick="openSchedModal(null,'${ymd}','${t00}')"></div>`;
-      col+=`<div class="cal-gridline-half" style="top:${y30}px"></div>`;
-      col+=`<div class="cal-click-zone${past30?' past':''}" style="top:${y30}px;height:${CAL_SLOT_PX/2}px" onclick="openSchedModal(null,'${ymd}','${t30}')"></div>`;
-    }
-    col+=`<div class="cal-gridline-hr" style="top:${TOTAL_PX}px"></div>`;
-    // ── 이벤트 블록 (픽셀 정확 위치) ──
-    scheduleData.filter(s=>s.sched_date===ymd&&s.status!=='cancelled').forEach(s=>{
-      const[sh,sm]=s.start_time.split(':').map(Number);
-      let eh,em;
-      if(s.end_time){[eh,em]=s.end_time.split(':').map(Number);}else{eh=sh+1;em=sm;}
-      const top=timeToY(sh,sm);
-      const dur=(eh-sh)+(em-sm)/60;
-      const height=Math.max(dur*CAL_SLOT_PX,20);
-      const mem=myMembersForSched.find(m=>m.id===s.member_id);
-      const sType=s.type||'PT';
-      const memName=mem?mem.name:'';
-      // 상태별 색상/스타일 처리
-      let evBg,evOpacity='1',evExtra='';
-      if(s.status==='noshow'){
-        evBg='#f59e0b';// 노쇼: 황색 고정 + 어둡게 + 체크
-        evOpacity='0.5';
-        evExtra='<div style="position:absolute;top:2px;right:4px;font-size:10px;opacity:0.9">✓</div>';
-      }else if(s.status==='completed'){
-        evBg=TYPE_COLORS[sType]||'#6c63ff';
-        evOpacity='0.45';// 완료: 원래 색상 어둡게 + 체크
-        evExtra='<div style="position:absolute;top:2px;right:4px;font-size:10px;opacity:0.9">✓</div>';
-      }else{
-        evBg=TYPE_COLORS[sType]||'#6c63ff';// scheduled: 기본
-      }
-      let sessionTxt='';
-      if(sType==='PT'&&s.pt_products){
-        const used=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
-        const offset=s.status==='scheduled'?(_ptOffsetMap.get(s.id)||0):0;
-        const sessionNum=s.status==='scheduled'?used+offset+1:(s.session_number||used);
-        sessionTxt=` ${sessionNum}/${s.pt_products.total_sessions||0}`;
-      }
-      let evLine1,evLine2;
-      if(sType==='PT'){
-        evLine1=memName||'PT';
-        evLine2=memName?`PT${sessionTxt}`:'';
-      }else if(sType==='SPT'){
-        evLine1='SPT';
-        evLine2=s.notes||'';
-      }else if(sType==='업무'){
-        evLine1='업무';
-        evLine2=s.notes||'';
-      }else{
-        evLine1=sType;
-        evLine2='';
-      }
-      col+=`<div class="cal-event" style="background:${evBg}dd;opacity:${evOpacity};top:${top}px;height:${height}px;position:absolute;" onclick="event.stopPropagation();openSchedInfo('${s.id}')">${evExtra}<div class="cal-event-title">${evLine1}</div>${evLine2?`<div class="cal-event-sub">${evLine2}</div>`:''}</div>`;
-    });
-    // 현재 시간 표시선
-    if(isToday){const ny=timeToY(nowH,nowM);if(ny>=0&&ny<=TOTAL_PX)col+=`<div class="cal-now-line" style="top:${ny}px"></div>`;}
-    col+='</div>';
-    return col;
-  }).join('');
-  document.getElementById('calGrid').innerHTML=timeCol+dayCols;
-  // 현재 시간으로 스크롤 (1시간 여유)
-  document.getElementById('calGridScroll').scrollTop=Math.max(0,timeToY(Math.max(CAL_START_H,nowH-1),0));
-}
-// ── 자정 자동갱신 ────────────────────────────────────────────
-function scheduleMidnightRefresh(){
-  if(_midnightTimer)clearTimeout(_midnightTimer);
-  const now=new Date(),midnight=new Date(now);
-  midnight.setHours(24,0,10,0);
-  _midnightTimer=setTimeout(async()=>{
-    // 자동완료는 DB cron job(auto_complete_old_sessions)이 처리
-    myMembersForSched=[];
-    await loadScheduleView();
-  },midnight-now);
-}
-
-// ── 에러 공통 처리 ──────────────────────────────────────────
-async function handleDbError(error, fallbackMsg) {
-  if (!error) return false;
-  const msg = error.message || '';
-  // JWT 만료 또는 인증 에러 → 재로그인
-  if (msg.includes('JWT') || msg.includes('expired') || msg.includes('Invalid token') || error.status === 401) {
-    await db.auth.signOut();
-    location.replace('trainer-login.html');
-    return true;
-  }
-  showToast((fallbackMsg || '오류') + ': ' + msg.slice(0, 40));
-  return true;
-}
-const _origSwitchTab=switchTab;
-switchTab=function(id,btn){_origSwitchTab(id,btn);if(id==='schedule')loadScheduleView();if(id==='revenue')loadRevenue();if(id==='imggen'){igLoadExCache();igRenderList();}};
-
-// ══════════ 매출관리 (Revenue) ══════════
-let _revPayments = [];        // payment_records for this trainer
-let _revForecasts = [];       // sales_forecasts
-let _fcEditId = null;         // 수정 중인 forecast id (null=신규)
-let _revTarget = null;        // sales_targets row
-let _revMonthMode = 'cur';    // 'cur' or 'next'
-let _revLoaded = false;
-
-function _curMonth() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-}
-function _nextMonth() {
-  const d = new Date();
-  d.setMonth(d.getMonth()+1);
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-}
-function _fmtWon(n) {
-  return (n||0).toLocaleString('ko-KR') + '원';
-}
-
-async function loadRevenue() {
-  if (!me) return;
-  try {
-    // 병렬 로드
-    const [pRes, fRes, tRes] = await Promise.all([
-      db.from('payment_records').select('payment_date,net_amount,trainer_id').eq('trainer_id', me.id),
-      db.from('sales_forecasts').select('*').eq('trainer_id', me.id).order('created_at'),
-      db.from('sales_targets').select('*').eq('trainer_id', me.id)
-    ]);
-    if (pRes.error) throw pRes.error;
-    if (fRes.error) throw fRes.error;
-    if (tRes.error) throw tRes.error;
-    _revPayments = pRes.data || [];
-    _revForecasts = fRes.data || [];
-    const targets = tRes.data || [];
-    _revTarget = targets.find(t => t.target_month === _curMonth()) || null;
-    _revLoaded = true;
-
-    renderRevAvg();
-    renderRevSummary();
-    renderForecasts();
-  } catch(e) { console.error('loadRevenue', e); showToast('매출 정보를 불러오지 못했습니다'); }
-}
-
-// ── <1> 총 평균매출 ──
-function renderRevAvg() {
-  if (!_revPayments.length) {
-    document.getElementById('revAvgAll').textContent = '0원';
-    document.getElementById('revAvgPeriod').textContent = '0원';
-    return;
-  }
-  // 총 평균: 전체 기간의 월평균
-  const byMonth = {};
-  _revPayments.forEach(p => {
-    const m = p.payment_date.slice(0,7);
-    byMonth[m] = (byMonth[m]||0) + p.net_amount;
-  });
-  const months = Object.keys(byMonth).sort();
-  const totalAmt = Object.values(byMonth).reduce((a,b)=>a+b,0);
-  const avgAll = months.length ? Math.round(totalAmt / months.length) : 0;
-  document.getElementById('revAvgAll').textContent = _fmtWon(avgAll);
-
-  // 년도 드롭다운 채우기
-  const years = [...new Set(months.map(m=>m.slice(0,4)))].sort();
-  const sel = document.getElementById('revYear');
-  const curYVal = sel.value;
-  sel.innerHTML = years.map(y=>`<option value="${y}">${y}년</option>`).join('');
-  if (curYVal && years.includes(curYVal)) sel.value = curYVal;
-  else sel.value = years[years.length-1] || new Date().getFullYear();
-
-  updateRevPeriodUI();
-}
-
-function updateRevPeriodUI() {
-  const type = document.getElementById('revPeriodType').value;
-  const subSel = document.getElementById('revPeriodSub');
-  if (type === 'year') {
-    subSel.style.display = 'none';
-  } else if (type === 'half') {
-    subSel.style.display = '';
-    subSel.innerHTML = '<option value="1">상반기</option><option value="2">하반기</option>';
-  } else {
-    subSel.style.display = '';
-    subSel.innerHTML = '<option value="1">1분기</option><option value="2">2분기</option><option value="3">3분기</option><option value="4">4분기</option>';
-  }
-  calcRevPeriod();
-}
-
-function calcRevPeriod() {
-  const year = document.getElementById('revYear').value;
-  const type = document.getElementById('revPeriodType').value;
-  const sub = parseInt(document.getElementById('revPeriodSub').value) || 1;
-
-  let startM, endM;
-  if (type === 'year') {
-    startM = 1; endM = 12;
-  } else if (type === 'half') {
-    startM = sub === 1 ? 1 : 7;
-    endM = sub === 1 ? 6 : 12;
-  } else {
-    startM = (sub-1)*3+1;
-    endM = sub*3;
-  }
-
-  const byMonth = {};
-  _revPayments.forEach(p => {
-    const m = p.payment_date.slice(0,7);
-    byMonth[m] = (byMonth[m]||0) + p.net_amount;
-  });
-
-  let total = 0;
-  const now = new Date();
-  const curYear = now.getFullYear();
-  const curMonthNum = now.getMonth() + 1;
-  const periodYear = parseInt(year);
-
-  // 지나간 월 수 계산 (미래 기간이면 0)
-  let elapsedMonths;
-  if (periodYear < curYear) {
-    elapsedMonths = endM - startM + 1;
-  } else if (periodYear > curYear) {
-    elapsedMonths = 0;
-  } else {
-    elapsedMonths = Math.max(0, Math.min(endM, curMonthNum) - startM + 1);
-  }
-
-  for (let m = startM; m <= endM; m++) {
-    const key = `${year}-${String(m).padStart(2,'0')}`;
-    if (byMonth[key] !== undefined) total += byMonth[key];
-  }
-  const avg = elapsedMonths > 0 ? Math.round(total / elapsedMonths) : 0;
-  document.getElementById('revAvgPeriod').textContent = _fmtWon(avg);
-}
-
-// ── <2> 목표/예상/달성 ──
-function renderRevSummary() {
-  const cm = _curMonth();
-  // 목표
-  document.getElementById('revTargetInput').value = _revTarget ? _revTarget.target_amount : '';
-
-  // 달성 (당월 payment_records)
-  const achieved = _revPayments
-    .filter(p => p.payment_date.slice(0,7) === cm)
-    .reduce((s,p) => s + p.net_amount, 0);
-  document.getElementById('revAchieved').textContent = _fmtWon(achieved);
-
-  // 예상 합계 (당월 forecasts)
-  updateForecastTotal();
-}
-
-function updateForecastTotal() {
-  const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
-  const total = _revForecasts
-    .filter(f => f.forecast_month === month)
-    .reduce((s,f) => s + (f.price_per_session * f.session_count), 0);
-  document.getElementById('revForecastTotal').textContent = _fmtWon(total);
-}
-
-async function saveTarget() {
-  const val = parseInt(document.getElementById('revTargetInput').value) || 0;
-  const cm = _curMonth();
-  try {
-    if (_revTarget) {
-      const { error } = await db.from('sales_targets').update({ target_amount: val, updated_at: new Date().toISOString() }).eq('id', _revTarget.id);
-      if (error) throw error;
-      _revTarget.target_amount = val;
-    } else {
-      const { data, error } = await db.from('sales_targets').insert({ trainer_id: me.id, target_month: cm, target_amount: val }).select().single();
-      if (error) throw error;
-      _revTarget = data;
-    }
-    showToast('목표매출 저장!');
-  } catch(e) { showToast('저장 실패: ' + (e.message||'')); }
-}
-
-// ── <3> 예상매출 목록 ──
-function switchRevMonth(mode) {
-  _revMonthMode = mode;
-  document.getElementById('revMonthCur').classList.toggle('active', mode==='cur');
-  document.getElementById('revMonthNext').classList.toggle('active', mode==='next');
-  renderForecasts();
-  updateForecastTotal();
-}
-
-function copyForecastText() {
-  const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
-  const list = _revForecasts.filter(f => f.forecast_month === month);
-  const [y, m] = month.split('-');
-  const weekNum = _revMonthMode === 'cur' ? Math.ceil(new Date().getDate() / 7) : 1;
-
-  const registered   = list.filter(f =>  f.is_registered);
-  const unregistered = list.filter(f => !f.is_registered);
-
-  const targetVal = parseInt(document.getElementById('revTargetInput').value) || 0;
-
-  const lines = [];
-  lines.push(`${me?.name || ''} ${Number(m)}월 ${weekNum}주차 매출계획`);
-  lines.push(`목표매출: ${_fmtWon(targetVal)}`);
-  lines.push('');
-
-  lines.push('등록매출');
-  registered.forEach(f => {
-    const amt = (f.price_per_session || 0) * f.session_count;
-    lines.push(`${f.member_name} | ${(f.price_per_session||0).toLocaleString()} × ${f.session_count}회 | ${_fmtWon(amt)}${f.payment_due_date ? ' | ' + f.payment_due_date : ''}`);
-    if (f.memo) lines.push(`-${f.memo}`);
-  });
-  const regTotal = registered.reduce((s, f) => s + (f.price_per_session||0) * f.session_count, 0);
-  lines.push(`현재 총 등록매출: ${_fmtWon(regTotal)}`);
-
-  lines.push('');
-
-  lines.push('예상매출');
-  unregistered.forEach(f => {
-    const amt = (f.price_per_session || 0) * f.session_count;
-    lines.push(`${f.member_name} | ${(f.price_per_session||0).toLocaleString()} × ${f.session_count}회 | ${_fmtWon(amt)}${f.payment_due_date ? ' | ' + f.payment_due_date : ''}`);
-    if (f.memo) lines.push(`-${f.memo}`);
-  });
-  const unregTotal = unregistered.reduce((s, f) => s + (f.price_per_session||0) * f.session_count, 0);
-  lines.push(`총 예상매출: ${_fmtWon(unregTotal)}`);
-
-  const text = lines.join('\n');
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text)
-      .then(() => showToast('복사됐어요! 카카오톡에 붙여넣기 하세요'))
-      .catch(() => _fallbackCopy(text));
-  } else {
-    _fallbackCopy(text);
-  }
-}
-function _fallbackCopy(text) {
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
-  document.body.appendChild(ta);
-  ta.focus(); ta.select();
-  try { document.execCommand('copy'); showToast('복사됐어요! 카카오톡에 붙여넣기 하세요'); }
-  catch (_) { showToast('복사 실패 — 텍스트를 직접 선택해 주세요'); }
-  document.body.removeChild(ta);
-}
-
-function renderForecasts() {
-  const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
-  const list = _revForecasts.filter(f => f.forecast_month === month);
-  const el = document.getElementById('revForecastList');
-
-  if (!list.length) {
-    el.innerHTML = '<div style="text-align:center;color:#555;font-size:13px;padding:20px 0">등록된 예상매출이 없습니다.</div>';
-    return;
-  }
-
-  el.innerHTML = list.map(f => {
-    const amt = f.price_per_session * f.session_count;
-    const unreg = !f.is_registered;
-    return `<div class="fc-card${unreg?' unregistered':''}">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:14px;font-weight:600;color:${unreg?'#f87171':'#fff'}">${f.member_name}</span>
-        <span style="font-size:11px;padding:3px 8px;border-radius:6px;font-weight:600;${unreg?'background:#7f1d1d44;color:#f87171':'background:#16a34a33;color:#4ade80'}">${unreg?'미등록':'등록'}</span>
-      </div>
-      <div style="display:flex;gap:12px;margin-top:6px;font-size:12px;color:#888">
-        <span>단가 ${(f.price_per_session||0).toLocaleString()}</span>
-        <span>${f.session_count}회</span>
-        <span style="color:#60a5fa;font-weight:600">${_fmtWon(amt)}</span>
-      </div>
-      ${f.payment_due_date?`<div style="font-size:11px;color:#60a5fa88;margin-top:4px">결제예정일 ${f.payment_due_date}</div>`:''}
-      ${f.memo?`<div style="font-size:11px;color:#666;margin-top:2px">${f.memo}</div>`:''}
-      <div class="log-actions" style="margin-top:10px;padding-top:10px;border-top:1px solid #1e3a5f22">
-        <button class="btn-sm" style="color:#4ade80;border-color:#16a34a44" onclick="setForecastStatus('${f.id}',true)">등록</button>
-        <button class="btn-sm" style="color:#f87171;border-color:#7f1d1d44" onclick="setForecastStatus('${f.id}',false)">미등록</button>
-        <button class="btn-sm" style="color:#60a5fa;border-color:#3b82f633" onclick="editForecast('${f.id}')">수정</button>
-        <button class="btn-sm btn-danger" onclick="deleteForecast('${f.id}')">삭제</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-async function setForecastStatus(id, isRegistered) {
-  const f = _revForecasts.find(x=>x.id===id);
-  if (!f) return;
-  if (f.is_registered === isRegistered) return;
-  try {
-    const { error } = await db.from('sales_forecasts').update({ is_registered: isRegistered, updated_at: new Date().toISOString() }).eq('id', id);
-    if (error) throw error;
-    f.is_registered = isRegistered;
-    renderForecasts();
-    updateForecastTotal();
-    showToast(isRegistered ? '등록 처리됨' : '미등록 처리됨');
-  } catch(e) { showToast('변경 실패: ' + (e.message||'')); }
-}
-
-async function deleteForecast(id) {
-  try {
-    const { error } = await db.from('sales_forecasts').delete().eq('id', id);
-    if (error) throw error;
-    _revForecasts = _revForecasts.filter(x => x.id !== id);
-    renderForecasts();
-    updateForecastTotal();
-    showToast('삭제됐어요');
-  } catch(e) { showToast('삭제 실패: ' + (e.message||'')); }
-}
-
-// ── 예상매출 등록/수정 모달 ──
-function openForecastModal() {
-  _fcEditId = null;
-  document.getElementById('forecastModalTitle').textContent = '예상매출 등록';
-  document.getElementById('btnSaveForecast').textContent = '등록';
-  document.getElementById('fcName').value = '';
-  document.getElementById('fcPPS').value = '';
-  document.getElementById('fcCount').value = '';
-  document.getElementById('fcAmount').value = '0원';
-  document.getElementById('fcDueDate').value = '';
-  document.getElementById('fcMemo').value = '';
-  document.getElementById('forecastErr').style.display = 'none';
-  openModal('forecastModal');
-}
-function editForecast(id) {
-  const f = _revForecasts.find(x => x.id === id);
-  if (!f) return;
-  _fcEditId = id;
-  document.getElementById('forecastModalTitle').textContent = '예상매출 수정';
-  document.getElementById('btnSaveForecast').textContent = '저장';
-  document.getElementById('fcName').value = f.member_name || '';
-  document.getElementById('fcPPS').value = f.price_per_session || '';
-  document.getElementById('fcCount').value = f.session_count || '';
-  document.getElementById('fcAmount').value = _fmtWon((f.price_per_session||0) * (f.session_count||0));
-  document.getElementById('fcDueDate').value = f.payment_due_date || '';
-  document.getElementById('fcMemo').value = f.memo || '';
-  document.getElementById('forecastErr').style.display = 'none';
-  openModal('forecastModal');
-}
-function calcFcAmount() {
-  const pps = parseInt(document.getElementById('fcPPS').value)||0;
-  const cnt = parseInt(document.getElementById('fcCount').value)||0;
-  document.getElementById('fcAmount').value = _fmtWon(pps*cnt);
-}
-async function saveForecast() {
-  const name = document.getElementById('fcName').value.trim();
-  const pps = parseInt(document.getElementById('fcPPS').value)||0;
-  const cnt = parseInt(document.getElementById('fcCount').value)||0;
-  const dueDate = document.getElementById('fcDueDate').value || null;
-  const memo = document.getElementById('fcMemo').value.trim();
-  const errBox = document.getElementById('forecastErr');
-
-  if (!name) { errBox.textContent='회원명을 입력해주세요'; errBox.style.display='block'; return; }
-  if (!pps || !cnt) { errBox.textContent='세션단가와 세션 수를 입력해주세요'; errBox.style.display='block'; return; }
-
-  const btn = document.getElementById('btnSaveForecast');
-  btn.disabled = true;
-  try {
-    if (_fcEditId) {
-      // ── 수정 모드
-      const payload = { member_name: name, price_per_session: pps, session_count: cnt, payment_due_date: dueDate, memo: memo || null, updated_at: new Date().toISOString() };
-      const { data, error } = await db.from('sales_forecasts').update(payload).eq('id', _fcEditId).select().single();
-      if (error) throw error;
-      const idx = _revForecasts.findIndex(x => x.id === _fcEditId);
-      if (idx !== -1) _revForecasts[idx] = data;
-      closeModal('forecastModal');
-      renderForecasts();
-      updateForecastTotal();
-      showToast('수정 완료!');
-    } else {
-      // ── 신규 등록
-      const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
-      const { data, error } = await db.from('sales_forecasts').insert({
-        trainer_id: me.id,
-        forecast_month: month,
-        member_name: name,
-        price_per_session: pps,
-        session_count: cnt,
-        payment_due_date: dueDate,
-        memo: memo || null
-      }).select().single();
-      if (error) throw error;
-      _revForecasts.push(data);
-      closeModal('forecastModal');
-      renderForecasts();
-      updateForecastTotal();
-      showToast('예상매출 등록 완료!');
-    }
-  } catch(e) {
-    errBox.textContent = (_fcEditId ? '수정' : '등록') + ' 실패: '+e.message; errBox.style.display='block';
-  }
-  btn.disabled = false;
-}
-
-// ══════════ 전체 시간표 이미지 기능 (스프레드시트 형식) ══════════
-const BS_DAYS=['일','월','화','수','목','금','토'];
-let _bsTrainers=[],_bsSchedules=[],_bsCurrentDate='';
-
-function closeBranchSchedModal(){
-  document.getElementById('branchSchedModal').style.display='none';
-}
-
-// 오늘/내일 버튼 토글 상태 반영
-function _bsSetDayBtn(offset){
-  document.getElementById('bsBtnToday').style.background=offset===0?'#6c63ff':'#1e3a5f';
-  document.getElementById('bsBtnToday').style.color=offset===0?'#fff':'#7fb3d3';
-  document.getElementById('bsBtnTomorrow').style.background=offset===1?'#6c63ff':'#1e3a5f';
-  document.getElementById('bsBtnTomorrow').style.color=offset===1?'#fff':'#7fb3d3';
-}
-
-async function onBsDay(offset){
-  _bsSetDayBtn(offset);
-  const d=new Date();d.setDate(d.getDate()+offset);
-  _bsCurrentDate=toYMD(d);
-  document.getElementById('bsDatePicker').value=_bsCurrentDate;
-  document.getElementById('bsSubtitle').textContent='불러오는 중...';
-  await _bsLoadDay(_bsCurrentDate);
-  drawBranchCanvas(_bsCurrentDate);
-}
-
-async function openBranchSchedModal(){
-  document.getElementById('branchSchedModal').style.display='flex';
-  _bsSetDayBtn(0);
-  const today=toYMD(new Date());
-  _bsCurrentDate=today;
-  document.getElementById('bsDatePicker').value=today;
-  document.getElementById('bsSubtitle').textContent='불러오는 중...';
-  // 같은 지점 비관리자 트레이너 목록
-  const gym=me?.gym_location||'';
-  const{data:trainerList}=await db.from('trainers')
-    .select('id,name').eq('gym_location',gym).eq('is_active',true).eq('is_admin',false).order('name');
-  _bsTrainers=trainerList||[];
-  await _bsLoadDay(today);
-  drawBranchCanvas(today);
-}
-
-async function _bsLoadDay(dateStr){
-  if(!_bsTrainers.length)return;
-  const ids=_bsTrainers.map(t=>t.id);
-  const{data}=await db.from('schedules')
-    .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,pt_product_id,members(name),pt_products(total_sessions,remaining_sessions)')
-    .in('trainer_id',ids).eq('sched_date',dateStr).neq('status','cancelled').order('start_time');
-  _bsSchedules=data||[];
-}
-
-/* ── 스프레드시트형 캔버스 렌더링 (단일 테이블 6~23시) ── */
-function drawBranchCanvas(dateStr){
-  const canvas=document.getElementById('bsCanvas');
-  const ctx=canvas.getContext('2d');
-  const dpr=Math.min(window.devicePixelRatio||1,2);
-
-  // ── A4 가로 고정 (1240×877, 비율 297:210) ──
-  const CANVAS_W=1240,CANVAS_H=877;
-  const T_START=6,T_END=23,NUM_COLS=T_END-T_START+1; // 18열
-  const LABEL_W=80,SUM_W=46,SUM_N=4,TOTAL_SUM_W=SUM_W*SUM_N; // 184
-  const COL_W=Math.floor((CANVAS_W-LABEL_W-TOTAL_SUM_W)/NUM_COLS); // ~54
-  const ACTUAL_TIME_W=COL_W*NUM_COLS;
-  const TITLE_H=52,SUB_H=22,TH=28,FOOTER_H=0;
-
-  // 트레이너 최대 10명 + 빈칸 1행
-  const trainers=_bsTrainers.slice(0,10);
-  const nRows=trainers.length+1; // +1 empty
-  const ROW_H=Math.floor((CANVAS_H-TITLE_H-SUB_H-TH-FOOTER_H)/nRows);
-  const TABLE_H=TH+nRows*ROW_H;
-
-  canvas.width=CANVAS_W*dpr;canvas.height=CANVAS_H*dpr;
-  canvas.style.width=CANVAS_W+'px';canvas.style.height=CANVAS_H+'px';
-  ctx.scale(dpr,dpr);
-
-  // 날짜 파싱
-  const[yr,mo,da]=dateStr.split('-').map(Number);
-  const dow=new Date(yr,mo-1,da).getDay();
-  const gymLoc=me?.gym_location||''; // DB에 이미 "점" 포함 (미사점)
-  const dateLabel=`${mo}/${da}(${BS_DAYS[dow]})`;
-  document.getElementById('bsSubtitle').textContent=`${gymLoc} · ${dateLabel} · 트레이너 ${trainers.length}명 · ${_bsSchedules.length}건`;
-
-  const CELL_BG={SPT:'#fffde7',업무:'#e8f5e9',청소:'#e3f2fd',홍보:'#fce4ec',식사:'#ffebee'};
-  const FONT=`'Apple SD Gothic Neo','Noto Sans KR',sans-serif`;
-  function cleanName(raw){return(raw||'').replace(/\d+$/,'').trim().slice(0,3);}
-
-  // ── 흰 배경 ──
-  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
-
-  // ── 제목 (gymLoc 그대로, "점" 중복 방지) ──
-  ctx.fillStyle='#111';ctx.font=`bold 20px ${FONT}`;ctx.textAlign='center';
-  ctx.fillText(`베라짐 ${gymLoc} ${dateLabel} PT팀 데일리차트`,CANVAS_W/2,TITLE_H-10);
-  ctx.fillStyle='#666';ctx.font=`10px ${FONT}`;
-  ctx.fillText('업무 우선순위 : 미팅 → 수업 → 식사 → 청소 → 홍보 → PT',CANVAS_W/2,TITLE_H+8);
-
-  const tableY=TITLE_H+SUB_H;
-
-  // ── 헤더 배경 ──
-  ctx.fillStyle='#f0f0f0';ctx.fillRect(0,tableY,LABEL_W,TH);
-  ctx.fillStyle='#f5f5f5';ctx.fillRect(LABEL_W,tableY,ACTUAL_TIME_W,TH);
-
-  const timeEndX=LABEL_W+ACTUAL_TIME_W;
-  // 트레이너 행 높이 (비고 행 제외) — 시간 헤더 루프보다 먼저 정의
-  const trainerRowsH=TH+trainers.length*ROW_H;
-
-  // ── 시간 헤더 + 얇은 세로선 (요약열선보다 얇게) ──
-  for(let i=0;i<NUM_COLS;i++){
-    const h=T_START+i;
-    const x=LABEL_W+i*COL_W;
-    ctx.fillStyle='#333';ctx.font=`bold 10px ${FONT}`;ctx.textAlign='center';
-    ctx.fillText(`${h}시`,x+COL_W/2,tableY+TH/2+4);
-    // 얇은 실선 (시간 사이, 트레이너 행까지만)
-    ctx.strokeStyle='#ccc';ctx.lineWidth=0.5;
-    ctx.beginPath();ctx.moveTo(x,tableY);ctx.lineTo(x,tableY+trainerRowsH);ctx.stroke();
-  }
-  // 시간영역↔요약열 경계선 (굵게)
-  ctx.strokeStyle='#888';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(timeEndX,tableY);ctx.lineTo(timeEndX,tableY+trainerRowsH);ctx.stroke();
-
-  // ── 요약열 헤더 ──
-  const sumLabels=['SPT','PT','NS','PT합계'];
-  const sumBgs=['#e8d5ff','#c8e0ff','#ffd5d5','#ffeb9c'];
-  const sumFg=['#5b21b6','#1e40af','#b91c1c','#374151'];
-  sumLabels.forEach((lbl,si)=>{
-    const sx=timeEndX+si*SUM_W;
-    ctx.fillStyle=sumBgs[si];ctx.fillRect(sx,tableY,SUM_W,TH);
-    ctx.fillStyle=sumFg[si];ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';
-    ctx.fillText(lbl,sx+SUM_W/2,tableY+TH/2+4);
-    // 요약열 세로선 (트레이너 행 + 비고 행 전체)
-    ctx.strokeStyle='#888';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(sx,tableY);ctx.lineTo(sx,tableY+TABLE_H);ctx.stroke();
-  });
-  ctx.beginPath();ctx.moveTo(CANVAS_W,tableY);ctx.lineTo(CANVAS_W,tableY+TABLE_H);ctx.stroke();
-
-  // ── 트레이너 행 (최대 10명) ──
-  trainers.forEach((trainer,ti)=>{
-    const rowY=tableY+TH+ti*ROW_H;
-    ctx.fillStyle=ti%2===0?'#fafafa':'#f3f5f9';
-    ctx.fillRect(0,rowY,timeEndX,ROW_H);
-    ctx.fillStyle='#ffffff';ctx.fillRect(timeEndX,rowY,TOTAL_SUM_W,ROW_H);
-    ctx.strokeStyle='#ccc';ctx.lineWidth=0.5;
-    ctx.beginPath();ctx.moveTo(0,rowY+ROW_H);ctx.lineTo(CANVAS_W,rowY+ROW_H);ctx.stroke();
-
-    // 트레이너 이름 (수직 가운데)
-    ctx.fillStyle='#111';ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';
-    ctx.fillText(trainer.name,LABEL_W/2,rowY+ROW_H/2+4);
-
-    // 이 트레이너의 세션들 (trainer_id 문자열 비교로 안전하게)
-    const tId=String(trainer.id);
-    const trainerSess=_bsSchedules.filter(s=>String(s.trainer_id)===tId);
-    let cntSPT=0,cntPT=0,cntNS=0;
-
-    trainerSess.forEach(sess=>{
-      const h=parseInt(String(sess.start_time));
-      if(isNaN(h)||h<T_START||h>T_END)return;
-      const cellX=LABEL_W+(h-T_START)*COL_W;
-      const sType=sess.type||'PT';
-
-      // 셀 배경
-      ctx.fillStyle=CELL_BG[sType]||(sType==='PT'?'#e8e4ff':'#f0f0f0');
-      ctx.fillRect(cellX+1,rowY+1,COL_W-2,ROW_H-2);
-
-      ctx.textAlign='center';
-      if(sType==='PT'||sType==='SPT'){
-        const name=cleanName(sess.members?.name||sess.notes||'');
-        const usedM=(sess.pt_products?.total_sessions||0)-(sess.pt_products?.remaining_sessions||0);
-        const total=sess.pt_products?.total_sessions||0;
-        const sessionNumM=sess.status==='scheduled'?usedM+1:usedM;
-        const line1Y=rowY+ROW_H/2-6;
-        const line2Y=rowY+ROW_H/2+9;
-        ctx.fillStyle='#111';ctx.font=`bold 11px ${FONT}`;
-        ctx.fillText(name||sType,cellX+COL_W/2,line1Y);
-        ctx.fillStyle='#111';ctx.font=`10px ${FONT}`;
-        ctx.fillText(sType==='SPT'?'SPT':(total>0?`PT${sessionNumM}/${total}`:'PT'),cellX+COL_W/2,line2Y);
-        if(sType==='SPT')cntSPT++;else cntPT++;
-      }else{
-        ctx.fillStyle='#333';ctx.font=`bold 10px ${FONT}`;
-        ctx.fillText(sType,cellX+COL_W/2,rowY+ROW_H/2+4);
-        if(sType==='NS')cntNS++;
-      }
-    });
-
-    // 요약열은 수기 기입용 — 값 미출력
-
-    // 요약열 세로선 재그리기
-    sumLabels.forEach((_,si)=>{
-      const sx=timeEndX+si*SUM_W;
-      ctx.strokeStyle='#888';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(sx,rowY);ctx.lineTo(sx,rowY+ROW_H);ctx.stroke();
-    });
-    ctx.beginPath();ctx.moveTo(CANVAS_W,rowY);ctx.lineTo(CANVAS_W,rowY+ROW_H);ctx.stroke();
-  });
-
-  // ── 비고 행: │비고│──공란──│SPT│PT│NS│합계│ ──
-  const emptyRowY=tableY+trainerRowsH;
-  // 비고 라벨셀 (회색 배경)
-  ctx.fillStyle='#f0f0f0';ctx.fillRect(0,emptyRowY,LABEL_W,ROW_H);
-  ctx.fillStyle='#555';ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';
-  ctx.fillText('비고',LABEL_W/2,emptyRowY+ROW_H/2+4);
-  // 시간 영역 — 합친 흰 공백 (세로선 없음)
-  ctx.fillStyle='#ffffff';ctx.fillRect(LABEL_W,emptyRowY,ACTUAL_TIME_W,ROW_H);
-  // 시간영역↔요약열 경계선 (비고 행)
-  ctx.strokeStyle='#888';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(timeEndX,emptyRowY);ctx.lineTo(timeEndX,emptyRowY+ROW_H);ctx.stroke();
-  // 요약열 4칸 — 각각 흰 공란 (수기 작성용, 세로선은 위에서 전체로 그려짐)
-  sumLabels.forEach((_,si)=>{
-    const sx=timeEndX+si*SUM_W;
-    ctx.fillStyle='#ffffff';ctx.fillRect(sx,emptyRowY,SUM_W,ROW_H);
-  });
-
-
-  // ── 외곽선 & 라벨열 오른쪽 선 & 헤더 하단선 ──
-  ctx.strokeStyle='#888';ctx.lineWidth=1.5;
-  ctx.strokeRect(0,tableY,CANVAS_W,TABLE_H);
-  ctx.beginPath();ctx.moveTo(LABEL_W,tableY);ctx.lineTo(LABEL_W,tableY+TABLE_H);ctx.stroke();
-  ctx.strokeStyle='#999';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(0,tableY+TH);ctx.lineTo(CANVAS_W,tableY+TH);ctx.stroke();
-
-  // ── 예고 메모 (footer) ──
-  // ── 첫 세션 시간으로 자동 스크롤 ──
-  if(_bsSchedules.length){
-    const minH=_bsSchedules.reduce((m,s)=>Math.min(m,parseInt(s.start_time)),T_END);
-    const scrollX=Math.max(0,LABEL_W+(minH-T_START-1)*COL_W);
-    setTimeout(()=>{const wrap=document.getElementById('bsCanvasWrap');if(wrap)wrap.scrollLeft=scrollX;},60);
-  }
-}
-
-async function downloadBranchSched(){
-  const canvas=document.getElementById('bsCanvas');
-  const dateStr=_bsCurrentDate||toYMD(new Date());
-  const[yr,mo,da]=dateStr.split('-');
-  const fname=`베라짐_시간표_${yr}${mo}${da}.jpg`;
-  try{
-    const blob=await new Promise(res=>canvas.toBlob(res,'image/jpeg',0.93));
-    const file=new File([blob],fname,{type:'image/jpeg'});
-    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-      await navigator.share({files:[file],title:'베라짐 시간표'});return;
-    }
-  }catch(e){if(e.name==='AbortError')return;}
-  const url=canvas.toDataURL('image/jpeg',0.93);
-  const a=document.createElement('a');
-  a.href=url;a.download=fname;
-  document.body.appendChild(a);a.click();
-  setTimeout(()=>document.body.removeChild(a),200);
-  if(/iPhone|iPad/i.test(navigator.userAgent)){
-    setTimeout(()=>{const w=window.open();if(w){w.document.write(`<img src="${url}" style="max-width:100%;display:block;">`);w.document.title='시간표';}},500);
-  }
-}
-
-
-// ══════════ 일정 상세/액션 모달 ══════════
-const SI_STATUS_COLOR={scheduled:'#6c63ff',completed:'#22c55e',noshow:'#f59e0b',cancelled:'#6b7280'};
-const SI_STATUS_LABEL={scheduled:'예약됨',completed:'완료',noshow:'노쇼',cancelled:'취소됨'};
-let _siTarget=null,_siActionPending=null;
-
-function calcDurMin(start,end){if(!start||!end)return 60;const[sh,sm]=start.split(':').map(Number);const[eh,em]=end.split(':').map(Number);const d=(eh*60+em)-(sh*60+sm);return d>0?d:60;}
-
-function openSchedInfo(schedId){
-  _siTarget=scheduleData.find(s=>s.id===schedId);
-  if(!_siTarget)return;
-  _siActionPending=null;
-  const s=_siTarget;
-  const mem=myMembersForSched.find(m=>m.id===s.member_id);
-  // 헤더: PT=회원명, SPT/업무=notes, 기타=유형명
-  let siHeaderName;
-  if(s.type==='PT') siHeaderName=mem?.name||(s.type||'일정');
-  else if(s.type==='SPT'||s.type==='업무') siHeaderName=s.notes||(s.type||'일정');
-  else siHeaderName=s.type||'일정';
-  document.getElementById('siMember').textContent=siHeaderName;
-  const sc=SI_STATUS_COLOR[s.status]||'#666';
-  document.getElementById('siStatus').innerHTML=`<span style="background:${sc}33;border:1px solid ${sc}66;color:${sc};padding:3px 12px;border-radius:99px;font-size:12px;font-weight:700;">${SI_STATUS_LABEL[s.status]||s.status}</span>`;
-  // 상세
-  const[y,mo,d]=s.sched_date.split('-').map(Number);
-  const dateObj=new Date(y,mo-1,d);
-  const DAY_KO2=['일','월','화','수','목','금','토'];
-  const timeStr=s.start_time?s.start_time.slice(0,5):'--:--';
-  const dur=calcDurMin(s.start_time,s.end_time);
-  document.getElementById('siDateTime').textContent=`${mo}/${d}(${DAY_KO2[dateObj.getDay()]}) ${timeStr} (${dur}분)`;
-  document.getElementById('siType').textContent=s.type||'PT';
-  // PT 회차
-  const sessRow=document.getElementById('siSessionRow');
-  if(s.type==='PT'){
-    sessRow.style.display='flex';
-    if(s.pt_products){
-      const used=(s.pt_products.total_sessions||0)-(s.pt_products.remaining_sessions||0);
-      // scheduled 상태면 같은 pt_product 중 앞에 있는 예약 수만큼 +N+1 표시
-      const ptSorted=scheduleData.filter(x=>x.type==='PT'&&x.status==='scheduled'&&x.pt_product_id===s.pt_product_id).sort((a,b)=>(a.sched_date+a.start_time)<(b.sched_date+b.start_time)?-1:1);
-      const offset=s.status==='scheduled'?ptSorted.findIndex(x=>x.id===s.id):0;
-      const sessionNum=s.status==='scheduled'?used+(offset>=0?offset:0)+1:(s.session_number||used);
-      document.getElementById('siSession').textContent=`${sessionNum}/${s.pt_products.total_sessions||0}회차`;
-    }
-    else document.getElementById('siSession').textContent='-';
-  }else{sessRow.style.display='none';}
-  document.getElementById('siErr').style.display='none';
-  renderSiActions();
-  document.getElementById('schedInfoModal').style.display='flex';
-  document.body.style.overflow='hidden';
-}
-
-function renderSiActions(){
-  if(!_siTarget)return;
-  const s=_siTarget;
-  const acts=document.getElementById('siActions');
-  const isPtSpt=(s.type==='PT'||s.type==='SPT');
-  if(s.status==='scheduled'){
-    if(isPtSpt){
-      acts.innerHTML=`
-        <button id="siBtnComplete" onclick="siAction('complete')" style="width:100%;background:#22c55e22;border:1.5px solid #22c55e55;color:#4ade80;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">완료 처리</button>
-        <button id="siBtnNoshow" onclick="siAction('noshow')" style="width:100%;background:#f59e0b22;border:1.5px solid #f59e0b55;color:#fbbf24;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">노쇼 처리</button>
-        <div style="display:flex;gap:10px;">
-          <button id="siBtnCancel" onclick="siAction('cancel')" style="flex:1;background:#ff4d4f22;border:1.5px solid #ff4d4f55;color:#ff4d4f;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">예약 취소</button>
-          <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)" style="flex:1;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">수정</button>
-        </div>`;
-    }else{
-      // 업무/청소/홍보/식사: 완료 버튼 추가 (세션 차감 없이 상태만 변경)
-      acts.innerHTML=`
-        <button id="siBtnComplete" onclick="siAction('complete')" style="width:100%;background:#22c55e22;border:1.5px solid #22c55e55;color:#4ade80;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">완료 처리</button>
-        <div style="display:flex;gap:10px;">
-          <button id="siBtnCancel" onclick="siAction('cancel')" style="flex:1;background:#ff4d4f22;border:1.5px solid #ff4d4f55;color:#ff4d4f;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">예약 취소</button>
-          <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)" style="flex:1;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">수정</button>
-        </div>`;
-    }
-  }else if(s.status==='completed'||s.status==='noshow'){
-    if(s.auto_completed){
-      // 자동완료 수업: 트레이너 수정 불가
-      acts.innerHTML=`
-        <div style="width:100%;background:#1e2a3a;border:1.5px solid #3a5a7a55;color:#7a9abd;border-radius:12px;padding:14px;font-size:14px;text-align:center;line-height:1.6;">
-          ⚙️ 자동 완료된 수업입니다.<br>수정이 필요하면 <strong style="color:#60a5fa;">관리자에게 문의</strong>해주세요.
-        </div>
-        <button onclick="closeSchedInfo()" style="width:100%;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">닫기</button>`;
-    }else{
-      // 수동 완료/노쇼: 노쇼전환·취소·수정 제공 (예약상태 복원 없음 → 자동완료 루프 방지)
-      const toggleLabel = s.status==='completed' ? '노쇼 처리로 변경' : '완료 처리로 변경';
-      acts.innerHTML=`
-        <button id="siBtnToggleNoshow" onclick="siToggleNoshow()"
-          style="width:100%;background:#f59e0b22;border:1.5px solid #f59e0b55;color:#fbbf24;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">${toggleLabel}</button>
-        <div style="display:flex;gap:10px;">
-          <button id="siBtnCancelCompleted" onclick="siCancelCompleted()"
-            style="flex:1;background:#ff4d4f22;border:1.5px solid #ff4d4f55;color:#ff4d4f;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">예약 취소</button>
-          <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)"
-            style="flex:1;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">수정</button>
-        </div>`;
-    }
-  }else{
-    acts.innerHTML=`<button onclick="closeSchedInfo()" style="width:100%;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">닫기</button>`;
-  }
-}
-
-async function siAction(action){
-  if(!_siTarget)return;
-  const errEl=document.getElementById('siErr');
-  errEl.style.display='none';
-  // 1차 탭: 확인 요청
-  if(_siActionPending!==action){
-    _siActionPending=action;
-    const ids={complete:'siBtnComplete',noshow:'siBtnNoshow',cancel:'siBtnCancel'};
-    const labels={complete:'완료 처리 — 한 번 더 탭해서 확인',noshow:'노쇼 처리 — 한 번 더 탭해서 확인',cancel:'취소 — 한 번 더 탭해서 확인'};
-    const btn=document.getElementById(ids[action]);
-    if(btn){btn.textContent=labels[action];}
-    setTimeout(()=>{if(_siActionPending===action){_siActionPending=null;renderSiActions();}},3000);
-    return;
-  }
-  // 2차 탭: 실행
-  _siActionPending=null;
-  document.getElementById('siActions').querySelectorAll('button').forEach(b=>b.disabled=true);
-  try{
-    if(action==='complete'||action==='noshow'){
-      const targetId=_siTarget.id;
-      const memberId=_siTarget.member_id;
-      const schedDate=_siTarget.sched_date;
-      const schedType=_siTarget.type;
-      const _mem=myMembersForSched.find(m=>m.id===memberId);
-      const memberName=_mem?.name||'회원';
-      const{data,error}=await db.rpc('process_session',{p_schedule_id:_siTarget.id,p_action:action==='complete'?'completed':'noshow'});
-      if(error||!data?.ok)throw new Error(error?.message||data?.error||'처리 실패');
-      closeSchedInfo();
-      showToast(action==='complete'?'수업 완료 처리되었습니다':'노쇼 처리되었습니다');
-      await loadScheduleView();
-      // 수업일지 연결 모달: PT 완료 시에만 (SPT·기타는 개인 일지 없음)
-      if(action==='complete'&&schedType==='PT'&&memberId){
-        await openLinkLogModal(targetId,memberId,schedDate,memberName);
-      }
-    }else if(action==='cancel'){
-      const{error}=await db.from('schedules').update({status:'cancelled'}).eq('id',_siTarget.id);
-      if(error)throw new Error('취소 실패: '+error.message);
-      closeSchedInfo();
-      showToast('예약이 취소되었습니다');
-      await loadScheduleView();
-    }
-  }catch(e){
-    errEl.textContent=e.message;errEl.style.display='block';
-    document.getElementById('siActions').querySelectorAll('button').forEach(b=>b.disabled=false);
-    renderSiActions();
-  }
-}
-
-// ── 완료 ↔ 노쇼 전환 (잔여횟수 변동 없음) ──────────────────────
-let _siTogglePending=false;
-async function siToggleNoshow(){
-  if(!_siTarget)return;
-  const btn=document.getElementById('siBtnToggleNoshow');
-  const errEl=document.getElementById('siErr');
-  errEl.style.display='none';
-  if(btn){btn.disabled=true;btn.style.opacity='0.6';}
-  try{
-    const curStatus=_siTarget.status;
-    const toggledId=_siTarget.id;
-    const{data,error}=await db.rpc('toggle_session_status',{p_schedule_id:toggledId});
-    if(error||!data?.ok)throw new Error(error?.message||data?.error||'전환 실패');
-    const newStatus=data.new_status;
-    // 메모리 즉시 반영
-    const idx=scheduleData.findIndex(s=>s.id===toggledId);
-    if(idx>=0) scheduleData[idx]={...scheduleData[idx],status:newStatus};
-    // _siTarget도 직접 갱신 (모달이 열려 있는 동안 다른 함수에서 읽을 수 있으므로)
-    _siTarget={..._siTarget,status:newStatus};
-    closeSchedInfo();
-    renderCalGrid(getCalDates());
-    showToast(newStatus==='noshow'?'노쇼로 변경됐습니다':'완료로 변경됐습니다');
-    await loadScheduleView();
-  }catch(e){
-    if(errEl){errEl.textContent=e.message;errEl.style.display='block';}
-    if(btn){btn.disabled=false;btn.style.opacity='1';}
-  }
-}
-
-// 완료/노쇼 수업 취소 (잔여횟수 복원 + 상태 cancelled)
-let _siCancelCompletedPending=false;
-async function siCancelCompleted(){
-  if(!_siTarget)return;
-  const btn=document.getElementById('siBtnCancelCompleted');
-  const errEl=document.getElementById('siErr');
-  errEl.style.display='none';
-  if(!_siCancelCompletedPending){
-    _siCancelCompletedPending=true;
-    if(btn)btn.textContent='취소 — 한 번 더 탭해서 확인';
-    setTimeout(()=>{if(_siCancelCompletedPending){_siCancelCompletedPending=false;renderSiActions();}},3000);
-    return;
-  }
-  _siCancelCompletedPending=false;
-  if(btn)btn.disabled=true;
-  try{
-    const{data,error}=await db.rpc('cancel_completed_session',{p_schedule_id:_siTarget.id});
-    if(error||!data?.ok)throw new Error(error?.message||data?.error||'취소 실패');
-    closeSchedInfo();
-    showToast('예약이 취소됐습니다 (잔여 횟수 복원)');
-    await loadScheduleView();
-  }catch(e){
-    errEl.textContent=e.message;errEl.style.display='block';
-    if(btn)btn.disabled=false;
-    renderSiActions();
-  }
-}
-
-let _siRollbackPending=false;
-async function siRollback(){
-  if(!_siTarget)return;
-  const btn=document.getElementById('siBtnRollback');
-  const errEl=document.getElementById('siErr');
-  errEl.style.display='none';
-  if(!_siRollbackPending){
-    _siRollbackPending=true;
-    if(btn)btn.textContent='롤백 — 한 번 더 탭해서 확인';
-    setTimeout(()=>{if(_siRollbackPending){_siRollbackPending=false;renderSiActions();}},3000);
-    return;
-  }
-  _siRollbackPending=false;
-  if(btn)btn.disabled=true;
-  try{
-    const{data,error}=await db.rpc('rollback_session',{p_schedule_id:_siTarget.id});
-    if(error||!data?.ok)throw new Error(error?.message||data?.error||'롤백 실패');
-    closeSchedInfo();
-    showToast('수업이 예약 상태로 복원됐습니다');
-    await loadScheduleView();
-  }catch(e){
-    errEl.textContent=e.message;errEl.style.display='block';
-    if(btn)btn.disabled=false;
-    renderSiActions();
-  }
-}
-
-function closeSchedInfo(){
-  document.getElementById('schedInfoModal').style.display='none';
-  document.body.style.overflow='';
-  _siTarget=null;_siActionPending=null;
-  _siTogglePending=false;_siCancelCompletedPending=false;_siRollbackPending=false;
-}
-
-// ── 일정 모달 함수 ──────────────────────────────────────────────
-// ── 유형 변경 시 회원 행 show/hide ──────────────────────────
-function onSchedTypeChange(){
-  const t=document.getElementById('schedType').value;
-  // PT: 회원 드롭다운 표시 / SPT: 텍스트 입력 표시 / 기타: 둘 다 숨김
-  document.getElementById('schedMemberRow').style.display=(t==='PT')?'':'none';
-  document.getElementById('schedMemberTextRow').style.display=(t==='SPT')?'':'none';
-  // 내용 칸: PT·SPT 제외 유형에서 표시 (SPT는 schedMemberTextRow가 notes 역할)
-  const notesRow=document.getElementById('schedNotesRow');
-  const notesLabel=document.getElementById('schedNotesLabel');
-  const notesTA=document.getElementById('schedNotes');
-  const notesMap={업무:'어떤 업무인지 입력해주세요',청소:'청소 범위/내용을 입력해주세요',홍보:'홍보 내용을 입력해주세요',식사:'메모를 입력해주세요'};
-  if(t==='PT'||t==='SPT'){notesRow.style.display='none';}
-  else{notesRow.style.display='';notesLabel.textContent='내용';notesTA.placeholder=notesMap[t]||'내용을 입력해주세요';}
-}
-// ── 커스텀 타임픽커 (30분 단위) ──────────────────────────────
-function formatKorTime(t){
-  if(!t)return'--:--';
-  const[hh,mm]=t.split(':').map(Number);
-  const p=hh<12?'오전':'오후';const h=hh%12||12;
-  return`${p} ${h}:${String(mm).padStart(2,'0')}`;
-}
-function calcEndTime(t){
-  const[hh,mm]=t.split(':').map(Number);
-  const tot=hh*60+mm+60;
-  return`${String(Math.floor(tot/60)%24).padStart(2,'0')}:${String(tot%60).padStart(2,'0')}`;
-}
-function setStartTime(t){
-  document.getElementById('schedStart').value=t;
-  document.getElementById('schedStartLabel').textContent=formatKorTime(t);
-  const et=calcEndTime(t);
-  document.getElementById('schedEnd').value=et;
-  document.getElementById('schedEndDisplay').textContent=formatKorTime(et);
-}
-function toggleTimePicker(){
-  const drop=document.getElementById('timePickerDrop');
-  if(drop.style.display!=='none'){drop.style.display='none';return;}
-  const cur=document.getElementById('schedStart').value||'09:00';
-  const opts=[];
-  for(let h=CAL_START_H;h<24;h++){
-    opts.push(`${String(h).padStart(2,'0')}:00`);
-    opts.push(`${String(h).padStart(2,'0')}:30`);
-  }
-  drop.innerHTML=opts.map(t=>{
-    const isSel=t===cur;
-    return`<div onclick="selectSchedTime('${t}')" style="padding:10px 14px;font-size:15px;color:${isSel?'#6c63ff':'#ccc'};background:${isSel?'#1e1040':'transparent'};cursor:pointer;border-bottom:1px solid #2a2a3c22;font-weight:${isSel?700:400};-webkit-tap-highlight-color:transparent">${formatKorTime(t)}</div>`;
-  }).join('');
-  drop.style.display='block';
-  const idx=opts.indexOf(cur);
-  if(idx>=0)setTimeout(()=>drop.scrollTop=Math.max(0,(idx-2)*42),30);
-}
-function selectSchedTime(t){
-  setStartTime(t);
-  document.getElementById('timePickerDrop').style.display='none';
-}
-// ── 모달 열기/닫기 ───────────────────────────────────────────
-function openSchedModal(schedId,date,time){
-  const sel=document.getElementById('schedMember');
-  sel.innerHTML='<option value="">-- 회원 없음 --</option>';
-  (myMembersForSched||[]).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.name;sel.appendChild(o);});
-  document.getElementById('timePickerDrop').style.display='none';
-  if(schedId){
-    db.from('schedules').select('id,sched_date,start_time,end_time,type,notes,member_id,status,color,pt_product_id').eq('id',schedId).single().then(({data})=>{
-      if(!data)return;
-      document.getElementById('schedDate').value=data.sched_date;
-      const st=toHM(data.start_time);
-      setStartTime(st);
-      // 수정 시 종료 시간은 DB 값 유지 (사용자가 설정한 값)
-      const et=toHM(data.end_time)||calcEndTime(st);
-      document.getElementById('schedEnd').value=et;
-      document.getElementById('schedEndDisplay').textContent=formatKorTime(et);
-      document.getElementById('schedType').value=data.type||'PT';
-      if(data.type==='SPT'){
-        // SPT: notes는 schedMemberText(회원/내용 텍스트 입력)에 세팅
-        document.getElementById('schedMemberText').value=data.notes||'';
-        document.getElementById('schedNotes').value='';
-      }else{
-        document.getElementById('schedMemberText').value='';
-        document.getElementById('schedNotes').value=data.notes||'';
-      }
-      sel.value=data.member_id||'';
-      onSchedTypeChange();
-      document.getElementById('schedDeleteBtn').style.display='block';
-      document.getElementById('schedModalTitle').textContent='일정 수정';
-    });
-  }else{
-    document.getElementById('schedDate').value='';
-    document.getElementById('schedNotes').value='';
-    document.getElementById('schedMemberText').value='';
-    document.getElementById('schedType').value='PT';
-    sel.value='';document.getElementById('schedDeleteBtn').style.display='none';
-    document.getElementById('schedDate').value=date||'';
-    setStartTime(time||'09:00');
-    onSchedTypeChange();
-    document.getElementById('schedModalTitle').textContent='일정 추가';
-  }
-  _schedEditId=schedId||null;
-  document.getElementById('schedModalErr').style.display='none';
-  document.getElementById('schedModal').style.display='flex';
-  document.body.style.overflow='hidden';
-}
-function closeSchedModal(){
-  document.getElementById('schedModal').style.display='none';
-  document.getElementById('timePickerDrop').style.display='none';
-  document.body.style.overflow='';_schedEditId=null;
-}
-async function saveSchedule(){
-  const btn=document.getElementById('schedSaveBtn'),errEl=document.getElementById('schedModalErr');
-  const date=document.getElementById('schedDate').value.trim();
-  const start=document.getElementById('schedStart').value.trim();
-  errEl.style.display='none';
-  if(!date){errEl.textContent='날짜를 입력해주세요.';errEl.style.display='block';return;}
-  if(!start){errEl.textContent='시작 시간을 입력해주세요.';errEl.style.display='block';return;}
-  btn.disabled=true;btn.textContent='저장 중...';
-  const selType=document.getElementById('schedType').value||'PT';
-  // PT만 드롭다운 회원 연결 / SPT·기타는 member_id 없음
-  const selMember=(selType==='PT')?document.getElementById('schedMember').value||null:null;
-  // PT 유형 + 회원 선택 시 active pt_product 자동 연결
-  let ptProductId=null;
-  if(selType==='PT'&&selMember){
-    const{data:prods}=await db.from('pt_products').select('id,remaining_sessions').eq('member_id',selMember).eq('status','active').gt('remaining_sessions',0).order('contract_date',{ascending:true}).limit(1);
-    if(prods&&prods.length){
-      const p=prods[0];
-      const{count:schedCnt}=await db.from('schedules').select('*',{count:'exact',head:true}).eq('pt_product_id',p.id).eq('status','scheduled');
-      if((schedCnt||0)<p.remaining_sessions){ptProductId=p.id;}
-      else{errEl.textContent='현재 상품의 잔여 수업이 모두 예약되어 있습니다. 완료 후 다음 상품으로 예약 가능합니다.';errEl.style.display='block';btn.disabled=false;btn.textContent='저장';return;}
-    }
-  }
-  // notes: SPT는 schedMemberText(회원/내용 입력칸)에서 읽음, 나머지는 schedNotes에서 읽음
-  const notesVal = selType==='SPT'
-    ? document.getElementById('schedMemberText').value.trim()||null
-    : selType==='PT' ? null
-    : document.getElementById('schedNotes').value.trim()||null;
-  const payload={trainer_id:me.id,sched_date:date,start_time:start,end_time:document.getElementById('schedEnd').value||null,type:selType,notes:notesVal,color:TYPE_COLORS[selType]||'#6c63ff',member_id:selMember,pt_product_id:ptProductId};
-  let error;
-  if(_schedEditId){({error}=await db.from('schedules').update(payload).eq('id',_schedEditId));}
-  else{({error}=await db.from('schedules').insert({...payload,status:'scheduled'}));}
-  btn.disabled=false;btn.textContent='저장';
-  if(error){errEl.textContent=error.message;errEl.style.display='block';return;}
-  closeSchedModal();showToast(_schedEditId?'일정 수정 완료':'일정 추가 완료');await loadScheduleView();
-}
-let _deleteConfirmPending = false;
-async function deleteSchedule(){
-  if(!_schedEditId) return;
-  const btn = document.getElementById('schedDeleteBtn');
-  if(!_deleteConfirmPending){
-    _deleteConfirmPending = true;
-    btn.textContent = '정말 삭제?';
-    btn.style.background = '#ff4d4f';
-    btn.style.borderColor = '#ff4d4f';
-    btn.style.color = '#fff';
-    setTimeout(()=>{ if(_deleteConfirmPending){ _deleteConfirmPending=false; btn.textContent='삭제'; btn.style.background='#3a1a1a'; btn.style.borderColor='#ff4d4f55'; btn.style.color='#ff4d4f'; }}, 3000);
-    return;
-  }
-  _deleteConfirmPending = false;
-  const{error}=await db.from('schedules').delete().eq('id',_schedEditId);
-  if(error){showToast('삭제 실패: '+error.message);return;}
-  closeSchedModal();showToast('일정 삭제 완료');await loadScheduleView();
-}
-
-// ── 수업일지 연결 모달 ────────────────────────────────────────
-let _linkLogScheduleId=null,_linkLogMemberId=null,_linkLogDate=null,_linkLogMemberName=null;
-
-async function openLinkLogModal(scheduleId,memberId,schedDate,memberName){
-  _linkLogScheduleId=scheduleId;_linkLogMemberId=memberId;
-  _linkLogDate=schedDate;_linkLogMemberName=memberName;
-  document.getElementById('linkLogSubtitle').textContent=`${memberName||'회원'} · ${schedDate}`;
-  const listEl=document.getElementById('linkLogList');
-  listEl.innerHTML='<div style="color:#6a6a8a;font-size:13px;text-align:center;padding:12px;">불러오는 중...</div>';
-  document.getElementById('linkLogModal').style.display='flex';
-  document.body.style.overflow='hidden';
-  const{data:drafts,error}=await db.from('workout_logs')
-    .select('id,session_date,notes,workout_log_exercises(custom_name)')
-    .eq('member_id',memberId).eq('trainer_id',me.id)
-    .is('schedule_id',null).eq('is_deleted',false).eq('is_noshow',false)
-    .order('created_at',{ascending:false});
-  if(error||!drafts?.length){
-    listEl.innerHTML='<div style="color:#6a6a8a;font-size:13px;text-align:center;padding:12px;">미연결 수업일지가 없어요</div>';
-    return;
-  }
-  listEl.innerHTML=drafts.map(d=>{
-    const exNames=(d.workout_log_exercises||[]).slice(0,2).map(e=>e.custom_name).join(', ');
-    return`<button onclick="selectLinkLog('${d.id}')" style="background:#141428;border:1px solid #2a2a4a;border-radius:12px;padding:12px 14px;text-align:left;color:#fff;cursor:pointer;font-family:inherit;width:100%;">
-      <div style="font-size:13px;font-weight:700;margin-bottom:3px;">${d.session_date||'날짜 미정'}</div>
-      <div style="font-size:11px;color:#6a6a8a;">${exNames||d.notes||'내용 없음'}</div>
-    </button>`;
-  }).join('');
-}
-
-async function selectLinkLog(logId){
-  const{error}=await db.from('workout_logs')
-    .update({schedule_id:_linkLogScheduleId,session_date:_linkLogDate})
-    .eq('id',logId);
-  if(error){showToast('연결 실패: '+error.message);return;}
-  document.getElementById('linkLogModal').style.display='none';
-  document.body.style.overflow='';
-  showToast('수업일지가 연결됐어요 ✓');
-}
-
-function linkLogWrite(){
-  document.getElementById('linkLogModal').style.display='none';
-  document.body.style.overflow='';
-  location.href=`session-write.html?member=${_linkLogMemberId}&schedule=${_linkLogScheduleId}&date=${_linkLogDate}`;
-}
-function linkLogSkip(){
-  document.getElementById('linkLogModal').style.display='none';
-  document.body.style.overflow='';
-}
-
-// ══════════════════════════════════════════════════════════════
-// 이미지생성 탭
-// ══════════════════════════════════════════════════════════════
-let igExercises = [];   // { name, part, tool, image_url, sets:[{weight,reps}] }
-let _igExCache  = [];   // 전체 운동 목록 캐시
-
-async function igLoadExCache() {
-  if (_igExCache.length) return;
-  const { data, error } = await db.from('exercise_refs')
-    .select('id,name_ko,name_en,part_unified,tool_unified,image_url')
-    .eq('is_active', true).order('name_ko');
-  if (error) { showToast('운동 목록 로드 실패'); return; }
-  _igExCache = data || [];
-}
-
-let _igSearchTimer = null;
-function igSearchEx() {
-  clearTimeout(_igSearchTimer);
-  _igSearchTimer = setTimeout(async () => {
-    const q = (document.getElementById('igExSearch').value || '').trim().toLowerCase();
-    const res = document.getElementById('igExResults');
-    if (!q) { res.style.display = 'none'; return; }
-    await igLoadExCache();
-    const hits = _igExCache.filter(e =>
-      (e.name_ko || '').toLowerCase().includes(q) ||
-      (e.name_en || '').toLowerCase().includes(q)
-    ).slice(0, 8);
-    if (!hits.length) { res.style.display = 'none'; return; }
-    res.innerHTML = hits.map(e =>
-      `<div class="ig-result" onclick="igAddExById('${e.id}')">
-        <div class="ig-result-name">${e.name_ko || e.name_en}</div>
-        <div class="ig-result-sub">${[e.part_unified, e.tool_unified].filter(Boolean).join(' · ')}</div>
-       </div>`
-    ).join('');
-    res.style.display = 'block';
-  }, 180);
-}
-
-document.addEventListener('click', e => {
-  const res = document.getElementById('igExResults');
-  if (res && !res.contains(e.target) && e.target.id !== 'igExSearch') {
-    res.style.display = 'none';
-  }
-});
-
-function igAddExById(id) {
-  const ex = _igExCache.find(e => e.id === id);
-  if (!ex) return;
-  igExercises.push({
-    name:       ex.name_ko || ex.name_en || '운동',
-    part:       ex.part_unified || '',
-    tool:       ex.tool_unified || '',
-    image_url:  ex.image_url || null,
-    weight_mode: 'total',
-    sets:       [{ weight: 0, reps: 10 }]
-  });
-  document.getElementById('igExSearch').value = '';
-  document.getElementById('igExResults').style.display = 'none';
-  igRenderList();
-}
-
-function igRenderList() {
-  const wrap = document.getElementById('igExList');
-  if (!igExercises.length) {
-    wrap.innerHTML = '<div class="ig-empty">운동을 검색해서 추가하세요</div>'; return;
-  }
-  wrap.innerHTML = igExercises.map((ex, i) => `
-    <div class="ig-ex-card">
-      <div class="ig-ex-head">
-        <div class="ig-ex-num">${i + 1}</div>
-        <div style="flex:1">
-          <div class="ig-ex-name">${ex.name}</div>
-          ${ex.part || ex.tool ? `<div class="ig-ex-sub">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>` : ''}
-        </div>
-        <button class="ig-ex-del" onclick="igRemoveEx(${i})">✕</button>
-      </div>
-      <div class="ig-sets-hdr"><span>세트</span><span>무게(kg)</span><span>횟수</span><span></span></div>
-      ${ex.sets.map((s, si) => `
-        <div class="ig-set-row">
-          <div class="ig-set-num">${si + 1}</div>
-          <input class="ig-set-input" type="number" step="0.5" min="0" value="${s.weight}"
-                 onchange="igUpdSet(${i},${si},'weight',this.value)">
-          <input class="ig-set-input" type="number" min="1" value="${s.reps}"
-                 onchange="igUpdSet(${i},${si},'reps',this.value)">
-          <div class="ig-set-row-end">
-            <button class="wm-chip ${ex.weight_mode === 'single' ? 'wm-single' : 'wm-total'}" onclick="igToggleWeightMode(${i})">${ex.weight_mode === 'single' ? '한쪽' : '양손'}</button>
-            <button class="ig-del-set" onclick="igDelSet(${i},${si})"
-                    ${ex.sets.length <= 1 ? 'style="opacity:0;pointer-events:none"' : ''}>−</button>
-          </div>
-        </div>`).join('')}
-      <button class="ig-add-set" onclick="igAddSet(${i})">＋ 세트 추가</button>
-    </div>`).join('');
-}
-
-function igRemoveEx(i) { igExercises.splice(i, 1); igRenderList(); }
-function igAddSet(i) {
-  const last = igExercises[i].sets.at(-1) || { weight: 0, reps: 10 };
-  igExercises[i].sets.push({ weight: last.weight, reps: last.reps });
-  igRenderList();
-}
-function igDelSet(i, si) {
-  if (igExercises[i].sets.length <= 1) return;
-  igExercises[i].sets.splice(si, 1);
-  igRenderList();
-}
-function igUpdSet(i, si, field, val) {
-  igExercises[i].sets[si][field] = field === 'weight' ? parseFloat(val) || 0 : parseInt(val) || 0;
-}
-function igToggleWeightMode(idx) {
-  igExercises[idx].weight_mode = igExercises[idx].weight_mode === 'single' ? 'total' : 'single';
-  igRenderList();
-}
-
-// ── 캔버스 생성 ──────────────────────────────────────────────
-async function igBuildCanvas() {
-  const memberName  = (document.getElementById('ig-member').value  || '').trim();
-  const programName = (document.getElementById('ig-program').value || '').trim();
-  if (!memberName)         { showToast('회원명을 입력해주세요'); return null; }
-  if (!igExercises.length) { showToast('운동을 하나 이상 추가해주세요'); return null; }
-  showToast('이미지 생성 중...');
-
-  // 운동 이미지 로드 (CORS 실패 → null)
-  const imgMap = {};
-  await Promise.all(igExercises.map(async (ex, i) => {
-    if (!ex.image_url) return;
-    imgMap[i] = await new Promise(resolve => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload  = () => resolve(img);
-      img.onerror = () => resolve(null);
-      setTimeout(() => resolve(null), 4000);
-      img.src = ex.image_url;
-    });
-  }));
-
-  // ── 상수 ─────────────────────────────────────────────────
-  const W = 1080, PAD = 52, COL = 1080 - 52 * 2;
-  const HEADER_H = 148, FOOTER_H = 72;
-  const EX_TOP = 48, NAME_H = 68, SET_HDR = 38, SET_ROW = 40, EX_SEP = 32;
-
-  // ── 전체 높이 계산 ────────────────────────────────────────
-  let totalH = HEADER_H + EX_TOP;
-  igExercises.forEach((ex, i) => {
-    if (imgMap[i]) totalH += Math.round(COL * 9 / 16) + 18;
-    totalH += NAME_H + SET_HDR + ex.sets.length * SET_ROW;
-    totalH += i < igExercises.length - 1 ? EX_SEP + 24 : EX_SEP;
-  });
-  totalH += FOOTER_H + 20;
-
-  // ── 캔버스 ───────────────────────────────────────────────
-  const canvas = document.createElement('canvas');
-  canvas.width = W; canvas.height = totalH;
-  const ctx = canvas.getContext('2d');
-
-  function rRect(x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
-  }
-
-  // ── 배경 + 헤더 ──────────────────────────────────────────
-  ctx.fillStyle = '#080e1a'; ctx.fillRect(0, 0, W, totalH);
-  ctx.fillStyle = '#0d1525'; ctx.fillRect(0, 0, W, HEADER_H);
-  ctx.fillStyle = '#1e3a5f33'; ctx.fillRect(0, HEADER_H - 1, W, 1);
-
-  // 로고
-  const FONT = '-apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
-  ctx.font = `bold 46px ${FONT}`;
-  ctx.fillStyle = '#ffffff'; ctx.fillText('VERA', PAD, 64);
-  const vW = ctx.measureText('VERA').width;
-  ctx.fillStyle = '#3b82f6'; ctx.fillText('GYM', PAD + vW + 6, 64);
-
-  // 회원명 + 프로그램명
-  ctx.font = `bold 36px ${FONT}`;
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(`'${memberName}'님`, PAD, 114);
-  if (programName) {
-    const nmW = ctx.measureText(`'${memberName}'님`).width;
-    ctx.fillStyle = '#3b82f6';
-    ctx.fillText(`  '${programName}' 프로그램`, PAD + nmW, 114);
-  }
-
-  // ── 운동 목록 ─────────────────────────────────────────────
-  let y = HEADER_H + EX_TOP;
-  for (let i = 0; i < igExercises.length; i++) {
-    const ex = igExercises[i];
-    const cat = [ex.part, ex.tool].filter(Boolean).join(' · ');
-
-    // 운동 이미지
-    if (imgMap[i]) {
-      const imgH = Math.round(COL * 9 / 16);
-      rRect(PAD, y, COL, imgH, 14); ctx.save(); ctx.clip();
-      const img = imgMap[i];
-      const scale = Math.min(COL / img.naturalWidth, imgH / img.naturalHeight);
-      const iW = img.naturalWidth * scale, iH = img.naturalHeight * scale;
-      ctx.fillStyle = '#0d1a2e'; ctx.fillRect(PAD, y, COL, imgH);
-      ctx.drawImage(img, PAD + (COL - iW) / 2, y + (imgH - iH) / 2, iW, iH);
-      ctx.restore();
-      y += imgH + 18;
-    }
-
-    // 번호 + 이름
-    ctx.font = `bold 32px ${FONT}`;
-    ctx.fillStyle = '#3b82f6'; ctx.textAlign = 'left';
-    ctx.fillText(`${i + 1}.`, PAD, y + 32);
-    const numW = ctx.measureText(`${i + 1}. `).width + 2;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(ex.name, PAD + numW, y + 32);
-    if (cat) {
-      ctx.font = `22px ${FONT}`; ctx.fillStyle = '#4a6580';
-      ctx.fillText(cat, PAD + numW, y + 58);
-    }
-    y += NAME_H;
-
-    // 세트 헤더
-    const colW = COL / 3;
-    ctx.fillStyle = '#0a1525'; rRect(PAD, y, COL, SET_HDR, 8); ctx.fill();
-    ctx.font = `20px ${FONT}`; ctx.fillStyle = '#3a5878'; ctx.textAlign = 'center';
-    ctx.fillText('세트', PAD + colW * 0.5, y + 26);
-    ctx.fillText('무게 (kg)', PAD + colW * 1.5, y + 26);
-    ctx.fillText('횟수', PAD + colW * 2.5, y + 26);
-    ctx.textAlign = 'left'; y += SET_HDR;
-
-    // 세트 행
-    ex.sets.forEach((s, si) => {
-      ctx.fillStyle = si % 2 === 0 ? '#0d1a2e' : '#091422';
-      ctx.fillRect(PAD, y, COL, SET_ROW);
-      ctx.textAlign = 'center'; ctx.font = `24px ${FONT}`;
-      ctx.fillStyle = '#5a7898'; ctx.fillText(String(si + 1), PAD + colW * 0.5, y + 28);
-      ctx.fillStyle = '#ffffff';
-      const wDisp = (ex.weight_mode === 'single' && s.weight > 0)
-        ? `${s.weight}×2`
-        : (s.weight !== 0 ? String(s.weight) : '─');
-      ctx.fillText(wDisp, PAD + colW * 1.5, y + 28);
-      ctx.fillText(s.reps   !== 0 ? String(s.reps)   : '─', PAD + colW * 2.5, y + 28);
-      ctx.textAlign = 'left'; y += SET_ROW;
-    });
-
-    // 구분선
-    if (i < igExercises.length - 1) {
-      y += 16; ctx.fillStyle = '#1e3a5f33'; ctx.fillRect(PAD, y, COL, 1); y += EX_SEP;
-    } else { y += EX_SEP; }
-  }
-
-  // ── 푸터 ─────────────────────────────────────────────────
-  const fy = totalH - FOOTER_H;
-  ctx.fillStyle = '#1e3a5f22'; ctx.fillRect(0, fy, W, 1);
-  ctx.font = `22px ${FONT}`; ctx.fillStyle = '#2a4060'; ctx.textAlign = 'center';
-  ctx.fillText('VERA GYM | 트레이너 맞춤 프로그램', W / 2, fy + 44);
-  ctx.textAlign = 'left';
-
-  return canvas;
-}
-
-// ── 저장 ────────────────────────────────────────────────────
-async function igGenerateAndSave() {
-  const canvas = await igBuildCanvas();
-  if (!canvas) return;
-  canvas.toBlob(blob => {
-    if (!blob) { showToast('이미지 생성 실패'); return; }
-    const memberName = (document.getElementById('ig-member').value || '').trim();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `veragym_${memberName || 'workout'}.png`;
-    document.body.appendChild(a); a.click();
-    document.body.removeChild(a); URL.revokeObjectURL(url);
-    showToast('이미지 저장 완료 ✓');
-  }, 'image/png');
-}
-
-// ── 공유 (Web Share API → 갤러리 저장 fallback) ────────────
-async function igGenerateAndShare() {
-  const canvas = await igBuildCanvas();
-  if (!canvas) return;
-  canvas.toBlob(async blob => {
-    if (!blob) { showToast('이미지 생성 실패'); return; }
-    const memberName = (document.getElementById('ig-member').value || '').trim();
-    const file = new File([blob], `veragym_${memberName || 'workout'}.png`, { type: 'image/png' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], title: 'VERA GYM 운동 기록' });
-      } catch (e) {
-        if (e.name !== 'AbortError') igFallbackDownload(blob, memberName);
-      }
-    } else {
-      igFallbackDownload(blob, memberName);
-      showToast('공유 미지원 환경 — 이미지 저장했어요');
-    }
-  }, 'image/png');
-}
-
-function igFallbackDownload(blob, name) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `veragym_${name || 'workout'}.png`;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
-}
-
-// ── 공개 API (HTML onclick에서 호출) ──────────────────────────
-window.calcFcAmount        = calcFcAmount;
-window.calcRevPeriod       = calcRevPeriod;
-window.closeBranchSchedModal = closeBranchSchedModal;
-window.closeSchedInfo      = closeSchedInfo;
-window.closeSchedModal     = closeSchedModal;
-window.copyForecastText    = copyForecastText;
-window.copyToken           = copyToken;
-window.deleteForecast      = deleteForecast;
-window.deleteLog           = deleteLog;
-window.deleteSchedule      = deleteSchedule;
-window.doLogout            = doLogout;
-window.downloadBranchSched = downloadBranchSched;
-window.editForecast        = editForecast;
-window.generateWorkoutCard = generateWorkoutCard;
-window.goWriteSession      = goWriteSession;
-window.igAddExById         = igAddExById;
-window.igAddSet            = igAddSet;
-window.igDelSet            = igDelSet;
-window.igGenerateAndSave   = igGenerateAndSave;
-window.igGenerateAndShare  = igGenerateAndShare;
-window.igRemoveEx          = igRemoveEx;
-window.igSearchEx          = igSearchEx;
-window.igToggleWeightMode  = igToggleWeightMode;
-window.igUpdSet            = igUpdSet;
-window.linkLogSkip         = linkLogSkip;
-window.linkLogWrite        = linkLogWrite;
-window.onBsDay             = onBsDay;
-window.onSchedTypeChange   = onSchedTypeChange;
-window.openAddReq          = openAddReq;
-window.openBranchSchedModal = openBranchSchedModal;
-window.openForecastModal   = openForecastModal;
-window.openLinkLogModal    = openLinkLogModal;
-window.openSchedInfo       = openSchedInfo;
-window.openSchedModal      = openSchedModal;
-window.loadMembers         = loadMembers;
-window.loadLogs            = loadLogs;
-window.loadRequests        = loadRequests;
-window.saveForecast        = saveForecast;
-window.saveReq             = saveReq;
-window.saveSchedule        = saveSchedule;
-window.saveTarget          = saveTarget;
-window.selectLinkLog       = selectLinkLog;
-window.selectSchedTime     = selectSchedTime;
-window.setForecastStatus   = setForecastStatus;
-window.showMemberDetail    = showMemberDetail;
-window.showMemberList      = showMemberList;
-window.siAction            = siAction;
-window.siCancelCompleted   = siCancelCompleted;
-window.siToggleNoshow      = siToggleNoshow;
-window.switchRevMonth      = switchRevMonth;
-window.switchTab           = switchTab;
-window.toggleTimePicker    = toggleTimePicker;
-window.updateRevPeriodUI   = updateRevPeriodUI;
-window.viewNotePhoto       = viewNotePhoto;
-
-})();
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
-  });
-}
-</script>
-
-<!-- ===== 일정 모달 ===== -->
-<div id="schedModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
-  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:16px 16px 0 0;padding:24px 20px 32px;box-sizing:border-box;max-height:90vh;overflow-y:auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <h3 id="schedModalTitle" style="margin:0;font-size:17px;font-weight:700;color:#fff;">일정 추가</h3>
-      <button onclick="closeSchedModal()" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;">&times;</button>
-    </div>
-    <div id="schedModalErr" style="display:none;background:#ff4d4f22;color:#ff4d4f;border:1px solid #ff4d4f55;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px;"></div>
-    <div style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">날짜</label>
-      <input id="schedDate" type="date" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;"></div>
-    <div style="margin-bottom:8px;">
-      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">시작 시간 <span style="font-size:10px;color:#6c63ff;font-weight:600">탭하여 조정 ▼</span></label>
-      <div id="schedStartDisplay" onclick="toggleTimePicker()" style="width:100%;background:#241850;border:1.5px solid #6c63ff;border-radius:8px;color:#fff;padding:11px 14px;font-size:16px;font-weight:700;cursor:pointer;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;-webkit-tap-highlight-color:transparent;">
-        <span id="schedStartLabel">오전 9:00</span>
-        <span style="font-size:11px;color:#9d8fdb;font-weight:400">변경 ▼</span>
-      </div>
-      <input id="schedStart" type="hidden" value="09:00">
-      <div id="timePickerDrop" style="display:none;background:#1a1a2e;border:1px solid #3a3a5c;border-radius:8px;max-height:168px;overflow-y:auto;margin-top:4px;position:relative;z-index:50;-webkit-overflow-scrolling:touch;"></div>
-    </div>
-    <div style="margin-bottom:14px;">
-      <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">종료 시간 <span style="font-size:10px;color:#2a4060">시작 +60분 자동</span></label>
-      <div id="schedEndDisplay" style="width:100%;background:#141f35;border:1px solid #1e3a5f44;border-radius:8px;color:#4a6580;padding:11px 14px;font-size:16px;font-weight:700;box-sizing:border-box;">오전 10:00</div>
-      <input id="schedEnd" type="hidden" value="10:00">
-    </div>
-    <div style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">유형</label>
-      <div style="position:relative;">
-        <select id="schedType" onchange="onSchedTypeChange()" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 40px 10px 12px;font-size:14px;box-sizing:border-box;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;">
-          <option value="PT">PT</option>
-          <option value="SPT">SPT</option>
-          <option value="업무">업무</option>
-          <option value="청소">청소</option>
-          <option value="홍보">홍보</option>
-          <option value="식사">식사</option>
-        </select>
-        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:#aaa;font-size:12px;">▼</span>
-      </div></div>
-    <div id="schedMemberRow" style="margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">회원 (선택)</label>
-      <select id="schedMember" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;-webkit-appearance:none;">
-        <option value="">-- 회원 없음 --</option></select></div>
-    <div id="schedMemberTextRow" style="display:none;margin-bottom:14px;"><label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">회원</label>
-      <input id="schedMemberText" type="text" placeholder="회원명을 입력해주세요" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;font-family:inherit;"></div>
-    <div id="schedNotesRow" style="margin-bottom:20px;display:none;"><label id="schedNotesLabel" style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">내용</label>
-      <textarea id="schedNotes" rows="3" placeholder="" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;resize:vertical;font-family:inherit;"></textarea></div>
-    <div style="display:flex;gap:10px;">
-      <button id="schedDeleteBtn" onclick="deleteSchedule()" style="display:none;flex:1;background:#3a1a1a;border:1px solid #ff4d4f55;color:#ff4d4f;border-radius:10px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;">삭제</button>
-      <button id="schedSaveBtn" onclick="saveSchedule()" style="flex:2;background:#6c63ff;border:none;color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== 일정 상세/액션 모달 ===== -->
-<div id="schedInfoModal" style="display:none;position:fixed;inset:0;z-index:1001;background:rgba(0,0,0,0.55);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeSchedInfo()">
-  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:0 20px calc(28px + env(safe-area-inset-bottom));box-sizing:border-box;max-height:85dvh;overflow-y:auto;animation:slideUp .22s ease;">
-    <div style="width:36px;height:4px;background:#3a3a5c;border-radius:99px;margin:14px auto 20px;"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <div id="siMember" style="font-size:18px;font-weight:800;color:#fff;"></div>
-      <div id="siStatus"></div>
-    </div>
-    <div style="background:#141428;border-radius:12px;padding:14px 16px;margin-bottom:8px;">
-      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2a2a3c;">
-        <span style="font-size:12px;color:#6a6a8a;">날짜/시간</span>
-        <span id="siDateTime" style="font-size:13px;color:#fff;font-weight:600;"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2a2a3c;">
-        <span style="font-size:12px;color:#6a6a8a;">유형</span>
-        <span id="siType" style="font-size:13px;color:#fff;font-weight:600;"></span>
-      </div>
-      <div id="siSessionRow" style="display:flex;justify-content:space-between;padding:5px 0;">
-        <span style="font-size:12px;color:#6a6a8a;">PT 회차</span>
-        <span id="siSession" style="font-size:13px;color:#fff;font-weight:600;"></span>
-      </div>
-    </div>
-    <div id="siErr" style="display:none;background:#ff4d4f22;color:#ff4d4f;border:1px solid #ff4d4f55;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:10px;"></div>
-    <div id="siActions" style="display:flex;flex-direction:column;gap:10px;margin-top:14px;"></div>
-  </div>
-</div>
-
-
-
-
-<!-- ── 수업일지 연결 모달 ───────────────────────────────────── -->
-<div id="linkLogModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.7);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)linkLogSkip()">
-  <div style="background:#1e1e2e;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:0 20px calc(28px + env(safe-area-inset-bottom));box-sizing:border-box;max-height:80dvh;overflow-y:auto;animation:slideUp .22s ease;">
-    <div style="width:36px;height:4px;background:#3a3a5c;border-radius:99px;margin:14px auto 18px;"></div>
-    <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px;">수업일지 연결</div>
-    <div id="linkLogSubtitle" style="font-size:12px;color:#6a6a8a;margin-bottom:16px;"></div>
-    <div id="linkLogList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;"></div>
-    <div style="display:flex;gap:10px;padding-bottom:4px;">
-      <button onclick="linkLogWrite()" style="flex:1;background:#3b82f622;border:1.5px solid #3b82f655;color:#60a5fa;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">지금 작성</button>
-      <button onclick="linkLogSkip()" style="flex:1;background:#ffffff11;border:1.5px solid #ffffff22;color:#888;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">나중에</button>
-    </div>
-  </div>
-</div>
-
-
-
+<script src="./js/config.js"></script>
+<script src="./js/auth.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/utils.js"></script>
+<script src="./js/data-loader.js"></script>
+<script src="./js/image-utils.js"></script>
+<script src="./js/schedule-actions.js"></script>
+<script src="./js/branch-schedule.js"></script>
+<script src="./js/trainer-app.js"></script>
 </body>
 </html>

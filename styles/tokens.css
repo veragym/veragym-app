@@ -1,0 +1,186 @@
+/* ============================================================
+   VERA GYM Design System — tokens.css
+   Light Theme + 3 Role-Based Accent Colors
+   ============================================================ */
+
+:root {
+  /* ── 1. 역할별 액센트 (Role Accent) ───────────────────────── */
+
+  /* Admin: Gold */
+  --accent-admin:          #b8942f;
+  --accent-admin-light:    #d4ad3a;
+  --accent-admin-dark:     #9a7a22;
+  --accent-admin-bg:       #fdf8e8;
+  --accent-admin-bg-hover: #faf0cc;
+  --accent-admin-border:   #e8d48a;
+  --accent-admin-text:     #6b5210;
+
+  /* Trainer: Blue */
+  --accent-trainer:          #3b82f6;
+  --accent-trainer-light:    #60a5fa;
+  --accent-trainer-dark:     #2563eb;
+  --accent-trainer-bg:       #eff6ff;
+  --accent-trainer-bg-hover: #dbeafe;
+  --accent-trainer-border:   #93c5fd;
+  --accent-trainer-text:     #1e40af;
+
+  /* Member: Green */
+  --accent-member:          #22c55e;
+  --accent-member-light:    #4ade80;
+  --accent-member-dark:     #16a34a;
+  --accent-member-bg:       #f0fdf4;
+  --accent-member-bg-hover: #dcfce7;
+  --accent-member-border:   #86efac;
+  --accent-member-text:     #166534;
+
+  /* ── 2. 시맨틱 색상 (Semantic) ────────────────────────────── */
+
+  --color-success:         #22c55e;
+  --color-success-bg:      #f0fdf4;
+  --color-success-border:  #bbf7d0;
+  --color-success-text:    #166534;
+
+  --color-danger:          #ef4444;
+  --color-danger-bg:       #fef2f2;
+  --color-danger-border:   #fecaca;
+  --color-danger-text:     #991b1b;
+
+  --color-warning:         #f59e0b;
+  --color-warning-bg:      #fffbeb;
+  --color-warning-border:  #fde68a;
+  --color-warning-text:    #92400e;
+
+  --color-info:            #6c63ff;
+  --color-info-bg:         #f5f3ff;
+  --color-info-border:     #c4b5fd;
+  --color-info-text:       #4338ca;
+
+  /* ── 3. 중립 색상 (Neutral) ───────────────────────────────── */
+
+  --gray-50:   #f9fafb;
+  --gray-100:  #f3f4f6;
+  --gray-200:  #e5e7eb;
+  --gray-300:  #d1d5db;
+  --gray-400:  #9ca3af;
+  --gray-500:  #6b7280;
+  --gray-600:  #4b5563;
+  --gray-700:  #374151;
+  --gray-800:  #1f2937;
+  --gray-900:  #111827;
+
+  /* ── 4. 표면 색상 (Surface) ───────────────────────────────── */
+
+  --bg-page:       #f9fafb;     /* 페이지 배경 */
+  --bg-card:       #ffffff;     /* 카드 배경 */
+  --bg-elevated:   #ffffff;     /* 모달, 드롭다운 */
+  --bg-inset:      #f3f4f6;     /* 인풋 배경, 코드 블록 */
+  --bg-overlay:    rgba(0, 0, 0, 0.5);  /* 모달 오버레이 */
+
+  --border-default:  #e5e7eb;   /* 기본 테두리 */
+  --border-light:    #f3f4f6;   /* 약한 테두리 */
+  --border-strong:   #d1d5db;   /* 강한 테두리 */
+
+  /* ── 5. 텍스트 색상 ───────────────────────────────────────── */
+
+  --text-primary:    #111827;   /* 기본 텍스트 */
+  --text-secondary:  #4b5563;   /* 보조 텍스트 */
+  --text-tertiary:   #9ca3af;   /* 3차 텍스트, 플레이스홀더 */
+  --text-disabled:   #d1d5db;   /* 비활성 텍스트 */
+  --text-inverse:    #ffffff;   /* 채워진 버튼 위 텍스트 */
+
+  /* ── 6. 일정 유형 색상 (Schedule Types) ───────────────────── */
+
+  --sched-pt:     #6c63ff;
+  --sched-pt-bg:  #f0eeff;
+  --sched-spt:    #f59e0b;
+  --sched-spt-bg: #fffbeb;
+  --sched-work:   #22c55e;
+  --sched-work-bg:#f0fdf4;
+  --sched-clean:  #3b82f6;
+  --sched-clean-bg:#eff6ff;
+  --sched-promo:  #ec4899;
+  --sched-promo-bg:#fdf2f8;
+  --sched-meal:   #f87171;
+  --sched-meal-bg:#fef2f2;
+
+  /* ── 7. 통계 부위 색상 (Body Part Colors) ─────────────────── */
+
+  --part-chest:    #ef4444;
+  --part-back:     #3b82f6;
+  --part-shoulder: #06b6d4;
+  --part-arm:      #f97316;
+  --part-core:     #22c55e;
+  --part-leg:      #8b5cf6;
+
+  /* ── 8. 타이포그래피 ──────────────────────────────────────── */
+
+  --font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo',
+                 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+
+  /* Font Size Scale (5단계로 정리) */
+  --text-2xs:  10px;    /* 태그 내부, 시간 라벨, 미세 텍스트 */
+  --text-xs:   11px;    /* 뱃지, 태그, 보조 라벨 */
+  --text-sm:   13px;    /* 버튼 소형, 메타, 캡션 */
+  --text-base: 15px;    /* 본문, 입력, 버튼 기본 */
+  --text-lg:   17px;    /* 섹션 제목, 모달 제목 */
+  --text-xl:   20px;    /* 페이지 제목, 큰 숫자 */
+  --text-2xl:  28px;    /* 통계 카드 강조 숫자 */
+
+  /* Font Weight */
+  --font-normal:   400;
+  --font-medium:   500;
+  --font-semibold: 600;
+  --font-bold:     700;
+
+  /* Line Height */
+  --leading-tight:  1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed:1.65;
+
+  /* ── 9. 간격 (Spacing Scale) ──────────────────────────────── */
+
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+
+  /* ── 10. Border Radius (3단계로 정리) ─────────────────────── */
+
+  --radius-xs:   4px;    /* 프로그레스 바, 작은 둥근 모서리 */
+  --radius-sm:   8px;    /* 태그, 뱃지, 소형 버튼 */
+  --radius-md:   12px;   /* 카드, 버튼, 입력 */
+  --radius-lg:   20px;   /* 모달, 바텀시트 */
+  --radius-full: 9999px; /* 원형, pill 뱃지 */
+
+  /* ── 11. 그림자 (Shadows) ─────────────────────────────────── */
+
+  --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl:  0 16px 48px rgba(0, 0, 0, 0.16);
+
+  /* ── 12. 트랜지션 (2단계로 정리) ──────────────────────────── */
+
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.25s ease;
+
+  /* ── 13. Z-Index 체계 ─────────────────────────────────────── */
+
+  --z-header:   100;
+  --z-tabs:      99;
+  --z-sticky:    90;
+  --z-overlay:  200;
+  --z-modal:    300;
+  --z-toast:    400;
+
+  /* ── 14. 레이아웃 ─────────────────────────────────────────── */
+
+  --max-width:       480px;    /* 모바일 최대 너비 */
+  --header-height:   56px;
+  --tab-height:      44px;
+  --safe-bottom:     env(safe-area-inset-bottom, 0px);
+}

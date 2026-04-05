@@ -3,69 +3,144 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f9fafb">
 <title>VERA GYM</title>
+<link rel="stylesheet" href="./styles/tokens.css">
 <style>
-* { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:-apple-system,'Pretendard',sans-serif; background:#080d08; color:#fff; min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; }
-.logo-ring { width:100px; height:100px; border-radius:50%; border:3px solid #c9a84c; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
-.logo-text { font-size:36px; font-weight:900; color:#c9a84c; letter-spacing:-1px; }
-h1 { font-size:24px; font-weight:800; letter-spacing:2px; margin-bottom:6px; text-align:center; }
-h1 span { color:#c9a84c; }
-.sub { font-size:13px; color:#555; text-align:center; margin-bottom:48px; }
-.card { width:100%; max-width:360px; background:#111; border:1px solid #222; border-radius:20px; padding:20px; margin-bottom:14px; cursor:pointer; transition:all 0.18s; display:block; text-decoration:none; }
-.card:hover { border-color:#333; transform:translateY(-2px); }
-.card-inner { display:flex; align-items:center; gap:16px; }
-.card-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
-.card-icon.gold { background:#c9a84c22; border:1px solid #c9a84c44; }
-.card-icon.blue { background:#3b82f622; border:1px solid #3b82f644; }
-.card-icon.green { background:#22c55e22; border:1px solid #22c55e44; }
-.card-title { font-size:16px; font-weight:700; margin-bottom:3px; }
-.card-desc { font-size:12px; color:#555; }
-.card.gold .card-title { color:#c9a84c; }
-.card.blue .card-title { color:#3b82f6; }
-.card.green .card-title { color:#22c55e; }
+  body {
+    font-family: var(--font-family);
+    background: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .logo-ring {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    border: 3px solid var(--accent-admin);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto var(--space-4);
+  }
+  .logo-text {
+    font-size: 32px; font-weight: 900;
+    color: var(--accent-admin);
+    letter-spacing: -1px;
+  }
+
+  h1 {
+    font-size: var(--text-xl);
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: var(--space-1);
+  }
+  .sub {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    text-align: center;
+    margin-bottom: var(--space-10);
+  }
+
+  .entry-card {
+    width: 100%; max-width: 360px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow-sm);
+  }
+  .entry-card:active { transform: scale(0.98); }
+
+  .entry-inner {
+    display: flex; align-items: center; gap: var(--space-4);
+  }
+
+  .entry-icon {
+    width: 48px; height: 48px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .entry-icon.gold   { background: var(--accent-admin-bg);   border: 1px solid var(--accent-admin-border); }
+  .entry-icon.blue   { background: var(--accent-trainer-bg);  border: 1px solid var(--accent-trainer-border); }
+  .entry-icon.green  { background: var(--accent-member-bg);   border: 1px solid var(--accent-member-border); }
+
+  .entry-title {
+    font-size: var(--text-base); font-weight: var(--font-bold);
+    margin-bottom: 2px;
+  }
+  .entry-card.gold  .entry-title { color: var(--accent-admin); }
+  .entry-card.blue  .entry-title { color: var(--accent-trainer); }
+  .entry-card.green .entry-title { color: var(--accent-member); }
+
+  .entry-desc {
+    font-size: var(--text-xs); color: var(--text-tertiary);
+  }
+
+  .entry-arrow {
+    margin-left: auto;
+    color: var(--text-disabled);
+    font-size: var(--text-lg);
+  }
 </style>
 </head>
 <body>
+
 <div class="logo-ring"><div class="logo-text">VG</div></div>
-<h1>VERA <span>GYM</span></h1>
+<h1>VERA GYM</h1>
 <p class="sub">Personal Training Management</p>
 
-<a class="card gold" href="admin-login.html">
-  <div class="card-inner">
-    <div class="card-icon gold"></div>
+<a class="entry-card gold" href="admin-login.html">
+  <div class="entry-inner">
+    <div class="entry-icon gold"></div>
     <div>
-      <div class="card-title">관리자 앱</div>
-      <div class="card-desc">트레이너 관리 · 회원 현황 · 운동DB</div>
+      <div class="entry-title">관리자</div>
+      <div class="entry-desc">트레이너 관리 · 회원 현황 · 운동DB</div>
     </div>
+    <div class="entry-arrow">›</div>
   </div>
 </a>
 
-<a class="card blue" href="trainer-login.html">
-  <div class="card-inner">
-    <div class="card-icon blue"></div>
+<a class="entry-card blue" href="trainer-login.html">
+  <div class="entry-inner">
+    <div class="entry-icon blue"></div>
     <div>
-      <div class="card-title">트레이너 앱</div>
-      <div class="card-desc">수업 일지 · 회원 관리 · 운동 선택</div>
+      <div class="entry-title">트레이너</div>
+      <div class="entry-desc">수업일지 · 회원 관리 · 일정</div>
     </div>
+    <div class="entry-arrow">›</div>
   </div>
 </a>
 
-<a class="card green" href="member-view.html">
-  <div class="card-inner">
-    <div class="card-icon green"></div>
+<a class="entry-card green" href="member-view.html">
+  <div class="entry-inner">
+    <div class="entry-icon green"></div>
     <div>
-      <div class="card-title">회원 앱</div>
-      <div class="card-desc">내 수업 기록 · 운동 자세 확인</div>
+      <div class="entry-title">회원</div>
+      <div class="entry-desc">수업 기록 · 운동 자세 · 통계</div>
     </div>
+    <div class="entry-arrow">›</div>
   </div>
 </a>
 
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
-  });
+  navigator.serviceWorker.register('./service-worker.js')
+    .catch(e => console.warn('SW 등록 실패:', e));
 }
 </script>
 </body>

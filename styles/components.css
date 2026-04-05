@@ -1,0 +1,695 @@
+/* ============================================================
+   VERA GYM Design System — components.css
+   공통 UI 컴포넌트 (역할별 accent는 각 페이지에서 --accent 변수로 매핑)
+   ============================================================ */
+
+/* ── 각 페이지에서 역할 매핑 예시 ───────────────────────────
+   admin.html  → :root { --accent: var(--accent-admin); ... }
+   trainer.html→ :root { --accent: var(--accent-trainer); ... }
+   member.html → :root { --accent: var(--accent-member); ... }
+   ─────────────────────────────────────────────────────────── */
+
+
+/* ================================================================
+   RESET & BASE
+   ================================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+
+/* ================================================================
+   HEADER
+   ================================================================ */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-default);
+  height: var(--header-height);
+}
+
+.header-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.header-title span {
+  color: var(--accent);
+}
+
+.header-sub {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+
+/* ================================================================
+   TABS
+   ================================================================ */
+
+.tabs {
+  position: sticky;
+  top: var(--header-height);
+  z-index: var(--z-tabs);
+  display: flex;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  flex: 1;
+  min-width: 64px;
+  padding: var(--space-3) var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-content {
+  padding: var(--space-4);
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+
+/* ================================================================
+   CARDS
+   ================================================================ */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+  transition: border-color var(--transition-fast);
+}
+
+.card:active {
+  border-color: var(--accent);
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.card-name {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.card-sub {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.card-arrow {
+  margin-left: auto;
+  color: var(--text-disabled);
+  font-size: var(--text-lg);
+}
+
+
+/* ================================================================
+   AVATAR
+   ================================================================ */
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-base);
+  font-weight: var(--font-bold);
+  color: var(--text-inverse);
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+
+/* ================================================================
+   BUTTONS
+   ================================================================
+   3단계 높이 체계:
+     Large  (height 48px) — 모달 CTA, 전체 폭 액션
+     Medium (height 40px) — 일반 버튼, 인라인 액션 (기본)
+     Small  (height 32px) — 카드 내부, 보조 액션
+   ================================================================ */
+
+/* 공통 버튼 기반 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  gap: var(--space-1);
+}
+
+.btn:active { opacity: 0.85; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── 사이즈 ──────────────────────────────────────────────────── */
+
+.btn-lg {
+  height: 48px;
+  padding: 0 var(--space-5);
+  font-size: var(--text-base);
+}
+
+.btn-md {
+  height: 40px;
+  padding: 0 var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+}
+
+/* ── 스타일 변형 ─────────────────────────────────────────────── */
+
+/* Primary — 채워진 accent */
+.btn-primary {
+  color: var(--text-inverse);
+  background: var(--accent);
+  border: none;
+}
+
+/* Secondary — accent 테두리 */
+.btn-secondary {
+  color: var(--accent);
+  background: var(--accent-role-bg);
+  border: 1px solid var(--accent-role-border);
+}
+
+/* Ghost — 중립 테두리 */
+.btn-ghost {
+  color: var(--text-secondary);
+  background: none;
+  border: 1px solid var(--border-default);
+}
+
+.btn-ghost:active { background: var(--gray-100); }
+
+/* Danger — 삭제/위험 */
+.btn-danger {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+}
+
+/* Cancel — 취소 */
+.btn-cancel {
+  color: var(--text-secondary);
+  background: var(--gray-100);
+  border: 1px solid var(--border-default);
+}
+
+/* ── 전체 폭 ─────────────────────────────────────────────────── */
+
+.btn-block { width: 100%; }
+
+/* ── 버튼 그룹 (모달 하단 등) ────────────────────────────────── */
+
+.btn-group {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.btn-group > * {
+  flex: 1;
+}
+
+
+/* ================================================================
+   BADGE
+   ================================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-full);
+  line-height: 1.4;
+}
+
+.badge-success {
+  color: var(--color-success-text);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+}
+
+.badge-danger {
+  color: var(--color-danger-text);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+}
+
+.badge-warning {
+  color: var(--color-warning-text);
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+}
+
+.badge-info {
+  color: var(--color-info-text);
+  background: var(--color-info-bg);
+  border: 1px solid var(--color-info-border);
+}
+
+.badge-accent {
+  color: var(--accent-role-text);
+  background: var(--accent-role-bg);
+  border: 1px solid var(--accent-role-border);
+}
+
+.badge-neutral {
+  color: var(--text-secondary);
+  background: var(--gray-100);
+  border: 1px solid var(--border-default);
+}
+
+
+/* ================================================================
+   TAG (운동 도구/부위 등)
+   ================================================================ */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  font-size: 10px;
+  font-weight: var(--font-medium);
+  border-radius: var(--radius-sm);
+  line-height: 1.4;
+}
+
+.tag-accent {
+  color: var(--accent);
+  background: var(--accent-role-bg);
+  border: 1px solid var(--accent-role-border);
+}
+
+.tag-muted {
+  color: var(--text-tertiary);
+  background: var(--gray-50);
+  border: 1px solid var(--border-light);
+}
+
+
+/* ================================================================
+   FORM (INPUT, SELECT, TEXTAREA)
+   ================================================================ */
+
+.field {
+  margin-bottom: var(--space-3);
+}
+
+.field-label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.field-input,
+.field-select,
+.field-textarea {
+  width: 100%;
+  padding: var(--space-3);
+  font-size: var(--text-base);
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-inset);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.field-input:focus,
+.field-select:focus,
+.field-textarea:focus {
+  border-color: var(--accent);
+}
+
+.field-input::placeholder,
+.field-textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.field-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.field-hint {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: var(--space-1);
+}
+
+.field-error {
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  margin-top: var(--space-1);
+}
+
+
+/* ================================================================
+   CHIP (필터, 선택)
+   ================================================================ */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  font-family: inherit;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.chip.active {
+  color: var(--accent);
+  background: var(--accent-role-bg);
+  border-color: var(--accent);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+
+/* ================================================================
+   MODAL (Bottom Sheet)
+   ================================================================ */
+
+.modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay);
+  z-index: var(--z-overlay);
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-bg.open {
+  display: flex;
+}
+
+.modal {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  width: 100%;
+  max-width: var(--max-width);
+  max-height: 92dvh;
+  overflow-y: auto;
+  animation: slideUp var(--transition-base);
+  padding: 0 var(--space-5) var(--space-8);
+}
+
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--gray-300);
+  border-radius: var(--radius-full);
+  margin: var(--space-3) auto var(--space-4);
+}
+
+.modal-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.modal-close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-4);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.modal-close:active { opacity: 0.5; }
+
+/* 센터 모달 (Confirm 등) */
+.modal-center {
+  border-radius: var(--radius-md);
+  max-width: 320px;
+  padding: var(--space-5);
+  box-shadow: var(--shadow-xl);
+  animation: fadeScale var(--transition-base);
+}
+
+
+/* ================================================================
+   TOAST
+   ================================================================ */
+
+.toast {
+  position: fixed;
+  bottom: calc(var(--space-5) + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-inverse);
+  background: var(--gray-800);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-toast);
+  opacity: 0;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+
+
+/* ================================================================
+   SECTION
+   ================================================================ */
+
+.sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.sec-title {
+  font-size: var(--text-base);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.sec-count {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-left: var(--space-1);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-default);
+  margin: var(--space-4) 0;
+}
+
+
+/* ================================================================
+   EMPTY STATE
+   ================================================================ */
+
+.empty {
+  text-align: center;
+  padding: var(--space-10) var(--space-4);
+  color: var(--text-tertiary);
+  font-size: var(--text-sm);
+}
+
+.loading {
+  text-align: center;
+  padding: var(--space-10) var(--space-4);
+  color: var(--text-tertiary);
+}
+
+
+/* ================================================================
+   SPINNER
+   ================================================================ */
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--border-default);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto;
+}
+
+
+/* ================================================================
+   CONFIRM DIALOG
+   ================================================================ */
+
+.confirm-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay);
+  z-index: var(--z-modal);
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-bg.open { display: flex; }
+
+.confirm-box {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  max-width: 320px;
+  width: calc(100% - var(--space-8));
+  box-shadow: var(--shadow-xl);
+  animation: fadeScale var(--transition-base);
+  text-align: center;
+}
+
+.confirm-msg {
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  line-height: var(--leading-relaxed);
+}
+
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes fadeScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* ================================================================
+   UTILITIES
+   ================================================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.text-center { text-align: center; }
+.text-right  { text-align: right; }
+.flex        { display: flex; }
+.flex-col    { flex-direction: column; }
+.flex-1      { flex: 1; }
+.gap-1       { gap: var(--space-1); }
+.gap-2       { gap: var(--space-2); }
+.gap-3       { gap: var(--space-3); }
+.gap-4       { gap: var(--space-4); }
+.mt-2        { margin-top: var(--space-2); }
+.mt-3        { margin-top: var(--space-3); }
+.mt-4        { margin-top: var(--space-4); }
+.mb-2        { margin-bottom: var(--space-2); }
+.mb-3        { margin-bottom: var(--space-3); }
+.mb-4        { margin-bottom: var(--space-4); }
+.hidden      { display: none !important; }
+.w-full      { width: 100%; }

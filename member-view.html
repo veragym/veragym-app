@@ -2,2092 +2,238 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<link rel="manifest" href="manifest-member.json">
-<meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#22c55e">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="베라짐 멤버">
-<meta name="theme-color" content="#4ade80">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
 <title>VERA GYM | 내 수업</title>
-<style>
-/* ── Reset & Base ─────────────────────────────────────────── */
-* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#080e08; color:#fff; min-height:100dvh; overscroll-behavior:none; padding-bottom:0; }
-
-/* ── Header ──────────────────────────────────────────────── */
-.header { background:#0d1a0d; border-bottom:1px solid #1a3a1a44; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
-.header-title { font-size:16px; font-weight:800; }
-.header-title span { color:#4ade80; }
-.header-sub { font-size:11px; color:#3a5840; }
-
-/* ── Top Tab Navigation ──────────────────────────────────── */
-.tabs { display:flex; background:#0d1a0d; border-bottom:1px solid #1a3a1a44; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
-.tabs::-webkit-scrollbar { display:none; }
-.tab-btn { flex:1; min-width:60px; padding:13px 10px; font-size:12px; font-weight:600; color:#3a5840; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; text-align:center; }
-.tab-btn.active { color:#4ade80; border-bottom-color:#4ade80; }
-
-/* ── Tab Content ─────────────────────────────────────────── */
-.tab-content { display:none; padding:16px 14px; }
-.tab-content.active { display:block; }
-
-/* ── Stats Row ───────────────────────────────────────────── */
-.stats-row { display:flex; gap:10px; padding:0 0 16px; overflow-x:auto; }
-.stat-box { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:12px; padding:12px 16px; flex:1; text-align:center; }
-.stat-num { font-size:22px; font-weight:800; color:#4ade80; }
-.stat-label { font-size:11px; color:#3a5840; margin-top:3px; }
-
-/* ── PT 현황 배너 ────────────────────────────────────────── */
-.pt-banner { background:#0a1a2e; border:1px solid #1a3a6044; border-radius:12px; padding:12px 14px; margin-bottom:14px; }
-.pt-banner-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
-.pt-banner-label { font-size:12px; color:#7a9ab8; font-weight:600; }
-.pt-banner-val { font-size:13px; color:#c8daea; font-weight:700; }
-.pt-bar-track { height:6px; background:#1a3a6033; border-radius:4px; overflow:hidden; }
-.pt-bar-fill { height:100%; background:linear-gradient(90deg,#3b82f6,#60a5fa); border-radius:4px; transition:width .4s; }
-
-/* ── Section Header ──────────────────────────────────────── */
-.sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-.sec-title { font-size:15px; font-weight:700; }
-.sec-count { font-size:12px; color:#2a4a2a; margin-left:6px; }
-.divider-label { font-size:11px; font-weight:700; color:#4ade80; letter-spacing:1px; margin:16px 0 10px; display:flex; align-items:center; gap:8px; }
-.divider-label::after { content:''; flex:1; height:1px; background:#1a3a1a44; }
-
-/* ── Log Cards (수업일지) ─────────────────────────────────── */
-.sess-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:14px; margin-bottom:10px; overflow:hidden; }
-.sess-head { padding:16px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:background 0.15s; }
-.sess-head:active { background:#111f11; }
-.sess-date { font-size:15px; font-weight:700; }
-.sess-sub { font-size:12px; color:#3a5840; margin-top:3px; }
-.sess-num-badge { display:inline-block; background:#0d2a0d; border:1px solid #4ade8033; border-radius:20px; padding:2px 9px; font-size:11px; color:#4ade80; margin-bottom:5px; }
-.chevron { color:#1a3a1a; font-size:18px; transition:transform 0.2s; flex-shrink:0; }
-.chevron.open { transform:rotate(90deg); }
-.sess-body { display:none; border-top:1px solid #1a3a1a22; }
-.sess-body.open { display:block; }
-.sess-notes { background:#0a140a; margin:14px 18px 0; border-radius:10px; padding:12px 14px; font-size:13px; color:#7a9a7a; line-height:1.6; border:1px solid #1a3a1a33; }
-.sess-notes-label { font-size:11px; color:#4ade80; margin-bottom:6px; font-weight:600; }
-.ex-item { padding:14px 18px; border-bottom:1px solid #1a3a1a22; }
-.ex-item:last-child { border-bottom:none; }
-.ex-item-name { font-size:14px; font-weight:700; }
-.ex-item-cat { font-size:11px; color:#3a5840; margin-top:2px; }
-.sets-table { width:100%; border-collapse:collapse; margin-top:8px; }
-.sets-table th { font-size:11px; color:#3a5840; padding:4px 8px; text-align:center; font-weight:500; }
-.sets-table td { font-size:14px; color:#ddd; padding:6px 8px; text-align:center; border-top:1px solid #1a3a1a33; }
-.sets-table .set-cell { color:#3a5840; font-size:12px; }
-.mv-photo-btn { display:inline-flex; align-items:center; gap:5px; background:#0d2a0d; border:1px solid #4ade8044; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:600; color:#4ade80; cursor:pointer; font-family:inherit; margin-top:10px; }
-
-/* ── Schedule Cards (일정) ───────────────────────────────── */
-.sched-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:14px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; }
-.sched-date-block { text-align:center; background:#111f11; border:1px solid #1a3a1a44; border-radius:10px; padding:8px 12px; flex-shrink:0; min-width:52px; }
-.sched-month { font-size:10px; color:#4ade80; font-weight:700; letter-spacing:0.5px; }
-.sched-day { font-size:22px; font-weight:800; line-height:1; }
-.sched-weekday { font-size:10px; color:#3a5840; margin-top:1px; }
-.sched-info { flex:1; min-width:0; }
-.sched-type-badge { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; margin-bottom:5px; }
-.sched-type-PT  { background:#4ade8022; border:1px solid #4ade8044; color:#4ade80; }
-.sched-type-SPT { background:#86efac22; border:1px solid #86efac44; color:#86efac; }
-.sched-time { font-size:14px; font-weight:700; }
-.sched-trainer { font-size:12px; color:#3a5840; margin-top:3px; }
-.sched-status { font-size:11px; font-weight:600; flex-shrink:0; }
-.sched-status.done { color:#3a5840; }
-.sched-status.upcoming { color:#4ade80; }
-
-/* ── 운동DB (내장) ────────────────────────────────────────── */
-#tab-exlib { padding:0; }
-.ex-search-area { padding:12px 14px 0; position:sticky; top:100px; z-index:90; background:#080e08; }
-.ex-search-wrap { position:relative; margin-bottom:10px; }
-.ex-search-input {
-  width:100%; background:#0d1a0d; border:1.5px solid #1a3a1a55;
-  border-radius:10px; padding:11px 38px 11px 14px;
-  font-size:14px; color:#fff; outline:none; font-family:inherit;
-  transition:border-color 0.2s;
-}
-.ex-search-input:focus { border-color:#4ade8055; }
-.ex-search-input::placeholder { color:#2a4a2a; }
-.ex-btn-x { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#2a4a2a; font-size:16px; cursor:pointer; padding:0; line-height:1; display:none; }
-.ex-filter-row { margin-bottom:8px; }
-.ex-filter-label { font-size:10px; color:#2a4a2a; letter-spacing:1.2px; margin-bottom:6px; font-weight:600; }
-.ex-chips { display:flex; flex-wrap:wrap; gap:5px; }
-.ex-chip { background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:20px; padding:5px 13px; font-size:12px; color:#3a5840; cursor:pointer; transition:all 0.15s; white-space:nowrap; font-family:inherit; }
-.ex-chip:hover { border-color:#4ade8033; color:#86efac; }
-.ex-chip.active { background:#4ade8022; border-color:#4ade8066; color:#4ade80; font-weight:700; }
-.ex-stat-bar { padding:8px 14px; font-size:12px; color:#3a5840; }
-.ex-stat-bar span { color:#4ade80; font-weight:700; }
-.ex-list { padding:0 14px 16px; }
-.ex-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:12px 14px; margin-bottom:7px; cursor:pointer; transition:border-color 0.15s; }
-.ex-card:active { border-color:#4ade8044; }
-.ex-card-row { display:flex; align-items:center; gap:12px; }
-.ex-thumb { width:52px; height:52px; border-radius:8px; background:#111f11; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; overflow:hidden; }
-.ex-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
-.ex-info { flex:1; min-width:0; }
-.ex-name { font-size:14px; font-weight:600; }
-.ex-en-name { font-size:11px; color:#3a5840; margin-top:2px; }
-.ex-tags { margin-top:5px; display:flex; gap:5px; flex-wrap:wrap; }
-.ex-tag-tool { background:#4ade8011; border:1px solid #4ade8033; border-radius:6px; padding:2px 8px; font-size:10px; color:#86efac; }
-.ex-tag-part { background:transparent; border:1px solid #1a3a1a55; border-radius:6px; padding:2px 8px; font-size:10px; color:#3a5840; }
-.ex-btn-more { width:100%; background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:12px; color:#4ade80; font-size:13px; cursor:pointer; margin:4px 0; font-family:inherit; transition:all 0.15s; }
-.ex-btn-more:active { border-color:#4ade8044; }
-
-/* ── 운동DB 서브탭 ─────────────────────────────────────── */
-.ex-sub-tabs { display:flex; border-bottom:1px solid #1a3a1a44; position:sticky; top:100px; z-index:91; background:#080e08; }
-.ex-sub-tab { flex:1; padding:11px 6px; font-size:12px; font-weight:600; color:#3a5840; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:inherit; text-align:center; transition:all 0.2s; }
-.ex-sub-tab.active { color:#4ade80; border-bottom-color:#4ade80; }
-.ex-sub-tab span { font-size:11px; color:#2a4a2a; margin-left:2px; }
-.ex-sub-content { display:none; }
-.ex-sub-content.active { display:block; }
-/* 내 운동 추가/해제 버튼 (트레이너앱 스타일) */
-.ex-btn-add { background:#4ade8022; border:1px solid #4ade8044; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:700; color:#4ade80; cursor:pointer; white-space:nowrap; font-family:inherit; transition:all 0.15s; flex-shrink:0; }
-.ex-btn-add:active { background:#4ade8033; border-color:#4ade8088; }
-.ex-btn-add.added { background:#2a0e0e; border-color:#7f1d1d; color:#f87171; }
-.ex-btn-add.added:active { background:#3a1010; border-color:#f87171; color:#fca5a5; }
-.ex-card-row { position:relative; }
-/* 루틴 섹션 (트레이너앱 스타일) */
-.rt-empty { padding:32px 14px; text-align:center; color:#3a5840; font-size:14px; line-height:1.8; }
-.rt-new-btn { padding:9px 16px; background:#4ade80; border:none; border-radius:8px; color:#0a140a; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
-.rt-new-btn:active { opacity:0.8; }
-.rt-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; margin-bottom:10px; padding:14px 16px; }
-.rt-card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-.rt-card-name { font-size:14px; font-weight:700; }
-.rt-card-del { background:none; border:none; color:#ef444488; font-size:13px; cursor:pointer; padding:2px 6px; }
-.rt-card-exs { font-size:12px; color:#3a5840; display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
-.rt-card-ex-chip { background:#080e08; padding:3px 8px; border-radius:12px; display:inline-flex; align-items:center; gap:4px; }
-.rt-card-ex-chip .rt-chip-x { color:#ef4444; cursor:pointer; font-size:11px; line-height:1; }
-.rt-card-bottom { display:flex; align-items:center; justify-content:space-between; }
-.rt-card-info { font-size:11px; color:#2a4a2a; }
-.rt-card-add-btn { background:#1a3a1a; border:1px solid #4ade8044; border-radius:8px; color:#4ade80; font-size:12px; font-weight:600; padding:5px 12px; cursor:pointer; font-family:inherit; }
-.rt-card-add-btn:active { background:#4ade8022; }
-
-/* ── 운동 상세 모달 ──────────────────────────────────────── */
-.ex-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:300; align-items:flex-end; }
-.ex-modal-bg.open { display:flex; }
-.ex-modal { background:#0d1a0d; border-radius:20px 20px 0 0; padding:20px 20px calc(32px + env(safe-area-inset-bottom)); width:100%; max-height:90dvh; overflow-y:auto; animation:slideUp .25s ease; border-top:1px solid #1a3a1a66; position:relative; }
-@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-.ex-modal-close { position:absolute; top:14px; right:16px; background:none; border:none; color:#4ade80; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; }
-.ex-modal-img { width:100%; max-height:240px; object-fit:cover; border-radius:12px; background:#111f11; margin-bottom:16px; display:block; }
-.ex-modal-no-img { width:100%; height:140px; background:#111f11; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:40px; margin-bottom:16px; }
-.ex-modal-name { font-size:22px; font-weight:800; margin-bottom:4px; }
-.ex-modal-en { font-size:13px; color:#3a5840; margin-bottom:14px; }
-.ex-modal-tags { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px; }
-.ex-modal-tag-tool { background:#4ade8022; border:1px solid #4ade8044; border-radius:8px; padding:4px 12px; font-size:12px; color:#4ade80; font-weight:600; }
-.ex-modal-tag-part { background:#1a3a1a22; border:1px solid #1a3a1a55; border-radius:8px; padding:4px 12px; font-size:12px; color:#3a5840; }
-.ex-modal-sec-title { font-size:11px; font-weight:700; color:#3a5840; letter-spacing:1px; margin-bottom:8px; }
-.ex-modal-muscles { display:flex; flex-wrap:wrap; gap:6px; }
-.ex-modal-muscle-chip { background:#4ade8011; border:1px solid #4ade8033; border-radius:16px; padding:5px 12px; font-size:12px; color:#86efac; }
-
-/* ── 운동일지 탭 ───────────────────────────────────────── */
-.wlog-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-.wlog-add-btn { background:#4ade8022; border:1.5px solid #4ade8066; border-radius:8px; padding:7px 16px; color:#4ade80; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
-.wlog-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:14px 16px; margin-bottom:8px; cursor:pointer; transition:border-color .15s; position:relative; }
-.wlog-card:active { border-color:#4ade8044; }
-.wlog-card-row { display:flex; align-items:center; gap:12px; }
-.wlog-card-date { font-size:13px; font-weight:600; color:#4ade80; white-space:nowrap; }
-.wlog-card-title { font-size:14px; color:#e0e0e0; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
-.wlog-card-arrow { position:absolute; right:16px; top:16px; font-size:10px; color:#3a5840; transition:transform .2s; }
-.wlog-card-arrow.open { transform:rotate(180deg); }
-.wlog-card-sub { font-size:12px; color:#3a5840; margin-top:4px; }
-.wlog-card-notes { font-size:11px; color:#2a4a2a; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.wlog-detail { display:none; margin-top:10px; padding-top:10px; border-top:1px solid #1a3a1a33; }
-.wlog-detail.open { display:block; }
-.wlog-detail-ex { padding:6px 0; }
-.wlog-detail-exname { font-size:13px; font-weight:600; margin-bottom:4px; }
-/* 작성 뷰 */
-.wlog-write { display:none; }
-.wlog-write.open { display:block; }
-.wlog-write-header { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #1a3a1a44; margin-bottom:12px; }
-.wlog-write-title { font-size:16px; font-weight:700; }
-.wlog-write-cancel { background:none; border:none; color:#3a5840; font-size:13px; cursor:pointer; font-family:inherit; }
-.wlog-date-row { margin-bottom:10px; }
-.wlog-date-input { background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:8px; padding:10px 14px; color:#fff; font-size:14px; font-family:inherit; width:100%; }
-.wlog-title-row { margin-bottom:14px; }
-.wlog-title-input { background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:8px; padding:10px 14px; color:#fff; font-size:14px; font-family:inherit; width:100%; box-sizing:border-box; }
-.wlog-title-input::placeholder { color:#2a4a2a; }
-/* ── 운동카드 (트레이너앱 스타일 · 그린) ─────────────────── */
-.wlog-ex-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:14px; margin-bottom:10px; overflow:hidden; }
-.wlog-ex-head { display:flex; align-items:center; padding:14px 16px; gap:10px; }
-.wlog-ex-order { width:26px; height:26px; border-radius:50%; background:#1a3a1a; color:#4ade80; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
-.wlog-ex-name-area { flex:1; min-width:0; }
-.wlog-ex-name { font-size:14px; font-weight:700; }
-.wlog-ex-sub { font-size:11px; color:#3a5840; margin-top:2px; }
-.wlog-ex-del { background:#1a0a0a; border:1px solid #3a1a1a; border-radius:8px; color:#f87171; font-size:12px; font-family:inherit; cursor:pointer; padding:5px 12px; flex-shrink:0; line-height:1.4; }
-.wlog-ex-del:active { border-color:#f87171; background:#2a0e0e; }
-.wlog-sets { padding:0 16px 10px; }
-.wlog-set-header { display:grid; grid-template-columns:36px 1fr 1fr auto; gap:6px; margin-bottom:4px; align-items:center; }
-.wlog-set-header span { font-size:10px; color:#3a5840; text-align:center; }
-.wlog-set-row { display:grid; grid-template-columns:36px 1fr 1fr auto; gap:6px; margin-bottom:6px; align-items:center; }
-.wlog-set-row-end { display:flex; align-items:center; gap:4px; }
-.wlog-set-num { background:#1a3a1a; border-radius:6px; height:38px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#4ade80; }
-.wlog-set-input { background:#060e06; border:1.5px solid #1a3a1a44; border-radius:10px; padding:10px 6px; font-size:15px; font-weight:700; color:#fff; text-align:center; outline:none; font-family:inherit; width:100%; -moz-appearance:textfield; height:38px; box-sizing:border-box; }
-.wlog-set-input::-webkit-outer-spin-button, .wlog-set-input::-webkit-inner-spin-button { -webkit-appearance:none; }
-.wlog-set-input:focus { border-color:#4ade80; }
-.wlog-wm-chip { font-size:12px; font-weight:700; border:1.5px solid #1a3a1a44; border-radius:10px; cursor:pointer; height:38px; padding:0 8px; transition:background 0.15s; white-space:nowrap; font-family:inherit; }
-.wlog-wm-total { background:#1a3a1a; color:#4ade80; }
-.wlog-wm-single { background:#1a3a20; color:#86efac; }
-.wlog-set-del { background:none; border:none; color:#3a5840; font-size:18px; cursor:pointer; padding:4px; height:38px; display:flex; align-items:center; justify-content:center; }
-.wlog-set-del:active { color:#f87171; }
-.wlog-add-set { width:100%; background:#060e06; border:1.5px dashed #1a3a1a44; border-radius:10px; padding:9px; font-size:12px; font-weight:600; color:#3a5840; cursor:pointer; margin-top:4px; transition:all 0.15s; font-family:inherit; }
-.wlog-add-set:active { border-color:#4ade80; color:#4ade80; background:#0d1a0d; }
-.wlog-ex-comment { padding:0 16px 10px; }
-.wlog-ex-comment textarea { width:100%; background:#060e06; border:1.5px solid #1a3a1a44; border-radius:10px; padding:10px 12px; font-size:13px; color:#aaa; outline:none; font-family:inherit; resize:none; height:48px; transition:border-color 0.2s; box-sizing:border-box; }
-.wlog-ex-comment textarea:focus { border-color:#4ade8066; color:#fff; }
-.wlog-notes-area { margin:12px 0; }
-.wlog-notes-input { width:100%; background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:8px; padding:10px 14px; color:#fff; font-size:13px; min-height:60px; resize:vertical; font-family:inherit; }
-.wlog-bottom-bar { display:flex; flex-wrap:wrap; gap:6px; margin:14px 0 8px; }
-.wlog-bottom-btn { flex:1; min-width:90px; background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:8px; padding:10px 8px; color:#3a5840; font-size:12px; text-align:center; cursor:pointer; font-family:inherit; font-weight:600; }
-.wlog-bottom-btn:active { border-color:#4ade8044; color:#4ade80; }
-.wlog-save-btn { width:100%; background:#4ade8022; border:1.5px solid #4ade8066; border-radius:10px; padding:14px; color:#4ade80; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:6px; }
-.wlog-save-btn:active { background:#4ade8044; }
-/* 운동 추가 피커 모달 (트레이너앱 스타일 · 초록테마) */
-.wlog-picker-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:310; }
-.wlog-picker-bg.open { display:flex; flex-direction:column; }
-.wlog-picker { background:#0a140a; border-radius:20px 20px 0 0; margin-top:auto; max-height:90dvh; overflow-y:auto; padding:0 0 24px; animation:slideUp .25s ease; }
-/* 헤더 */
-.pk-header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid #1a3a1a44; position:sticky; top:0; z-index:3; background:#0a140a; border-radius:20px 20px 0 0; }
-.pk-header-title { font-size:15px; font-weight:700; }
-.pk-header-sub { font-size:11px; color:#3a5840; margin-top:2px; }
-.pk-close-btn { background:none; border:1px solid #1a3a1a55; border-radius:8px; color:#3a5840; font-size:12px; padding:6px 12px; cursor:pointer; font-family:inherit; }
-.pk-close-btn:active { border-color:#4ade8044; color:#4ade80; }
-/* 검색 */
-.pk-search-wrap { position:sticky; top:56px; z-index:2; background:#0a140a; padding:10px 14px 0; }
-.pk-search { width:100%; background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:10px; padding:11px 40px 11px 14px; font-size:14px; color:#fff; outline:none; font-family:inherit; display:block; transition:border-color .2s; }
-.pk-search:focus { border-color:#4ade8066; }
-.pk-search::placeholder { color:#3a5840; }
-.pk-btn-x { position:absolute; right:26px; top:50%; transform:translateY(-50%); margin-top:8px; background:none; border:none; color:#3a5840; font-size:16px; cursor:pointer; padding:0; line-height:1; display:none; }
-/* 필터 칩 */
-.pk-filter-row { padding:0 14px; margin-top:10px; }
-.pk-filter-label { font-size:10px; color:#3a5840; letter-spacing:1.2px; margin-bottom:6px; font-weight:600; }
-.pk-chips { display:flex; flex-wrap:wrap; gap:5px; }
-.pk-chip { background:#0d1a0d; border:1.5px solid #1a3a1a55; border-radius:20px; padding:5px 13px; font-size:12px; color:#3a5840; cursor:pointer; transition:all .15s; white-space:nowrap; font-family:inherit; }
-.pk-chip:hover { border-color:#4ade8055; color:#4ade80; }
-.pk-chip.active { background:#4ade8022; border-color:#4ade8088; color:#4ade80; font-weight:700; }
-/* 운동 수 */
-.pk-stat { padding:8px 14px 2px; font-size:12px; color:#3a5840; }
-.pk-stat span { color:#4ade80; font-weight:700; }
-/* 운동 카드 목록 */
-.pk-list { padding:0 14px; }
-.pk-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:10px 12px; margin-bottom:7px; cursor:pointer; transition:border-color .15s; }
-.pk-card:active { border-color:#4ade8044; }
-.pk-card-row { display:flex; align-items:center; gap:10px; }
-.pk-thumb { width:48px; height:48px; border-radius:8px; background:#0a1f0a; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; overflow:hidden; }
-.pk-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
-.pk-info { flex:1; min-width:0; }
-.pk-name { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.pk-en { font-size:10px; color:#3a5840; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.pk-tags { margin-top:4px; display:flex; gap:4px; flex-wrap:wrap; align-items:center; }
-.pk-tag-tool { background:#4ade8018; border:1px solid #4ade8033; border-radius:6px; padding:1px 7px; font-size:10px; color:#4ade8099; }
-.pk-tag-part { background:transparent; border:1px solid #1a3a1a55; border-radius:6px; padding:1px 7px; font-size:10px; color:#3a5840; }
-.pk-tag-mine { background:#4ade8022; border:1px solid #4ade8055; border-radius:6px; padding:1px 7px; font-size:10px; color:#4ade80; font-weight:600; }
-.pk-add { flex-shrink:0; background:#4ade8022; border:1px solid #4ade8044; border-radius:8px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; color:#4ade80; cursor:pointer; transition:all .15s; }
-.pk-add:active { background:#4ade8044; border-color:#4ade8088; }
-/* 더보기 */
-.pk-more { width:100%; background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:12px; color:#3a5840; font-size:13px; cursor:pointer; margin:4px 0; font-family:inherit; transition:all .15s; }
-.pk-more:hover { border-color:#4ade8044; color:#4ade80; }
-/* 루틴 피커/저장 모달 */
-.wlog-rt-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:320; align-items:center; justify-content:center; }
-.wlog-rt-modal-bg.open { display:flex; }
-.wlog-rt-modal { background:#0d1a0d; border-radius:16px; padding:24px 20px; width:calc(100% - 40px); max-width:360px; }
-.wlog-rt-modal-title { font-size:16px; font-weight:700; margin-bottom:14px; }
-.wlog-rt-modal input[type=text] { width:100%; background:#080e08; border:1.5px solid #1a3a1a55; border-radius:8px; padding:10px 14px; color:#fff; font-size:14px; font-family:inherit; margin-bottom:12px; }
-.wlog-rt-modal-btns { display:flex; gap:8px; }
-.wlog-rt-modal-btns button { flex:1; padding:10px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; border:none; }
-.wlog-rt-cancel { background:#1a3a1a44; color:#3a5840; }
-.wlog-rt-ok { background:#4ade8022; color:#4ade80; border:1.5px solid #4ade8066 !important; }
-
-/* ── 통계 탭 ───────────────────────────────────────────── */
-.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:18px; }
-.stat-card { background:#0d1a0d; border:1px solid #1a3a1a44; border-radius:10px; padding:16px 14px; text-align:center; }
-.stat-card-num { font-size:28px; font-weight:800; color:#4ade80; }
-.stat-card-label { font-size:11px; color:#3a5840; margin-top:4px; }
-.stat-section { margin-bottom:20px; }
-.stat-section-title { font-size:13px; font-weight:700; color:#3a5840; margin-bottom:10px; letter-spacing:0.5px; }
-.stat-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
-.stat-bar-name { font-size:12px; color:#ddd; min-width:80px; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.stat-bar-fill { height:20px; background:linear-gradient(90deg,#4ade8033,#4ade8066); border-radius:4px; min-width:2px; transition:width .3s; }
-.stat-bar-cnt { font-size:11px; color:#3a5840; min-width:28px; }
-.stat-trend-row { display:flex; align-items:flex-end; gap:4px; height:100px; padding:0 4px; }
-.stat-trend-col { flex:1; display:flex; flex-direction:column; align-items:center; }
-.stat-trend-bar { width:100%; background:#4ade8044; border-radius:4px 4px 0 0; min-height:2px; transition:height .3s; }
-.stat-trend-label { font-size:9px; color:#2a4a2a; margin-top:4px; }
-.stat-trend-num { font-size:10px; color:#4ade80; margin-bottom:2px; }
-
-/* ── Anatomy Tab ─────────────────────────────────────────── */
-.anatomy-view { display:flex; justify-content:center; margin-top:4px; }
-.anatomy-img { width:100%; max-width:300px; border-radius:12px; display:block; }
-
-/* ── Photo Viewer ────────────────────────────────────────── */
-.mv-viewer-bg { display:none; position:fixed; inset:0; background:#000000f2; z-index:500; flex-direction:column; align-items:center; justify-content:center; padding:20px 16px calc(env(safe-area-inset-bottom)+20px); }
-.mv-viewer-bg.open { display:flex; }
-.mv-viewer-title { font-size:14px; font-weight:700; color:#fff; margin-bottom:14px; text-align:center; flex-shrink:0; }
-.mv-viewer-imgs { display:flex; gap:10px; width:100%; max-width:440px; flex:1; min-height:0; }
-.mv-photo-slot { flex:1; min-width:0; background:#111; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
-.mv-photo-slot img { width:100%; height:auto; display:block; max-height:calc(100dvh - 140px); object-fit:contain; flex:1; }
-.mv-photo-label { font-size:11px; color:#555; padding:5px 6px; text-align:center; flex-shrink:0; }
-.modal-close-x { position:absolute; top:14px; right:16px; background:none; border:none; color:#4ade80; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; line-height:1; }
-
-/* ── Loading / Error / Empty ─────────────────────────────── */
-.loading { text-align:center; padding:40px; color:#2a4a2a; }
-.empty { text-align:center; padding:40px 20px; color:#2a4a2a; font-size:14px; line-height:1.8; }
-.error-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100dvh; padding:40px 20px; text-align:center; }
-.error-screen h2 { font-size:20px; font-weight:700; margin-bottom:10px; }
-.error-screen p { font-size:14px; color:#555; line-height:1.6; }
-
-/* ── Toast ───────────────────────────────────────────────── */
-.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#111f11; color:#4ade80; border:1px solid #4ade8044; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; }
-</style>
+<link rel="stylesheet" href="./styles/tokens.css">
+<link rel="stylesheet" href="./styles/components.css">
+<link rel="stylesheet" href="./styles/member.css">
 </head>
 <body>
 
-<!-- 에러 화면 -->
-<div id="errorScreen" style="display:none" class="error-screen">
-  <div style="font-size:52px;margin-bottom:20px">🔒</div>
-  <h2>접근할 수 없어요</h2>
-  <p>유효하지 않은 링크예요.<br>트레이너에게 링크를 다시 받아보세요.</p>
+<!-- ── 에러 화면 ───────────────────────────────────────────── -->
+<div class="error-screen" id="errorScreen">
+  <h2>접근할 수 없습니다</h2>
+  <p>유효한 링크로 다시 접속해주세요</p>
 </div>
 
-<!-- 로딩 화면 -->
-<div id="loadingScreen" class="error-screen">
-  <h2 style="color:#3a5840">로딩 중...</h2>
+<!-- ── 로딩 ────────────────────────────────────────────────── -->
+<div class="loading" id="loadingScreen">
+  <div class="spinner"></div>
 </div>
 
-<!-- 메인 콘텐츠 -->
-<div id="mainContent" style="display:none">
+<!-- ── 메인 콘텐츠 ─────────────────────────────────────────── -->
+<div id="mainContent" style="display:none;">
 
-  <!-- ── Header ─────────────────────────────────────────── -->
   <div class="header">
     <div>
-      <div class="header-title">VERA<span>GYM</span></div>
-      <div class="header-sub" id="headerSub">베라짐 회원</div>
-      <div id="tokenDaysHdr" style="font-size:10px;color:#2a4a2a;margin-top:2px;font-weight:600"></div>
+      <div class="header-title">VERA <span>GYM</span></div>
+      <div class="header-sub" id="headerSub">
+        <span id="memberNameHdr"></span>
+        <span id="trainerInfoHdr" style="margin-left:var(--space-2);"></span>
+      </div>
     </div>
-    <div style="text-align:right">
-      <div style="font-size:15px;font-weight:800" id="memberNameHdr">회원</div>
-      <div style="font-size:11px;color:#3a5840;margin-top:2px" id="trainerInfoHdr"></div>
-    </div>
+    <span id="tokenDaysHdr" style="font-size:10px;color:var(--text-tertiary);"></span>
   </div>
 
-  <!-- ── Tab Navigation ─────────────────────────────────── -->
   <div class="tabs">
-    <button class="tab-btn active" id="nav-logs"     onclick="switchTab('logs',this)">수업일지</button>
-    <button class="tab-btn"        id="nav-schedule" onclick="switchTab('schedule',this)">일정</button>
-    <button class="tab-btn"        id="nav-wlog"     onclick="switchTab('wlog',this);wlogInit()">운동일지</button>
-    <button class="tab-btn"        id="nav-stats"    onclick="switchTab('stats',this);statsInit()">통계</button>
-    <button class="tab-btn"        id="nav-exlib"    onclick="switchTab('exlib',this);lazyLoadEx()">운동DB</button>
-    <button class="tab-btn"        id="nav-anatomy"  onclick="switchTab('anatomy',this)">해부도</button>
+    <button class="tab-btn active" data-tab="logs">수업</button>
+    <button class="tab-btn" data-tab="schedule">일정</button>
+    <button class="tab-btn" data-tab="wlog">일지</button>
+    <button class="tab-btn" data-tab="stats">통계</button>
+    <button class="tab-btn" data-tab="exlib">운동DB</button>
+    <button class="tab-btn" data-tab="anatomy">해부도</button>
   </div>
 
-  <!-- ── Tab: 수업일지 ───────────────────────────────────── -->
-  <div id="tab-logs" class="tab-content active">
+  <!-- Tab: 수업일지 -->
+  <div class="tab-content active" id="tab-logs">
     <div class="stats-row">
-      <div class="stat-box"><div class="stat-num" id="statTotal">-</div><div class="stat-label">총 수업</div></div>
-      <div class="stat-box"><div class="stat-num" id="statMonth">-</div><div class="stat-label">이번 달</div></div>
-      <div class="stat-box"><div class="stat-num" id="statExTypes">-</div><div class="stat-label">운동 종류</div></div>
+      <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-label">전체</div></div>
+      <div class="stat-box"><div class="stat-num" id="statMonth">0</div><div class="stat-label">이번 달</div></div>
+      <div class="stat-box"><div class="stat-num" id="statExTypes">0</div><div class="stat-label">운동 종류</div></div>
     </div>
-    <div id="ptBanner" style="display:none"></div>
+    <div id="ptBanner"></div>
     <div class="sec-header">
-      <div><span class="sec-title">수업 기록</span><span class="sec-count" id="logCount"></span></div>
+      <span class="sec-title">수업 기록</span>
+      <span class="sec-count" id="logCount"></span>
     </div>
-    <div id="sessList"><div class="loading">불러오는 중...</div></div>
+    <div id="sessList"></div>
   </div>
 
-  <!-- ── Tab: 일정 ───────────────────────────────────────── -->
-  <div id="tab-schedule" class="tab-content">
-    <div id="schedList"><div class="loading">불러오는 중...</div></div>
+  <!-- Tab: 일정 -->
+  <div class="tab-content" id="tab-schedule">
+    <div class="sec-header"><span class="sec-title">PT 일정</span></div>
+    <div id="schedList"></div>
   </div>
 
-  <!-- ── Tab: 운동일지 ─────────────────────────────────── -->
-  <div id="tab-wlog" class="tab-content">
-    <!-- 목록 뷰 -->
+  <!-- Tab: 운동일지 (회원 작성) -->
+  <div class="tab-content" id="tab-wlog">
     <div id="wlogListView">
-      <div class="wlog-header">
-        <div><span class="sec-title">운동일지</span><span class="sec-count" id="wlogCount"></span></div>
-        <button class="wlog-add-btn" onclick="wlogStartNew()">+ 작성</button>
+      <div class="sec-header">
+        <span class="sec-title">운동일지</span>
+        <span class="sec-count" id="wlogCount"></span>
+        <button class="btn btn-sm btn-primary" id="btnWlogNew">작성</button>
       </div>
-      <div id="wlogList"><div class="loading">불러오는 중...</div></div>
+      <div id="wlogList"></div>
     </div>
-    <!-- 작성 뷰 -->
-    <div id="wlogWriteView" class="wlog-write">
-      <div class="wlog-write-header">
-        <span class="wlog-write-title">운동일지 작성</span>
-        <button class="wlog-write-cancel" onclick="wlogCancel()">취소</button>
+    <div id="wlogWriteView" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3);">
+        <span class="sec-title" id="wlogWriteTitle">운동일지 작성</span>
+        <button class="btn btn-sm btn-ghost" id="wlogCancelBtn">취소</button>
       </div>
-      <div class="wlog-date-row">
-        <input type="date" id="wlogDate" class="wlog-date-input">
+      <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-3);">
+        <input class="field-input" id="wlogDate" type="date" style="flex:1;">
+        <input class="field-input" id="wlogTitle" placeholder="제목 (선택)" style="flex:2;">
       </div>
-      <div class="wlog-title-row">
-        <input type="text" id="wlogTitle" class="wlog-title-input" placeholder="오늘의 운동 이름 (예: 가슴, 어깨, 등)" maxlength="50">
-      </div>
-      <div class="wlog-set-header"><span></span><span>무게(kg)</span><span>횟수</span><span></span></div>
       <div id="wlogExList"></div>
-      <div class="wlog-notes-area">
-        <textarea id="wlogNotes" class="wlog-notes-input" placeholder="메모 (선택)" rows="2"></textarea>
-      </div>
       <div class="wlog-bottom-bar">
-        <button class="wlog-bottom-btn" onclick="wlogOpenExPicker()">+ 운동 추가</button>
-        <button class="wlog-bottom-btn" onclick="wlogOpenRoutinePicker()">루틴 불러오기</button>
-        <button class="wlog-bottom-btn" onclick="wlogSaveAsRoutine()">루틴으로 저장</button>
+        <button class="btn btn-md btn-secondary" id="wlogAddExBtn" style="flex:1;">운동 추가</button>
+        <button class="btn btn-md btn-ghost" id="wlogLoadRoutineBtn" style="flex:1;">루틴</button>
       </div>
-      <button class="wlog-save-btn" id="wlogSaveBtn" onclick="wlogSave()">저장</button>
+      <div class="field mt-3">
+        <label class="field-label">메모</label>
+        <textarea class="field-textarea" id="wlogNotes" rows="2" placeholder="오늘의 메모"></textarea>
+      </div>
+      <button class="wlog-save-btn mt-3" id="wlogSaveBtn">저장</button>
     </div>
   </div>
 
-  <!-- ── Tab: 통계 ───────────────────────────────────────── -->
-  <div id="tab-stats" class="tab-content">
-    <div id="statsContent"><div class="loading">불러오는 중...</div></div>
+  <!-- Tab: 통계 -->
+  <div class="tab-content" id="tab-stats">
+    <div id="statsContent"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 
-  <!-- ── Tab: 운동DB (내장) ─────────────────────────────── -->
-  <div id="tab-exlib" class="tab-content">
-    <!-- 서브탭 -->
+  <!-- Tab: 운동DB -->
+  <div class="tab-content" id="tab-exlib">
     <div class="ex-sub-tabs">
-      <button class="ex-sub-tab active" id="exSubBtnAll" onclick="exSwitchSub('all')">전체운동</button>
-      <button class="ex-sub-tab" id="exSubBtnMine" onclick="exSwitchSub('mine')">내 운동 <span id="myExCount">0</span></button>
-      <button class="ex-sub-tab" id="exSubBtnRoutine" onclick="exSwitchSub('routine')">루틴</button>
+      <button class="chip active" id="exSubBtnAll" data-ex-sub="exercise">전체</button>
+      <button class="chip" id="exSubBtnMine" data-ex-sub="mine">내 운동 <span id="myExCount"></span></button>
+      <button class="chip" id="exSubBtnRoutine" data-ex-sub="routine">루틴</button>
     </div>
-    <!-- 전체운동 + 내 운동 (공유 검색/필터 영역) -->
-    <div id="exSubExercise" class="ex-sub-content active">
+    <div id="exSubExercise">
       <div class="ex-search-area">
         <div class="ex-search-wrap">
-          <input type="text" class="ex-search-input" id="exSearchInput"
-                 placeholder="운동명 검색 (한/영)" oninput="exOnSearch()" autocomplete="off">
-          <button class="ex-btn-x" id="exBtnX" onclick="exClearSearch()">✕</button>
+          <input class="ex-search-input" id="exSearchInput" placeholder="운동 검색">
+          <button class="ex-btn-x" id="exBtnX">&times;</button>
         </div>
-        <div class="ex-filter-row">
-          <div class="ex-filter-label">도구</div>
-          <div class="ex-chips" id="exToolChips"></div>
-        </div>
-        <div class="ex-filter-row">
-          <div class="ex-filter-label">부위</div>
-          <div class="ex-chips" id="exPartChips"></div>
-        </div>
+        <div id="exToolChips" class="chips mt-2"></div>
+        <div id="exPartChips" class="chips mt-2"></div>
       </div>
       <div class="ex-stat-bar" id="exStatBar"></div>
-      <div class="ex-list" id="exList"><div class="loading">불러오는 중...</div></div>
+      <div id="exList"></div>
     </div>
-    <!-- 루틴 -->
-    <div id="exSubRoutine" class="ex-sub-content">
-      <div style="display:flex;justify-content:flex-end;padding:12px 14px 0;">
-        <button class="rt-new-btn" onclick="rtStartNew()">+ 새 루틴</button>
+    <div id="exSubRoutine" style="display:none;">
+      <div class="sec-header mt-3">
+        <span class="sec-title">내 루틴</span>
+        <button class="btn btn-sm btn-primary" id="rtNewBtn">만들기</button>
       </div>
-      <div id="routineList" style="padding:0 14px 16px;"><div class="loading">불러오는 중...</div></div>
+      <div id="memberImportCard" style="display:none;">
+        <div class="card mb-3">
+          <div class="field-label mb-2">공유 링크로 루틴 가져오기</div>
+          <div style="display:flex;gap:var(--space-2);">
+            <input class="field-input" id="memberLinkInput" placeholder="링크 또는 코드 입력" style="flex:1;">
+            <button class="btn btn-sm btn-primary" id="btnMemberImport">가져오기</button>
+          </div>
+        </div>
+      </div>
+      <div id="routineList"></div>
     </div>
   </div>
 
-  <!-- ── Tab: 해부도 ─────────────────────────────────────── -->
-  <div id="tab-anatomy" class="tab-content">
-    <div class="sec-header"><span class="sec-title">해부도</span></div>
-    <div class="ex-filter-row">
-      <div class="ex-filter-label">종류</div>
-      <div class="ex-chips">
-        <button class="ex-chip active" id="btnTypeMuscle" onclick="setAnatomyType('muscle')">근육</button>
-        <button class="ex-chip" id="btnTypeBone" onclick="setAnatomyType('bone')">뼈</button>
-      </div>
-    </div>
-    <div id="anatomyMuscleViews" class="ex-filter-row">
-      <div class="ex-filter-label">방향</div>
-      <div class="ex-chips">
-        <button class="ex-chip active" id="btnMuscleFront" onclick="showAnatomyImg('muscle-front')">정면</button>
-        <button class="ex-chip" id="btnMuscleBack" onclick="showAnatomyImg('muscle-back')">후면</button>
-      </div>
-    </div>
-    <div id="anatomyBoneViews" class="ex-filter-row" style="display:none">
-      <div class="ex-filter-label">방향</div>
-      <div class="ex-chips">
-        <button class="ex-chip active" id="btnBoneFront" onclick="showAnatomyImg('bone-front')">정면</button>
-        <button class="ex-chip" id="btnBoneSide" onclick="showAnatomyImg('bone-side')">측면</button>
-      </div>
-    </div>
+  <!-- Tab: 해부도 -->
+  <div class="tab-content" id="tab-anatomy">
     <div class="anatomy-view">
-      <img id="anatomyImg" src="./images/anatomy/muscle-front.png" class="anatomy-img" alt="근육 정면 해부도">
+      <div style="display:flex;gap:var(--space-2);justify-content:center;margin-bottom:var(--space-3);">
+        <button class="btn btn-sm btn-secondary" id="btnTypeMuscle">근육</button>
+        <button class="btn btn-sm btn-ghost" id="btnTypeBone">골격</button>
+      </div>
+      <div id="anatomyMuscleViews" style="display:flex;gap:var(--space-2);justify-content:center;margin-bottom:var(--space-3);">
+        <button class="btn btn-sm btn-secondary" id="btnMuscleFront">앞면</button>
+        <button class="btn btn-sm btn-ghost" id="btnMuscleBack">뒷면</button>
+      </div>
+      <div id="anatomyBoneViews" style="display:none;display:flex;gap:var(--space-2);justify-content:center;margin-bottom:var(--space-3);">
+        <button class="btn btn-sm btn-secondary" id="btnBoneFront">앞면</button>
+        <button class="btn btn-sm btn-ghost" id="btnBoneSide">측면</button>
+      </div>
+      <img class="anatomy-img" id="anatomyImg" src="./images/anatomy/muscle-front.png" alt="해부도">
     </div>
   </div>
 
-  </div>
+</div>
 
-</div><!-- /mainContent -->
+<!-- ── Toast ───────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
 
-<!-- 사진 뷰어 -->
-<div id="memberPhotoViewer" class="mv-viewer-bg" onclick="if(event.target===this)closeMemberPhotoViewer()">
-  <button class="modal-close-x" onclick="closeMemberPhotoViewer()">✕</button>
-  <div class="mv-viewer-title" id="memberViewerTitle">자세 사진</div>
+<!-- ── 사진 뷰어 ──────────────────────────────────────────── -->
+<div class="mv-viewer-bg" id="memberPhotoViewer">
+  <button class="modal-close" style="position:fixed;top:var(--space-3);right:var(--space-3);color:#fff;font-size:28px;" id="viewerCloseBtn">&times;</button>
+  <div class="mv-viewer-title" id="memberViewerTitle"></div>
   <div class="mv-viewer-imgs" id="memberViewerImgs"></div>
 </div>
 
-<!-- 운동 추가 피커 모달 (트레이너앱 스타일) -->
-<div id="wlogPickerBg" class="wlog-picker-bg" onclick="if(event.target===this)wlogCloseExPicker()">
+<!-- ── 운동 상세 모달 ──────────────────────────────────────── -->
+<div class="ex-modal-bg" id="exModalBg">
+  <div class="ex-modal" id="exModalBody"></div>
+</div>
+
+<!-- ── 운동 피커 모달 ──────────────────────────────────────── -->
+<div class="wlog-picker-bg" id="wlogPickerBg">
   <div class="wlog-picker">
-    <!-- 헤더 (닫기 버튼) -->
-    <div class="pk-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3);">
       <div>
-        <div class="pk-header-title" id="pkHeaderTitle">운동 선택</div>
-        <div class="pk-header-sub" id="pkHeaderSub">전체 운동에서 선택하세요</div>
+        <div style="font-size:var(--text-base);font-weight:var(--font-bold);" id="pkHeaderTitle">운동 추가</div>
+        <div style="font-size:var(--text-xs);color:var(--text-tertiary);" id="pkHeaderSub"></div>
       </div>
-      <button class="pk-close-btn" onclick="wlogCloseExPicker()">닫기</button>
+      <button class="btn btn-sm btn-ghost" id="pkCloseBtn">닫기</button>
     </div>
-    <!-- 검색 -->
-    <div class="pk-search-wrap">
-      <input type="text" class="pk-search" id="wlogPickerSearch"
-             placeholder="운동 이름 검색 (한/영)" oninput="pkOnSearch()" autocomplete="off">
-      <button class="pk-btn-x" id="pkBtnX" onclick="pkClearSearch()">✕</button>
+    <div class="ex-search-wrap mb-3">
+      <input class="ex-search-input" id="wlogPickerSearch" placeholder="운동 검색">
+      <button class="ex-btn-x" id="pkBtnX">&times;</button>
     </div>
-    <!-- 부위 필터 -->
-    <div class="pk-filter-row">
-      <div class="pk-filter-label">부위</div>
-      <div class="pk-chips" id="pkPartChips"></div>
-    </div>
-    <!-- 도구 필터 -->
-    <div class="pk-filter-row">
-      <div class="pk-filter-label">도구</div>
-      <div class="pk-chips" id="pkToolChips"></div>
-    </div>
-    <!-- 운동 수 표시 -->
-    <div class="pk-stat" id="pkStat"></div>
-    <!-- 운동 카드 목록 -->
-    <div id="wlogPickerList" class="pk-list"></div>
+    <div id="pkPartChips" class="chips mb-2"></div>
+    <div id="pkToolChips" class="chips mb-2"></div>
+    <div class="ex-stat-bar" id="pkStat"></div>
+    <div id="wlogPickerList"></div>
   </div>
 </div>
 
-<!-- 루틴 피커 모달 -->
-<div id="wlogRtPickerBg" class="wlog-rt-modal-bg" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="wlog-rt-modal">
-    <div class="wlog-rt-modal-title">루틴 불러오기</div>
-    <div id="wlogRtPickerList" style="max-height:300px;overflow-y:auto;margin-bottom:12px"></div>
-    <button class="wlog-rt-cancel" onclick="document.getElementById('wlogRtPickerBg').classList.remove('open')" style="width:100%;padding:10px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;border:none;background:#1a3a1a44;color:#3a5840">닫기</button>
+<!-- ── 루틴 피커 모달 ──────────────────────────────────────── -->
+<div class="wlog-picker-bg" id="wlogRtPickerBg">
+  <div class="wlog-picker">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3);">
+      <div style="font-size:var(--text-base);font-weight:var(--font-bold);">루틴 불러오기</div>
+      <button class="btn btn-sm btn-ghost" id="rtPickerCloseBtn">닫기</button>
+    </div>
+    <div id="wlogRtPickerList"></div>
   </div>
 </div>
 
-<!-- 루틴 저장 모달 -->
-<div id="wlogRtSaveBg" class="wlog-rt-modal-bg" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="wlog-rt-modal">
-    <div class="wlog-rt-modal-title">루틴으로 저장</div>
-    <input type="text" id="wlogRtSaveName" placeholder="루틴 이름" maxlength="30">
-    <div style="font-size:12px;color:#3a5840;margin-bottom:14px" id="wlogRtSaveInfo"></div>
-    <div class="wlog-rt-modal-btns">
-      <button class="wlog-rt-cancel" onclick="document.getElementById('wlogRtSaveBg').classList.remove('open')">취소</button>
-      <button class="wlog-rt-ok" onclick="wlogDoSaveRoutine()">저장</button>
+<!-- ── 루틴 저장 모달 ──────────────────────────────────────── -->
+<div class="modal-bg" id="wlogRtSaveBg">
+  <div class="modal" style="border-radius:var(--radius-md);max-width:360px;padding:var(--space-5);">
+    <div class="modal-title">루틴으로 저장</div>
+    <div class="field-hint mb-3" id="wlogRtSaveInfo"></div>
+    <div class="field">
+      <input class="field-input" id="wlogRtSaveName" placeholder="루틴 이름">
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-lg btn-cancel" id="rtSaveCancelBtn">취소</button>
+      <button class="btn btn-lg btn-primary" id="rtSaveConfirmBtn">저장</button>
     </div>
   </div>
 </div>
 
-<!-- 운동 상세 모달 -->
-<div id="exModalBg" class="ex-modal-bg" onclick="if(event.target===this)exCloseModal()">
-  <div class="ex-modal">
-    <button class="ex-modal-close" onclick="exCloseModal()">✕</button>
-    <div id="exModalBody"></div>
-  </div>
-</div>
-
-<div id="toast" class="toast"></div>
-
+<!-- ── Scripts ─────────────────────────────────────────────── -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script>
-init_db();
-
-(function() {
-  history.pushState(null, '', location.href);
-  window.addEventListener('popstate', function() { history.pushState(null, '', location.href); });
-})();
-
-let _memberToken = null;
-let _logsData    = [];
-
-// ── weight_mode 정규화 (DB: 'single' ↔ 앱: 'each') ──────────
-function _isUnilateral(wm) { return wm === 'each' || wm === 'single'; }
-function _normalizeWm(wm) { return (wm === 'single') ? 'each' : (wm || 'total'); }
-
-// ── 탭 전환 ──────────────────────────────────────────────────
-function switchTab(id, btn) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + id).classList.add('active');
-  if (btn) btn.classList.add('active');
-}
-
-// ── 해부도 토글 ──────────────────────────────────────────────
-let _anatomyType = 'muscle';
-
-function setAnatomyType(type) {
-  _anatomyType = type;
-  const isMuscle = type === 'muscle';
-  document.getElementById('anatomyMuscleViews').style.display = isMuscle ? '' : 'none';
-  document.getElementById('anatomyBoneViews').style.display   = isMuscle ? 'none' : '';
-  document.getElementById('btnTypeMuscle').classList.toggle('active', isMuscle);
-  document.getElementById('btnTypeBone').classList.toggle('active', !isMuscle);
-  if (isMuscle) {
-    document.getElementById('btnMuscleFront').classList.add('active');
-    document.getElementById('btnMuscleBack').classList.remove('active');
-    showAnatomyImg('muscle-front');
-  } else {
-    document.getElementById('btnBoneFront').classList.add('active');
-    document.getElementById('btnBoneSide').classList.remove('active');
-    showAnatomyImg('bone-front');
-  }
-}
-
-function showAnatomyImg(view) {
-  const srcs = {
-    'muscle-front': './images/anatomy/muscle-front.png',
-    'muscle-back':  './images/anatomy/muscle-back.png',
-    'bone-front':   './images/anatomy/skeleton-front.png',
-    'bone-side':    './images/anatomy/skeleton-side.png',
-  };
-  document.getElementById('anatomyImg').src = srcs[view];
-  if (_anatomyType === 'muscle') {
-    document.getElementById('btnMuscleFront').classList.toggle('active', view === 'muscle-front');
-    document.getElementById('btnMuscleBack').classList.toggle('active', view === 'muscle-back');
-  } else {
-    document.getElementById('btnBoneFront').classList.toggle('active', view === 'bone-front');
-    document.getElementById('btnBoneSide').classList.toggle('active', view === 'bone-side');
-  }
-}
-
-// ── 초기화 ───────────────────────────────────────────────────
-async function init() {
-  const _params = new URLSearchParams(location.search);
-  let token = _params.get('token') || _params.get('t');
-  if (token) localStorage.setItem('vg_member_token', token);
-  else token = localStorage.getItem('vg_member_token');
-  if (!token) { showError(); return; }
-  _memberToken = token;
-
-  const { data, error } = await db.rpc('member_get_by_token', { p_token: token });
-  if (error || !data || !data.length) { showError(); return; }
-
-  const info = data[0];
-  document.getElementById('headerSub').textContent      = `베라짐 ${info.gym_location}`;
-  document.getElementById('memberNameHdr').textContent  = info.member_name.replace(/\d+$/, '') + '님';
-  document.getElementById('trainerInfoHdr').textContent = info.trainer_name ? `담당 트레이너 · ${info.trainer_name}` : '';
-
-  // 토큰 남은 일수 표시
-  const daysEl = document.getElementById('tokenDaysHdr');
-  if (info.token_expires_at) {
-    const days = Math.ceil((new Date(info.token_expires_at) - Date.now()) / 86400000);
-    if (days > 0) {
-      daysEl.textContent = `URL ${days}일 남음`;
-    } else {
-      daysEl.textContent = 'URL 만료됨';
-      daysEl.style.color = '#f87171';
-    }
-  }
-
-  document.getElementById('loadingScreen').style.display = 'none';
-  document.getElementById('mainContent').style.display   = 'block';
-
-  loadLogs(token);
-  loadSchedules(token);
-  loadPtBanner(token);
-}
-
-// ── PT 잔여 현황 ─────────────────────────────────────────────
-async function loadPtBanner(token) {
-  const { data } = await db.rpc('member_get_pt_products', { p_token: token });
-  if (!data || !data.length) return;
-  const el = document.getElementById('ptBanner');
-  if (!el) return;
-  el.style.display = '';
-  el.innerHTML = data.map(p => {
-    const pct = p.total_sessions > 0 ? Math.round(p.remaining_sessions / p.total_sessions * 100) : 0;
-    const dateStr = p.contract_date ? p.contract_date.slice(0, 7).replace('-', '.') : '';
-    const trainerStr = p.trainer_name ? ` · ${esc(p.trainer_name)}` : '';
-    return `<div class="pt-banner">
-      <div class="pt-banner-row">
-        <span class="pt-banner-label">PT 잔여 횟수${trainerStr}</span>
-        <span class="pt-banner-val">${p.remaining_sessions}회 <span style="font-size:11px;color:#4a6a88">/ ${p.total_sessions}회</span></span>
-      </div>
-      <div class="pt-bar-track"><div class="pt-bar-fill" style="width:${pct}%"></div></div>
-      ${dateStr ? `<div style="font-size:10px;color:#3a5878;margin-top:5px">계약 ${dateStr}</div>` : ''}
-    </div>`;
-  }).join('');
-}
-
-// ── 수업 기록 로드 ───────────────────────────────────────────
-async function loadLogs(token) {
-  const { data: logs, error } = await db.rpc('member_get_logs', { p_token: token });
-  if (error || !logs) {
-    document.getElementById('sessList').innerHTML = `<div class="empty">⚠️<br>수업 기록을 불러오지 못했어요</div>`;
-    return;
-  }
-  const thisMonth = new Date().toISOString().slice(0, 7);
-  const monthLogs = logs.filter(s => s.session_date?.startsWith(thisMonth)).length;
-  const allExNames = new Set();
-  logs.forEach(s => (s.ex_details || []).forEach(e => e.name && allExNames.add(e.name)));
-  document.getElementById('statTotal').textContent   = logs.length;
-  document.getElementById('statMonth').textContent   = monthLogs;
-  document.getElementById('statExTypes').textContent = allExNames.size;
-  document.getElementById('logCount').textContent    = logs.length ? `${logs.length}건` : '';
-  _logsData = logs;
-  const wrap = document.getElementById('sessList');
-  if (!logs.length) { wrap.innerHTML = `<div class="empty">아직 수업 기록이 없어요</div>`; return; }
-  wrap.innerHTML = logs.map((s, i) => {
-    const exCount   = s.ex_count || (s.ex_details?.length) || 0;
-    const dateStr   = fmtDate(s.session_date);
-    const exPreview = (s.ex_details || []).slice(0, 3).map(e => e.name).filter(Boolean).join(', ');
-    return `
-      <div class="sess-card">
-        <div class="sess-head" onclick="toggleSess(${i}, '${s.log_id}')">
-          <div>
-            <div class="sess-num-badge">#${logs.length - i}</div>
-            <div class="sess-date">${dateStr}</div>
-            <div class="sess-sub">운동 ${exCount}종목${exPreview ? ' · ' + exPreview : ''}</div>
-          </div>
-          <div class="chevron" id="chev${i}">›</div>
-        </div>
-        <div class="sess-body" id="sessBody${i}">
-          ${s.notes ? `<div style="padding:14px 18px 0"><div class="sess-notes"><div class="sess-notes-label">트레이너 총평</div>${esc(s.notes)}</div></div>` : ''}
-          ${s.note_photo_path ? `
-          <div style="padding:8px 18px 0">
-            <div id="notePhotoInline${i}" style="display:none;margin-bottom:8px;position:relative;background:#0d1a0d;border-radius:10px;overflow:hidden;border:1px solid #1a3a1a44;">
-              <div style="padding:8px;text-align:center;">
-                <img id="notePhotoInlineImg${i}" src="" alt="PT 노트" style="max-width:100%;max-height:55dvh;object-fit:contain;display:block;margin:0 auto;border-radius:6px;">
-              </div>
-              <button onclick="closeNotePhotoInline(${i})" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:#4ade80;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
-            </div>
-            <button class="mv-photo-btn" id="notePhotoBtn${i}" onclick="toggleNotePhotoInline(${i}, '${s.note_photo_path}')">PT 노트 사진 보기</button>
-          </div>` : ''}
-          <div id="sessDetail${i}"></div>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-async function toggleSess(i, logId) {
-  const body   = document.getElementById(`sessBody${i}`);
-  const chev   = document.getElementById(`chev${i}`);
-  const isOpen = body.classList.toggle('open');
-  chev.classList.toggle('open', isOpen);
-  if (!isOpen) return;
-  const detailEl = document.getElementById(`sessDetail${i}`);
-  if (detailEl.dataset.loaded) return;
-  detailEl.innerHTML = '<div class="loading" style="padding:16px">불러오는 중...</div>';
-  const [{ data: exs, error }, { data: photos }] = await Promise.all([
-    db.rpc('member_get_log_detail', { p_token: _memberToken, p_log_id: logId }),
-    db.rpc('member_get_log_photos',  { p_token: _memberToken, p_log_id: logId }),
-  ]);
-  detailEl.dataset.loaded = '1';
-  if (error || !exs || !exs.length) {
-    detailEl.innerHTML = '<div style="padding:10px 18px 14px;color:#2a4a2a;font-size:13px">운동 기록이 없어요</div>';
-    return;
-  }
-  const photoMap = {};
-  (photos || []).forEach(p => { photoMap[p.order_idx ?? 0] = p; });
-  detailEl.innerHTML = exs
-    .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
-    .map(ex => {
-      const name     = ex.name_ko || ex.custom_name || '운동';
-      const category = [ex.part_unified, ex.tool_unified].filter(Boolean).join(' · ');
-      const sets     = Array.isArray(ex.sets_data) ? ex.sets_data : [];
-      const photo    = photoMap[ex.order_index ?? 0];
-      const setsHtml = sets.length ? `
-        <table class="sets-table">
-          <tr><th>세트</th><th>무게(kg)</th><th>횟수</th></tr>
-          ${sets.map((set, si) => `<tr><td class="set-cell">${si+1}세트</td><td>${set.weight??'-'}</td><td>${set.reps??'-'}</td></tr>`).join('')}
-        </table>` : '<div style="font-size:12px;color:#2a4a2a;padding:4px 0">세트 정보 없음</div>';
-      const photoBtn = (photo?.start_path || photo?.end_path) ? `
-        <button class="mv-photo-btn"
-          onclick="viewMemberPhotos(${JSON.stringify(photo.start_path||null)}, ${JSON.stringify(photo.end_path||null)}, ${JSON.stringify(name)})">
-          📷 자세 사진 보기</button>` : '';
-      return `<div class="ex-item">
-        <div class="ex-item-name">${name}</div>
-        ${category ? `<div class="ex-item-cat">${category}</div>` : ''}
-        ${setsHtml}${photoBtn}
-      </div>`;
-    }).join('');
-}
-
-// ── 일정 로드 ────────────────────────────────────────────────
-async function loadSchedules(token) {
-  const { data: scheds, error } = await db.rpc('member_get_schedules', { p_token: token });
-  const wrap = document.getElementById('schedList');
-  if (error || !scheds) { wrap.innerHTML = `<div class="empty">⚠️<br>일정을 불러오지 못했어요</div>`; return; }
-  if (!scheds.length) { wrap.innerHTML = `<div class="empty">등록된 PT 일정이 없어요</div>`; return; }
-  // status 기준으로 분류 (날짜 기준 X — 트레이너 완료/노쇼 처리 즉시 반영)
-  const upcoming = scheds.filter(s => s.status === 'scheduled');
-  const past     = scheds.filter(s => s.status !== 'scheduled'); // completed, noshow
-  const WDAYS    = ['일','월','화','수','목','금','토'];
-  const STATUS_LABEL = { scheduled:'예정', completed:'완료', noshow:'노쇼' };
-  const STATUS_CLS   = { scheduled:'upcoming', completed:'done', noshow:'done' };
-  function renderCard(s) {
-    const d = new Date(s.sched_date + 'T00:00:00');
-    const sTime = (s.start_time||'').slice(0,5);
-    const eTime = (s.end_time||'').slice(0,5);
-    const typeCls = s.type === 'SPT' ? 'sched-type-SPT' : 'sched-type-PT';
-    const badgeLabel = STATUS_LABEL[s.status] || s.status;
-    const badgeCls   = STATUS_CLS[s.status]   || 'done';
-    return `<div class="sched-card">
-      <div class="sched-date-block">
-        <div class="sched-month">${d.getMonth()+1}월</div>
-        <div class="sched-day">${d.getDate()}</div>
-        <div class="sched-weekday">${WDAYS[d.getDay()]}요일</div>
-      </div>
-      <div class="sched-info">
-        <div><span class="sched-type-badge ${typeCls}">${s.type}</span></div>
-        <div class="sched-time">${sTime}${eTime?' – '+eTime:''}</div>
-        ${s.trainer_name?`<div class="sched-trainer">트레이너 · ${s.trainer_name}</div>`:''}
-        ${s.title?`<div style="font-size:12px;color:#3a5840;margin-top:3px">${s.title}</div>`:''}
-      </div>
-      <div class="sched-status ${badgeCls}">${badgeLabel}</div>
-    </div>`;
-  }
-  let html = '';
-  if (upcoming.length) { html += `<div class="divider-label">예정된 일정</div>` + [...upcoming].reverse().map(renderCard).join(''); }
-  if (past.length)     { html += `<div class="divider-label" style="margin-top:${upcoming.length?20:0}px">지난 일정</div>` + past.map(renderCard).join(''); }
-  wrap.innerHTML = html;
-}
-
-// ── 운동DB (내장) ─────────────────────────────────────────────
-const EX_CACHE_KEY = 'vg_exdb_cache_v6'; // v6: RPC로 전환
-const EX_CACHE_TTL = 5 * 60 * 1000;
-const EX_TOOLS = ['전체','핀 머신','플레이트 머신','스미스머신','바벨','덤벨','케이블','케틀벨','소도구','밴드','체중','머신'];
-const EX_PARTS = ['전체','가슴','등','어깨','팔','코어','하체','전신'];
-
-let _exAll        = [];
-let _exFilterTool = '';
-let _exFilterPart = '';
-let _exShowCount  = 50;
-let _exSearchTm   = null;
-let _exLoaded     = false;
-let _exSubView    = 'all';   // 'all' | 'mine' | 'routine'
-let _myExIds      = new Set();
-let _myExFavIds   = new Set();
-let _myExLoaded   = false;
-
-async function lazyLoadEx() {
-  if (_exLoaded) return;
-  _exLoaded = true;
-  await Promise.all([_loadAllExercises(), _loadMyExercises()]);
-  exBuildFilters();
-  exRenderList();
-}
-
-// ── 서브탭 전환 (안전: class 토글만 사용) ────────────────────
-function exSwitchSub(view) {
-  _exSubView = view;
-  document.getElementById('exSubBtnAll').classList.toggle('active', view==='all');
-  document.getElementById('exSubBtnMine').classList.toggle('active', view==='mine');
-  document.getElementById('exSubBtnRoutine').classList.toggle('active', view==='routine');
-  document.getElementById('exSubExercise').classList.toggle('active', view!=='routine');
-  document.getElementById('exSubRoutine').classList.toggle('active', view==='routine');
-  if (view === 'routine') { rtLoadRoutines(); return; }
-  _exShowCount = 50;
-  exRenderList();
-}
-
-// ── 내 운동 데이터 로드 ──────────────────────────────────────
-async function _loadMyExercises() {
-  if (!_memberToken) return;
-  const { data, error } = await db.rpc('member_get_my_exercises', { p_token: _memberToken });
-  if (error || !data) return;
-  _myExIds = new Set(data.map(e => e.exercise_ref_id));
-  _myExFavIds = new Set(data.filter(e => e.is_favorite).map(e => e.exercise_ref_id));
-  _myExLoaded = true;
-  const countEl = document.getElementById('myExCount');
-  if (countEl) countEl.textContent = _myExIds.size;
-}
-
-async function exToggleMy(exId) {
-  if (!_memberToken) return;
-  const isMine = _myExIds.has(exId);
-  if (isMine && !confirm('내 운동에서 해제할까요?')) return;
-  const { data } = await db.rpc('member_toggle_my_exercise', { p_token: _memberToken, p_exercise_ref_id: exId });
-  if (data === 'added') { _myExIds.add(exId); showToast('내 운동에 추가됨'); }
-  else if (data === 'removed') { _myExIds.delete(exId); _myExFavIds.delete(exId); showToast('내 운동에서 해제됨'); }
-  document.getElementById('myExCount').textContent = _myExIds.size;
-  exRenderList();
-}
-
-async function exToggleFav(exId, ev) {
-  ev.stopPropagation();
-  if (!_memberToken) return;
-  const { data } = await db.rpc('member_toggle_exercise_favorite', { p_token: _memberToken, p_exercise_ref_id: exId });
-  if (data) _myExFavIds.add(exId); else _myExFavIds.delete(exId);
-  exRenderList();
-}
-
-async function _loadAllExercises() {
-  try {
-    const raw = sessionStorage.getItem(EX_CACHE_KEY);
-    if (raw) {
-      const { ts, data } = JSON.parse(raw);
-      if (Date.now() - ts < EX_CACHE_TTL && data.length > 0) { _exAll = data; return; }
-    }
-  } catch (_) {}
-  // RPC로 전체 로드 (PostgREST max-rows 제한 우회)
-  const { data, error } = await db.rpc('get_all_exercise_refs');
-  if (error || !data) { console.error('운동 DB 오류:', error?.message); showToast('운동 정보를 불러오지 못했어요'); return; }
-  _exAll = data;
-  try { sessionStorage.setItem(EX_CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (_) {}
-}
-
-function exBuildFilters() {
-  const makeChips = (elId, arr, curSel, fn) => {
-    document.getElementById(elId).innerHTML = arr.map(v => {
-      const active = (curSel === v) || (!curSel && v === '전체');
-      return `<button class="ex-chip${active?' active':''}" onclick="${fn}('${v}')">${v}</button>`;
-    }).join('');
-  };
-  makeChips('exToolChips', EX_TOOLS, _exFilterTool || '전체', 'exSetTool');
-  makeChips('exPartChips', EX_PARTS, _exFilterPart || '전체', 'exSetPart');
-}
-
-function exSetTool(v) { _exFilterTool = (v==='전체') ? '' : v; exBuildFilters(); _exShowCount=50; exRenderList(); }
-function exSetPart(v) { _exFilterPart = (v==='전체') ? '' : v; exBuildFilters(); _exShowCount=50; exRenderList(); }
-
-function exOnSearch() {
-  const val = document.getElementById('exSearchInput').value;
-  document.getElementById('exBtnX').style.display = val ? '' : 'none';
-  clearTimeout(_exSearchTm);
-  _exSearchTm = setTimeout(() => { _exShowCount=50; exRenderList(); }, 150);
-}
-function exClearSearch() {
-  document.getElementById('exSearchInput').value = '';
-  document.getElementById('exBtnX').style.display = 'none';
-  _exShowCount=50; exRenderList();
-}
-
-function exRenderList() {
-  const wrap = document.getElementById('exList');
-  const q    = document.getElementById('exSearchInput').value.trim().toLowerCase();
-  let list   = _exAll;
-  // 내 운동 서브탭이면 내 목록만 표시
-  if (_exSubView === 'mine') list = list.filter(e => _myExIds.has(e.id));
-  if (_exFilterTool) list = list.filter(e => e.tool_unified === _exFilterTool);
-  if (_exFilterPart) list = list.filter(e => e.part_unified === _exFilterPart);
-  if (q) list = list.filter(e =>
-    (e.name_ko||'').toLowerCase().includes(q) ||
-    (e.name_en||'').toLowerCase().includes(q)
-  );
-  // 내 운동: 즐겨찾기 우선 정렬
-  if (_exSubView === 'mine') {
-    list = [...list].sort((a,b) => {
-      const aF = _myExFavIds.has(a.id) ? 0 : 1;
-      const bF = _myExFavIds.has(b.id) ? 0 : 1;
-      return aF - bF || (a.name_ko||'').localeCompare(b.name_ko||'');
-    });
-  }
-  const base = _exSubView === 'mine' ? _myExIds.size : _exAll.length;
-  document.getElementById('exStatBar').innerHTML =
-    `<span>${list.length}</span>${list.length===base ? '개 운동' : `개 / 전체 ${base}개`}`;
-  if (!list.length) {
-    wrap.innerHTML = _exSubView === 'mine'
-      ? `<div class="empty">내 운동이 없어요<br><span style="font-size:12px;color:#2a4a2a">전체운동에서 [＋ 추가] 버튼으로 추가해보세요</span></div>`
-      : `<div class="empty">해당하는 운동이 없어요</div>`;
-    return;
-  }
-  const items = list.slice(0, _exShowCount);
-  wrap.innerHTML = items.map(ex => {
-    const thumb = ex.image_url
-      ? `<div class="ex-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
-      : `<div class="ex-thumb"></div>`;
-    const isMine = _myExIds.has(ex.id);
-    // 전체운동 & 내운동 모두: [＋ 추가] / [추가됨 / 해제] 버튼
-    const actionBtn = `<button class="ex-btn-add${isMine?' added':''}"
-      onclick="event.stopPropagation();exToggleMy('${ex.id}')">
-      ${isMine ? '추가됨 / 해제' : '＋ 추가'}</button>`;
-    return `
-      <div class="ex-card" onclick="exOpenDetail('${ex.id}')">
-        <div class="ex-card-row">
-          ${thumb}
-          <div class="ex-info">
-            <div class="ex-name">${esc(ex.name_ko || ex.name_en)}</div>
-            ${(ex.name_en && ex.name_en !== ex.name_ko) ? `<div class="ex-en-name">${esc(ex.name_en)}</div>` : ''}
-            <div class="ex-tags">
-              ${ex.tool_unified ? `<span class="ex-tag-tool">${esc(ex.tool_unified)}</span>` : ''}
-              ${ex.part_unified ? `<span class="ex-tag-part">${esc(ex.part_unified)}</span>` : ''}
-            </div>
-          </div>
-          ${actionBtn}
-        </div>
-      </div>`;
-  }).join('') +
-  (list.length > _exShowCount
-    ? `<button class="ex-btn-more" onclick="exLoadMore()">더 보기 (${list.length-_exShowCount}개 남음)</button>`
-    : '');
-}
-
-function exLoadMore() { _exShowCount += 50; exRenderList(); }
-
-function exOpenDetail(id) {
-  const ex = _exAll.find(e => String(e.id) === String(id));
-  if (!ex) return;
-  const imgHtml = ex.image_url
-    ? `<img class="ex-modal-img" src="${ex.image_url}" onerror="this.style.display='none'">`
-    : `<div class="ex-modal-no-img">🏋️</div>`;
-  const newMuscles = [
-    ex.primary_muscle ? { label: ex.primary_muscle, type: 'primary' } : null,
-    ex.synergist_1    ? { label: ex.synergist_1,    type: 'syn'     } : null,
-    ex.synergist_2    ? { label: ex.synergist_2,    type: 'syn'     } : null,
-  ].filter(Boolean);
-  const fallbackMuscles = (ex.muscles_detail || '').split('·').map(s => s.trim()).filter(Boolean);
-  const muscleHtml = newMuscles.length
-    ? `<div class="ex-modal-sec-title">주요 근육</div>
-       <div class="ex-modal-muscles">
-         ${newMuscles.map(m => m.type === 'primary'
-           ? `<span class="ex-modal-muscle-chip" style="background:#1a3a5a;border-color:#2a5a8a;color:#7ab8e8">${esc(m.label)}</span>`
-           : `<span class="ex-modal-muscle-chip" style="opacity:.7">${esc(m.label)}</span>`
-         ).join('')}
-       </div>`
-    : fallbackMuscles.length
-      ? `<div class="ex-modal-sec-title">주요 근육</div>
-         <div class="ex-modal-muscles">${fallbackMuscles.map(m => `<span class="ex-modal-muscle-chip">${esc(m)}</span>`).join('')}</div>`
-      : '';
-  document.getElementById('exModalBody').innerHTML = `
-    ${imgHtml}
-    <div class="ex-modal-name">${ex.name_ko || ex.name_en}</div>
-    ${(ex.name_en && ex.name_en !== ex.name_ko) ? `<div class="ex-modal-en">${ex.name_en}</div>` : ''}
-    <div class="ex-modal-tags">
-      ${ex.tool_unified ? `<span class="ex-modal-tag-tool">${ex.tool_unified}</span>` : ''}
-      ${ex.part_unified ? `<span class="ex-modal-tag-part">${ex.part_unified}</span>` : ''}
-    </div>
-    ${muscleHtml}`;
-  document.getElementById('exModalBg').classList.add('open');
-}
-function exCloseModal() { document.getElementById('exModalBg').classList.remove('open'); }
-
-// ── 루틴 기능 ────────────────────────────────────────────────
-let _rtLoaded = false;
-let _rtList   = [];
-
-async function rtLoadRoutines() {
-  const wrap = document.getElementById('routineList');
-  if (!_memberToken) { wrap.innerHTML = '<div class="rt-empty">로그인이 필요합니다</div>'; return; }
-  wrap.innerHTML = '<div class="loading">불러오는 중...</div>';
-  const { data, error } = await db.rpc('member_get_routines', { p_token: _memberToken });
-  if (error) { wrap.innerHTML = '<div class="rt-empty">루틴을 불러올 수 없어요</div>'; return; }
-  _rtList = data || [];
-  _rtLoaded = true;
-  rtRenderRoutines();
-}
-
-// ── 루틴 렌더 (트레이너앱 동일 구조) ──────────────────────────
-let _rtPickerMode = false;
-let _rtTargetId   = null; // 운동 추가 대상 루틴 ID
-let _rtTargetName = '';
-
-async function rtRenderRoutines() {
-  const wrap = document.getElementById('routineList');
-  wrap.innerHTML = '<div class="loading">불러오는 중...</div>';
-
-  const routines = _rtList;
-  if (!routines.length) {
-    wrap.innerHTML = `<div class="rt-empty">
-      저장된 루틴이 없습니다.<br>
-      위 버튼으로 <b style="color:#4ade80;">새 루틴</b>을 만들어보세요.
-    </div>`;
-    return;
-  }
-
-  // 각 루틴의 운동 목록 로드
-  const rows = await Promise.all(routines.map(async r => {
-    const { data } = await db.rpc('member_get_routine_detail', { p_token: _memberToken, p_routine_id: r.id });
-    return { ...r, exs: data || [] };
-  }));
-
-  wrap.innerHTML = rows.map(r => `
-    <div class="rt-card">
-      <div class="rt-card-top">
-        <span class="rt-card-name">${esc(r.name)}</span>
-        <button class="rt-card-del" onclick="rtDeleteRoutine('${r.id}','${esc(r.name)}')">삭제</button>
-      </div>
-      <div class="rt-card-exs">
-        ${r.exs.length === 0
-          ? '<span style="color:#2a4a2a;">운동 없음</span>'
-          : r.exs.map(e => `
-            <span class="rt-card-ex-chip">
-              ${esc(e.name_ko)}
-              <span class="rt-chip-x" onclick="event.stopPropagation();rtRemoveEx('${e.id}','${esc(e.name_ko)}')">✕</span>
-            </span>`).join('')
-        }
-      </div>
-      <div class="rt-card-bottom">
-        <span class="rt-card-info">${r.exs.length}개 운동 · ${(r.created_at||'').slice(0,10)}</span>
-        <button class="rt-card-add-btn" onclick="rtOpenAddEx('${r.id}','${esc(r.name)}',${r.exs.length})">운동 추가</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ── 새 루틴 만들기 (이름 모달) ────────────────────────────────
-function rtStartNew() {
-  // 운동DB 데이터 미리 로드
-  if (!_exLoaded) { _exLoaded = true; _loadAllExercises().then(() => _loadMyExercises()); }
-  // 모달 생성
-  document.getElementById('rtNewOverlay')?.remove();
-  const overlay = document.createElement('div');
-  overlay.id = 'rtNewOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:350;display:flex;align-items:center;justify-content:center;padding:24px;';
-  overlay.innerHTML = `
-    <div style="background:#0d1a0d;border-radius:14px;padding:24px;width:100%;max-width:360px;border:1px solid #1a3a1a55;">
-      <div style="font-size:15px;font-weight:700;margin-bottom:8px;">새 루틴 만들기</div>
-      <div style="font-size:12px;color:#3a5840;margin-bottom:12px;">
-        빈 루틴을 만들어요. 만든 후 운동을 추가할 수 있어요.
-      </div>
-      <input id="rtNewNameInput" type="text" placeholder="루틴 이름"
-        style="width:100%;box-sizing:border-box;padding:10px 12px;background:#080e08;
-               border:1px solid #1a3a1a55;border-radius:8px;color:#fff;font-size:14px;
-               outline:none;margin-bottom:16px;font-family:inherit;" maxlength="30"/>
-      <div style="display:flex;gap:10px;">
-        <button onclick="document.getElementById('rtNewOverlay').remove()"
-          style="flex:1;padding:11px;background:#1a3a1a44;border:none;border-radius:8px;
-                 color:#3a5840;font-size:14px;cursor:pointer;font-family:inherit;">취소</button>
-        <button id="rtNewConfirmBtn"
-          style="flex:1;padding:11px;background:#4ade80;border:none;border-radius:8px;
-                 color:#0a140a;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">만들기</button>
-      </div>
-    </div>
-  `;
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-  document.getElementById('rtNewNameInput').focus();
-
-  document.getElementById('rtNewConfirmBtn').addEventListener('click', async () => {
-    const name = document.getElementById('rtNewNameInput').value.trim();
-    if (!name) { document.getElementById('rtNewNameInput').style.borderColor='#ef4444'; return; }
-    const btn = document.getElementById('rtNewConfirmBtn');
-    btn.textContent = '만드는 중...'; btn.disabled = true;
-    const { data } = await db.rpc('member_save_routine', {
-      p_token: _memberToken, p_name: name, p_exercises: []
-    });
-    overlay.remove();
-    if (data) {
-      showToast(`"${name}" 루틴 생성됨`);
-      _rtLoaded = false;
-      rtLoadRoutines();
-    } else {
-      showToast('생성 실패');
-    }
-  });
-}
-
-// ── 루틴 삭제 ─────────────────────────────────────────────────
-async function rtDeleteRoutine(routineId, name) {
-  if (!await showConfirm(`"${name}" 루틴을 삭제할까요?`, { danger: true })) return;
-  const { data } = await db.rpc('member_delete_routine', { p_token: _memberToken, p_routine_id: routineId });
-  showToast(data ? '루틴 삭제됨' : '삭제 실패');
-  if (data) { _rtLoaded = false; rtLoadRoutines(); }
-}
-
-// ── 루틴에서 개별 운동 제거 ───────────────────────────────────
-async function rtRemoveEx(rowId, exName) {
-  if (!await showConfirm(`"${exName}" 운동을 루틴에서 제거할까요?`)) return;
-  const { data } = await db.rpc('member_remove_routine_exercise', { p_token: _memberToken, p_routine_exercise_id: rowId });
-  showToast(data ? '운동 제거됨' : '제거 실패');
-  if (data) { _rtLoaded = false; rtLoadRoutines(); }
-}
-
-// ── 루틴에 운동 추가 (풀스크린 피커) ─────────────────────────
-function rtOpenAddEx(routineId, routineName, currentExCount) {
-  _rtTargetId = routineId;
-  _rtTargetName = routineName;
-  _rtPickerMode = true;
-  // 운동DB 데이터 미리 로드
-  if (!_exLoaded) { _exLoaded = true; _loadAllExercises().then(() => _loadMyExercises()); }
-  // 피커 헤더에 루틴 이름 표시
-  document.getElementById('pkHeaderTitle').textContent = `"${routineName}" 운동 추가`;
-  document.getElementById('pkHeaderSub').textContent = '전체 운동에서 선택하세요';
-  // 피커 초기화 및 열기
-  document.getElementById('wlogPickerSearch').value = '';
-  document.getElementById('pkBtnX').style.display = 'none';
-  _pkFilterPart = ''; _pkFilterTool = ''; _pkShowCount = 40;
-  pkBuildChips();
-  wlogRenderPicker();
-  document.getElementById('wlogPickerBg').classList.add('open');
-}
-
-// ── 운동일지 탭 ──────────────────────────────────────────────
-let _wlogLoaded = false;
-let _wlogList   = [];
-let _wlogExs    = [];  // 작성 중 운동 목록
-
-async function wlogInit() {
-  if (_wlogLoaded) return;
-  _wlogLoaded = true;
-  lazyLoadEx(); // 운동 이미지 표시에 필요한 _exAll 미리 로드 (탭 미방문 시 이미지 누락 방지)
-  await wlogLoadList();
-}
-
-// ── 목록 ──────────────────────────────────────────────────────
-async function wlogLoadList() {
-  const wrap = document.getElementById('wlogList');
-  if (!_memberToken) { wrap.innerHTML = '<div class="empty">로그인이 필요합니다</div>'; return; }
-  wrap.innerHTML = '<div class="loading">불러오는 중...</div>';
-  const { data, error } = await db.rpc('member_get_workout_logs', { p_token: _memberToken });
-  if (error) { wrap.innerHTML = '<div class="empty">불러올 수 없어요</div>'; return; }
-  _wlogList = data || [];
-  document.getElementById('wlogCount').textContent = `(${_wlogList.length}건)`;
-  wlogRenderList();
-}
-
-function wlogRenderList() {
-  const wrap = document.getElementById('wlogList');
-  if (!_wlogList.length) {
-    wrap.innerHTML = '<div class="empty">운동일지가 없어요<br><span style="font-size:12px;color:#2a4a2a">오른쪽 위 + 버튼으로 첫 일지를 작성해보세요</span></div>';
-    return;
-  }
-  wrap.innerHTML = _wlogList.map((log, i) => {
-    const dateStr = fmtDate(log.log_date);
-    const title = log.title || (log.exercise_names || []).join(', ') || '운동';
-    return `
-      <div class="wlog-card" onclick="wlogToggleDetail(${i},'${log.id}')">
-        <div class="wlog-card-row">
-          <div class="wlog-card-date">${dateStr}</div>
-          <div class="wlog-card-title">${esc(title)}</div>
-        </div>
-        <div class="wlog-card-arrow" id="wlogArrow-${i}">▼</div>
-        <div class="wlog-detail" id="wlogDetail-${i}"></div>
-      </div>`;
-  }).join('');
-}
-
-async function wlogToggleDetail(idx, logId) {
-  const el = document.getElementById('wlogDetail-' + idx);
-  const arrow = document.getElementById('wlogArrow-' + idx);
-  if (el.classList.contains('open')) { el.classList.remove('open'); if(arrow) arrow.classList.remove('open'); return; }
-  if (!el.dataset.loaded) {
-    el.innerHTML = '<div style="color:#2a4a2a;font-size:12px;padding:4px 0">불러오는 중...</div>';
-    const { data: exs } = await db.rpc('member_get_workout_log_detail', { p_token: _memberToken, p_log_id: logId });
-    if (!exs || !exs.length) {
-      el.innerHTML = '<div style="color:#2a4a2a;font-size:12px;padding:4px 0">운동 기록이 없어요</div>';
-    } else {
-      // exercise_ref_id로 이름·이미지 매칭
-      el.innerHTML = exs.map(e => {
-        const ref = _exAll.find(x => x.id === e.exercise_ref_id) || {};
-        const name = e.custom_name || ref.name_ko || '운동';
-        const imgUrl = ref.image_url || '';
-        const wmTag = _isUnilateral(e.weight_mode) ? '<span style="font-size:10px;color:#4ade80;margin-left:6px;background:#4ade8018;padding:1px 6px;border-radius:4px">한손</span>' : '';
-        const sets = e.sets_data || [];
-        const setsHtml = sets.length ? `<table class="sets-table"><tr><th>세트</th><th>무게</th><th>횟수</th></tr>` +
-          sets.map(s => `<tr><td class="set-cell">${s.set||''}</td><td>${s.weight||0}kg</td><td>${s.reps||0}회</td></tr>`).join('') +
-          `</table>` : '';
-        const commentHtml = e.comment ? `<div style="font-size:11px;color:#3a5840;margin-top:4px;padding:4px 8px;background:#1a3a1a33;border-radius:4px">${esc(e.comment)}</div>` : '';
-        const thumbHtml = imgUrl
-          ? `<div style="width:100%;height:120px;border-radius:10px;overflow:hidden;background:#111f11;margin-top:6px"><img src="${imgUrl}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>`
-          : '';
-        return `<div class="wlog-detail-ex">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-            <div><div class="wlog-detail-exname">${esc(name)}${wmTag}</div></div>
-          </div>
-          ${thumbHtml}
-          ${setsHtml}${commentHtml}
-        </div>`;
-      }).join('');
-    }
-    el.dataset.loaded = 'true';
-    // 수정/삭제 버튼 추가
-    el.innerHTML += `<div style="display:flex;gap:8px;margin-top:10px;">
-      <button style="flex:1;background:#4ade8011;border:1px solid #4ade8044;border-radius:6px;padding:8px 12px;color:#4ade80;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();wlogEdit('${logId}')">수정</button>
-      <button style="flex:1;background:none;border:1px solid #ef444444;border-radius:6px;padding:8px 12px;color:#ef444488;font-size:12px;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();wlogDelete('${logId}',${idx})">삭제</button>
-    </div>`;
-  }
-  el.classList.add('open');
-  if(arrow) arrow.classList.add('open');
-}
-
-async function wlogDelete(logId, idx) {
-  if (!await showConfirm('이 운동일지를 삭제할까요?', { danger: true })) return;
-  const { data } = await db.rpc('member_delete_workout_log', { p_token: _memberToken, p_log_id: logId });
-  if (data) {
-    _wlogList.splice(idx, 1);
-    document.getElementById('wlogCount').textContent = `(${_wlogList.length}건)`;
-    wlogRenderList();
-    if (window.showToast) showToast('삭제되었어요');
-  }
-}
-
-// ── 작성 / 수정 ──────────────────────────────────────────────
-let _wlogEditId = null; // null=신규, 값 있으면 수정 모드
-
-function wlogStartNew() {
-  _wlogEditId = null;
-  _wlogExs = [];
-  document.getElementById('wlogDate').value = new Date().toISOString().slice(0,10);
-  document.getElementById('wlogTitle').value = '';
-  document.getElementById('wlogNotes').value = '';
-  document.getElementById('wlogExList').innerHTML = '';
-  document.getElementById('wlogSaveBtn').textContent = '저장';
-  document.getElementById('wlogListView').style.display = 'none';
-  document.getElementById('wlogWriteView').classList.add('open');
-  // 운동DB 데이터 미리 로드
-  if (!_exLoaded) { _exLoaded = true; _loadAllExercises().then(() => _loadMyExercises()); }
-}
-
-async function wlogEdit(logId) {
-  // 해당 일지 데이터 로드
-  const log = _wlogList.find(l => l.id === logId);
-  if (!log) return;
-  const { data: exs } = await db.rpc('member_get_workout_log_detail', { p_token: _memberToken, p_log_id: logId });
-  if (!exs) { if (window.showToast) showToast('일지 데이터를 불러올 수 없어요'); return; }
-
-  _wlogEditId = logId;
-  _wlogExs = exs.map(e => {
-    const ref = _exAll.find(x => x.id === e.exercise_ref_id);
-    return {
-      refId: e.exercise_ref_id || '',
-      name: e.custom_name || (ref ? ref.name_ko : '운동'),
-      part: ref?.part_unified || '',
-      tool: ref?.tool_unified || '',
-      weight_mode: _normalizeWm(e.weight_mode),
-      comment: e.comment || '',
-      sets: (e.sets_data || []).map((s, si) => ({ set: si + 1, weight: s.weight || 0, reps: s.reps || 0 }))
-    };
-  });
-  // 세트가 없는 운동에 기본 세트 추가
-  _wlogExs.forEach(ex => { if (!ex.sets.length) ex.sets.push({ set: 1, weight: 0, reps: 10 }); });
-
-  document.getElementById('wlogDate').value = log.log_date || '';
-  document.getElementById('wlogTitle').value = log.title || '';
-  document.getElementById('wlogNotes').value = log.notes || '';
-  document.getElementById('wlogSaveBtn').textContent = '수정 완료';
-  wlogRenderExList();
-  document.getElementById('wlogListView').style.display = 'none';
-  document.getElementById('wlogWriteView').classList.add('open');
-  if (!_exLoaded) { _exLoaded = true; _loadAllExercises().then(() => _loadMyExercises()); }
-}
-
-async function wlogCancel() {
-  if (_wlogExs.length && !await showConfirm('작성을 취소할까요? 내용이 사라져요.')) return;
-  document.getElementById('wlogWriteView').classList.remove('open');
-  document.getElementById('wlogListView').style.display = '';
-}
-
-function wlogRenderExList() {
-  const wrap = document.getElementById('wlogExList');
-  if (!_wlogExs.length) {
-    wrap.innerHTML = '<div class="empty" style="padding:20px 0">운동을 추가해주세요</div>';
-    return;
-  }
-  wrap.innerHTML = _wlogExs.map((ex, i) => {
-    const wm = ex.weight_mode || 'total';
-    const wmClass = _isUnilateral(wm) ? 'wlog-wm-single' : 'wlog-wm-total';
-    const wmLabel = _isUnilateral(wm) ? '한쪽' : '양손';
-    const subParts = [ex.part, ex.tool].filter(Boolean).join(' · ');
-    const setsHtml = ex.sets.map((s, si) => `
-      <div class="wlog-set-row">
-        <div class="wlog-set-num">${s.set}</div>
-        <input class="wlog-set-input" type="number" step="0.5" min="0" value="${s.weight}"
-               onchange="wlogUpdSet(${i},${si},'weight',this.value)">
-        <input class="wlog-set-input" type="number" min="0" max="999" value="${s.reps}"
-               onchange="wlogUpdSet(${i},${si},'reps',this.value)">
-        <div class="wlog-set-row-end">
-          <button class="wlog-wm-chip ${wmClass}" onclick="wlogToggleWm(${i})">${wmLabel}</button>
-          <button class="wlog-set-del" onclick="wlogDelSet(${i},${si})"
-                  ${ex.sets.length <= 1 ? 'style="opacity:0;pointer-events:none"' : ''}>−</button>
-        </div>
-      </div>`).join('');
-    return `
-      <div class="wlog-ex-card">
-        <div class="wlog-ex-head">
-          <div class="wlog-ex-order">${i+1}</div>
-          <div class="wlog-ex-name-area">
-            <div class="wlog-ex-name">${esc(ex.name)}</div>
-            ${subParts ? `<div class="wlog-ex-sub">${subParts}</div>` : ''}
-          </div>
-          <button class="wlog-ex-del" onclick="wlogDelEx(${i})">삭제</button>
-        </div>
-        <div class="wlog-sets">
-          <div class="wlog-set-header"><span>세트</span><span>무게(kg)</span><span>횟수</span><span></span></div>
-          ${setsHtml}
-          <button class="wlog-add-set" onclick="wlogAddSet(${i})">＋ 세트 추가</button>
-        </div>
-        <div class="wlog-ex-comment">
-          <textarea placeholder="이 운동 코멘트 (선택)"
-                    onchange="wlogUpdComment(${i},this.value)">${ex.comment || ''}</textarea>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-function wlogAddEx(refId, name, part, tool, weightMode) {
-  _wlogExs.push({
-    refId, name, part, tool,
-    weight_mode: weightMode || 'total',
-    comment: '',
-    sets: [{ set: 1, weight: 0, reps: 10 }]
-  });
-  wlogRenderExList();
-}
-
-function wlogUpdComment(idx, val) { _wlogExs[idx].comment = val; }
-
-function wlogDelEx(idx) {
-  _wlogExs.splice(idx, 1);
-  wlogRenderExList();
-}
-
-function wlogAddSet(idx) {
-  const ex = _wlogExs[idx];
-  const last = ex.sets[ex.sets.length - 1] || { weight: 0, reps: 10 };
-  ex.sets.push({ set: ex.sets.length + 1, weight: last.weight, reps: last.reps });
-  wlogRenderExList();
-}
-
-function wlogToggleWm(idx) {
-  const ex = _wlogExs[idx];
-  ex.weight_mode = _isUnilateral(ex.weight_mode) ? 'total' : 'each';
-  wlogRenderExList();
-}
-
-function wlogDelSet(idx, si) {
-  const ex = _wlogExs[idx];
-  if (ex.sets.length <= 1) return;
-  ex.sets.splice(si, 1);
-  ex.sets.forEach((s, i) => s.set = i + 1);
-  wlogRenderExList();
-}
-
-function wlogUpdSet(idx, si, field, val) {
-  const ex = _wlogExs[idx];
-  if (field === 'weight') ex.sets[si].weight = parseFloat(val) || 0;
-  else if (field === 'reps') ex.sets[si].reps = parseInt(val) || 0;
-}
-
-// ── 운동 추가 피커 (트레이너앱 스타일) ──────────────────────────
-let _pkFilterPart = '';
-let _pkFilterTool = '';
-let _pkShowCount  = 40;
-let _pkSearchTm   = null;
-
-function wlogOpenExPicker() {
-  document.getElementById('pkHeaderTitle').textContent = '운동 선택';
-  document.getElementById('pkHeaderSub').textContent = '운동을 선택해주세요';
-  document.getElementById('wlogPickerSearch').value = '';
-  document.getElementById('pkBtnX').style.display = 'none';
-  _pkFilterPart = ''; _pkFilterTool = ''; _pkShowCount = 40;
-  pkBuildChips();
-  wlogRenderPicker();
-  document.getElementById('wlogPickerBg').classList.add('open');
-}
-function wlogCloseExPicker() {
-  document.getElementById('wlogPickerBg').classList.remove('open');
-  // 루틴 운동추가 모드였으면 → 루틴 목록 갱신
-  if (_rtPickerMode && _rtTargetId) {
-    _rtLoaded = false;
-    rtLoadRoutines();
-  }
-  _rtPickerMode = false;
-  _rtTargetId = null;
-  _rtTargetName = '';
-}
-
-/* 필터 칩 빌드 */
-function pkBuildChips() {
-  const make = (elId, arr, cur, fn) => {
-    document.getElementById(elId).innerHTML = arr.map(v => {
-      const active = (cur === v) || (!cur && v === '전체');
-      return `<button class="pk-chip${active?' active':''}" onclick="${fn}('${v}')">${v}</button>`;
-    }).join('');
-  };
-  make('pkPartChips', EX_PARTS, _pkFilterPart || '전체', 'pkSetPart');
-  make('pkToolChips', EX_TOOLS, _pkFilterTool || '전체', 'pkSetTool');
-}
-function pkSetPart(v) { _pkFilterPart = (v==='전체') ? '' : v; pkBuildChips(); _pkShowCount=40; wlogRenderPicker(); }
-function pkSetTool(v) { _pkFilterTool = (v==='전체') ? '' : v; pkBuildChips(); _pkShowCount=40; wlogRenderPicker(); }
-
-/* 검색 */
-function pkOnSearch() {
-  const val = document.getElementById('wlogPickerSearch').value;
-  document.getElementById('pkBtnX').style.display = val ? '' : 'none';
-  clearTimeout(_pkSearchTm);
-  _pkSearchTm = setTimeout(() => { _pkShowCount=40; wlogRenderPicker(); }, 150);
-}
-function pkClearSearch() {
-  document.getElementById('wlogPickerSearch').value = '';
-  document.getElementById('pkBtnX').style.display = 'none';
-  _pkShowCount=40; wlogRenderPicker();
-}
-
-/* 메인 렌더 */
-function wlogRenderPicker() {
-  const q = (document.getElementById('wlogPickerSearch').value || '').trim().toLowerCase();
-  let list = _exAll.length ? _exAll : [];
-  if (_pkFilterPart) list = list.filter(e => e.part_unified === _pkFilterPart);
-  if (_pkFilterTool) list = list.filter(e => e.tool_unified === _pkFilterTool);
-  if (q) list = list.filter(e =>
-    (e.name_ko||'').toLowerCase().includes(q) || (e.name_en||'').toLowerCase().includes(q)
-  );
-  // 정렬: 내 운동 우선 → 이름순
-  list = [...list].sort((a,b) => {
-    const aM = _myExIds.has(a.id) ? 0 : 1;
-    const bM = _myExIds.has(b.id) ? 0 : 1;
-    return aM - bM || (a.name_ko||'').localeCompare(b.name_ko||'');
-  });
-
-  const total = _exAll.length;
-  document.getElementById('pkStat').innerHTML =
-    `<span>${list.length}</span>${list.length===total ? '개 운동' : `개 / 전체 ${total}개`}`;
-
-  const wrap = document.getElementById('wlogPickerList');
-  if (!list.length) { wrap.innerHTML = '<div class="empty" style="padding:24px">해당하는 운동이 없어요</div>'; return; }
-
-  const items = list.slice(0, _pkShowCount);
-  wrap.innerHTML = items.map(ex => {
-    const isMine = _myExIds.has(ex.id);
-    const thumb = ex.image_url
-      ? `<div class="pk-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
-      : `<div class="pk-thumb"></div>`;
-    return `
-      <div class="pk-card" onclick="wlogPickEx('${ex.id}',this.querySelector('.pk-add'))">
-        <div class="pk-card-row">
-          ${thumb}
-          <div class="pk-info">
-            <div class="pk-name">${esc(ex.name_ko||ex.name_en)}</div>
-            ${(ex.name_en && ex.name_en !== ex.name_ko) ? `<div class="pk-en">${esc(ex.name_en)}</div>` : ''}
-            <div class="pk-tags">
-              ${ex.tool_unified ? `<span class="pk-tag-tool">${ex.tool_unified}</span>` : ''}
-              ${ex.part_unified ? `<span class="pk-tag-part">${ex.part_unified}</span>` : ''}
-              ${_isUnilateral(ex.weight_mode) ? `<span class="pk-tag-tool" style="background:#4ade8011;border-color:#4ade8033;color:#86efac">한손</span>` : ''}
-              ${isMine ? `<span class="pk-tag-mine">내 운동</span>` : ''}
-            </div>
-          </div>
-          <div class="pk-add" onclick="event.stopPropagation();wlogPickEx('${ex.id}',this)">＋</div>
-        </div>
-      </div>`;
-  }).join('') +
-  (list.length > _pkShowCount
-    ? `<button class="pk-more" onclick="event.stopPropagation();_pkShowCount+=40;wlogRenderPicker()">더 보기 (${list.length-_pkShowCount}개 남음)</button>`
-    : '');
-}
-async function wlogPickEx(refId, btnEl) {
-  const ex = _exAll.find(e => e.id === refId);
-  if (!ex) return;
-
-  // 루틴 운동추가 모드: 피커를 닫지 않고 즉시 DB에 추가
-  if (_rtPickerMode && _rtTargetId) {
-    const card = btnEl?.closest('.pk-card');
-    if (card) { card.style.opacity = '0.5'; card.style.pointerEvents = 'none'; }
-    const { data } = await db.rpc('member_append_routine_exercise', {
-      p_token: _memberToken,
-      p_routine_id: _rtTargetId,
-      p_exercise_ref_id: String(ex.id),
-      p_name_ko: ex.name_ko || ex.name_en,
-      p_part: ex.part_unified || '',
-      p_tool: ex.tool_unified || '',
-      p_weight_mode: _normalizeWm(ex.weight_mode)
-    });
-    if (data) {
-      showToast(`"${ex.name_ko || ex.name_en}" 추가됨`);
-      if (btnEl) { btnEl.textContent = '✓'; btnEl.style.color = '#22c55e'; }
-      if (card) { card.style.opacity = '1'; card.style.background = '#0a200a'; }
-    } else {
-      if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
-      showToast('추가 실패');
-    }
-    return;
-  }
-
-  // 일반 운동일지 작성 모드
-  wlogCloseExPicker();
-  wlogAddEx(refId, ex.name_ko || ex.name_en, ex.part_unified, ex.tool_unified, _normalizeWm(ex.weight_mode));
-  setTimeout(() => {
-    const list = document.getElementById('wlogExList');
-    list.lastElementChild?.scrollIntoView({ behavior:'smooth', block:'center' });
-  }, 100);
-}
-
-// ── 루틴 불러오기 ─────────────────────────────────────────────
-async function wlogOpenRoutinePicker() {
-  const wrap = document.getElementById('wlogRtPickerList');
-  wrap.innerHTML = '<div class="loading">불러오는 중...</div>';
-  document.getElementById('wlogRtPickerBg').classList.add('open');
-  const { data } = await db.rpc('member_get_routines', { p_token: _memberToken });
-  if (!data || !data.length) {
-    wrap.innerHTML = '<div class="empty" style="padding:16px">저장된 루틴이 없어요</div>';
-    return;
-  }
-  wrap.innerHTML = data.map(r => `
-    <div class="wlog-picker-item" onclick="wlogLoadRoutine('${r.id}')">
-      <div>
-        <div class="wlog-picker-name">${esc(r.name)}</div>
-        <div class="wlog-picker-sub">${r.exercise_count}종목</div>
-      </div>
-    </div>`).join('');
-}
-
-async function wlogLoadRoutine(routineId) {
-  document.getElementById('wlogRtPickerBg').classList.remove('open');
-  const { data } = await db.rpc('member_get_routine_detail', { p_token: _memberToken, p_routine_id: routineId });
-  if (!data || !data.length) { if (window.showToast) showToast('루틴이 비어있어요'); return; }
-  if (_wlogExs.length && !await showConfirm('현재 운동 목록을 교체할까요?\n(취소 시 뒤에 추가됩니다)', { okText: '교체', cancelText: '뒤에 추가' })) {
-    // 뒤에 추가
-    data.forEach(e => wlogAddEx(e.exercise_ref_id, e.name_ko, e.part, e.tool, e.weight_mode));
-  } else {
-    _wlogExs = data.map(e => ({
-      refId: e.exercise_ref_id, name: e.name_ko, part: e.part, tool: e.tool,
-      weight_mode: e.weight_mode || 'total',
-      sets: [{ set: 1, weight: 0, reps: 10 }]
-    }));
-  }
-  wlogRenderExList();
-  if (window.showToast) showToast('루틴을 불러왔어요');
-}
-
-// ── 루틴으로 저장 ─────────────────────────────────────────────
-function wlogSaveAsRoutine() {
-  if (!_wlogExs.length) { if (window.showToast) showToast('운동을 먼저 추가해주세요'); return; }
-  document.getElementById('wlogRtSaveName').value = '';
-  document.getElementById('wlogRtSaveInfo').textContent = `운동 ${_wlogExs.length}개가 포함됩니다`;
-  document.getElementById('wlogRtSaveBg').classList.add('open');
-}
-
-async function wlogDoSaveRoutine() {
-  const name = document.getElementById('wlogRtSaveName').value.trim();
-  if (!name) { if (window.showToast) showToast('루틴 이름을 입력해주세요'); return; }
-  const exercises = _wlogExs.map((ex, i) => ({
-    exercise_ref_id: ex.refId || '',
-    name_ko: ex.name,
-    part: ex.part || '',
-    tool: ex.tool || '',
-    order_index: i,
-    weight_mode: ex.weight_mode || 'total'
-  }));
-  const { data } = await db.rpc('member_save_routine', {
-    p_token: _memberToken, p_name: name, p_exercises: exercises
-  });
-  document.getElementById('wlogRtSaveBg').classList.remove('open');
-  if (data) {
-    if (window.showToast) showToast(`루틴 "${name}" 저장 완료`);
-    _rtLoaded = false; // 루틴 목록 갱신 필요
-  }
-}
-
-// ── 저장 ──────────────────────────────────────────────────────
-async function wlogSave() {
-  const date = document.getElementById('wlogDate').value;
-  if (!date) { if (window.showToast) showToast('날짜를 선택해주세요'); return; }
-  if (!_wlogExs.length) { if (window.showToast) showToast('운동을 추가해주세요'); return; }
-  // 세트 유효성 검사
-  for (const ex of _wlogExs) {
-    if (!ex.sets || !ex.sets.length) {
-      if (window.showToast) showToast(`"${ex.name}" 세트를 추가해주세요`); return;
-    }
-    if (ex.sets.some(s => !s.reps || s.reps <= 0)) {
-      if (window.showToast) showToast(`"${ex.name}" 횟수를 입력해주세요`); return;
-    }
-  }
-  // 입력값 동기화
-  document.querySelectorAll('#wlogExList .wlog-set-input').forEach(inp => {
-    inp.dispatchEvent(new Event('change'));
-  });
-  const title = document.getElementById('wlogTitle').value.trim() || null;
-  const notes = document.getElementById('wlogNotes').value.trim() || null;
-  const exercises = _wlogExs.map((ex, i) => ({
-    exercise_ref_id: ex.refId || '',
-    custom_name: ex.name,
-    sets_data: ex.sets,
-    order_index: i,
-    weight_mode: ex.weight_mode || 'total',
-    comment: ex.comment || null
-  }));
-
-  let data, error;
-  if (_wlogEditId) {
-    // 수정 모드
-    ({ data, error } = await db.rpc('member_update_workout_log', {
-      p_token: _memberToken,
-      p_log_id: _wlogEditId,
-      p_log_date: date,
-      p_title: title,
-      p_notes: notes,
-      p_exercises: exercises
-    }));
-  } else {
-    // 신규 작성
-    ({ data, error } = await db.rpc('member_save_workout_log', {
-      p_token: _memberToken,
-      p_log_date: date,
-      p_title: title,
-      p_notes: notes,
-      p_exercises: exercises
-    }));
-  }
-  if (error || !data) {
-    if (window.showToast) showToast('저장에 실패했어요');
-    console.error('wlogSave error:', error);
-    return;
-  }
-  if (window.showToast) showToast(_wlogEditId ? '운동일지 수정 완료!' : '운동일지 저장 완료!');
-  _wlogEditId = null;
-  // 목록 뷰로 복귀
-  document.getElementById('wlogWriteView').classList.remove('open');
-  document.getElementById('wlogListView').style.display = '';
-  _wlogLoaded = false;
-  await wlogLoadList();
-}
-
-// ── 통계 탭 ──────────────────────────────────────────────────
-let _statsLoaded = false;
-
-async function statsInit() {
-  if (_statsLoaded) return;
-  _statsLoaded = true;
-  await statsLoad();
-}
-
-async function statsLoad() {
-  const wrap = document.getElementById('statsContent');
-  if (!_memberToken) { wrap.innerHTML = '<div class="empty">로그인이 필요합니다</div>'; return; }
-  wrap.innerHTML = '<div class="loading">불러오는 중...</div>';
-  const { data, error } = await db.rpc('member_get_stats', { p_token: _memberToken });
-  if (error || !data) { wrap.innerHTML = '<div class="empty">통계를 불러올 수 없어요</div>'; return; }
-  statsRender(data);
-}
-
-function statsRender(s) {
-  const wrap = document.getElementById('statsContent');
-  // 요약 카드
-  // ── Streak ────────────────────────────────────────────────
-  const curStreak = s.current_streak || 0;
-  const maxStreak = s.max_streak     || 0;
-  const weeklyAvg = s.weekly_avg     || 0;
-  const streakColor = curStreak >= 7 ? '#f97316' : curStreak >= 3 ? '#facc15' : '#4ade80';
-  let html = `
-    <!-- Streak 배너 -->
-    <div style="background:linear-gradient(135deg,#0f1a0f,#1a2a1a);border-radius:14px;padding:18px 20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-size:11px;color:#3a5840;letter-spacing:1px;margin-bottom:4px">현재 연속 출석</div>
-        <div style="display:flex;align-items:baseline;gap:4px">
-          <span style="font-size:42px;font-weight:900;color:${streakColor};line-height:1">${curStreak}</span>
-          <span style="font-size:16px;color:${streakColor};font-weight:600">일</span>
-          ${curStreak >= 3 ? `<span style="font-size:22px;margin-left:4px">${curStreak>=14?'🔥🔥':curStreak>=7?'🔥':'⚡'}</span>` : ''}
-        </div>
-        <div style="font-size:11px;color:#2a4a2a;margin-top:4px">역대 최장 <span style="color:#4a7a4a;font-weight:600">${maxStreak}일</span></div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:11px;color:#3a5840;letter-spacing:1px;margin-bottom:4px">주당 평균</div>
-        <div style="font-size:32px;font-weight:800;color:#86efac;line-height:1">${weeklyAvg}</div>
-        <div style="font-size:11px;color:#2a4a2a;margin-top:4px">회</div>
-      </div>
-    </div>
-    <!-- 요약 카드 -->
-    <div class="stat-grid">
-      <div class="stat-card"><div class="stat-card-num">${s.total_logs||0}</div><div class="stat-card-label">총 운동일지</div></div>
-      <div class="stat-card"><div class="stat-card-num">${s.total_exercises||0}</div><div class="stat-card-label">운동 종류</div></div>
-      <div class="stat-card"><div class="stat-card-num">${s.logs_this_month||0}</div><div class="stat-card-label">이번 달</div></div>
-      <div class="stat-card"><div class="stat-card-num">${s.recent_30d_count||0}</div><div class="stat-card-label">최근 30일</div></div>
-    </div>`;
-
-  // 많이 한 운동 TOP 5
-  const top = s.top_exercises || [];
-  if (top.length) {
-    const maxCnt = Math.max(...top.map(t => t.cnt), 1);
-    html += `<div class="stat-section">
-      <div class="stat-section-title">많이 한 운동 TOP ${top.length}</div>
-      ${top.map(t => `
-        <div class="stat-bar-row">
-          <span class="stat-bar-name">${esc(t.name)}</span>
-          <div style="flex:1"><div class="stat-bar-fill" style="width:${Math.round(t.cnt/maxCnt*100)}%"></div></div>
-          <span class="stat-bar-cnt">${t.cnt}회</span>
-        </div>`).join('')}
-    </div>`;
-  }
-
-  // 월별 추이
-  const trend = s.monthly_trend || [];
-  if (trend.length) {
-    const maxM = Math.max(...trend.map(t => t.cnt), 1);
-    html += `<div class="stat-section">
-      <div class="stat-section-title">월별 운동 횟수</div>
-      <div class="stat-trend-row">
-        ${trend.map(t => {
-          const h = Math.max(Math.round(t.cnt / maxM * 80), 2);
-          const label = t.month.slice(5); // "MM"
-          return `<div class="stat-trend-col">
-            <div class="stat-trend-num">${t.cnt}</div>
-            <div class="stat-trend-bar" style="height:${h}px"></div>
-            <div class="stat-trend-label">${label}월</div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }
-
-  // ── 운동 볼륨 비교 ───────────────────────────────────────────
-  const avgVol     = s.avg_log_volume  || 0;
-  const maxVol     = s.max_log_volume  || 0;
-  const recentVols = s.recent_log_volumes || [];
-  const avgPartVol = s.avg_part_volumes   || {};
-
-  if (avgVol > 0 && recentVols.length >= 3) {
-    const fmtVol = v => v >= 1000 ? (v/1000).toFixed(1) + 't' : Math.round(v) + 'kg';
-    const maxBar = Math.max(...recentVols.map(r => r.volume), avgVol, 1);
-
-    // 최근 일지 볼륨 추이
-    html += `<div class="stat-section">
-      <div class="stat-section-title">일지별 운동 볼륨</div>
-      <div style="font-size:11px;color:#3a5840;margin-bottom:12px">※ 무게 입력 운동 기준 · 한손 ×2 적용</div>
-      <div style="display:flex;gap:10px;margin-bottom:16px">
-        <div style="flex:1;background:#0f1a0f;border-radius:10px;padding:12px;text-align:center">
-          <div style="font-size:18px;font-weight:800;color:#4ade80">${fmtVol(avgVol)}</div>
-          <div style="font-size:11px;color:#3a5840;margin-top:3px">일지 평균</div>
-        </div>
-        <div style="flex:1;background:#0f1a0f;border-radius:10px;padding:12px;text-align:center">
-          <div style="font-size:18px;font-weight:800;color:#86efac">${fmtVol(maxVol)}</div>
-          <div style="font-size:11px;color:#3a5840;margin-top:3px">최고 기록</div>
-        </div>
-      </div>
-      <div style="position:relative">
-        <!-- 평균선 -->
-        <div style="position:absolute;left:0;right:0;top:${Math.round((1 - avgVol/maxBar)*80)}px;height:1px;background:#4ade8055;border-top:1px dashed #4ade8088;z-index:1"></div>
-        <div style="display:flex;align-items:flex-end;gap:4px;height:80px;padding-bottom:0">
-          ${[...recentVols].reverse().map(r => {
-            const h   = Math.max(Math.round(r.volume / maxBar * 80), 2);
-            const pct = Math.round(r.volume / avgVol * 100);
-            const col = r.volume >= avgVol * 1.1 ? '#4ade80'
-                      : r.volume >= avgVol * 0.9 ? '#86efac'
-                      : '#2a5a3a';
-            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:default" title="${r.date} · ${fmtVol(r.volume)} (평균대비 ${pct}%)">
-              <div style="width:100%;height:${h}px;background:${col};border-radius:3px 3px 0 0;transition:height .3s"></div>
-              <div style="font-size:9px;color:#2a4a3a;white-space:nowrap">${r.date}</div>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>
-      <div style="font-size:10px;color:#2a4a3a;margin-top:6px;text-align:right">-- 평균 ${fmtVol(avgVol)}</div>
-    </div>`;
-
-    // 부위별 평균 볼륨
-    const PART_COLOR = { '가슴':'#e05555','등':'#5577e0','어깨':'#55a0e0','팔':'#e09055','코어':'#55c094','하체':'#9055e0' };
-    const partEntries = Object.entries(avgPartVol).sort((a, b) => b[1] - a[1]);
-    if (partEntries.length) {
-      const maxPart = Math.max(...partEntries.map(e => e[1]), 1);
-      html += `<div class="stat-section">
-        <div class="stat-section-title">부위별 평균 볼륨</div>
-        <div style="font-size:11px;color:#3a5840;margin-bottom:12px">해당 부위를 운동한 일지 기준 평균</div>
-        ${partEntries.map(([part, vol]) => {
-          const color = PART_COLOR[part] || '#7a9ab8';
-          const w = Math.round(vol / maxPart * 100);
-          return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-            <span style="font-size:12px;color:${color};width:44px;flex-shrink:0;font-weight:600">${esc(part)}</span>
-            <div style="flex:1;height:8px;background:#0f1a0f;border-radius:6px;overflow:hidden">
-              <div style="width:${w}%;height:100%;background:${color};border-radius:6px"></div>
-            </div>
-            <span style="font-size:12px;color:${color};width:52px;text-align:right">${fmtVol(vol)}</span>
-          </div>`;
-        }).join('')}
-      </div>`;
-    }
-  }
-
-  // ── 요일별 패턴 ──────────────────────────────────────────────
-  const dowRaw  = s.dow_counts || {};
-  const DOW_LABEL = ['일','월','화','수','목','금','토'];
-  const dowData = DOW_LABEL.map((label, i) => ({ label, cnt: dowRaw[String(i)] || 0 }));
-  const maxDow  = Math.max(...dowData.map(d => d.cnt), 1);
-  if (Object.keys(dowRaw).length) {
-    html += `<div class="stat-section">
-      <div class="stat-section-title">요일별 운동 패턴</div>
-      <div style="display:flex;align-items:flex-end;gap:6px;height:70px;margin-bottom:6px">
-        ${dowData.map(d => {
-          const h   = Math.max(Math.round(d.cnt / maxDow * 60), d.cnt > 0 ? 4 : 2);
-          const col = d.cnt === Math.max(...dowData.map(x => x.cnt)) ? '#4ade80'
-                    : d.cnt > 0 ? '#2a5a3a' : '#0f1a0f';
-          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
-            <div style="font-size:9px;color:#2a4a2a">${d.cnt > 0 ? d.cnt : ''}</div>
-            <div style="width:100%;height:${h}px;background:${col};border-radius:3px 3px 0 0"></div>
-            <div style="font-size:11px;color:${d.cnt === Math.max(...dowData.map(x=>x.cnt)) ? '#4ade80' : '#2a4a2a'}">${d.label}</div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }
-
-  // ── 부위별 운동량 % ──────────────────────────────────────────
-  const partVol    = s.muscle_volume || {};
-  const muscleVol  = s.muscle_detail  || {};
-  const PART_COLOR = { '가슴':'#e05555','등':'#5577e0','어깨':'#55a0e0','팔':'#e09055','코어':'#55c094','하체':'#9055e0' };
-  const PART_MUSCLES = {
-    '가슴': ['대흉근','소흉근'],
-    '등':   ['광배근','승모근','능형근','척추기립근','원근'],
-    '어깨': ['전면삼각근','측면삼각근','후면삼각근'],
-    '팔':   ['이두근','삼두근','전완근'],
-    '코어': ['복직근','복사근','장요근'],
-    '하체': ['대퇴사두근','햄스트링','대둔근','중둔근','비복근','내전근'],
-  };
-  const partTotal = Object.values(partVol).reduce((a, b) => a + b, 0);
-
-  if (partTotal > 0) {
-    const partsSorted = Object.entries(partVol).sort((a, b) => b[1] - a[1]);
-    html += `<div class="stat-section">
-      <div class="stat-section-title">전신 부위별 운동량</div>
-      <div style="font-size:11px;color:#3a5840;margin-bottom:12px">※ 무게 입력 운동 기준 (체중 운동 제외)</div>`;
-
-    for (const [part, vol] of partsSorted) {
-      const partPct  = Math.round(vol / partTotal * 100);
-      const color    = PART_COLOR[part] || '#7a9ab8';
-      const muscles  = (PART_MUSCLES[part] || [])
-        .map(m => ({ name: m, vol: muscleVol[m] || 0 }))
-        .filter(m => m.vol > 0)
-        .sort((a, b) => b.vol - a.vol);
-      const muscleTotal = muscles.reduce((a, m) => a + m.vol, 0);
-
-      html += `<div style="margin-bottom:16px">
-        <!-- 부위 행 -->
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">
-          <span style="font-size:15px;font-weight:700;color:${color};width:44px;flex-shrink:0">${esc(part)}</span>
-          <div style="flex:1;height:10px;background:#0f1a14;border-radius:6px;overflow:hidden">
-            <div style="width:${partPct}%;height:100%;background:${color};border-radius:6px;transition:width .4s"></div>
-          </div>
-          <span style="font-size:15px;font-weight:700;color:${color};width:38px;text-align:right">${partPct}%</span>
-        </div>`;
-
-      // 근육 상세 행
-      if (muscles.length) {
-        html += `<div style="padding-left:54px;display:flex;flex-direction:column;gap:4px">`;
-        for (const m of muscles) {
-          const mPct = muscleTotal > 0 ? Math.round(m.vol / muscleTotal * 100) : 0;
-          html += `<div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;color:#5a7a6a;width:58px;flex-shrink:0">${esc(m.name)}</span>
-            <div style="flex:1;height:5px;background:#0f1a14;border-radius:4px;overflow:hidden">
-              <div style="width:${mPct}%;height:100%;background:${color};opacity:.55;border-radius:4px"></div>
-            </div>
-            <span style="font-size:11px;color:#4a6a5a;width:32px;text-align:right">${mPct}%</span>
-          </div>`;
-        }
-        html += `</div>`;
-      }
-      html += `</div>`;
-    }
-    html += `</div>`;
-  }
-
-  // ── 부위별 밸런스 경고 ────────────────────────────────────────
-  if (partTotal > 0) {
-    const pct = part => Math.round((partVol[part] || 0) / partTotal * 100);
-    const warnings = [];
-    const goods    = [];
-
-    // 규칙 1: 등이 가슴의 80% 미만 → 앞뒤 불균형
-    if ((partVol['가슴']||0) > 0 && (partVol['등']||0) / (partVol['가슴']||1) < 0.8)
-      warnings.push({ icon:'⚠️', msg:'등 운동이 부족해요', sub:`가슴 ${pct('가슴')}% vs 등 ${pct('등')}% — 후면 보강 추천` });
-    else if ((partVol['등']||0) > 0 && (partVol['가슴']||0) > 0)
-      goods.push({ icon:'✅', msg:'앞뒤 균형 양호', sub:`가슴 ${pct('가슴')}% · 등 ${pct('등')}%` });
-
-    // 규칙 2: 하체 15% 미만
-    if (pct('하체') > 0 && pct('하체') < 15)
-      warnings.push({ icon:'⚠️', msg:'하체 운동 비중이 낮아요', sub:`전체의 ${pct('하체')}% — 하체 강화 추천` });
-    else if (pct('하체') >= 15)
-      goods.push({ icon:'✅', msg:'하체 운동 충분', sub:`전체의 ${pct('하체')}%` });
-
-    // 규칙 3: 코어 0
-    if (!(partVol['코어'] > 0))
-      warnings.push({ icon:'💡', msg:'코어 운동 기록 없음', sub:'플랭크·크런치 등 추가해보세요' });
-    else
-      goods.push({ icon:'✅', msg:'코어 운동 포함됨', sub:`전체의 ${pct('코어')}%` });
-
-    const allItems = [...warnings, ...goods];
-    if (allItems.length) {
-      html += `<div class="stat-section">
-        <div class="stat-section-title">균형 체크</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          ${allItems.map(item => `
-            <div style="display:flex;align-items:flex-start;gap:10px;background:${item.icon==='⚠️'?'#1a0f0f':item.icon==='💡'?'#1a1a0f':'#0f1a0f'};border-radius:10px;padding:10px 12px">
-              <span style="font-size:16px;flex-shrink:0">${item.icon}</span>
-              <div>
-                <div style="font-size:13px;font-weight:600;color:${item.icon==='⚠️'?'#f87171':item.icon==='💡'?'#fbbf24':'#4ade80'}">${esc(item.msg)}</div>
-                <div style="font-size:11px;color:#4a5a4a;margin-top:2px">${esc(item.sub)}</div>
-              </div>
-            </div>`).join('')}
-        </div>
-      </div>`;
-    }
-  }
-
-  // 일지가 없으면 안내
-  if (!s.total_logs) {
-    html += '<div class="empty" style="margin-top:20px">운동일지를 작성하면 통계가 나타나요</div>';
-  }
-
-  // 새로고침 버튼
-  html += `<button onclick="_statsLoaded=false;statsInit()" style="display:block;margin:16px auto;background:none;border:1px solid #1a3a1a44;border-radius:8px;padding:8px 20px;color:#3a5840;font-size:12px;cursor:pointer;font-family:inherit">통계 새로고침</button>`;
-
-  wrap.innerHTML = html;
-}
-
-// ── 사진 뷰어 ────────────────────────────────────────────────
-async function viewMemberPhotos(startPath, endPath, exName) {
-  const viewer = document.getElementById('memberPhotoViewer');
-  const imgs   = document.getElementById('memberViewerImgs');
-  document.getElementById('memberViewerTitle').textContent = exName + ' — 자세 사진';
-  imgs.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#555;font-size:13px">불러오는 중...</div>';
-  viewer.classList.add('open');
-  const labels = ['시작 자세', '끝 자세'];
-  const slots = await Promise.all([startPath, endPath].map(async (path, i) => {
-    if (!path) return `<div class="mv-photo-slot"><div style="flex:1;display:flex;align-items:center;justify-content:center;color:#444;font-size:12px">미촬영</div><div class="mv-photo-label">${labels[i]}</div></div>`;
-    const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
-    if (error) { console.error('Failed to create signed URL:', error); }
-    const url = data?.signedUrl;
-    if (!url) return `<div class="mv-photo-slot"><div style="flex:1;display:flex;align-items:center;justify-content:center;color:#f87171;font-size:12px">로드 실패</div><div class="mv-photo-label">${labels[i]}</div></div>`;
-    return `<div class="mv-photo-slot"><img src="${url}" alt="${labels[i]}"><div class="mv-photo-label">${labels[i]}</div></div>`;
-  }));
-  imgs.innerHTML = slots.join('');
-}
-function closeMemberPhotoViewer() { document.getElementById('memberPhotoViewer').classList.remove('open'); }
-
-// PT 노트 사진 인라인 토글 (signed URL 캐시 포함)
-const _notePhotoUrlCache = {};
-
-async function toggleNotePhotoInline(i, path) {
-  const container = document.getElementById(`notePhotoInline${i}`);
-  const btn       = document.getElementById(`notePhotoBtn${i}`);
-  const img       = document.getElementById(`notePhotoInlineImg${i}`);
-  if (!container) return;
-
-  // 이미 열려 있으면 닫기
-  if (container.style.display !== 'none') {
-    container.style.display = 'none';
-    if (btn) btn.textContent = 'PT 노트 사진 보기';
-    return;
-  }
-
-  // 열기
-  container.style.display = '';
-  if (btn) btn.textContent = '사진 닫기';
-
-  // 이미 이미지가 로드돼 있으면 재사용
-  if (img && img.src && img.src !== window.location.href) return;
-
-  // 로딩 표시
-  if (img) { img.style.minHeight = '80px'; img.style.opacity = '0.4'; }
-
-  // signed URL 가져오기 (캐시 활용)
-  if (!_notePhotoUrlCache[path]) {
-    const { data, error } = await db.storage.from('session-photos').createSignedUrl(path, 3600);
-    if (error || !data?.signedUrl) {
-      container.innerHTML = `
-        <div style="padding:16px;text-align:center;color:#f87171;font-size:13px;">사진을 불러올 수 없습니다</div>
-        <button onclick="closeNotePhotoInline(${i})" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:#4ade80;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>`;
-      return;
-    }
-    _notePhotoUrlCache[path] = data.signedUrl;
-  }
-  if (img) { img.src = _notePhotoUrlCache[path]; img.style.minHeight = ''; img.style.opacity = '1'; }
-}
-
-function closeNotePhotoInline(i) {
-  const container = document.getElementById(`notePhotoInline${i}`);
-  const btn       = document.getElementById(`notePhotoBtn${i}`);
-  if (container) container.style.display = 'none';
-  if (btn) btn.textContent = 'PT 노트 사진 보기';
-}
-
-// ── 에러 / 날짜 포맷 ──────────────────────────────────────────
-function showError() {
-  document.getElementById('loadingScreen').style.display = 'none';
-  document.getElementById('errorScreen').style.display   = 'flex';
-}
-function fmtDate(dateStr) {
-  if (!dateStr) return '-';
-  const d = new Date(dateStr + 'T00:00:00');
-  const DAYS = ['일','월','화','수','목','금','토'];
-  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${DAYS[d.getDay()]})`;
-}
-
-init();
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
-  });
-}
-</script>
+<script src="./js/config.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/utils.js"></script>
+<script src="./js/image-utils.js"></script>
+<script src="./js/routine-manager.js"></script>
+<script src="./js/member-app.js"></script>
 </body>
 </html>

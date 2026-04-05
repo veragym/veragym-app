@@ -2,61 +2,96 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<link rel="manifest" href="manifest-admin.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="베라짐 관리자">
-<meta name="theme-color" content="#c9a84c">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#b8942f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="베라짐 관리자">
+<link rel="manifest" href="./manifest-admin.json">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
 <title>VERA GYM | 관리자 로그인</title>
+<link rel="stylesheet" href="./styles/tokens.css">
 <style>
-* { box-sizing:border-box; margin:0; padding:0; }
-body {
-  font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif;
-  background:#0a0a0a; color:#fff;
-  min-height:100dvh; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; padding:24px;
-}
-.logo-wrap { text-align:center; margin-bottom:32px; }
-.logo-title { font-size:22px; font-weight:900; letter-spacing:3px; }
-.logo-title span { color:#c9a84c; }
-.logo-sub { font-size:11px; color:#444; margin-top:4px; letter-spacing:2px; }
+  :root {
+    --accent: var(--accent-admin);
+  }
 
-.card {
-  width:100%; max-width:380px;
-  background:#111108; border:1px solid #2a2518;
-  border-radius:20px; padding:28px 24px;
-}
-.field { margin-bottom:16px; }
-.field label { display:block; font-size:12px; color:#888; margin-bottom:7px; font-weight:500; }
-.field input {
-  width:100%; background:#0a0a08; border:1.5px solid #2a2518;
-  border-radius:10px; padding:13px 14px; font-size:15px; color:#fff;
-  outline:none; font-family:inherit; transition:border-color 0.2s;
-}
-.field input:focus { border-color:#c9a84c; }
-.field input::placeholder { color:#383530; }
-.btn-login {
-  width:100%; background:linear-gradient(135deg,#c9a84c,#a8893a);
-  color:#000; border:none; border-radius:12px; padding:15px;
-  font-size:16px; font-weight:700; cursor:pointer; transition:opacity 0.15s;
-}
-.btn-login:disabled { opacity:0.45; cursor:default; }
-.btn-login:hover:not(:disabled) { opacity:0.88; }
-.err-box {
-  background:#2d1212; border:1px solid #5a2020; border-radius:8px;
-  padding:10px 14px; font-size:13px; color:#f87171;
-  margin-bottom:14px; display:none;
-}
-.spinner {
-  display:inline-block; width:14px; height:14px;
-  border:2px solid rgba(0,0,0,0.25); border-top-color:#000;
-  border-radius:50%; animation:spin 0.7s linear infinite;
-  vertical-align:middle; margin-right:6px;
-}
-@keyframes spin { to { transform:rotate(360deg) } }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-family);
+    background: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100dvh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: var(--space-6);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .logo-wrap { text-align: center; margin-bottom: var(--space-8); }
+  .logo-title { font-size: 22px; font-weight: 900; letter-spacing: 3px; }
+  .logo-title span { color: var(--accent); }
+  .logo-sub {
+    font-size: var(--text-xs); color: var(--text-tertiary);
+    margin-top: var(--space-1); letter-spacing: 2px;
+  }
+
+  .login-card {
+    width: 100%; max-width: 380px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6) var(--space-5);
+    box-shadow: var(--shadow-md);
+  }
+
+  .field { margin-bottom: var(--space-4); }
+  .field label {
+    display: block; font-size: var(--text-sm);
+    color: var(--text-secondary); margin-bottom: var(--space-1);
+    font-weight: var(--font-medium);
+  }
+  .field input {
+    width: 100%; background: var(--bg-inset);
+    border: 1.5px solid var(--border-default);
+    border-radius: var(--radius-md); padding: var(--space-3);
+    font-size: var(--text-base); color: var(--text-primary);
+    outline: none; font-family: inherit;
+    transition: border-color var(--transition-fast);
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--text-tertiary); }
+
+  .btn-login {
+    width: 100%; height: 48px;
+    background: var(--accent); color: var(--text-inverse);
+    border: none; border-radius: var(--radius-md);
+    font-size: var(--text-base); font-weight: var(--font-bold);
+    font-family: inherit; cursor: pointer;
+    transition: opacity var(--transition-fast);
+  }
+  .btn-login:disabled { opacity: 0.4; cursor: default; }
+  .btn-login:active:not(:disabled) { opacity: 0.85; }
+
+  .err-box {
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm); color: var(--color-danger);
+    margin-bottom: var(--space-3); display: none;
+  }
+
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: var(--text-inverse);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -66,45 +101,56 @@ body {
   <div class="logo-sub">ADMIN</div>
 </div>
 
-<div class="card">
+<div class="login-card">
   <div id="errBox" class="err-box"></div>
 
   <div class="field">
     <label>아이디</label>
-    <input id="inpId" type="text" placeholder="아이디 입력" autocomplete="off"
-           onkeydown="if(event.key==='Enter')document.getElementById('inpPw').focus()">
+    <input id="inpId" type="text" placeholder="아이디 입력" autocomplete="username"
+           enterkeyhint="next">
   </div>
   <div class="field">
     <label>비밀번호</label>
     <input id="inpPw" type="password" placeholder="비밀번호 입력" autocomplete="current-password"
-           onkeydown="if(event.key==='Enter')doLogin()">
+           enterkeyhint="go">
   </div>
-  <button class="btn-login" id="btnLogin" onclick="doLogin()">로그인</button>
+  <button class="btn-login" id="btnLogin">로그인</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
+<script src="./js/config.js"></script>
 <script>
-init_db();
-preventBackExit();
+initDb();
 
-// 이미 로그인된 경우 자동 이동
+// ── 키보드 이벤트 ─────────────────────────────────────────
+document.getElementById('inpId').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('inpPw').focus();
+});
+document.getElementById('inpPw').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('btnLogin').addEventListener('click', doLogin);
+
+// ── 자동 로그인 체크 ──────────────────────────────────────
 (async () => {
   const { data: { session } } = await db.auth.getSession();
   if (!session) return;
-  const ok = await checkAdminSession(session);
-  if (!ok) await db.auth.signOut();
+  // 서버 RPC로 관리자 권한 확인
+  const { data: admin } = await db.rpc('check_admin_role', {
+    p_auth_id: session.user.id
+  });
+  if (admin) {
+    location.replace('admin.html');
+  } else {
+    await db.auth.signOut();
+  }
 })();
 
-async function checkAdminSession(session) {
-  if (session.user.email === SUPER_ADMIN_EMAIL) {
-    location.replace('admin.html'); return true;
-  }
-  const { data: t } = await db.from('trainers')
-    .select('is_admin,is_active').eq('auth_id', session.user.id).single();
-  if (t?.is_admin && t?.is_active) { location.replace('admin.html'); return true; }
-  return false;
-}
+// ── 로그인 시도 제한 ──────────────────────────────────────
+let _loginAttempts = 0;
+const _MAX_ATTEMPTS = 5;
+const _LOCKOUT_MS = 60000; // 1분
+let _lockoutUntil = 0;
 
 async function doLogin() {
   const id  = document.getElementById('inpId').value.trim();
@@ -113,41 +159,67 @@ async function doLogin() {
   const err = document.getElementById('errBox');
   err.style.display = 'none';
 
-  if (!id || !pw) { err.textContent = '아이디와 비밀번호를 입력해주세요'; err.style.display = 'block'; return; }
+  // 입력 검증
+  if (!id || !pw) {
+    showError('아이디와 비밀번호를 입력해주세요');
+    return;
+  }
 
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>로그인 중...';
+  // Rate limiting
+  if (Date.now() < _lockoutUntil) {
+    const sec = Math.ceil((_lockoutUntil - Date.now()) / 1000);
+    showError(`잠시 후 다시 시도해주세요 (${sec}초)`);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>로그인 중...';
 
   try {
-    let email;
+    // 이메일 조회 (서버 RPC — 아이디 존재 여부를 클라이언트에 노출하지 않도록)
+    const { data: email, error: rpcErr } = await db.rpc('get_admin_login_email', { p_name: id });
 
-    // 마스터 관리자 (id: veragym)
-    if (id === 'veragym') {
-      email = SUPER_ADMIN_EMAIL;
-    } else {
-      // 지점 관리자 — 이름으로 이메일 조회
-      const { data: found, error: rpcErr } = await db.rpc('get_admin_login_email', { p_name: id });
-      if (rpcErr || !found) {
-        throw new Error('등록되지 않은 아이디입니다');
-      }
-      email = found;
+    if (rpcErr || !email) {
+      // [보안] 아이디/비밀번호 구분 없이 동일한 에러 메시지
+      throw new Error('아이디 또는 비밀번호가 올바르지 않습니다');
     }
 
     const { error } = await db.auth.signInWithPassword({ email, password: pw });
-    if (error) throw new Error('비밀번호가 올바르지 않습니다');
+    if (error) {
+      throw new Error('아이디 또는 비밀번호가 올바르지 않습니다');
+    }
+
+    // 관리자 권한 확인 후 이동
+    const { data: { session } } = await db.auth.getSession();
+    const { data: admin } = await db.rpc('check_admin_role', {
+      p_auth_id: session.user.id
+    });
+
+    if (!admin) {
+      await db.auth.signOut();
+      throw new Error('관리자 권한이 없습니다');
+    }
 
     location.replace('admin.html');
-  } catch(e) {
-    err.textContent = e.message; err.style.display = 'block';
+  } catch (e) {
+    _loginAttempts++;
+    if (_loginAttempts >= _MAX_ATTEMPTS) {
+      _lockoutUntil = Date.now() + _LOCKOUT_MS;
+      _loginAttempts = 0;
+      showError('로그인 시도가 너무 많습니다. 1분 후 다시 시도해주세요.');
+    } else {
+      showError(e.message);
+    }
   } finally {
-    btn.disabled = false; btn.textContent = '로그인';
+    btn.disabled = false;
+    btn.textContent = '로그인';
   }
 }
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
-  });
+
+function showError(msg) {
+  const err = document.getElementById('errBox');
+  err.textContent = msg;
+  err.style.display = 'block';
 }
 </script>
 </body>

@@ -1,0 +1,530 @@
+/* ============================================================
+   VERA GYM v2 — admin.css
+   관리자 페이지 전용 스타일 (tokens.css + components.css 위에 적용)
+   ============================================================ */
+
+:root {
+  --accent: var(--accent-admin);
+  --accent-role-bg: var(--accent-admin-bg);
+  --accent-role-bg-hover: var(--accent-admin-bg-hover);
+  --accent-role-border: var(--accent-admin-border);
+  --accent-role-text: var(--accent-admin-text);
+}
+
+body { padding-bottom: 80px; }
+
+
+/* ── 검색 바 ──────────────────────────────────────────────── */
+
+.search-bar {
+  position: relative;
+  margin-bottom: var(--space-3);
+}
+
+.search-bar .field-input {
+  padding-right: 40px;
+}
+
+.search-clear {
+  position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none;
+  color: var(--text-tertiary);
+  font-size: 18px; cursor: pointer;
+  display: none;
+}
+
+.search-bar .field-input:not(:placeholder-shown) + .search-clear {
+  display: block;
+}
+
+
+/* ── 에러 박스 ────────────────────────────────────────────── */
+
+.err-box {
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  margin-bottom: var(--space-3);
+  display: none;
+}
+
+
+/* ── 브랜치 칩 (회원 탭) ──────────────────────────────────── */
+
+.branch-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.branch-chip:active { border-color: var(--accent); }
+
+.branch-chip-name {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+}
+
+.branch-chip-count {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--accent);
+}
+
+.branch-chip-label {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.branch-chip-arrow {
+  margin-left: auto;
+  color: var(--text-disabled);
+}
+
+
+/* ── 브레드크럼 ───────────────────────────────────────────── */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.bc-item {
+  color: var(--accent);
+  cursor: pointer;
+  background: none; border: none;
+  font-family: inherit; font-size: inherit;
+  padding: 0;
+}
+
+.bc-sep { color: var(--text-disabled); }
+.bc-current { color: var(--text-secondary); }
+
+
+/* ── 아코디언 ─────────────────────────────────────────────── */
+
+.acc-block {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+}
+
+.acc-header {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.acc-header:active { background: var(--gray-50); }
+
+.acc-header-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  flex: 1;
+}
+
+.acc-header-count {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-right: var(--space-2);
+}
+
+.acc-arrow {
+  color: var(--text-tertiary);
+  transition: transform var(--transition-fast);
+  font-size: var(--text-sm);
+}
+
+.acc-arrow.open { transform: rotate(90deg); }
+
+.acc-body {
+  display: none;
+  border-top: 1px solid var(--border-light);
+}
+
+.acc-body.open { display: block; }
+
+
+/* ── 회원 행 ──────────────────────────────────────────────── */
+
+.member-row {
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.member-row:last-child { border-bottom: none; }
+.member-row:active { background: var(--gray-50); }
+
+.member-row-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  flex: 1;
+}
+
+.member-row-arrow {
+  color: var(--text-disabled);
+  font-size: var(--text-sm);
+}
+
+
+/* ── PT 카드 ──────────────────────────────────────────────── */
+
+.pt-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.pt-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-1);
+}
+
+.pt-sessions {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+}
+
+.pt-meta {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+
+/* ── 일정 컨트롤 ──────────────────────────────────────────── */
+
+.sc-ctrl {
+  position: sticky;
+  top: calc(var(--header-height) + var(--tab-height));
+  z-index: var(--z-sticky);
+  background: var(--bg-page);
+  padding: var(--space-2) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.sc-branch-sel { flex: 0 0 auto; width: 100px; }
+
+.sc-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.sc-range {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+
+/* ── 일정 날짜 필 ─────────────────────────────────────────── */
+
+.sc-date-pills {
+  display: flex;
+  padding: var(--space-2) var(--space-4);
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-card);
+  position: sticky;
+  top: calc(var(--header-height) + var(--tab-height) + 48px);
+  z-index: calc(var(--z-sticky) - 1);
+}
+
+.sc-date-pill {
+  flex: 1;
+  text-align: center;
+  padding: var(--space-1) 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.sc-date-pill.active {
+  background: var(--accent-admin-bg);
+  border-color: var(--accent-admin-border);
+}
+
+.sc-date-pill.today .pill-num {
+  color: var(--accent);
+  font-weight: var(--font-bold);
+}
+
+.pill-num {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.pill-day {
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+
+/* ── 일정 데이 뷰 ────────────────────────────────────────── */
+
+.sc-day-view {
+  padding: var(--space-4);
+}
+
+.sc-trainer-col {
+  margin-bottom: var(--space-4);
+}
+
+.sc-trainer-col-hdr {
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: var(--space-2);
+}
+
+.sc-session {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-1);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.sc-session:active { border-color: var(--accent); }
+
+.sc-session-time {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.sc-session-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
+
+/* ── 요청 카드 ────────────────────────────────────────────── */
+
+.req-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.req-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.req-content {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+  line-height: var(--leading-relaxed);
+}
+
+.req-meta {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.req-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+
+/* ── 운동 카드 ────────────────────────────────────────────── -->
+
+.ex-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-bottom: var(--space-2);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.ex-card:active { border-color: var(--accent); }
+
+.ex-card-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.ex-thumb {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.ex-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
+.ex-en {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.ex-search-area {
+  position: sticky;
+  top: calc(var(--header-height) + var(--tab-height));
+  z-index: var(--z-sticky);
+  background: var(--bg-page);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.ex-stat-bar {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  padding: var(--space-2) 0;
+}
+
+
+/* ── 매출 탭 ──────────────────────────────────────────────── */
+
+.rev-sub-tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
+.rev-sub-panel { display: none; }
+.rev-sub-panel.active { display: block; }
+
+.rev-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.rev-month-btns {
+  display: flex;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+.rev-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.stat-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  text-align: center;
+}
+
+.stat-label {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-1);
+}
+
+.stat-num {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+
+/* ── 결제 내역 ────────────────────────────────────────────── */
+
+.pay-filters {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.pay-filters .field-select,
+.pay-filters .field-input {
+  flex: 1;
+  min-width: 100px;
+}
+
+.pay-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.pay-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.pay-item-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-1);
+}
+
+.pay-item-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
+.pay-item-amt {
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: var(--accent);
+}
+
+.pay-item-sub {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
