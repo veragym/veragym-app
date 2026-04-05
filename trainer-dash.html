@@ -2042,19 +2042,19 @@ function renderSiActions(){
   if(s.status==='scheduled'){
     if(isPtSpt){
       acts.innerHTML=`
-        <button id="siBtnComplete" onclick="siAction('complete')" style="width:100%;background:#22c55e22;border:1.5px solid #22c55e55;color:#4ade80;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">완료 처리</button>
-        <button id="siBtnNoshow" onclick="siAction('noshow')" style="width:100%;background:#f59e0b22;border:1.5px solid #f59e0b55;color:#fbbf24;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">노쇼 처리</button>
-        <div style="display:flex;gap:10px;">
-          <button id="siBtnCancel" onclick="siAction('cancel')" style="flex:1;background:#ff4d4f22;border:1.5px solid #ff4d4f55;color:#ff4d4f;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">예약 취소</button>
-          <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)" style="flex:1;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">수정</button>
+        <button id="siBtnComplete" onclick="siAction('complete')" class="vb vb-lg vb-success">완료 처리</button>
+        <button id="siBtnNoshow" onclick="siAction('noshow')" class="vb vb-lg vb-warning">노쇼 처리</button>
+        <div class="vb-group">
+          <button id="siBtnCancel" onclick="siAction('cancel')" class="vb vb-lg vb-danger" style="flex:1">예약 취소</button>
+          <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)" class="vb vb-lg vb-cancel" style="flex:1">수정</button>
         </div>`;
     }else{
       // 업무/청소/홍보/식사: 완료 버튼 추가 (세션 차감 없이 상태만 변경)
       acts.innerHTML=`
-        <button id="siBtnComplete" onclick="siAction('complete')" style="width:100%;background:#22c55e22;border:1.5px solid #22c55e55;color:#4ade80;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">완료 처리</button>
-        <div style="display:flex;gap:10px;">
-          <button id="siBtnCancel" onclick="siAction('cancel')" style="flex:1;background:#ff4d4f22;border:1.5px solid #ff4d4f55;color:#ff4d4f;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">예약 취소</button>
-          <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)" style="flex:1;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">수정</button>
+        <button id="siBtnComplete" onclick="siAction('complete')" class="vb vb-lg vb-success">완료 처리</button>
+        <div class="vb-group">
+          <button id="siBtnCancel" onclick="siAction('cancel')" class="vb vb-lg vb-danger" style="flex:1">예약 취소</button>
+          <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)" class="vb vb-lg vb-cancel" style="flex:1">수정</button>
         </div>`;
     }
   }else if(s.status==='completed'||s.status==='noshow'){
@@ -2064,22 +2064,22 @@ function renderSiActions(){
         <div style="width:100%;background:#1e2a3a;border:1.5px solid #3a5a7a55;color:#7a9abd;border-radius:12px;padding:14px;font-size:14px;text-align:center;line-height:1.6;">
           ⚙️ 자동 완료된 수업입니다.<br>수정이 필요하면 <strong style="color:#60a5fa;">관리자에게 문의</strong>해주세요.
         </div>
-        <button onclick="closeSchedInfo()" style="width:100%;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">닫기</button>`;
+        <button onclick="closeSchedInfo()" class="vb vb-lg vb-cancel">닫기</button>`;
     }else{
       // 수동 완료/노쇼: 노쇼전환·취소·수정 제공 (예약상태 복원 없음 → 자동완료 루프 방지)
       const toggleLabel = s.status==='completed' ? '노쇼 처리로 변경' : '완료 처리로 변경';
       acts.innerHTML=`
         <button id="siBtnToggleNoshow" onclick="siToggleNoshow()"
-          style="width:100%;background:#f59e0b22;border:1.5px solid #f59e0b55;color:#fbbf24;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">${toggleLabel}</button>
-        <div style="display:flex;gap:10px;">
+          class="vb vb-lg vb-warning">${toggleLabel}</button>
+        <div class="vb-group">
           <button id="siBtnCancelCompleted" onclick="siCancelCompleted()"
-            style="flex:1;background:#ff4d4f22;border:1.5px solid #ff4d4f55;color:#ff4d4f;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">예약 취소</button>
+            class="vb vb-lg vb-danger" style="flex:1">예약 취소</button>
           <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)"
-            style="flex:1;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">수정</button>
+            class="vb vb-lg vb-cancel" style="flex:1">수정</button>
         </div>`;
     }
   }else{
-    acts.innerHTML=`<button onclick="closeSchedInfo()" style="width:100%;background:#1e1e3e;border:1.5px solid #3a3a5c;color:#aaa;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">닫기</button>`;
+    acts.innerHTML=`<button onclick="closeSchedInfo()" class="vb vb-lg vb-cancel">닫기</button>`;
   }
 }
 
@@ -2851,9 +2851,9 @@ if ('serviceWorker' in navigator) {
       <input id="schedMemberText" type="text" placeholder="회원명을 입력해주세요" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;font-family:inherit;"></div>
     <div id="schedNotesRow" style="margin-bottom:20px;display:none;"><label id="schedNotesLabel" style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;">내용</label>
       <textarea id="schedNotes" rows="3" placeholder="" style="width:100%;background:#2a2a3e;border:1px solid #3a3a5c;border-radius:8px;color:#fff;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;resize:vertical;font-family:inherit;"></textarea></div>
-    <div style="display:flex;gap:10px;">
-      <button id="schedDeleteBtn" onclick="deleteSchedule()" style="display:none;flex:1;background:#3a1a1a;border:1px solid #ff4d4f55;color:#ff4d4f;border-radius:10px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;">삭제</button>
-      <button id="schedSaveBtn" onclick="saveSchedule()" style="flex:2;background:#6c63ff;border:none;color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+    <div class="vb-group">
+      <button id="schedDeleteBtn" onclick="deleteSchedule()" class="vb vb-lg vb-danger" style="display:none;flex:1">삭제</button>
+      <button id="schedSaveBtn" onclick="saveSchedule()" class="vb vb-lg vb-primary-gradient" style="flex:2">저장</button>
     </div>
   </div>
 </div>
@@ -2895,9 +2895,9 @@ if ('serviceWorker' in navigator) {
     <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px;">수업일지 연결</div>
     <div id="linkLogSubtitle" style="font-size:12px;color:#6a6a8a;margin-bottom:16px;"></div>
     <div id="linkLogList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;"></div>
-    <div style="display:flex;gap:10px;padding-bottom:4px;">
-      <button onclick="linkLogWrite()" style="flex:1;background:#3b82f622;border:1.5px solid #3b82f655;color:#60a5fa;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">지금 작성</button>
-      <button onclick="linkLogSkip()" style="flex:1;background:#ffffff11;border:1.5px solid #ffffff22;color:#888;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">나중에</button>
+    <div class="vb-group" style="padding-bottom:4px;">
+      <button onclick="linkLogWrite()" class="vb vb-lg vb-secondary" style="flex:1">지금 작성</button>
+      <button onclick="linkLogSkip()" class="vb vb-lg vb-ghost" style="flex:1">나중에</button>
     </div>
   </div>
 </div>

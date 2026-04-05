@@ -8,6 +8,80 @@ const SUPABASE_ANON_KEY = 'sb_publishable_BpDPrt2x48OiZNKuGWlBig_-DtnqepE';
 const SUPER_ADMIN_EMAIL = 'veragym@naver.com';
 const EDGE_BASE         = 'https://lrzffwawpoidimlrbfxe.supabase.co/functions/v1';
 
+// ── 공통 버튼 디자인 시스템 (자동 주입) ───────────────────────
+(function injectButtonCSS() {
+  const s = document.createElement('style');
+  s.textContent = `
+/* ── 역할별 CSS 변수 (각 페이지 <style>에서 덮어쓸 수 있음) ── */
+:root {
+  --role: #3b82f6;
+  --role-light: #60a5fa;
+  --role-bg: #3b82f622;
+  --role-border: #3b82f655;
+  --role-dark: #1d4ed8;
+  --bg-btn: #141f35;
+  --bg-btn-hover: #1e3a5f;
+  --border-btn: #1e3a5f44;
+  --text-muted: #4a6580;
+  --text-sub: #7a9ab8;
+  --danger: #f87171;
+  --danger-bg: #f8717122;
+  --danger-border: #f8717155;
+  --success: #4ade80;
+  --success-bg: #22c55e22;
+  --success-border: #22c55e55;
+  --warning: #fbbf24;
+  --warning-bg: #f59e0b22;
+  --warning-border: #f59e0b55;
+}
+
+/* ── 공통 버튼 기반 ─────────────────────────────────────────── */
+.vb {
+  display:inline-flex; align-items:center; justify-content:center; gap:4px;
+  font-family:inherit; font-weight:700; cursor:pointer;
+  transition:all .15s; white-space:nowrap; box-sizing:border-box;
+}
+.vb:active { opacity:0.8; }
+.vb:disabled { opacity:0.4; cursor:not-allowed; }
+
+/* ── 사이즈 ─────────────────────────────────────────────────── */
+.vb-lg { border-radius:12px; padding:14px 20px; font-size:15px; width:100%; }
+.vb-md { border-radius:10px; padding:10px 16px; font-size:13px; }
+.vb-sm { border-radius:8px; padding:5px 12px; font-size:12px; }
+
+/* ── Primary (저장, 추가, 확인, 로그인) ─────────────────────── */
+.vb-primary { background:var(--role); border:none; color:#fff; }
+.vb-primary:hover { opacity:0.88; }
+.vb-primary-gradient { background:linear-gradient(135deg,var(--role),var(--role-dark)); border:none; color:#fff; }
+.vb-primary-gradient:hover { opacity:0.88; }
+
+/* ── Secondary (루틴, 운동DB, 수정, 운동추가) ───────────────── */
+.vb-secondary { background:var(--role-bg); border:1.5px solid var(--role-border); color:var(--role-light); }
+.vb-secondary:hover { border-color:var(--role); }
+
+/* ── Ghost (취소, 뒤로, 로그아웃, 보조) ─────────────────────── */
+.vb-ghost { background:none; border:1px solid var(--border-btn); color:var(--text-sub); }
+.vb-ghost:hover { border-color:var(--role-border); color:var(--role-light); }
+
+/* ── Cancel (모달 취소 전용) ─────────────────────────────────── */
+.vb-cancel { background:var(--bg-btn); border:1px solid var(--border-btn); color:var(--text-muted); }
+
+/* ── Danger (삭제, 비활성, 노쇼) ────────────────────────────── */
+.vb-danger { background:var(--danger-bg); border:1px solid var(--danger-border); color:var(--danger); }
+
+/* ── Success (완료) ──────────────────────────────────────────── */
+.vb-success { background:var(--success-bg); border:1px solid var(--success-border); color:var(--success); }
+
+/* ── Warning (노쇼) ──────────────────────────────────────────── */
+.vb-warning { background:var(--warning-bg); border:1px solid var(--warning-border); color:var(--warning); }
+
+/* ── 모달 버튼 그룹 ─────────────────────────────────────────── */
+.vb-group { display:flex; gap:10px; }
+.vb-group > * { flex:1; }
+`;
+  document.head.appendChild(s);
+})();
+
 let db;
 function init_db() {
   db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {

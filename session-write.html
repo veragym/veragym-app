@@ -450,7 +450,7 @@ body {
     <div class="member-nm" id="hdrMember">...</div>
     <div class="sess-meta" id="hdrMeta"></div>
   </div>
-  <button class="btn-save-top" id="btnSave" onclick="saveSession()">저장 후 나가기</button>
+  <button class="vb vb-md vb-primary btn-save-top" id="btnSave" onclick="saveSession()">저장 후 나가기</button>
 </div>
 
 <!-- 수업 메타 -->
@@ -482,20 +482,20 @@ body {
   </div>
   <div id="notePhotoPreview" class="note-photo-preview" style="display:none">
     <img id="notePhotoImg" src="" alt="PT 노트">
-    <button class="note-photo-rotate" id="btnRotateNote" onclick="rotateNotePhotoLeft()" title="왼쪽으로 90° 회전">↺</button>
-    <button class="note-photo-remove" onclick="removeNotePhoto()">✕</button>
+    <button class="vb vb-sm vb-ghost note-photo-rotate" id="btnRotateNote" onclick="rotateNotePhotoLeft()" title="왼쪽으로 90° 회전">↺</button>
+    <button class="vb vb-sm vb-danger note-photo-remove" onclick="removeNotePhoto()">✕</button>
   </div>
 </div>
 
 <!-- 하단 버튼 -->
 <div class="add-bar">
-  <button class="btn-add-ex" onclick="openSearch()">＋ 운동 추가</button>
+  <button class="vb vb-lg vb-primary btn-add-ex" onclick="openSearch()">＋ 운동 추가</button>
   <div style="display:flex;gap:8px;">
-    <button class="btn-lib-edit" style="flex:1;"
+    <button class="vb vb-lg vb-secondary btn-lib-edit" style="flex:1;"
       onclick="routinePickerOpen({ trainerId: trainer?.id, onSelect: loadRoutineExercises })">
       루틴 불러오기
     </button>
-    <button class="btn-lib-edit" style="flex:1;"
+    <button class="vb vb-lg vb-secondary btn-lib-edit" style="flex:1;"
       onclick="routineSaveModalOpen(trainer?.id, exercises)">
       루틴으로 저장
     </button>
@@ -509,7 +509,7 @@ body {
     <div class="modal-handle"></div>
     <div class="modal-title-bar">
       <span class="modal-title">운동 라이브러리</span>
-      <button class="btn-modal-close" onclick="closeSearch()">×</button>
+      <button class="vb vb-sm vb-ghost btn-modal-close" onclick="closeSearch()">×</button>
     </div>
     <div class="modal-search">
       <div class="modal-search-box">
@@ -524,7 +524,7 @@ body {
       <div class="search-empty">라이브러리 불러오는 중...</div>
     </div>
     <div style="padding:10px 16px calc(10px + env(safe-area-inset-bottom)); border-top:1px solid #1e3a5f44; flex-shrink:0;">
-      <button class="btn-lib-edit" onclick="closeSearch();goToLibrary()">라이브러리 수정</button>
+      <button class="vb vb-lg vb-secondary btn-lib-edit" onclick="closeSearch();goToLibrary()">라이브러리 수정</button>
     </div>
   </div>
 </div>
@@ -561,10 +561,10 @@ body {
           <div class="cap-status">앨범에서 선택</div>
         </div>
       </div>
-      <button class="btn-photo-cancel" onclick="backToStep1()">← 뒤로</button>
+      <button class="vb vb-lg vb-cancel btn-photo-cancel" onclick="backToStep1()">← 뒤로</button>
     </div>
 
-    <button class="btn-photo-cancel" id="photoModalClose" onclick="closePhotoModal()">닫기</button>
+    <button class="vb vb-lg vb-cancel btn-photo-cancel" id="photoModalClose" onclick="closePhotoModal()">닫기</button>
   </div>
 </div>
 
@@ -572,7 +572,7 @@ body {
 <div id="photoViewer" class="photo-viewer-bg" onclick="if(event.target===this)closePhotoViewer()">
   <div class="photo-viewer-title" id="viewerTitle">자세 사진</div>
   <div class="photo-viewer-imgs" id="viewerImgs"></div>
-  <button class="btn-viewer-close" onclick="closePhotoViewer()">닫기</button>
+  <button class="vb vb-md vb-secondary btn-viewer-close" onclick="closePhotoViewer()">닫기</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -817,14 +817,14 @@ function renderExercises() {
             : ''}
         </div>
         <div class="ex-photo-area">
-          <button class="btn-photo ${hasAny ? 'done' : ''}"
+          <button class="vb vb-sm vb-primary btn-photo ${hasAny ? 'done' : ''}"
                   onclick="${hasAny ? `viewPhotos(${i})` : `openPhotoModal(${i})`}">
             ${hasAny ? '사진보기' : '사진'}
           </button>
           <span class="photo-dot ${ex.photos?.start ? 'taken' : 'empty'}">●</span>
           <span class="photo-dot ${ex.photos?.end   ? 'taken' : 'empty'}">●</span>
         </div>
-        <button class="btn-del-ex" onclick="removeEx(${i})">삭제</button>
+        <button class="vb vb-sm vb-danger btn-del-ex" onclick="removeEx(${i})">삭제</button>
       </div>
 
       <div class="sets-area">
@@ -840,12 +840,12 @@ function renderExercises() {
                    onchange="updSet(${i},${si},'reps',this.value)">
             <div class="set-row-end">
               <button class="wm-chip ${ex.weight_mode === 'single' ? 'wm-single' : 'wm-total'}" onclick="toggleWeightMode(${i})">${ex.weight_mode === 'single' ? '한쪽' : '양손'}</button>
-              <button class="btn-del-set" onclick="delSet(${i},${si})"
+              <button class="vb vb-sm vb-ghost btn-del-set" onclick="delSet(${i},${si})"
                       ${ex.sets.length <= 1 ? 'style="opacity:0;pointer-events:none"' : ''}>−</button>
             </div>
           </div>
         `).join('')}
-        <button class="btn-add-set" onclick="addSet(${i})">＋ 세트 추가</button>
+        <button class="vb vb-lg vb-ghost btn-add-set" onclick="addSet(${i})">＋ 세트 추가</button>
       </div>
 
       <div class="ex-comment">
@@ -1144,8 +1144,8 @@ function renderSearchResults(q) {
 
   if (!myLibrary.length) {
     wrap.innerHTML = `<div class="search-empty">라이브러리가 비어있어요.<br>
-      <button onclick="closeSearch();goToLibrary()"
-        style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;margin-top:10px">
+      <button class="vb vb-md vb-primary" onclick="closeSearch();goToLibrary()"
+        style="margin-top:10px">
         운동 라이브러리에서 추가하기
       </button></div>`;
     return;

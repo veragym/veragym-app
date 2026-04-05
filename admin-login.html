@@ -12,6 +12,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VERA GYM | 관리자 로그인</title>
 <style>
+:root { --role: #c9a84c; --role-dark: #a8893a; }
 * { box-sizing:border-box; margin:0; padding:0; }
 body {
   font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif;
@@ -79,7 +80,7 @@ body {
     <input id="inpPw" type="password" placeholder="비밀번호 입력" autocomplete="current-password"
            onkeydown="if(event.key==='Enter')doLogin()">
   </div>
-  <button class="btn-login" id="btnLogin" onclick="doLogin()">로그인</button>
+  <button class="btn-login vb vb-lg vb-primary-gradient" id="btnLogin" onclick="doLogin()">로그인</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

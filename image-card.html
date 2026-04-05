@@ -277,12 +277,12 @@ body {
 
 <!-- 하단 버튼 -->
 <div class="add-bar">
-  <button class="btn-add-ex" onclick="openSearch()">＋ 운동 추가</button>
-  <button class="btn-add-ex" style="background:#1a2e4a;border-color:#2a4a6a55;color:#93c5fd;"
+  <button class="btn-add-ex vb vb-md vb-secondary" onclick="openSearch()">＋ 운동 추가</button>
+  <button class="btn-add-ex vb vb-md vb-ghost"
     onclick="routinePickerOpen({ trainerId: trainer?.id, onSelect: loadRoutineIntoImageCard, withImageUrl: true })">
     루틴 불러오기
   </button>
-  <button class="btn-gen-img" id="btnGenImg" onclick="generateImage()">이미지 생성</button>
+  <button class="btn-gen-img vb vb-md vb-primary-gradient" id="btnGenImg" onclick="generateImage()">이미지 생성</button>
 </div>
 
 <!-- 운동 검색 모달 -->
@@ -307,7 +307,7 @@ body {
       <div class="search-empty">라이브러리 불러오는 중...</div>
     </div>
     <div style="padding:10px 16px calc(10px + env(safe-area-inset-bottom)); border-top:1px solid #1e3a5f44; flex-shrink:0;">
-      <button class="btn-lib-edit" onclick="goToLibrary()">라이브러리 수정</button>
+      <button class="btn-lib-edit vb vb-lg vb-ghost" onclick="goToLibrary()">라이브러리 수정</button>
     </div>
   </div>
 </div>
@@ -403,7 +403,7 @@ function renderExercises() {
             ? `<div class="ex-sub">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>`
             : ''}
         </div>
-        <button class="btn-del-ex" onclick="removeEx(${i})">삭제</button>
+        <button class="btn-del-ex vb vb-sm vb-danger" onclick="removeEx(${i})">삭제</button>
       </div>
       <div class="sets-area">
         <div class="sets-header">
@@ -422,7 +422,7 @@ function renderExercises() {
                       ${ex.sets.length <= 1 ? 'style="opacity:0;pointer-events:none"' : ''}>−</button>
             </div>
           </div>`).join('')}
-        <button class="btn-add-set" onclick="addSet(${i})">＋ 세트 추가</button>
+        <button class="btn-add-set vb vb-sm vb-ghost" onclick="addSet(${i})">＋ 세트 추가</button>
       </div>
     </div>`).join('');
 }
@@ -493,8 +493,7 @@ function renderSearchResults(q) {
   const wrap = document.getElementById('searchResults');
   if (!myLibrary.length) {
     wrap.innerHTML = `<div class="search-empty">라이브러리가 비어있어요.<br>
-      <button onclick="goToLibrary()"
-        style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;margin-top:10px">
+      <button class="vb vb-md vb-primary" onclick="goToLibrary()" style="margin-top:10px">
         운동 라이브러리에서 추가하기</button></div>`;
     return;
   }

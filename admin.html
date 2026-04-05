@@ -12,6 +12,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VERA GYM | 관리자</title>
 <style>
+:root {
+  --role: #c9a84c;
+  --role-light: #c9a84c;
+  --role-bg: #c9a84c22;
+  --role-border: #c9a84c55;
+  --role-dark: #a8893a;
+  --bg-btn: #1a1a14;
+  --bg-btn-hover: #2a2518;
+  --border-btn: #2a2518;
+  --text-muted: #888;
+  --text-sub: #aaa;
+}
 * { box-sizing:border-box; margin:0; padding:0; }
 body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#0a0a0a; color:#fff; min-height:100dvh; padding-bottom:80px; }
 .header { background:#111108; border-bottom:1px solid #2a2518; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
@@ -325,7 +337,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <div id="tab-trainers" class="tab-content active">
   <div class="sec-header">
     <div><span class="sec-title">트레이너 관리</span><span class="sec-count" id="trainerCount"></span></div>
-    <button class="btn-add" onclick="openAddTrainer()">+ 추가</button>
+    <button class="vb vb-md vb-primary-gradient" onclick="openAddTrainer()">+ 추가</button>
   </div>
   <div id="trainerList"><div class="loading">불러오는 중...</div></div>
 </div>
@@ -334,7 +346,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 <div id="tab-members" class="tab-content">
   <div class="sec-header">
     <div><span class="sec-title">전체 회원</span><span class="sec-count" id="memberCount"></span></div>
-    <button class="btn-add" onclick="openAddMember()">+ 회원 추가</button>
+    <button class="vb vb-md vb-primary-gradient" onclick="openAddMember()">+ 회원 추가</button>
   </div>
   <!-- 회원명 검색 -->
   <div style="margin-bottom:12px;position:relative">
@@ -533,9 +545,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <!-- 2단계: 확인 영역 (동적 표시) -->
     <div id="scConfirmArea" style="display:none;margin-top:4px;">
       <div style="font-size:14px;color:#ccc;margin-bottom:14px;" id="scConfirmMsg"></div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn-cancel" style="flex:1;" onclick="scCancelConfirm()">취소</button>
-        <button id="scConfirmExec" style="flex:2;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;border:none;" onclick="scExecAction()">실행</button>
+      <div class="vb-group">
+        <button class="vb vb-lg vb-cancel" style="flex:1;" onclick="scCancelConfirm()">취소</button>
+        <button class="vb vb-lg" id="scConfirmExec" style="flex:2;" onclick="scExecAction()">실행</button>
       </div>
     </div>
     <!-- 3단계: 날짜·시간 수정 영역 -->
@@ -548,9 +560,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
           <input id="scEditEnd" type="time" placeholder="종료" style="flex:1;background:#1a2a3a;border:1px solid #2a4a6a;color:#e0e0e0;border-radius:8px;padding:10px;font-size:14px;box-sizing:border-box;">
         </div>
       </div>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button class="btn-cancel" style="flex:1;" onclick="scCloseEdit()">취소</button>
-        <button style="flex:2;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;background:#3b82f622;border:1.5px solid #3b82f666;color:#60a5fa;" onclick="scExecEdit()">저장</button>
+      <div class="vb-group" style="margin-top:10px;">
+        <button class="vb vb-lg vb-cancel" style="flex:1;" onclick="scCloseEdit()">취소</button>
+        <button class="vb vb-lg vb-primary" style="flex:2;background:#3b82f622;border-color:#3b82f666;color:#60a5fa;" onclick="scExecEdit()">저장</button>
       </div>
     </div>
   </div>
@@ -564,7 +576,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div class="memo-meta" id="memoMemberMeta"></div>
     <div style="font-size:12px;color:#888;margin-bottom:8px">트레이너 메모</div>
     <div class="memo-body" id="memoContent"></div>
-    <button class="btn-cancel" style="margin-top:16px;width:100%" onclick="closeModal('memoModal')">닫기</button>
+    <button class="vb vb-lg vb-cancel" style="margin-top:16px;" onclick="closeModal('memoModal')">닫기</button>
   </div>
 </div>
 
@@ -633,9 +645,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
         <input id="mPaymentAmount" type="number" min="0" placeholder="자동계산" readonly style="color:#c9a84c">
       </div>
     </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('addMemberModal')">취소</button>
-      <button class="btn-save" id="btnAddMember" onclick="addMember()">추가</button>
+    <div class="vb-group">
+      <button class="vb vb-lg vb-cancel" onclick="closeModal('addMemberModal')">취소</button>
+      <button class="vb vb-lg vb-primary-gradient" id="btnAddMember" onclick="addMember()">추가</button>
     </div>
   </div>
 </div>
@@ -646,7 +658,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
       <div class="modal-title" id="detailMemberName" style="margin-bottom:0"></div>
-      <button class="btn-add" style="font-size:12px;padding:8px 14px" onclick="openAddPtProduct()">+ PT 상품</button>
+      <button class="vb vb-sm vb-primary-gradient" onclick="openAddPtProduct()">+ PT 상품</button>
     </div>
     <div id="detailMemberMeta" style="font-size:12px;color:#666;margin-bottom:14px"></div>
 
@@ -660,7 +672,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
           <option value="long_absent">🟡 장기미방문</option>
           <option value="expired">🔴 만료</option>
         </select>
-        <button id="statusOverrideBtn" onclick="adminSetStatus()" style="background:linear-gradient(135deg,#c9a84c,#a8893a);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;color:#000;cursor:pointer;white-space:nowrap">변경</button>
+        <button class="vb vb-sm vb-primary-gradient" id="statusOverrideBtn" onclick="adminSetStatus()">변경</button>
       </div>
       <div id="statusOverrideNote" style="font-size:10px;color:#666;margin-top:6px"></div>
     </div>
@@ -674,17 +686,15 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
           <div id="tokenExpiryText" style="font-size:11px;color:#555;margin-top:3px"></div>
         </div>
         <div style="display:flex;gap:6px">
-          <button id="tokenToggleBtn" onclick="adminToggleToken()"
-            style="border:1.5px solid;border-radius:8px;padding:7px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;background:#2a0e0e;color:#f87171;border-color:#3a1a1a">비활성화</button>
-          <button onclick="adminExtendToken()"
-            style="background:#1e3a5f;color:#60a5fa;border:1.5px solid #1e3a5f88;border-radius:8px;padding:7px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">+1년 연장</button>
+          <button class="vb vb-sm vb-danger" id="tokenToggleBtn" onclick="adminToggleToken()">비활성화</button>
+          <button class="vb vb-sm vb-secondary" onclick="adminExtendToken()" style="background:#1e3a5f;color:#60a5fa;border-color:#1e3a5f88;">+1년 연장</button>
         </div>
       </div>
     </div>
 
     <div style="font-size:11px;color:#888;letter-spacing:1.2px;margin-bottom:10px;font-weight:600">PT 상품 목록</div>
     <div id="ptProductList"></div>
-    <button class="btn-cancel" style="margin-top:16px;width:100%" onclick="closeModal('memberDetailModal')">닫기</button>
+    <button class="vb vb-lg vb-cancel" style="margin-top:16px;" onclick="closeModal('memberDetailModal')">닫기</button>
   </div>
 </div>
 
@@ -720,9 +730,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
       <label>메모 (선택)</label>
       <textarea id="ptNotes" rows="2" style="width:100%;background:#0a0a08;border:1.5px solid #2a2518;border-radius:10px;padding:12px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;resize:none"></textarea>
     </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('addPtModal')">취소</button>
-      <button class="btn-save" id="btnAddPt" onclick="addPtProduct()">추가</button>
+    <div class="vb-group">
+      <button class="vb vb-lg vb-cancel" onclick="closeModal('addPtModal')">취소</button>
+      <button class="vb vb-lg vb-primary-gradient" id="btnAddPt" onclick="addPtProduct()">추가</button>
     </div>
   </div>
 </div>
@@ -748,9 +758,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
         <span style="color:#555;font-size:11px">(목록 분류에 반영됩니다)</span>
       </label>
     </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('changeTrainerModal')">취소</button>
-      <button class="btn-save" id="btnCtSave" onclick="saveChangeTrainer()">변경</button>
+    <div class="vb-group">
+      <button class="vb vb-lg vb-cancel" onclick="closeModal('changeTrainerModal')">취소</button>
+      <button class="vb vb-lg vb-primary-gradient" id="btnCtSave" onclick="saveChangeTrainer()">변경</button>
     </div>
   </div>
 </div>
@@ -814,9 +824,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
           <span style="font-size:13px;color:#888">스트레칭 운동 (통계 제외)</span>
         </label>
       </div>
-      <button onclick="saveExMuscle()" style="margin-top:14px;width:100%;padding:10px;background:#2563eb;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer">근육 정보 저장</button>
+      <button class="vb vb-lg vb-primary" onclick="saveExMuscle()" style="margin-top:14px;background:#2563eb33;border-color:#2563eb66;color:#60a5fa;">근육 정보 저장</button>
     </div>
-    <button class="btn-cancel" style="margin-top:10px;width:100%" onclick="closeModal('exDetailModal')">닫기</button>
+    <button class="vb vb-lg vb-cancel" style="margin-top:10px;" onclick="closeModal('exDetailModal')">닫기</button>
   </div>
 </div>
 
@@ -833,9 +843,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
              style="letter-spacing:2px;font-family:monospace">
       <div class="hint">변경 후 트레이너에게 새 비밀번호를 알려주세요</div>
     </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('changePwModal')">취소</button>
-      <button class="btn-save" id="btnChangePw" onclick="doChangePw()">변경</button>
+    <div class="vb-group">
+      <button class="vb vb-lg vb-cancel" onclick="closeModal('changePwModal')">취소</button>
+      <button class="vb vb-lg vb-primary-gradient" id="btnChangePw" onclick="doChangePw()">변경</button>
     </div>
   </div>
 </div>
@@ -869,9 +879,9 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
         <option value="true">관리자</option>
       </select>
     </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('addModal')">취소</button>
-      <button class="btn-save" id="btnAdd" onclick="addTrainer()">추가</button>
+    <div class="vb-group">
+      <button class="vb vb-lg vb-cancel" onclick="closeModal('addModal')">취소</button>
+      <button class="vb vb-lg vb-primary-gradient" id="btnAdd" onclick="addTrainer()">추가</button>
     </div>
   </div>
 </div>
@@ -939,11 +949,11 @@ async function loadTrainers() {
         <div class="sub-row">${esc(t.gym_location)}</div>
       </div>
       <div class="actions">
-        <button class="btn-sm" onclick="openChangePw('${t.id}','${esc(t.name)}')">비번변경</button>
-        <button class="btn-sm" onclick="toggleActive('${t.id}','${esc(t.name)}',${t.is_active})">
+        <button class="vb vb-sm vb-ghost" onclick="openChangePw('${t.id}','${esc(t.name)}')">비번변경</button>
+        <button class="vb vb-sm vb-ghost" onclick="toggleActive('${t.id}','${esc(t.name)}',${t.is_active})">
           ${t.is_active ? '비활성화' : '복직'}
         </button>
-        ${!t.is_admin && me?.is_admin ? `<button class="btn-sm btn-danger" onclick="deleteTrainer('${t.id}','${esc(t.name)}')">삭제</button>` : ''}
+        ${!t.is_admin && me?.is_admin ? `<button class="vb vb-sm vb-danger" onclick="deleteTrainer('${t.id}','${esc(t.name)}')">삭제</button>` : ''}
       </div>
     </div>`;
 
@@ -1485,7 +1495,7 @@ async function loadPtProducts(memberId) {
         ${p.notes ? `<br>${esc(p.notes)}` : ''}
       </div>
       <div style="margin-top:8px">
-        <button class="btn-sm" style="font-size:11px"
+        <button class="vb vb-sm vb-ghost"
           onclick="openChangeTrainer('${p.id}','${cId}')">담당 트레이너 변경</button>
       </div>
     </div>`;
@@ -1991,8 +2001,8 @@ async function loadRequests() {
       <div class="req-content">${esc(r.content)}</div>
       <div class="req-meta">${esc(r.trainers?.name) || '알수없음'} · ${new Date(r.created_at).toLocaleDateString('ko-KR')}</div>
       <div class="req-actions">
-        ${r.status === 'pending' ? `<button class="btn-complete" onclick="completeReq('${r.id}')">완료 처리</button>` : ''}
-        <button class="btn-req-del" onclick="deleteReq('${r.id}')">삭제</button>
+        ${r.status === 'pending' ? `<button class="vb vb-sm vb-success" onclick="completeReq('${r.id}')">완료 처리</button>` : ''}
+        <button class="vb vb-sm vb-danger" onclick="deleteReq('${r.id}')">삭제</button>
       </div>
     </div>`;
 
@@ -2267,13 +2277,13 @@ function scBuildActBtns(s){
   const id=s.id;const isPtSpt=(s.type==='PT'||s.type==='SPT');let b='';
   if(s.status==='scheduled'){
     if(isPtSpt){
-      b+=`<button class="sc-btn sc-btn-green" onclick="scOpenInfo('${id}')">완료</button>`;
-      b+=`<button class="sc-btn sc-btn-amber" onclick="scOpenInfo('${id}')">노쇼</button>`;
+      b+=`<button class="vb vb-sm vb-success" onclick="scOpenInfo('${id}')">완료</button>`;
+      b+=`<button class="vb vb-sm vb-warning" onclick="scOpenInfo('${id}')">노쇼</button>`;
     }
-    b+=`<button class="sc-btn sc-btn-red" onclick="scOpenInfo('${id}')">취소</button>`;
+    b+=`<button class="vb vb-sm vb-danger" onclick="scOpenInfo('${id}')">취소</button>`;
   }
-  if(isPtSpt&&s.status==='completed')b+=`<button class="sc-btn sc-btn-gold" onclick="scOpenInfo('${id}')">완료 롤백</button>`;
-  if(isPtSpt&&s.status==='noshow')b+=`<button class="sc-btn sc-btn-gold" onclick="scOpenInfo('${id}')">노쇼 롤백</button>`;
+  if(isPtSpt&&s.status==='completed')b+=`<button class="vb vb-sm vb-primary" onclick="scOpenInfo('${id}')">완료 롤백</button>`;
+  if(isPtSpt&&s.status==='noshow')b+=`<button class="vb vb-sm vb-primary" onclick="scOpenInfo('${id}')">노쇼 롤백</button>`;
   return b;
 }
 
@@ -2311,23 +2321,23 @@ function scOpenInfo(sched){
 function scRenderInfoActions(){
   const s=scTarget;const acts=document.getElementById('scInfoActions');
   const isPtSpt=(s.type==='PT'||s.type==='SPT');
-  let b=`<button class="btn-cancel" style="flex:1;" onclick="closeModal('scInfoModal')">닫기</button>`;
+  let b=`<button class="vb vb-md vb-cancel" style="flex:1;" onclick="closeModal('scInfoModal')">닫기</button>`;
   if(s.status==='scheduled'){
     if(isPtSpt){
-      b+=`<button class="sc-btn sc-btn-green" style="flex:1;" onclick="scAskConfirm('complete')">완료 처리</button>`;
-      b+=`<button class="sc-btn sc-btn-amber" style="flex:1;" onclick="scAskConfirm('noshow')">노쇼 처리</button>`;
+      b+=`<button class="vb vb-md vb-success" style="flex:1;" onclick="scAskConfirm('complete')">완료 처리</button>`;
+      b+=`<button class="vb vb-md vb-warning" style="flex:1;" onclick="scAskConfirm('noshow')">노쇼 처리</button>`;
     }
-    b+=`<button class="sc-btn sc-btn-red" style="flex:1;" onclick="scAskConfirm('cancel')">예약 취소</button>`;
+    b+=`<button class="vb vb-md vb-danger" style="flex:1;" onclick="scAskConfirm('cancel')">예약 취소</button>`;
   }
   if(isPtSpt&&s.status==='completed'){
-    b+=`<button class="sc-btn sc-btn-amber" id="scBtnToggle" style="flex:1;" onclick="scToggleNoshow()">노쇼로 변경</button>`;
-    b+=`<button class="sc-btn sc-btn-gold" style="flex:1;" onclick="scAskConfirm('rollback')">완료 롤백</button>`;
-    b+=`<button class="sc-btn" style="flex:1;background:#3b82f622;border-color:#3b82f666;color:#60a5fa;" onclick="scOpenEdit()">날짜·시간 수정</button>`;
+    b+=`<button class="vb vb-md vb-warning" id="scBtnToggle" style="flex:1;" onclick="scToggleNoshow()">노쇼로 변경</button>`;
+    b+=`<button class="vb vb-md vb-primary" style="flex:1;" onclick="scAskConfirm('rollback')">완료 롤백</button>`;
+    b+=`<button class="vb vb-md vb-secondary" style="flex:1;background:#3b82f622;border-color:#3b82f666;color:#60a5fa;" onclick="scOpenEdit()">날짜·시간 수정</button>`;
   }
   if(isPtSpt&&s.status==='noshow'){
-    b+=`<button class="sc-btn sc-btn-green" id="scBtnToggle" style="flex:1;" onclick="scToggleNoshow()">완료로 변경</button>`;
-    b+=`<button class="sc-btn sc-btn-gold" style="flex:1;" onclick="scAskConfirm('rollback')">노쇼 롤백</button>`;
-    b+=`<button class="sc-btn" style="flex:1;background:#3b82f622;border-color:#3b82f666;color:#60a5fa;" onclick="scOpenEdit()">날짜·시간 수정</button>`;
+    b+=`<button class="vb vb-md vb-success" id="scBtnToggle" style="flex:1;" onclick="scToggleNoshow()">완료로 변경</button>`;
+    b+=`<button class="vb vb-md vb-primary" style="flex:1;" onclick="scAskConfirm('rollback')">노쇼 롤백</button>`;
+    b+=`<button class="vb vb-md vb-secondary" style="flex:1;background:#3b82f622;border-color:#3b82f666;color:#60a5fa;" onclick="scOpenEdit()">날짜·시간 수정</button>`;
   }
   acts.innerHTML=b;acts.style.display='flex';
 }
@@ -2975,15 +2985,15 @@ window.toggleAdminTrainerDetail = toggleAdminTrainerDetail;
       <button onclick="closeBranchSchedModal()" class="modal-close-x" style="position:static;">✕</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid #2a251833;flex-shrink:0;">
-      <button id="bsBtnToday" onclick="onBsDay(0)" style="flex:1;background:#c9a84c;border:none;color:#111;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">오늘</button>
-      <button id="bsBtnTomorrow" onclick="onBsDay(1)" style="flex:1;background:#1a1a14;border:1px solid #2a251855;color:#888;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">내일</button>
+      <button class="vb vb-md vb-primary-gradient" id="bsBtnToday" onclick="onBsDay(0)" style="flex:1;">오늘</button>
+      <button class="vb vb-md vb-secondary" id="bsBtnTomorrow" onclick="onBsDay(1)" style="flex:1;">내일</button>
       <input type="hidden" id="bsDatePicker" value="">
     </div>
     <div style="overflow:auto;-webkit-overflow-scrolling:touch;flex:1;display:flex;align-items:flex-start;justify-content:flex-start;background:#f4f4f4;" id="bsCanvasWrap">
       <canvas id="bsCanvas" style="display:block;"></canvas>
     </div>
     <div style="padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #2a251833;flex-shrink:0;">
-      <button onclick="downloadBranchSched()" style="width:100%;background:linear-gradient(135deg,#c9a84c,#a07830);border:none;color:#111;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">📥 저장 / 공유</button>
+      <button class="vb vb-lg vb-primary-gradient" onclick="downloadBranchSched()">📥 저장 / 공유</button>
     </div>
   </div>
 </div>

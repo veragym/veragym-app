@@ -252,7 +252,7 @@ body {
 
 <!-- 수업작성에서 온 경우: 돌아가기 바 (JS로 표시) -->
 <div id="returnBar" style="display:none; background:#1a3a5c; padding:10px 16px; border-bottom:1px solid #3b82f655; align-items:center; gap:10px; position:sticky; top:100px; z-index:89;">
-  <button onclick="returnToSession()" style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;">← 수업으로 돌아가기</button>
+  <button class="vb vb-sm vb-primary" onclick="returnToSession()" style="flex-shrink:0;">← 수업으로 돌아가기</button>
   <span style="font-size:12px;color:#60a5fa;">라이브러리에 운동을 추가한 후 돌아가세요</span>
 </div>
 
@@ -294,21 +294,15 @@ body {
 <!-- 루틴 목록 -->
 <div id="routineSection" style="display:none; padding:12px;">
   <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;">
-    <button onclick="toggleLinkImportCard()"
-      style="padding:9px 16px;background:#1a3a5c;border:1px solid #3b82f644;border-radius:8px;
-             color:#60a5fa;font-size:13px;font-weight:600;cursor:pointer;">링크로 추가</button>
-    <button onclick="openNewRoutineModal()"
-      style="padding:9px 16px;background:#3b82f6;border:none;border-radius:8px;
-             color:#fff;font-size:13px;font-weight:600;cursor:pointer;">+ 새 루틴</button>
+    <button class="vb vb-md vb-secondary" onclick="toggleLinkImportCard()">링크로 추가</button>
+    <button class="vb vb-md vb-primary" onclick="openNewRoutineModal()">+ 새 루틴</button>
   </div>
   <div id="linkImportCard" style="display:none;background:#0d1525;border:1px solid #1e3a5f66;border-radius:10px;padding:12px;margin-bottom:12px;">
     <input type="text" id="linkImportInput" placeholder="공유 링크를 여기에 붙여넣기"
       style="width:100%;background:#080e1a;border:1px solid #1e3a5f55;border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;box-sizing:border-box;margin-bottom:8px;">
     <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button onclick="toggleLinkImportCard()"
-        style="padding:8px 14px;background:transparent;border:1px solid #1e3a5f;border-radius:8px;color:#7a9ab8;font-size:13px;cursor:pointer;">취소</button>
-      <button onclick="doLinkImport()"
-        style="padding:8px 14px;background:#3b82f6;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">추가</button>
+      <button class="vb vb-md vb-cancel" onclick="toggleLinkImportCard()">취소</button>
+      <button class="vb vb-md vb-primary" onclick="doLinkImport()">추가</button>
     </div>
   </div>
   <div id="routineList"></div>
@@ -318,7 +312,7 @@ body {
 <div class="modal-bg" id="exModal" onclick="closeExModal(event)">
   <div class="modal" id="exModalContent">
     <div id="exModalBody"></div>
-    <button class="modal-close" onclick="closeExModal()">닫기</button>
+    <button class="modal-close vb vb-lg vb-cancel" onclick="closeExModal()">닫기</button>
   </div>
 </div>
 
@@ -550,8 +544,7 @@ async function renderRoutines() {
                 margin-bottom:10px;border:1px solid #2a3a4a;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <span style="font-size:14px;font-weight:700;color:#e0eaf4;">${r.name}</span>
-        <button onclick="deleteRoutineConfirm('${r.id}','${r.name.replace(/'/g,'&#39;')}')"
-          style="background:none;border:none;color:#ef4444;font-size:13px;cursor:pointer;padding:2px 6px;">
+        <button class="vb vb-sm vb-danger" onclick="deleteRoutineConfirm('${r.id}','${r.name.replace(/'/g,'&#39;')}')">
           삭제
         </button>
       </div>
@@ -568,11 +561,14 @@ async function renderRoutines() {
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <span style="font-size:11px;color:#4a6580;">${r.exs.length}개 운동 · ${r.created_at.slice(0,10)}</span>
-        <button onclick="openRoutineAddExerciseModal('${r.id}','${r.name.replace(/'/g,'&#39;')}',${r.exs.length})"
-          style="background:#1e3a5a;border:1px solid #2a5a7a55;border-radius:8px;
-                 color:#60a5fa;font-size:12px;font-weight:600;padding:5px 12px;cursor:pointer;">
-          운동 추가
-        </button>
+        <div style="display:flex;gap:6px;">
+          <button class="vb vb-sm vb-ghost" onclick="copyRoutineLink('${r.id}')">
+            링크복사
+          </button>
+          <button class="vb vb-sm vb-secondary" onclick="openRoutineAddExerciseModal('${r.id}','${r.name.replace(/'/g,'&#39;')}',${r.exs.length})">
+            운동 추가
+          </button>
+        </div>
       </div>
     </div>
   `).join('');
@@ -634,6 +630,10 @@ async function doLinkImport() {
   }
 }
 
+async function copyRoutineLink(routineId) {
+  await copyShareLink(routineId, 'trainer_routines');
+}
+
 function defaultWeightMode(tool) { return tool === '덤벨' ? 'single' : 'total'; }
 
 function openRoutineAddExerciseModal(routineId, routineName, currentExCount) {
@@ -658,8 +658,7 @@ function openRoutineAddExerciseModal(routineId, routineName, currentExCount) {
           <div style="font-size:15px;font-weight:700;color:#e0eaf4;">"${routineName}" 운동 추가</div>
           <div style="font-size:11px;color:#4a6580;margin-top:2px;">전체 운동에서 선택하세요</div>
         </div>
-        <button onclick="document.getElementById('routineAddExOverlay').remove()"
-          style="background:none;border:1px solid #1e3a5f44;border-radius:8px;color:#4a6580;font-size:12px;padding:6px 12px;cursor:pointer;font-family:inherit;">닫기</button>
+        <button class="vb vb-sm vb-ghost" onclick="document.getElementById('routineAddExOverlay').remove()">닫기</button>
       </div>
       <div style="padding:8px 14px 6px;flex-shrink:0;">
         <input id="routineAddSearch" type="text" placeholder="운동 이름 검색..."
@@ -756,9 +755,7 @@ function openRoutineAddExerciseModal(routineId, routineName, currentExCount) {
     if (total > window._raeShowCount) {
       const remain = total - window._raeShowCount;
       html += `<div style="text-align:center;padding:16px 0;">
-        <button onclick="window._raeShowCount+=50;renderRoutineAddList()"
-          style="background:#1a2636;border:1px solid #1e3a5f55;border-radius:8px;color:#a0b8d0;
-                 font-size:13px;padding:9px 24px;cursor:pointer;font-family:inherit;">
+        <button class="vb vb-md vb-ghost" onclick="window._raeShowCount+=50;renderRoutineAddList()">
           더 보기 (${remain}개 남음)
         </button>
       </div>`;
