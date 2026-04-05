@@ -205,6 +205,21 @@ function esc(str) {
   return d.innerHTML;
 }
 
+// ── 서비스워커 업데이트 감지 → 자동 리로드 ──────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const nw = reg.installing;
+      if (nw) nw.addEventListener('statechange', () => {
+        if (nw.state === 'activated' && navigator.serviceWorker.controller) {
+          showToast('앱이 업데이트되었습니다. 새로고침합니다.');
+          setTimeout(() => location.reload(), 1500);
+        }
+      });
+    });
+  }).catch(() => {});
+}
+
 // ── 전역 에러 핸들러 ────────────────────────────────────────
 window.addEventListener('unhandledrejection', e => {
   console.error('Unhandled rejection:', e.reason);

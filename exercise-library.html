@@ -293,10 +293,23 @@ body {
 
 <!-- 루틴 목록 -->
 <div id="routineSection" style="display:none; padding:12px;">
-  <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;">
+    <button onclick="toggleLinkImportCard()"
+      style="padding:9px 16px;background:#1a3a5c;border:1px solid #3b82f644;border-radius:8px;
+             color:#60a5fa;font-size:13px;font-weight:600;cursor:pointer;">링크로 추가</button>
     <button onclick="openNewRoutineModal()"
       style="padding:9px 16px;background:#3b82f6;border:none;border-radius:8px;
              color:#fff;font-size:13px;font-weight:600;cursor:pointer;">+ 새 루틴</button>
+  </div>
+  <div id="linkImportCard" style="display:none;background:#0d1525;border:1px solid #1e3a5f66;border-radius:10px;padding:12px;margin-bottom:12px;">
+    <input type="text" id="linkImportInput" placeholder="공유 링크를 여기에 붙여넣기"
+      style="width:100%;background:#080e1a;border:1px solid #1e3a5f55;border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;box-sizing:border-box;margin-bottom:8px;">
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="toggleLinkImportCard()"
+        style="padding:8px 14px;background:transparent;border:1px solid #1e3a5f;border-radius:8px;color:#7a9ab8;font-size:13px;cursor:pointer;">취소</button>
+      <button onclick="doLinkImport()"
+        style="padding:8px 14px;background:#3b82f6;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">추가</button>
+    </div>
   </div>
   <div id="routineList"></div>
 </div>
@@ -577,6 +590,48 @@ async function removeRoutineExercise(rowId, exerciseName) {
   const ok = await routineExerciseRemove(rowId);
   showToast(ok ? '운동 제거됨' : '제거 실패');
   if (ok) renderRoutines();
+}
+
+// ── 링크로 루틴 가져오기 ──────────────────────────────────────
+function toggleLinkImportCard() {
+  const card = document.getElementById('linkImportCard');
+  if (!card) return;
+  const isHidden = card.style.display === 'none';
+  card.style.display = isHidden ? '' : 'none';
+  if (isHidden) {
+    const inp = document.getElementById('linkImportInput');
+    if (inp) { inp.value = ''; inp.focus(); }
+  }
+}
+
+async function doLinkImport() {
+  const inp = document.getElementById('linkImportInput');
+  if (!inp || !inp.value.trim()) { showToast('링크를 먼저 붙여넣어 주세요.'); return; }
+  const preview = await lookupByShareLink(inp.value.trim());
+  if (!preview) { showToast('유효하지 않은 링크입니다.'); return; }
+
+  const exList = (preview.exercises || []).map(ex => ({
+    refId: ex.exercise_ref_id,
+    name: ex.name_ko,
+    part: ex.part,
+    tool: ex.tool || '',
+    weight_mode: ex.weight_mode || 'total'
+  }));
+  const routineName = preview.routine_name + ' (공유)';
+
+  try {
+    const ok = await routineSave(trainer?.id, routineName, exList);
+    if (ok) {
+      showToast('루틴을 가져왔습니다!');
+      toggleLinkImportCard();
+      renderRoutines();
+    } else {
+      showToast('루틴 추가에 실패했습니다.');
+    }
+  } catch (e) {
+    console.error('doLinkImport', e);
+    showToast('루틴 추가에 실패했습니다.');
+  }
 }
 
 function defaultWeightMode(tool) { return tool === '덤벨' ? 'single' : 'total'; }

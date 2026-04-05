@@ -500,16 +500,6 @@ body {
       루틴으로 저장
     </button>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-    <button class="btn-link-import" onclick="toggleTrainerImportCard()">링크로 루틴 추가</button>
-  </div>
-  <div id="trainerImportCard" class="import-link-card" style="display:none;">
-    <input type="text" id="trainerLinkInput" placeholder="공유 링크를 여기에 붙여넣기" />
-    <div class="import-link-actions">
-      <button class="btn-cancel" onclick="toggleTrainerImportCard()">취소</button>
-      <button class="btn-add" onclick="doImportRoutineByLink()">추가</button>
-    </div>
-  </div>
 </div>
 
 <!-- ══ 운동 검색 모달 ══ -->
@@ -1025,6 +1015,11 @@ async function onPhotoSelected(input) {
   const file = input.files[0];
   if (!file || photoTargetIdx === null) return;
 
+  // 파일 크기 제한 (10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('사진 크기가 10MB를 초과합니다'); input.value = ''; return;
+  }
+
   const idx  = photoTargetIdx;
   const type = photoTargetType;
 
@@ -1034,6 +1029,9 @@ async function onPhotoSelected(input) {
     catch (e) { showToast('일지 생성 실패: ' + e.message); input.value = ''; return; }
   }
 
+  // Canvas 압축 + EXIF 제거 (max 1920px, JPEG 82%)
+  const compressed = await _compressPhoto(file);
+
   const ex    = exercises[idx];
   const exKey = ex.refId || ('ex' + idx);
   const path  = `member_photos/${memberId}/${logId}/${exKey}/${type}.jpg`;
@@ -1041,7 +1039,7 @@ async function onPhotoSelected(input) {
   try {
     const { error } = await db.storage
       .from('session-photos')
-      .upload(path, file, { upsert: true, contentType: file.type || 'image/jpeg' });
+      .upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
     if (error) throw error;
 
     if (!ex.photos) ex.photos = { start: null, end: null };
@@ -1253,16 +1251,21 @@ async function toggleFav(libId, isFav) {
 function today() { return new Date().toISOString().slice(0, 10); }
 function esc(s)  { return (s||'').replace(/'/g, '&#39;').replace(/"/g, '&quot;'); }
 // ── PT 노트 사진 핸들러 ──────────────────────────────────────
-function onNotePhotoSelected(input) {
+async function onNotePhotoSelected(input) {
   const file = input.files?.[0];
   if (!file) return;
-  _notePhotoFile = file;
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('사진 크기가 10MB를 초과합니다'); input.value = ''; return;
+  }
+  _notePhotoFile = await _compressPhoto(file);
   _notePhotoRemoved = false;
-  const url = URL.createObjectURL(file);
+  const url = URL.createObjectURL(_notePhotoFile);
   showNotePhotoPreview(url);
 }
 function showNotePhotoPreview(url) {
-  document.getElementById('notePhotoImg').src    = url;
+  const img = document.getElementById('notePhotoImg');
+  if (img.src && img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
+  img.src = url;
   document.getElementById('notePhotoUpload').style.display  = 'none';
   document.getElementById('notePhotoPreview').style.display = '';
 }
@@ -1315,7 +1318,7 @@ async function rotateNotePhotoLeft() {
           resolve();
         }, 'image/jpeg', 0.92);
       };
-      img.onerror = reject;
+      img.onerror = () => { URL.revokeObjectURL(blobUrl); reject(new Error('img load failed')); };
       img.src = blobUrl;
     });
   } catch(e) {
@@ -1324,6 +1327,29 @@ async function rotateNotePhotoLeft() {
   } finally {
     if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
   }
+}
+// ── 이미지 압축 + EXIF 제거 (Canvas 기반) ──────────────────
+function _compressPhoto(file, maxSize = 1920, quality = 0.82) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      let w = img.naturalWidth, h = img.naturalHeight;
+      if (w > maxSize || h > maxSize) {
+        const r = Math.min(maxSize / w, maxSize / h);
+        w = Math.round(w * r); h = Math.round(h * r);
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      c.toBlob(blob => {
+        URL.revokeObjectURL(url);
+        resolve(blob ? new File([blob], 'photo.jpg', { type: 'image/jpeg' }) : file);
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
 }
 // ─────────────────────────────────────────────────────────────
 

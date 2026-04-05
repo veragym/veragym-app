@@ -603,7 +603,7 @@ async function generateImage() {
 
     canvas.toBlob(async blob => {
       if (!blob) { showToast('이미지 생성 실패'); return; }
-      const file = new File([blob], `veragym_${memberName}.png`, { type: 'image/png' });
+      const file = new File([blob], `veragym_${memberName}.jpg`, { type: 'image/jpeg' });
 
       // Web Share API (Android 카카오톡 공유 지원)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -618,7 +618,7 @@ async function generateImage() {
         fallbackDownload(blob, memberName);
         showToast('이미지 저장 완료 ✓');
       }
-    }, 'image/png');
+    }, 'image/jpeg', 0.85);
   } finally {
     btn.disabled = false; btn.textContent = '이미지 생성';
   }
@@ -627,7 +627,7 @@ async function generateImage() {
 function fallbackDownload(blob, memberName) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `veragym_${memberName || 'workout'}.png`;
+  a.href = url; a.download = `veragym_${memberName || 'workout'}.jpg`;
   document.body.appendChild(a); a.click();
   document.body.removeChild(a); URL.revokeObjectURL(url);
 }

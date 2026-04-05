@@ -622,7 +622,8 @@ async function showMemberDetail(memberId) {
       moreBtn.textContent = '더 보기';
       moreBtn.style.cssText = 'display:block;width:100%;margin-top:10px;padding:10px;background:transparent;border:1px solid #1a3a60;border-radius:8px;color:#7a9ab8;font-size:13px;cursor:pointer';
       moreBtn.onclick = async () => {
-        moreBtn.textContent = '불러오는 중...'; moreBtn.disabled = true;
+        if (moreBtn.disabled) return;
+        moreBtn.textContent = '불러오는 중...'; moreBtn.disabled = true; moreBtn.style.opacity = '0.5';
         const { data: all } = await db.from('workout_logs')
           .select('id,session_date,notes,member_id,note_photo_path,workout_log_exercises(custom_name,sets_data,sets,reps)')
           .eq('member_id', memberId).eq('is_deleted', false)
