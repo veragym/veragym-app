@@ -427,6 +427,18 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <p>유효하지 않은 링크예요.<br>트레이너에게 링크를 다시 받아보세요.</p>
 </div>
 
+<!-- PWA 첫 실행 안내 -->
+<div id="pwaGuideScreen" style="display:none" class="error-screen">
+  <div style="font-size:52px;margin-bottom:20px">📲</div>
+  <h2>처음 사용하시나요?</h2>
+  <p style="line-height:1.8">
+    트레이너에게 받은 링크를<br>
+    <b>Safari 브라우저</b>로 먼저 열어주세요.<br><br>
+    접속 후 자동으로 로그인 정보가 저장되어<br>
+    다음부터 이 앱에서 바로 사용할 수 있어요.
+  </p>
+</div>
+
 <!-- 로딩 화면 -->
 <div id="loadingScreen" class="error-screen">
   <h2 style="color:#888888">로딩 중...</h2>
@@ -735,20 +747,44 @@ function showAnatomyImg(view) {
   }
 }
 
+// ── 토큰 저장 (다중 저장소) ─────────────────────────────────
+function saveToken(token) {
+  try { localStorage.setItem('vg_member_token', token); } catch(_e) {}
+  try { document.cookie = `vg_tok=${encodeURIComponent(token)};path=/;max-age=${60*60*24*365};SameSite=Lax`; } catch(_e) {}
+}
+function loadToken() {
+  let t = null;
+  try { t = localStorage.getItem('vg_member_token'); } catch(_e) {}
+  if (t) return t;
+  try {
+    const m = document.cookie.match(/(?:^|;\s*)vg_tok=([^;]+)/);
+    if (m) t = decodeURIComponent(m[1]);
+  } catch(_e) {}
+  return t;
+}
+const isPWA = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
 // ── 초기화 ───────────────────────────────────────────────────
 async function init() {
   const _params = new URLSearchParams(location.search);
   let token = _params.get('token') || _params.get('t');
-  if (token) localStorage.setItem('vg_member_token', token);
-  else token = localStorage.getItem('vg_member_token');
-  if (!token) { showError(); return; }
+
+  if (token) {
+    // URL에 토큰 있음 → 저장
+    saveToken(token);
+  } else {
+    // URL에 없음 → 저장소에서 복원
+    token = loadToken();
+  }
+
+  if (!token) {
+    if (isPWA) { showPWAGuide(); } else { showError(); }
+    return;
+  }
   _memberToken = token;
 
   // ── iOS PWA 홈화면 추가 대응 ─────────────────────────────
-  // iOS standalone 모드는 Safari와 localStorage를 공유하지 않아
-  // 홈화면 아이콘으로 열면 토큰이 사라짐.
-  // manifest start_url에 토큰을 직접 포함시키면 iOS가 그 URL을 저장 →
-  // 홈화면 실행 시 ?token=xxx 포함된 URL로 열려 정상 동작.
+  // manifest start_url에 토큰을 포함시켜 홈화면 실행 시 URL로 전달
   try {
     const _dynManifest = JSON.stringify({
       name: 'VERA GYM 회원', short_name: '베라짐',
@@ -759,7 +795,7 @@ async function init() {
       display: 'standalone',
       orientation: 'portrait',
       background_color: '#ffffff',
-      theme_color: '#3b82f6',
+      theme_color: '#ffffff',
       icons: [
         { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
         { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
@@ -772,7 +808,13 @@ async function init() {
   } catch(_e) { /* 무시 */ }
 
   const { data, error } = await db.rpc('member_get_by_token', { p_token: token });
-  if (error || !data || !data.length) { showError(); return; }
+  if (error || !data || !data.length) {
+    // 토큰 만료/무효 → 저장소 정리
+    try { localStorage.removeItem('vg_member_token'); } catch(_e) {}
+    try { document.cookie = 'vg_tok=;path=/;max-age=0'; } catch(_e) {}
+    showError();
+    return;
+  }
 
   const info = data[0];
   document.getElementById('headerSub').textContent      = `베라짐 ${info.gym_location}`;
@@ -2269,6 +2311,10 @@ function closeNotePhotoInline(i) {
 function showError() {
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('errorScreen').style.display   = 'flex';
+}
+function showPWAGuide() {
+  document.getElementById('loadingScreen').style.display    = 'none';
+  document.getElementById('pwaGuideScreen').style.display   = 'flex';
 }
 function fmtDate(dateStr) {
   if (!dateStr) return '-';
