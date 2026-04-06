@@ -1228,11 +1228,27 @@ async function rtRenderRoutines() {
       </div>
       <div class="rt-card-bottom">
         <span class="rt-card-info">${r.exs.length}개 운동 · ${(r.created_at||'').slice(0,10)}</span>
-        ${r.share_code ? `<button class="btn-link-copy vb vb-sm vb-ghost" onclick="event.stopPropagation();copyShareLinkDirect('${r.share_code}')">링크복사</button>` : ''}
+        <button class="btn-link-copy vb vb-sm vb-ghost" onclick="event.stopPropagation();memberCopyLink('${r.id}')">링크복사</button>
         <button class="rt-card-add-btn vb vb-sm vb-secondary" onclick="rtOpenAddEx('${r.id}','${esc(r.name)}',${r.exs.length})">운동 추가</button>
       </div>
     </div>
   `).join('');
+}
+
+// ── 회원 루틴 링크 복사 (RPC 경유) ───────────────────────────
+async function memberCopyLink(routineId) {
+  const { data, error } = await db.rpc('member_get_share_code', {
+    p_token: _memberToken,
+    p_routine_id: routineId
+  });
+  if (error || !data) { showToast('링크 생성에 실패했습니다.'); return; }
+  const link = `${location.origin}/share?r=${data}`;
+  try {
+    await navigator.clipboard.writeText(link);
+    showToast('링크가 복사되었습니다.');
+  } catch {
+    showToast('복사 실패. 직접 복사해주세요: ' + link);
+  }
 }
 
 // ── 새 루틴 만들기 (이름 모달) ────────────────────────────────
