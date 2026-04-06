@@ -314,11 +314,11 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .stat-section-desc  { font-size:11px; color:#888888; margin-bottom:12px; line-height:1.5; }
 .stat-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
 .stat-bar-name { font-size:12px; color:#444444; min-width:80px; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.stat-bar-fill { height:20px; background:linear-gradient(90deg,#C8FF00,#a0d800); border-radius:4px; min-width:2px; transition:width .3s; }
+.stat-bar-fill { height:20px; background:linear-gradient(to right,#84cc16,#d9f99d); border-radius:4px; min-width:2px; transition:width .3s; }
 .stat-bar-cnt { font-size:11px; color:#888888; min-width:28px; }
 .stat-trend-row { display:flex; align-items:flex-end; gap:4px; height:100px; padding:0 4px; margin-top:20px; }
 .stat-trend-col { flex:1; display:flex; flex-direction:column; align-items:center; }
-.stat-trend-bar { width:100%; background:#C8FF00; border-radius:4px 4px 0 0; min-height:2px; transition:height .3s; }
+.stat-trend-bar { width:100%; background:linear-gradient(to top,#84cc16,#d9f99d); border-radius:4px 4px 0 0; min-height:2px; transition:height .3s; }
 .stat-trend-label { font-size:9px; color:#888888; margin-top:4px; }
 .stat-trend-num { font-size:10px; color:#3a6600; margin-bottom:2px; }
 
@@ -548,7 +548,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     </div>
     <!-- 루틴 -->
     <div id="exSubRoutine" class="ex-sub-content">
-      <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:12px 14px 0;">
+      <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:12px 14px 0;margin-bottom:24px;">
         <button class="btn-link-import vb vb-md vb-secondary" onclick="toggleMemberImportCard()">링크로 루틴 추가</button>
         <button class="rt-new-btn vb vb-md vb-primary" onclick="rtStartNew()">+ 새 루틴</button>
       </div>
@@ -566,25 +566,27 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <!-- ── Tab: 해부도 ─────────────────────────────────────── -->
   <div id="tab-anatomy" class="tab-content">
     <div class="sec-header"><span class="sec-title">해부도</span></div>
-    <div class="ex-filter-row">
-      <div class="ex-filter-label">종류</div>
-      <div class="ex-chips">
-        <button class="ex-chip active" id="btnTypeMuscle" onclick="setAnatomyType('muscle')">근육</button>
-        <button class="ex-chip" id="btnTypeBone" onclick="setAnatomyType('bone')">뼈</button>
+    <div style="display:flex;flex-direction:row;gap:24px;align-items:center;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="ex-filter-label" style="margin-bottom:0">종류</span>
+        <div class="ex-chips">
+          <button class="ex-chip active" id="btnTypeMuscle" onclick="setAnatomyType('muscle')">근육</button>
+          <button class="ex-chip" id="btnTypeBone" onclick="setAnatomyType('bone')">뼈</button>
+        </div>
       </div>
-    </div>
-    <div id="anatomyMuscleViews" class="ex-filter-row">
-      <div class="ex-filter-label">방향</div>
-      <div class="ex-chips">
-        <button class="ex-chip active" id="btnMuscleFront" onclick="showAnatomyImg('muscle-front')">정면</button>
-        <button class="ex-chip" id="btnMuscleBack" onclick="showAnatomyImg('muscle-back')">후면</button>
+      <div id="anatomyMuscleViews" style="display:flex;align-items:center;gap:6px">
+        <span class="ex-filter-label" style="margin-bottom:0">방향</span>
+        <div class="ex-chips">
+          <button class="ex-chip active" id="btnMuscleFront" onclick="showAnatomyImg('muscle-front')">정면</button>
+          <button class="ex-chip" id="btnMuscleBack" onclick="showAnatomyImg('muscle-back')">후면</button>
+        </div>
       </div>
-    </div>
-    <div id="anatomyBoneViews" class="ex-filter-row" style="display:none">
-      <div class="ex-filter-label">방향</div>
-      <div class="ex-chips">
-        <button class="ex-chip active" id="btnBoneFront" onclick="showAnatomyImg('bone-front')">정면</button>
-        <button class="ex-chip" id="btnBoneSide" onclick="showAnatomyImg('bone-side')">측면</button>
+      <div id="anatomyBoneViews" style="display:none;align-items:center;gap:6px">
+        <span class="ex-filter-label" style="margin-bottom:0">방향</span>
+        <div class="ex-chips">
+          <button class="ex-chip active" id="btnBoneFront" onclick="showAnatomyImg('bone-front')">정면</button>
+          <button class="ex-chip" id="btnBoneSide" onclick="showAnatomyImg('bone-side')">측면</button>
+        </div>
       </div>
     </div>
     <div class="anatomy-view">
@@ -701,8 +703,8 @@ let _anatomyType = 'muscle';
 function setAnatomyType(type) {
   _anatomyType = type;
   const isMuscle = type === 'muscle';
-  document.getElementById('anatomyMuscleViews').style.display = isMuscle ? '' : 'none';
-  document.getElementById('anatomyBoneViews').style.display   = isMuscle ? 'none' : '';
+  document.getElementById('anatomyMuscleViews').style.display = isMuscle ? 'flex' : 'none';
+  document.getElementById('anatomyBoneViews').style.display   = isMuscle ? 'none' : 'flex';
   document.getElementById('btnTypeMuscle').classList.toggle('active', isMuscle);
   document.getElementById('btnTypeBone').classList.toggle('active', !isMuscle);
   if (isMuscle) {
@@ -1228,8 +1230,10 @@ async function rtRenderRoutines() {
       </div>
       <div class="rt-card-bottom">
         <span class="rt-card-info">${r.exs.length}개 운동 · ${(r.created_at||'').slice(0,10)}</span>
-        <button class="btn-link-copy vb vb-sm vb-ghost" onclick="event.stopPropagation();memberCopyLink('${r.id}')">링크복사</button>
-        <button class="rt-card-add-btn vb vb-sm vb-secondary" onclick="rtOpenAddEx('${r.id}','${esc(r.name)}',${r.exs.length})">운동 추가</button>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-link-copy vb vb-sm vb-ghost" onclick="event.stopPropagation();memberCopyLink('${r.id}')">링크복사</button>
+          <button class="rt-card-add-btn vb vb-sm vb-secondary" onclick="rtOpenAddEx('${r.id}','${esc(r.name)}',${r.exs.length})">운동 추가</button>
+        </div>
       </div>
     </div>
   `).join('');
@@ -1881,6 +1885,20 @@ async function statsLoad() {
   statsRender(data);
 }
 
+// 색상을 연하게 만드는 헬퍼 (hex → 밝은 hex, ratio 0~1)
+function lightenColor(hex, ratio) {
+  hex = hex.replace('#','');
+  const r = parseInt(hex.substring(0,2),16);
+  const g = parseInt(hex.substring(2,4),16);
+  const b = parseInt(hex.substring(4,6),16);
+  const lr = Math.round(r + (255 - r) * ratio);
+  const lg = Math.round(g + (255 - g) * ratio);
+  const lb = Math.round(b + (255 - b) * ratio);
+  return '#' + [lr,lg,lb].map(c => c.toString(16).padStart(2,'0')).join('');
+}
+function gradH(color) { return `linear-gradient(to right, ${color}, ${lightenColor(color, 0.55)})`; }
+function gradV(color) { return `linear-gradient(to top, ${color}, ${lightenColor(color, 0.55)})`; }
+
 function statsRender(s) {
   const wrap = document.getElementById('statsContent');
   // 요약 카드
@@ -1890,36 +1908,36 @@ function statsRender(s) {
   const maxStreak = s.max_streak      || 0;
   const weeklyAvg = s.weekly_avg      || 0;
   const WEEK_CONFIG = [
-    { min:7, emoji:'🔥🔥', color:'#f97316', msg:'완벽한 한 주!' },
-    { min:5, emoji:'🔥',   color:'#facc15', msg:'이번 주 훌륭해요!' },
-    { min:3, emoji:'💪',   color:'#C8FF00', msg:'이번 주 잘 하고 있어요!' },
-    { min:1, emoji:'😐',   color:'#C8FF00', msg:'조금 더 할 수 있어요' },
-    { min:0, emoji:'💤',   color:'#888888', msg:'이번 주 아직 운동 전이에요' },
+    { min:7, emoji:'🔥🔥', color:'#c05600', msg:'완벽한 한 주!' },
+    { min:5, emoji:'🔥',   color:'#9a7b00', msg:'이번 주 훌륭해요!' },
+    { min:3, emoji:'💪',   color:'#1a5c00', msg:'이번 주 잘 하고 있어요!' },
+    { min:1, emoji:'😐',   color:'#2d6e00', msg:'조금 더 할 수 있어요' },
+    { min:0, emoji:'💤',   color:'#666666', msg:'이번 주 아직 운동 전이에요' },
   ];
   const wc = WEEK_CONFIG.find(c => thisWeek >= c.min);
   let html = `
     <!-- 주간 빈도 배너 -->
-    <div style="background:linear-gradient(135deg,#f3ffe0,#f0ffd0);border-radius:14px;padding:18px 20px;margin-bottom:14px">
+    <div style="background:#e8fbc8;border-radius:14px;padding:18px 20px;margin-bottom:14px;border:1px solid #c0e080">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div>
-          <div style="font-size:11px;color:#888888;letter-spacing:1px;margin-bottom:2px">이번 주 운동</div>
-          <div style="font-size:10px;color:#2a3a2a;margin-bottom:4px">월요일~오늘까지 운동한 날 수</div>
+          <div style="font-size:11px;color:#444444;letter-spacing:1px;margin-bottom:2px;font-weight:600">이번 주 운동</div>
+          <div style="font-size:10px;color:#555555;margin-bottom:4px">월요일~오늘까지 운동한 날 수</div>
           <div style="display:flex;align-items:baseline;gap:4px">
             <span style="font-size:48px;font-weight:900;color:${wc.color};line-height:1">${thisWeek}</span>
-            <span style="font-size:16px;color:${wc.color};font-weight:600">회</span>
+            <span style="font-size:16px;color:${wc.color};font-weight:700">회</span>
             <span style="font-size:24px;margin-left:6px">${wc.emoji}</span>
           </div>
-          <div style="font-size:13px;color:${wc.color};margin-top:4px;font-weight:600">${wc.msg}</div>
+          <div style="font-size:13px;color:${wc.color};margin-top:4px;font-weight:700">${wc.msg}</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:11px;color:#888888;letter-spacing:1px;margin-bottom:4px">주당 평균</div>
-          <div style="font-size:28px;font-weight:800;color:#3a6600;line-height:1">${weeklyAvg}</div>
-          <div style="font-size:11px;color:#888888;margin-top:2px">회</div>
+          <div style="font-size:11px;color:#444444;letter-spacing:1px;margin-bottom:4px;font-weight:600">주당 평균</div>
+          <div style="font-size:28px;font-weight:800;color:#1a5c00;line-height:1">${weeklyAvg}</div>
+          <div style="font-size:11px;color:#555555;margin-top:2px">회</div>
         </div>
       </div>
-      <div style="display:flex;gap:16px;border-top:1px solid #f0ffd0;padding-top:10px;flex-wrap:wrap">
-        <div style="font-size:11px;color:#888888">연속 출석 <span style="color:#3a6600;font-weight:600">${curStreak}일</span><span style="color:#bbbbbb;font-size:10px"> · 하루도 안 빠진 날 수</span></div>
-        <div style="font-size:11px;color:#888888">역대 최장 <span style="color:#3a6600;font-weight:600">${maxStreak}일</span><span style="color:#bbbbbb;font-size:10px"> · 지금까지 최고 기록</span></div>
+      <div style="display:flex;gap:16px;border-top:1px solid #c0e080;padding-top:10px;flex-wrap:wrap">
+        <div style="font-size:11px;color:#555555">연속 출석 <span style="color:#1a5c00;font-weight:600">${curStreak}일</span><span style="color:#555555;font-size:10px"> · 하루도 안 빠진 날 수</span></div>
+        <div style="font-size:11px;color:#555555">역대 최장 <span style="color:#1a5c00;font-weight:600">${maxStreak}일</span><span style="color:#555555;font-size:10px"> · 지금까지 최고 기록</span></div>
       </div>
     </div>
     <!-- 요약 카드 -->
@@ -2004,7 +2022,7 @@ function statsRender(s) {
                       : r.volume >= avgVol * 0.9 ? '#C8FF00'
                       : '#C8FF00';
             return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:default" title="${r.date} · ${fmtVol(r.volume)} (평균대비 ${pct}%)">
-              <div style="width:100%;height:${h}px;background:${col};border-radius:3px 3px 0 0;transition:height .3s"></div>
+              <div style="width:100%;height:${h}px;background:${gradV(col)};border-radius:3px 3px 0 0;transition:height .3s"></div>
               <div style="font-size:9px;color:#2a4a3a;white-space:nowrap">${r.date}</div>
             </div>`;
           }).join('')}
@@ -2027,7 +2045,7 @@ function statsRender(s) {
           return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
             <span style="font-size:12px;color:${color};width:44px;flex-shrink:0;font-weight:600">${esc(part)}</span>
             <div style="flex:1;height:8px;background:#f3ffe0;border-radius:6px;overflow:hidden">
-              <div style="width:${w}%;height:100%;background:${color};border-radius:6px"></div>
+              <div style="width:${w}%;height:100%;background:${gradH(color)};border-radius:6px"></div>
             </div>
             <span style="font-size:12px;color:${color};width:52px;text-align:right">${fmtVol(vol)}</span>
           </div>`;
@@ -2052,7 +2070,7 @@ function statsRender(s) {
                     : d.cnt > 0 ? '#C8FF00' : '#f3ffe0';
           return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
             <div style="font-size:9px;color:#888888">${d.cnt > 0 ? d.cnt : ''}</div>
-            <div style="width:100%;height:${h}px;background:${col};border-radius:3px 3px 0 0"></div>
+            <div style="width:100%;height:${h}px;background:${col === '#f3ffe0' ? col : gradV(col)};border-radius:3px 3px 0 0"></div>
             <div style="font-size:11px;color:${d.cnt === Math.max(...dowData.map(x=>x.cnt)) ? '#C8FF00' : '#888888'}">${d.label}</div>
           </div>`;
         }).join('')}
@@ -2094,7 +2112,7 @@ function statsRender(s) {
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">
           <span style="font-size:15px;font-weight:700;color:${color};width:44px;flex-shrink:0">${esc(part)}</span>
           <div style="flex:1;height:10px;background:#f3ffe0;border-radius:6px;overflow:hidden">
-            <div style="width:${partPct}%;height:100%;background:${color};border-radius:6px;transition:width .4s"></div>
+            <div style="width:${partPct}%;height:100%;background:${gradH(color)};border-radius:6px;transition:width .4s"></div>
           </div>
           <span style="font-size:15px;font-weight:700;color:${color};width:38px;text-align:right">${partPct}%</span>
         </div>`;
@@ -2108,7 +2126,7 @@ function statsRender(s) {
           html += `<div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:11px;color:#5a7a6a;width:58px;flex-shrink:0">${esc(m.name)}</span>
             <div style="flex:1;height:5px;background:#f3ffe0;border-radius:4px;overflow:hidden">
-              <div style="width:${mPct}%;height:100%;background:${color};opacity:.55;border-radius:4px"></div>
+              <div style="width:${mPct}%;height:100%;background:${gradH(color)};opacity:.55;border-radius:4px"></div>
             </div>
             <span style="font-size:11px;color:#4a6a5a;width:32px;text-align:right">${mPct}%</span>
           </div>`;
