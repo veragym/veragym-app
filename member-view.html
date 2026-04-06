@@ -1235,18 +1235,43 @@ async function rtRenderRoutines() {
   `).join('');
 }
 
-// ── 회원 루틴 링크 복사 (RPC 경유) ───────────────────────────
+// ── 회원 루틴 링크 복사 ──────────────────────────────────────
 async function memberCopyLink(routineId) {
-  const { data, error } = await db.rpc('member_get_share_code', {
-    p_token: _memberToken,
-    p_routine_id: routineId
-  });
-  if (error || !data) { showToast('링크 생성에 실패했습니다.'); return; }
-  const link = `${location.origin}/share?r=${data}`;
+  // 1) 이미 로드된 _rtList에서 share_code 찾기
+  const rt = _rtList.find(r => r.id === routineId);
+  let shareCode = rt?.share_code;
+
+  // 2) 없으면 DB 직접 조회 시도
+  if (!shareCode) {
+    console.log('[memberCopyLink] share_code not in _rtList, trying direct query...');
+    const { data, error } = await db.from('member_routines').select('share_code').eq('id', routineId).single();
+    console.log('[memberCopyLink] direct query result:', { data, error });
+    shareCode = data?.share_code;
+  }
+
+  // 3) 그래도 없으면 RPC 시도
+  if (!shareCode) {
+    console.log('[memberCopyLink] trying RPC member_get_share_code...');
+    const { data, error } = await db.rpc('member_get_share_code', {
+      p_token: _memberToken,
+      p_routine_id: routineId
+    });
+    console.log('[memberCopyLink] RPC result:', { data, error });
+    shareCode = data;
+  }
+
+  if (!shareCode) {
+    console.error('[memberCopyLink] 모든 방법 실패. routineId:', routineId);
+    showToast('링크 생성에 실패했습니다.');
+    return;
+  }
+
+  const link = `${location.origin}/share?r=${shareCode}`;
   try {
     await navigator.clipboard.writeText(link);
     showToast('링크가 복사되었습니다.');
-  } catch {
+  } catch (e) {
+    console.error('[memberCopyLink] clipboard error:', e);
     showToast('복사 실패. 직접 복사해주세요: ' + link);
   }
 }
