@@ -1942,7 +1942,7 @@ function statsRender(s) {
     </div>
     <!-- 요약 카드 -->
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-card-num">${s.total_logs||0}</div><div class="stat-card-label">총 운동일지</div><div style="font-size:10px;color:#bbbbbb;margin-top:3px">지금까지 기록한 횟수</div></div>
+      <div class="stat-card"><div class="stat-card-num">${s.total_logs||0}</div><div class="stat-card-label">총 운동일지</div><div style="font-size:10px;color:#bbbbbb;margin-top:3px">수업 ${s.pt_count||0} + 자체 ${s.self_count||0}</div></div>
       <div class="stat-card"><div class="stat-card-num">${s.total_exercises||0}</div><div class="stat-card-label">운동 종류</div><div style="font-size:10px;color:#bbbbbb;margin-top:3px">해본 운동 가짓수</div></div>
       <div class="stat-card"><div class="stat-card-num">${s.logs_this_month||0}</div><div class="stat-card-label">이번 달</div><div style="font-size:10px;color:#bbbbbb;margin-top:3px">이번 달 운동 횟수</div></div>
       <div class="stat-card"><div class="stat-card-num">${s.recent_30d_count||0}</div><div class="stat-card-label">최근 30일</div><div style="font-size:10px;color:#bbbbbb;margin-top:3px">최근 한 달 운동 횟수</div></div>
