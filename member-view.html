@@ -1228,7 +1228,7 @@ async function rtRenderRoutines() {
       </div>
       <div class="rt-card-bottom">
         <span class="rt-card-info">${r.exs.length}개 운동 · ${(r.created_at||'').slice(0,10)}</span>
-        <button class="btn-link-copy vb vb-sm vb-ghost" onclick="event.stopPropagation();copyShareLink('${r.id}','member_routines')">링크복사</button>
+        ${r.share_code ? `<button class="btn-link-copy vb vb-sm vb-ghost" onclick="event.stopPropagation();copyShareLinkDirect('${r.share_code}')">링크복사</button>` : ''}
         <button class="rt-card-add-btn vb vb-sm vb-secondary" onclick="rtOpenAddEx('${r.id}','${esc(r.name)}',${r.exs.length})">운동 추가</button>
       </div>
     </div>
