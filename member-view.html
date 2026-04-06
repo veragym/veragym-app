@@ -900,7 +900,7 @@ async function toggleSess(i, logId) {
       const ref      = _exAll.find(x => x.id === ex.exercise_ref_id) || {};
       const imgUrl   = ref.image_url || '';
       const thumbHtml = imgUrl
-        ? `<div style="width:100%;height:140px;border-radius:10px;overflow:hidden;background:#f5f5f0;margin-top:6px"><img src="${imgUrl}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>`
+        ? `<div style="width:100%;border-radius:10px;overflow:visible;background:#f5f5f0;margin-top:6px;padding:8px 0"><img src="${imgUrl}" loading="lazy" style="width:100%;height:auto;object-fit:contain;display:block" onerror="this.parentElement.style.display='none'"></div>`
         : '';
       const setsHtml = sets.length ? `
         <table class="sets-table">
@@ -1385,7 +1385,7 @@ async function wlogToggleDetail(idx, logId) {
           `</table>` : '';
         const commentHtml = e.comment ? `<div style="font-size:11px;color:#888888;margin-top:4px;padding:4px 8px;background:#e5e5e5;border-radius:4px">${esc(e.comment)}</div>` : '';
         const thumbHtml = imgUrl
-          ? `<div style="width:100%;height:140px;border-radius:10px;overflow:hidden;background:#f5f5f0;margin-top:6px"><img src="${imgUrl}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>`
+          ? `<div style="width:100%;border-radius:10px;overflow:visible;background:#f5f5f0;margin-top:6px;padding:8px 0"><img src="${imgUrl}" loading="lazy" style="width:100%;height:auto;object-fit:contain;display:block" onerror="this.parentElement.style.display='none'"></div>`
           : '';
         return `<div class="wlog-detail-ex">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
@@ -2136,14 +2136,20 @@ function statsRender(s) {
         <div class="stat-section-title">균형 체크</div>
         <div class="stat-section-desc">운동이 특정 부위에만 치우치지 않는지 확인해줘요. 꾸준히 참고하면 더 균형 잡힌 몸을 만들 수 있어요 ⚖️</div>
         <div style="display:flex;flex-direction:column;gap:8px">
-          ${allItems.map(item => `
-            <div style="display:flex;align-items:flex-start;gap:10px;background:${item.icon==='⚠️'?'#ffe4e6':item.icon==='💡'?'#fef9c3':'#f3ffe0'};border-radius:10px;padding:10px 12px">
+          ${allItems.map(item => {
+            const bg    = item.icon==='⚠️'?'#ffe4e6':item.icon==='💡'?'#fff8c5':'#e8fbc8';
+            const bd    = item.icon==='⚠️'?'#f0a0a0':item.icon==='💡'?'#e6cc00':'#7ec800';
+            const title = item.icon==='⚠️'?'#b91c1c':item.icon==='💡'?'#7a5f00':'#2d5a00';
+            const sub   = item.icon==='⚠️'?'#991b1b':item.icon==='💡'?'#8a6d00':'#3a6600';
+            return `
+            <div style="display:flex;align-items:flex-start;gap:10px;background:${bg};border:1px solid ${bd};border-radius:10px;padding:10px 12px">
               <span style="font-size:16px;flex-shrink:0">${item.icon}</span>
               <div>
-                <div style="font-size:13px;font-weight:600;color:${item.icon==='⚠️'?'#f87171':item.icon==='💡'?'#fbbf24':'#C8FF00'}">${esc(item.msg)}</div>
-                <div style="font-size:11px;color:#888888;margin-top:2px">${esc(item.sub)}</div>
+                <div style="font-size:13px;font-weight:700;color:${title}">${esc(item.msg)}</div>
+                <div style="font-size:11px;color:${sub};margin-top:2px;opacity:1">${esc(item.sub)}</div>
               </div>
-            </div>`).join('')}
+            </div>`;
+          }).join('')}
         </div>
       </div>`;
     }
