@@ -313,19 +313,6 @@ async function copyShareLink(routineId, table = 'trainer_routines') {
   }
 }
 
-/**
- * share_code를 직접 받아 링크 복사 (DB 조회 없음, 회원 앱용)
- */
-async function copyShareLinkDirect(shareCode) {
-  const link = `${location.origin}/share?r=${shareCode}`;
-  try {
-    await navigator.clipboard.writeText(link);
-    showToast('링크가 복사되었습니다.');
-  } catch {
-    showToast('복사 실패. 직접 복사해주세요: ' + link);
-  }
-}
-
 function routineSaveModalOpen(trainerId, exercises) {
   if (!exercises || exercises.length === 0) {
     if (window.showToast) showToast('운동을 먼저 추가해 주세요');
