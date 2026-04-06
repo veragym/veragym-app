@@ -13,32 +13,32 @@
 <title>VERA GYM | 내 수업</title>
 <style>
 :root {
-  --role: #16a34a;
-  --role-light: #4ade80;
-  --role-bg: #e8f5e8;
-  --role-border: #b0d8b0;
-  --role-dark: #15803d;
-  --bg-btn: #f0f2f0;
-  --bg-btn-hover: #e0e8e0;
-  --border-btn: #d0dcd0;
-  --text-muted: #6b8f72;
-  --text-sub: #888;
+  --role: #C8FF00;
+  --role-light: #C8FF00;
+  --role-bg: #f0ffd0;
+  --role-border: #C8FF00;
+  --role-dark: #3a6600;
+  --bg-btn: #ffffff;
+  --bg-btn-hover: #f5f5f5;
+  --border-btn: #e5e5e5;
+  --text-muted: #888888;
+  --text-sub: #888888;
 }
 /* ── Reset & Base ─────────────────────────────────────────── */
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
 body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; background:#ffffff; color:#222; min-height:100dvh; overscroll-behavior:none; padding-bottom:0; }
 
 /* ── Header ──────────────────────────────────────────────── */
-.header { background:#f0f2f0; border-bottom:1px solid #d0dcd0; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.header { background:#ffffff; border-bottom:1px solid #e5e5e5; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
 .header-title { font-size:16px; font-weight:800; }
-.header-title span { color:#16a34a; }
-.header-sub { font-size:11px; color:#6b8f72; }
+.header-title span { color:#3a6600; }
+.header-sub { font-size:11px; color:#888888; }
 
 /* ── Top Tab Navigation ──────────────────────────────────── */
-.tabs { display:flex; background:#f0f2f0; border-bottom:1px solid #d0dcd0; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
+.tabs { display:flex; background:#ffffff; border-bottom:1px solid #e5e5e5; position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none; }
 .tabs::-webkit-scrollbar { display:none; }
-.tab-btn { flex:1; min-width:60px; padding:13px 10px; font-size:12px; font-weight:600; color:#6b8f72; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; text-align:center; }
-.tab-btn.active { color:#16a34a; border-bottom-color:#16a34a; }
+.tab-btn { flex:1; min-width:60px; padding:13px 10px; font-size:12px; font-weight:600; color:#888888; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit; text-align:center; }
+.tab-btn.active { color:#3a6600; border-bottom-color:#3a6600; }
 
 /* ── Tab Content ─────────────────────────────────────────── */
 .tab-content { display:none; padding:16px 14px; }
@@ -46,281 +46,281 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 
 /* ── Stats Row ───────────────────────────────────────────── */
 .stats-row { display:flex; gap:10px; padding:0 0 16px; overflow-x:auto; }
-.stat-box { background:#f0f2f0; border:1px solid #d0dcd0; border-radius:12px; padding:12px 16px; flex:1; text-align:center; }
-.stat-num { font-size:22px; font-weight:800; color:#16a34a; }
-.stat-label { font-size:11px; color:#6b8f72; margin-top:3px; }
+.stat-box { background:#ffffff; border:1px solid #e5e5e5; border-radius:12px; padding:12px 16px; flex:1; text-align:center; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
+.stat-num { font-size:22px; font-weight:800; color:#3a6600; }
+.stat-label { font-size:11px; color:#888888; margin-top:3px; }
 
 /* ── PT 현황 배너 ────────────────────────────────────────── */
-.pt-banner { background:#eef3ff; border:1px solid #c0d0ee; border-radius:12px; padding:12px 14px; margin-bottom:14px; }
+.pt-banner { background:#f5ffe0; border:1px solid #e5e5e5; border-radius:12px; padding:12px 14px; margin-bottom:14px; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
 .pt-banner-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
-.pt-banner-label { font-size:12px; color:#4a6a8a; font-weight:600; }
-.pt-banner-val { font-size:13px; color:#2a4a6a; font-weight:700; }
-.pt-bar-track { height:6px; background:#d0e0f0; border-radius:4px; overflow:hidden; }
-.pt-bar-fill { height:100%; background:linear-gradient(90deg,#3b82f6,#60a5fa); border-radius:4px; transition:width .4s; }
+.pt-banner-label { font-size:12px; color:#3a6600; font-weight:600; }
+.pt-banner-val { font-size:13px; color:#222; font-weight:700; }
+.pt-bar-track { height:6px; background:#e5e5e5; border-radius:4px; overflow:hidden; }
+.pt-bar-fill { height:100%; background:linear-gradient(90deg,#C8FF00,#a0d800); border-radius:4px; transition:width .4s; }
 
 /* ── Section Header ──────────────────────────────────────── */
 .sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
 .sec-title { font-size:15px; font-weight:700; }
-.sec-count { font-size:12px; color:#5a7f5a; margin-left:6px; }
-.divider-label { font-size:11px; font-weight:700; color:#16a34a; letter-spacing:1px; margin:16px 0 10px; display:flex; align-items:center; gap:8px; }
-.divider-label::after { content:''; flex:1; height:1px; background:#d0dcd0; }
+.sec-count { font-size:12px; color:#888888; margin-left:6px; }
+.divider-label { font-size:11px; font-weight:700; color:#3a6600; letter-spacing:1px; margin:16px 0 10px; display:flex; align-items:center; gap:8px; }
+.divider-label::after { content:''; flex:1; height:1px; background:#e5e5e5; }
 
 /* ── Log Cards (수업일지) ─────────────────────────────────── */
-.sess-card { background:#f0f2f0; border:1px solid #d0dcd0; border-radius:14px; margin-bottom:10px; overflow:hidden; }
+.sess-card { background:#ffffff; border:1px solid #e5e5e5; border-radius:14px; margin-bottom:10px; overflow:hidden; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
 .sess-head { padding:16px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:background 0.15s; }
-.sess-head:active { background:#e8ebe8; }
+.sess-head:active { background:#f5f5f0; }
 .sess-date { font-size:15px; font-weight:700; }
-.sess-sub { font-size:12px; color:#6b8f72; margin-top:3px; }
-.sess-num-badge { display:inline-block; background:#e0f5e0; border:1px solid #4ade8033; border-radius:20px; padding:2px 9px; font-size:11px; color:#16a34a; margin-bottom:5px; }
-.chevron { color:#d0e0d0; font-size:18px; transition:transform 0.2s; flex-shrink:0; }
+.sess-sub { font-size:12px; color:#888888; margin-top:3px; }
+.sess-num-badge { display:inline-block; background:#f0ffd0; border:1px solid #C8FF0033; border-radius:20px; padding:2px 9px; font-size:11px; color:#3a6600; margin-bottom:5px; }
+.chevron { color:#cccccc; font-size:18px; transition:transform 0.2s; flex-shrink:0; }
 .chevron.open { transform:rotate(90deg); }
-.sess-body { display:none; border-top:1px solid #e8f0e8; }
+.sess-body { display:none; border-top:1px solid #e5e5e5; }
 .sess-body.open { display:block; }
-.sess-notes { background:#f5f7f5; margin:14px 18px 0; border-radius:10px; padding:12px 14px; font-size:13px; color:#5a7a60; line-height:1.6; border:1px solid #e0e8e0; }
-.sess-notes-label { font-size:11px; color:#16a34a; margin-bottom:6px; font-weight:600; }
-.ex-item { padding:14px 18px; border-bottom:1px solid #e8f0e8; }
+.sess-notes { background:#f9f9f9; margin:14px 18px 0; border-radius:10px; padding:12px 14px; font-size:13px; color:#888888; line-height:1.6; border:1px solid #e5e5e5; }
+.sess-notes-label { font-size:11px; color:#3a6600; margin-bottom:6px; font-weight:600; }
+.ex-item { padding:14px 18px; border-bottom:1px solid #e5e5e5; }
 .ex-item:last-child { border-bottom:none; }
 .ex-item-name { font-size:14px; font-weight:700; }
-.ex-item-cat { font-size:11px; color:#6b8f72; margin-top:2px; }
+.ex-item-cat { font-size:11px; color:#888888; margin-top:2px; }
 .sets-table { width:100%; border-collapse:collapse; margin-top:8px; }
-.sets-table th { font-size:11px; color:#6b8f72; padding:4px 8px; text-align:center; font-weight:500; }
-.sets-table td { font-size:14px; color:#444444; padding:6px 8px; text-align:center; border-top:1px solid #e0e8e0; }
-.sets-table .set-cell { color:#6b8f72; font-size:12px; }
-.mv-photo-btn { display:inline-flex; align-items:center; gap:5px; background:#e0f5e0; border:1px solid #4ade8044; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:600; color:#16a34a; cursor:pointer; font-family:inherit; margin-top:10px; }
+.sets-table th { font-size:11px; color:#888888; padding:4px 8px; text-align:center; font-weight:500; }
+.sets-table td { font-size:14px; color:#444444; padding:6px 8px; text-align:center; border-top:1px solid #e5e5e5; }
+.sets-table .set-cell { color:#888888; font-size:12px; }
+.mv-photo-btn { display:inline-flex; align-items:center; gap:5px; background:#f0ffd0; border:1px solid #C8FF0044; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:600; color:#3a6600; cursor:pointer; font-family:inherit; margin-top:10px; }
 
 /* ── Schedule Cards (일정) ───────────────────────────────── */
-.sched-card { background:#f0f2f0; border:1px solid #d0dcd0; border-radius:14px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; }
-.sched-date-block { text-align:center; background:#e8ebe8; border:1px solid #d0dcd0; border-radius:10px; padding:8px 12px; flex-shrink:0; min-width:52px; }
-.sched-month { font-size:10px; color:#16a34a; font-weight:700; letter-spacing:0.5px; }
+.sched-card { background:#ffffff; border:1px solid #e5e5e5; border-radius:14px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
+.sched-date-block { text-align:center; background:#f5f5f0; border:1px solid #e5e5e5; border-radius:10px; padding:8px 12px; flex-shrink:0; min-width:52px; }
+.sched-month { font-size:10px; color:#3a6600; font-weight:700; letter-spacing:0.5px; }
 .sched-day { font-size:22px; font-weight:800; line-height:1; }
-.sched-weekday { font-size:10px; color:#6b8f72; margin-top:1px; }
+.sched-weekday { font-size:10px; color:#888888; margin-top:1px; }
 .sched-info { flex:1; min-width:0; }
 .sched-type-badge { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; margin-bottom:5px; }
-.sched-type-PT  { background:#4ade8022; border:1px solid #4ade8044; color:#16a34a; }
-.sched-type-SPT { background:#86efac22; border:1px solid #86efac44; color:#16a34a; }
+.sched-type-PT  { background:#C8FF0022; border:1px solid #C8FF0044; color:#3a6600; }
+.sched-type-SPT { background:#C8FF0022; border:1px solid #C8FF0044; color:#3a6600; }
 .sched-time { font-size:14px; font-weight:700; }
-.sched-trainer { font-size:12px; color:#6b8f72; margin-top:3px; }
+.sched-trainer { font-size:12px; color:#888888; margin-top:3px; }
 .sched-status { font-size:11px; font-weight:600; flex-shrink:0; }
-.sched-status.done { color:#6b8f72; }
-.sched-status.upcoming { color:#16a34a; }
+.sched-status.done { color:#888888; }
+.sched-status.upcoming { color:#3a6600; }
 
 /* ── 운동DB (내장) ────────────────────────────────────────── */
 #tab-exlib { padding:0; }
 .ex-search-area { padding:12px 14px 0; position:sticky; top:100px; z-index:90; background:#ffffff; }
 .ex-search-wrap { position:relative; margin-bottom:10px; }
 .ex-search-input {
-  width:100%; background:#f0f2f0; border:1.5px solid #c0d0c0;
+  width:100%; background:#ffffff; border:1.5px solid #e5e5e5;
   border-radius:10px; padding:11px 38px 11px 14px;
   font-size:14px; color:#1a1a1a; outline:none; font-family:inherit;
   transition:border-color 0.2s;
 }
-.ex-search-input:focus { border-color:#16a34a55; }
-.ex-search-input::placeholder { color:#5a7f5a; }
-.ex-btn-x { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#5a7f5a; font-size:16px; cursor:pointer; padding:0; line-height:1; display:none; }
+.ex-search-input:focus { border-color:#3a660055; }
+.ex-search-input::placeholder { color:#888888; }
+.ex-btn-x { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#888888; font-size:16px; cursor:pointer; padding:0; line-height:1; display:none; }
 .ex-filter-row { margin-bottom:8px; }
-.ex-filter-label { font-size:10px; color:#5a7f5a; letter-spacing:1.2px; margin-bottom:6px; font-weight:600; }
+.ex-filter-label { font-size:10px; color:#888888; letter-spacing:1.2px; margin-bottom:6px; font-weight:600; }
 .ex-chips { display:flex; flex-wrap:wrap; gap:5px; }
-.ex-chip { background:#f0f2f0; border:1.5px solid #c0d0c0; border-radius:20px; padding:5px 13px; font-size:12px; color:#6b8f72; cursor:pointer; transition:all 0.15s; white-space:nowrap; font-family:inherit; }
-.ex-chip:hover { border-color:#16a34a33; color:#16a34a; }
-.ex-chip.active { background:#4ade8022; border-color:#16a34a66; color:#16a34a; font-weight:700; }
-.ex-stat-bar { padding:8px 14px; font-size:12px; color:#6b8f72; }
-.ex-stat-bar span { color:#16a34a; font-weight:700; }
+.ex-chip { background:#ffffff; border:1.5px solid #e5e5e5; border-radius:20px; padding:5px 13px; font-size:12px; color:#888888; cursor:pointer; transition:all 0.15s; white-space:nowrap; font-family:inherit; }
+.ex-chip:hover { border-color:#3a660033; color:#3a6600; }
+.ex-chip.active { background:#C8FF0022; border-color:#3a660066; color:#3a6600; font-weight:700; }
+.ex-stat-bar { padding:8px 14px; font-size:12px; color:#888888; }
+.ex-stat-bar span { color:#3a6600; font-weight:700; }
 .ex-list { padding:0 14px 16px; }
-.ex-card { background:#f0f2f0; border:1px solid #d0dcd0; border-radius:10px; padding:12px 14px; margin-bottom:7px; cursor:pointer; transition:border-color 0.15s; }
-.ex-card:active { border-color:#16a34a44; }
+.ex-card { background:#ffffff; border:1px solid #e5e5e5; border-radius:10px; padding:12px 14px; margin-bottom:7px; cursor:pointer; transition:border-color 0.15s; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
+.ex-card:active { border-color:#3a660044; }
 .ex-card-row { display:flex; align-items:center; gap:12px; }
-.ex-thumb { width:52px; height:52px; border-radius:8px; background:#e8ebe8; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; overflow:hidden; }
+.ex-thumb { width:52px; height:52px; border-radius:8px; background:#f5f5f0; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; overflow:hidden; }
 .ex-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
 .ex-info { flex:1; min-width:0; }
 .ex-name { font-size:14px; font-weight:600; }
-.ex-en-name { font-size:11px; color:#6b8f72; margin-top:2px; }
+.ex-en-name { font-size:11px; color:#888888; margin-top:2px; }
 .ex-tags { margin-top:5px; display:flex; gap:5px; flex-wrap:wrap; }
-.ex-tag-tool { background:#4ade8011; border:1px solid #4ade8033; border-radius:6px; padding:2px 8px; font-size:10px; color:#16a34a; }
-.ex-tag-part { background:transparent; border:1px solid #c0d0c0; border-radius:6px; padding:2px 8px; font-size:10px; color:#6b8f72; }
-.ex-btn-more { width:100%; background:#f0f2f0; border:1px solid #d0dcd0; border-radius:10px; padding:12px; color:#16a34a; font-size:13px; cursor:pointer; margin:4px 0; font-family:inherit; transition:all 0.15s; }
-.ex-btn-more:active { border-color:#16a34a44; }
+.ex-tag-tool { background:#C8FF0011; border:1px solid #C8FF0033; border-radius:6px; padding:2px 8px; font-size:10px; color:#3a6600; }
+.ex-tag-part { background:transparent; border:1px solid #e5e5e5; border-radius:6px; padding:2px 8px; font-size:10px; color:#888888; }
+.ex-btn-more { width:100%; background:#ffffff; border:1px solid #e5e5e5; border-radius:10px; padding:12px; color:#3a6600; font-size:13px; cursor:pointer; margin:4px 0; font-family:inherit; transition:all 0.15s; }
+.ex-btn-more:active { border-color:#3a660044; }
 
 /* ── 운동DB 서브탭 ─────────────────────────────────────── */
-.ex-sub-tabs { display:flex; border-bottom:1px solid #d0dcd0; position:sticky; top:100px; z-index:91; background:#ffffff; }
-.ex-sub-tab { flex:1; padding:11px 6px; font-size:12px; font-weight:600; color:#6b8f72; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:inherit; text-align:center; transition:all 0.2s; }
-.ex-sub-tab.active { color:#16a34a; border-bottom-color:#16a34a; }
-.ex-sub-tab span { font-size:11px; color:#5a7f5a; margin-left:2px; }
+.ex-sub-tabs { display:flex; border-bottom:1px solid #e5e5e5; position:sticky; top:100px; z-index:91; background:#ffffff; }
+.ex-sub-tab { flex:1; padding:11px 6px; font-size:12px; font-weight:600; color:#888888; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:inherit; text-align:center; transition:all 0.2s; }
+.ex-sub-tab.active { color:#3a6600; border-bottom-color:#3a6600; }
+.ex-sub-tab span { font-size:11px; color:#888888; margin-left:2px; }
 .ex-sub-content { display:none; }
 .ex-sub-content.active { display:block; }
 /* 내 운동 추가/해제 버튼 (트레이너앱 스타일) */
-.ex-btn-add { background:#4ade8022; border:1px solid #4ade8044; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:700; color:#16a34a; cursor:pointer; white-space:nowrap; font-family:inherit; transition:all 0.15s; flex-shrink:0; }
-.ex-btn-add:active { background:#4ade8033; border-color:#16a34a88; }
+.ex-btn-add { background:#C8FF0022; border:1px solid #C8FF0044; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:700; color:#3a6600; cursor:pointer; white-space:nowrap; font-family:inherit; transition:all 0.15s; flex-shrink:0; }
+.ex-btn-add:active { background:#C8FF0033; border-color:#3a660088; }
 .ex-btn-add.added { background:#fde0e0; border-color:#7f1d1d; color:#f87171; }
 .ex-btn-add.added:active { background:#fdd0d0; border-color:#f87171; color:#fca5a5; }
 .ex-card-row { position:relative; }
 /* 루틴 섹션 (트레이너앱 스타일) */
-.rt-empty { padding:32px 14px; text-align:center; color:#6b8f72; font-size:14px; line-height:1.8; }
-.rt-new-btn { padding:9px 16px; background:#4ade80; border:none; border-radius:8px; color:#f5f7f5; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+.rt-empty { padding:32px 14px; text-align:center; color:#888888; font-size:14px; line-height:1.8; }
+.rt-new-btn { padding:9px 16px; background:#C8FF00; border:none; border-radius:8px; color:#000000; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
 .rt-new-btn:active { opacity:0.8; }
-.rt-card { background:#f0f2f0; border:1px solid #d0dcd0; border-radius:10px; margin-bottom:10px; padding:14px 16px; }
+.rt-card { background:#ffffff; border:1px solid #e5e5e5; border-radius:10px; margin-bottom:10px; padding:14px 16px; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
 .rt-card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .rt-card-name { font-size:14px; font-weight:700; }
 .rt-card-del { background:none; border:none; color:#ef444488; font-size:13px; cursor:pointer; padding:2px 6px; }
-.rt-card-exs { font-size:12px; color:#6b8f72; display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.rt-card-exs { font-size:12px; color:#888888; display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
 .rt-card-ex-chip { background:#ffffff; padding:3px 8px; border-radius:12px; display:inline-flex; align-items:center; gap:4px; }
 .rt-card-ex-chip .rt-chip-x { color:#ef4444; cursor:pointer; font-size:11px; line-height:1; }
 .rt-card-bottom { display:flex; align-items:center; justify-content:space-between; }
-.rt-card-info { font-size:11px; color:#5a7f5a; }
-.rt-card-add-btn { background:#d0e0d0; border:1px solid #4ade8044; border-radius:8px; color:#16a34a; font-size:12px; font-weight:600; padding:5px 12px; cursor:pointer; font-family:inherit; }
-.rt-card-add-btn:active { background:#4ade8022; }
+.rt-card-info { font-size:11px; color:#888888; }
+.rt-card-add-btn { background:#bbbbbb; border:1px solid #C8FF0044; border-radius:8px; color:#3a6600; font-size:12px; font-weight:600; padding:5px 12px; cursor:pointer; font-family:inherit; }
+.rt-card-add-btn:active { background:#C8FF0022; }
 
 /* ── 운동 상세 모달 ──────────────────────────────────────── */
 .ex-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:300; align-items:flex-end; }
 .ex-modal-bg.open { display:flex; }
-.ex-modal { background:#f0f2f0; border-radius:20px 20px 0 0; padding:20px 20px calc(32px + env(safe-area-inset-bottom)); width:100%; max-height:90dvh; overflow-y:auto; animation:slideUp .25s ease; border-top:1px solid #b8c8b8; position:relative; }
+.ex-modal { background:#ffffff; border-radius:20px 20px 0 0; padding:20px 20px calc(32px + env(safe-area-inset-bottom)); width:100%; max-height:90dvh; overflow-y:auto; animation:slideUp .25s ease; border-top:1px solid #e5e5e5; position:relative; }
 @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-.ex-modal-close { position:absolute; top:14px; right:16px; background:none; border:none; color:#16a34a; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; }
-.ex-modal-img { width:100%; max-height:240px; object-fit:cover; border-radius:12px; background:#e8ebe8; margin-bottom:16px; display:block; }
-.ex-modal-no-img { width:100%; height:140px; background:#e8ebe8; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:40px; margin-bottom:16px; }
+.ex-modal-close { position:absolute; top:14px; right:16px; background:none; border:none; color:#C8FF00; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; }
+.ex-modal-img { width:100%; max-height:240px; object-fit:cover; border-radius:12px; background:#f5f5f0; margin-bottom:16px; display:block; }
+.ex-modal-no-img { width:100%; height:140px; background:#f5f5f0; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:40px; margin-bottom:16px; }
 .ex-modal-name { font-size:22px; font-weight:800; margin-bottom:4px; }
-.ex-modal-en { font-size:13px; color:#6b8f72; margin-bottom:14px; }
+.ex-modal-en { font-size:13px; color:#888888; margin-bottom:14px; }
 .ex-modal-tags { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px; }
-.ex-modal-tag-tool { background:#4ade8022; border:1px solid #4ade8044; border-radius:8px; padding:4px 12px; font-size:12px; color:#16a34a; font-weight:600; }
-.ex-modal-tag-part { background:#e8f0e8; border:1px solid #c0d0c0; border-radius:8px; padding:4px 12px; font-size:12px; color:#6b8f72; }
-.ex-modal-sec-title { font-size:11px; font-weight:700; color:#6b8f72; letter-spacing:1px; margin-bottom:8px; }
+.ex-modal-tag-tool { background:#C8FF0022; border:1px solid #C8FF0044; border-radius:8px; padding:4px 12px; font-size:12px; color:#3a6600; font-weight:600; }
+.ex-modal-tag-part { background:#e5e5e5; border:1px solid #e5e5e5; border-radius:8px; padding:4px 12px; font-size:12px; color:#888888; }
+.ex-modal-sec-title { font-size:11px; font-weight:700; color:#888888; letter-spacing:1px; margin-bottom:8px; }
 .ex-modal-muscles { display:flex; flex-wrap:wrap; gap:6px; }
-.ex-modal-muscle-chip { background:#4ade8011; border:1px solid #4ade8033; border-radius:16px; padding:5px 12px; font-size:12px; color:#16a34a; }
+.ex-modal-muscle-chip { background:#C8FF0011; border:1px solid #C8FF0033; border-radius:16px; padding:5px 12px; font-size:12px; color:#3a6600; }
 
 /* ── 운동일지 탭 ───────────────────────────────────────── */
 .wlog-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-.wlog-add-btn { background:#4ade8022; border:1.5px solid #4ade8066; border-radius:8px; padding:7px 16px; color:#16a34a; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
-.wlog-card { background:#f0f2f0; border:1px solid #d0dcd0; border-radius:10px; padding:14px 16px; margin-bottom:8px; cursor:pointer; transition:border-color .15s; position:relative; }
-.wlog-card:active { border-color:#16a34a44; }
+.wlog-add-btn { background:#C8FF0022; border:1.5px solid #C8FF0066; border-radius:8px; padding:7px 16px; color:#3a6600; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+.wlog-card { background:#ffffff; border:1px solid #e5e5e5; border-radius:10px; padding:14px 16px; margin-bottom:8px; cursor:pointer; transition:border-color .15s; position:relative; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
+.wlog-card:active { border-color:#3a660044; }
 .wlog-card-row { display:flex; align-items:center; gap:12px; }
-.wlog-card-date { font-size:13px; font-weight:600; color:#16a34a; white-space:nowrap; }
+.wlog-card-date { font-size:13px; font-weight:600; color:#3a6600; white-space:nowrap; }
 .wlog-card-title { font-size:14px; color:#333333; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
-.wlog-card-arrow { position:absolute; right:16px; top:16px; font-size:10px; color:#6b8f72; transition:transform .2s; }
+.wlog-card-arrow { position:absolute; right:16px; top:16px; font-size:10px; color:#888888; transition:transform .2s; }
 .wlog-card-arrow.open { transform:rotate(180deg); }
-.wlog-card-sub { font-size:12px; color:#6b8f72; margin-top:4px; }
-.wlog-card-notes { font-size:11px; color:#5a7f5a; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.wlog-detail { display:none; margin-top:10px; padding-top:10px; border-top:1px solid #e0e8e0; }
+.wlog-card-sub { font-size:12px; color:#888888; margin-top:4px; }
+.wlog-card-notes { font-size:11px; color:#888888; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.wlog-detail { display:none; margin-top:10px; padding-top:10px; border-top:1px solid #e5e5e5; }
 .wlog-detail.open { display:block; }
 .wlog-detail-ex { padding:6px 0; }
 .wlog-detail-exname { font-size:13px; font-weight:600; margin-bottom:4px; }
 /* 작성 뷰 */
 .wlog-write { display:none; }
 .wlog-write.open { display:block; }
-.wlog-write-header { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #d0dcd0; margin-bottom:12px; }
+.wlog-write-header { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #e5e5e5; margin-bottom:12px; }
 .wlog-write-title { font-size:16px; font-weight:700; }
-.wlog-write-cancel { background:none; border:none; color:#6b8f72; font-size:13px; cursor:pointer; font-family:inherit; }
+.wlog-write-cancel { background:none; border:none; color:#888888; font-size:13px; cursor:pointer; font-family:inherit; }
 .wlog-date-row { margin-bottom:10px; }
-.wlog-date-input { background:#f0f2f0; border:1.5px solid #c0d0c0; border-radius:8px; padding:10px 14px; color:#1a1a1a; font-size:14px; font-family:inherit; width:100%; }
+.wlog-date-input { background:#ffffff; border:1.5px solid #e5e5e5; border-radius:8px; padding:10px 14px; color:#1a1a1a; font-size:14px; font-family:inherit; width:100%; }
 .wlog-title-row { margin-bottom:14px; }
-.wlog-title-input { background:#f0f2f0; border:1.5px solid #c0d0c0; border-radius:8px; padding:10px 14px; color:#1a1a1a; font-size:14px; font-family:inherit; width:100%; box-sizing:border-box; }
-.wlog-title-input::placeholder { color:#5a7f5a; }
+.wlog-title-input { background:#ffffff; border:1.5px solid #e5e5e5; border-radius:8px; padding:10px 14px; color:#1a1a1a; font-size:14px; font-family:inherit; width:100%; box-sizing:border-box; }
+.wlog-title-input::placeholder { color:#888888; }
 /* ── 운동카드 (트레이너앱 스타일 · 그린) ─────────────────── */
-.wlog-ex-card { background:#f0f2f0; border:1px solid #d0dcd0; border-radius:14px; margin-bottom:10px; overflow:hidden; }
+.wlog-ex-card { background:#ffffff; border:1px solid #e5e5e5; border-radius:14px; margin-bottom:10px; overflow:hidden; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
 .wlog-ex-head { display:flex; align-items:center; padding:14px 16px; gap:10px; }
-.wlog-ex-order { width:26px; height:26px; border-radius:50%; background:#d0e0d0; color:#16a34a; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+.wlog-ex-order { width:26px; height:26px; border-radius:50%; background:#bbbbbb; color:#3a6600; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
 .wlog-ex-name-area { flex:1; min-width:0; }
 .wlog-ex-name { font-size:14px; font-weight:700; }
-.wlog-ex-sub { font-size:11px; color:#6b8f72; margin-top:2px; }
-.wlog-ex-del { background:#fff0f0; border:1px solid #e0c0c0; border-radius:8px; color:#f87171; font-size:12px; font-family:inherit; cursor:pointer; padding:5px 12px; flex-shrink:0; line-height:1.4; }
+.wlog-ex-sub { font-size:11px; color:#888888; margin-top:2px; }
+.wlog-ex-del { background:#ffe4e6; border:1px solid #e0c0c0; border-radius:8px; color:#f87171; font-size:12px; font-family:inherit; cursor:pointer; padding:5px 12px; flex-shrink:0; line-height:1.4; }
 .wlog-ex-del:active { border-color:#f87171; background:#fde0e0; }
 .wlog-sets { padding:0 16px 10px; }
 .wlog-set-header { display:grid; grid-template-columns:36px 1fr 1fr auto; gap:6px; margin-bottom:4px; align-items:center; }
-.wlog-set-header span { font-size:10px; color:#6b8f72; text-align:center; }
+.wlog-set-header span { font-size:10px; color:#888888; text-align:center; }
 .wlog-set-row { display:grid; grid-template-columns:36px 1fr 1fr auto; gap:6px; margin-bottom:6px; align-items:center; }
 .wlog-set-row-end { display:flex; align-items:center; gap:4px; }
-.wlog-set-num { background:#d0e0d0; border-radius:6px; height:38px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#16a34a; }
-.wlog-set-input { background:#f8faf8; border:1.5px solid #d0dcd0; border-radius:10px; padding:10px 6px; font-size:15px; font-weight:700; color:#1a1a1a; text-align:center; outline:none; font-family:inherit; width:100%; -moz-appearance:textfield; height:38px; box-sizing:border-box; }
+.wlog-set-num { background:#bbbbbb; border-radius:6px; height:38px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#3a6600; }
+.wlog-set-input { background:#f9f9f9; border:1.5px solid #e5e5e5; border-radius:10px; padding:10px 6px; font-size:15px; font-weight:700; color:#1a1a1a; text-align:center; outline:none; font-family:inherit; width:100%; -moz-appearance:textfield; height:38px; box-sizing:border-box; }
 .wlog-set-input::-webkit-outer-spin-button, .wlog-set-input::-webkit-inner-spin-button { -webkit-appearance:none; }
-.wlog-set-input:focus { border-color:#16a34a; }
-.wlog-wm-chip { font-size:12px; font-weight:700; border:1.5px solid #d0dcd0; border-radius:10px; cursor:pointer; height:38px; padding:0 8px; transition:background 0.15s; white-space:nowrap; font-family:inherit; }
-.wlog-wm-total { background:#d0e0d0; color:#16a34a; }
-.wlog-wm-single { background:#1a3a20; color:#16a34a; }
-.wlog-set-del { background:none; border:none; color:#6b8f72; font-size:18px; cursor:pointer; padding:4px; height:38px; display:flex; align-items:center; justify-content:center; }
+.wlog-set-input:focus { border-color:#3a6600; }
+.wlog-wm-chip { font-size:12px; font-weight:700; border:1.5px solid #e5e5e5; border-radius:10px; cursor:pointer; height:38px; padding:0 8px; transition:background 0.15s; white-space:nowrap; font-family:inherit; }
+.wlog-wm-total { background:#bbbbbb; color:#3a6600; }
+.wlog-wm-single { background:#f0ffd0; color:#3a6600; }
+.wlog-set-del { background:none; border:none; color:#888888; font-size:18px; cursor:pointer; padding:4px; height:38px; display:flex; align-items:center; justify-content:center; }
 .wlog-set-del:active { color:#f87171; }
-.wlog-add-set { width:100%; background:#f8faf8; border:1.5px dashed #d0dcd0; border-radius:10px; padding:9px; font-size:12px; font-weight:600; color:#6b8f72; cursor:pointer; margin-top:4px; transition:all 0.15s; font-family:inherit; }
-.wlog-add-set:active { border-color:#16a34a; color:#16a34a; background:#f0f2f0; }
+.wlog-add-set { width:100%; background:#f9f9f9; border:1.5px dashed #e5e5e5; border-radius:10px; padding:9px; font-size:12px; font-weight:600; color:#888888; cursor:pointer; margin-top:4px; transition:all 0.15s; font-family:inherit; }
+.wlog-add-set:active { border-color:#3a6600; color:#3a6600; background:#ffffff; }
 .wlog-ex-comment { padding:0 16px 10px; }
-.wlog-ex-comment textarea { width:100%; background:#f8faf8; border:1.5px solid #d0dcd0; border-radius:10px; padding:10px 12px; font-size:13px; color:#666666; outline:none; font-family:inherit; resize:none; height:48px; transition:border-color 0.2s; box-sizing:border-box; }
-.wlog-ex-comment textarea:focus { border-color:#16a34a66; color:#1a1a1a; }
+.wlog-ex-comment textarea { width:100%; background:#f9f9f9; border:1.5px solid #e5e5e5; border-radius:10px; padding:10px 12px; font-size:13px; color:#666666; outline:none; font-family:inherit; resize:none; height:48px; transition:border-color 0.2s; box-sizing:border-box; }
+.wlog-ex-comment textarea:focus { border-color:#3a660066; color:#1a1a1a; }
 .wlog-notes-area { margin:12px 0; }
-.wlog-notes-input { width:100%; background:#f0f2f0; border:1.5px solid #c0d0c0; border-radius:8px; padding:10px 14px; color:#1a1a1a; font-size:13px; min-height:60px; resize:vertical; font-family:inherit; }
+.wlog-notes-input { width:100%; background:#ffffff; border:1.5px solid #e5e5e5; border-radius:8px; padding:10px 14px; color:#1a1a1a; font-size:13px; min-height:60px; resize:vertical; font-family:inherit; }
 .wlog-bottom-bar { display:flex; flex-wrap:wrap; gap:6px; margin:14px 0 8px; }
-.wlog-bottom-btn { flex:1; min-width:90px; background:#f0f2f0; border:1.5px solid #c0d0c0; border-radius:8px; padding:10px 8px; color:#6b8f72; font-size:12px; text-align:center; cursor:pointer; font-family:inherit; font-weight:600; }
-.wlog-bottom-btn:active { border-color:#16a34a44; color:#16a34a; }
-.wlog-save-btn { width:100%; background:#4ade8022; border:1.5px solid #4ade8066; border-radius:10px; padding:14px; color:#16a34a; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:6px; }
-.wlog-save-btn:active { background:#4ade8044; }
+.wlog-bottom-btn { flex:1; min-width:90px; background:#ffffff; border:1.5px solid #e5e5e5; border-radius:8px; padding:10px 8px; color:#888888; font-size:12px; text-align:center; cursor:pointer; font-family:inherit; font-weight:600; }
+.wlog-bottom-btn:active { border-color:#3a660044; color:#3a6600; }
+.wlog-save-btn { width:100%; background:#C8FF0022; border:1.5px solid #C8FF0066; border-radius:10px; padding:14px; color:#3a6600; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:6px; }
+.wlog-save-btn:active { background:#C8FF0044; }
 /* 운동 추가 피커 모달 (트레이너앱 스타일 · 초록테마) */
 .wlog-picker-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:310; }
 .wlog-picker-bg.open { display:flex; flex-direction:column; }
-.wlog-picker { background:#f5f7f5; border-radius:20px 20px 0 0; margin-top:auto; max-height:90dvh; overflow-y:auto; padding:0 0 24px; animation:slideUp .25s ease; }
+.wlog-picker { background:#f9f9f9; border-radius:20px 20px 0 0; margin-top:auto; max-height:90dvh; overflow-y:auto; padding:0 0 24px; animation:slideUp .25s ease; }
 /* 헤더 */
-.pk-header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid #d0dcd0; position:sticky; top:0; z-index:3; background:#f5f7f5; border-radius:20px 20px 0 0; }
+.pk-header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid #e5e5e5; position:sticky; top:0; z-index:3; background:#f9f9f9; border-radius:20px 20px 0 0; }
 .pk-header-title { font-size:15px; font-weight:700; }
-.pk-header-sub { font-size:11px; color:#6b8f72; margin-top:2px; }
-.pk-close-btn { background:none; border:1px solid #c0d0c0; border-radius:8px; color:#6b8f72; font-size:12px; padding:6px 12px; cursor:pointer; font-family:inherit; }
-.pk-close-btn:active { border-color:#16a34a44; color:#16a34a; }
+.pk-header-sub { font-size:11px; color:#888888; margin-top:2px; }
+.pk-close-btn { background:none; border:1px solid #e5e5e5; border-radius:8px; color:#888888; font-size:12px; padding:6px 12px; cursor:pointer; font-family:inherit; }
+.pk-close-btn:active { border-color:#3a660044; color:#3a6600; }
 /* 검색 */
-.pk-search-wrap { position:sticky; top:56px; z-index:2; background:#f5f7f5; padding:10px 14px 0; }
-.pk-search { width:100%; background:#f0f2f0; border:1.5px solid #c0d0c0; border-radius:10px; padding:11px 40px 11px 14px; font-size:14px; color:#1a1a1a; outline:none; font-family:inherit; display:block; transition:border-color .2s; }
-.pk-search:focus { border-color:#16a34a66; }
-.pk-search::placeholder { color:#6b8f72; }
-.pk-btn-x { position:absolute; right:26px; top:50%; transform:translateY(-50%); margin-top:8px; background:none; border:none; color:#6b8f72; font-size:16px; cursor:pointer; padding:0; line-height:1; display:none; }
+.pk-search-wrap { position:sticky; top:56px; z-index:2; background:#f9f9f9; padding:10px 14px 0; }
+.pk-search { width:100%; background:#ffffff; border:1.5px solid #e5e5e5; border-radius:10px; padding:11px 40px 11px 14px; font-size:14px; color:#1a1a1a; outline:none; font-family:inherit; display:block; transition:border-color .2s; }
+.pk-search:focus { border-color:#3a660066; }
+.pk-search::placeholder { color:#888888; }
+.pk-btn-x { position:absolute; right:26px; top:50%; transform:translateY(-50%); margin-top:8px; background:none; border:none; color:#888888; font-size:16px; cursor:pointer; padding:0; line-height:1; display:none; }
 /* 필터 칩 */
 .pk-filter-row { padding:0 14px; margin-top:10px; }
-.pk-filter-label { font-size:10px; color:#6b8f72; letter-spacing:1.2px; margin-bottom:6px; font-weight:600; }
+.pk-filter-label { font-size:10px; color:#888888; letter-spacing:1.2px; margin-bottom:6px; font-weight:600; }
 .pk-chips { display:flex; flex-wrap:wrap; gap:5px; }
-.pk-chip { background:#f0f2f0; border:1.5px solid #c0d0c0; border-radius:20px; padding:5px 13px; font-size:12px; color:#6b8f72; cursor:pointer; transition:all .15s; white-space:nowrap; font-family:inherit; }
-.pk-chip:hover { border-color:#16a34a55; color:#16a34a; }
-.pk-chip.active { background:#4ade8022; border-color:#16a34a88; color:#16a34a; font-weight:700; }
+.pk-chip { background:#ffffff; border:1.5px solid #e5e5e5; border-radius:20px; padding:5px 13px; font-size:12px; color:#888888; cursor:pointer; transition:all .15s; white-space:nowrap; font-family:inherit; }
+.pk-chip:hover { border-color:#3a660055; color:#3a6600; }
+.pk-chip.active { background:#C8FF0022; border-color:#3a660088; color:#3a6600; font-weight:700; }
 /* 운동 수 */
-.pk-stat { padding:8px 14px 2px; font-size:12px; color:#6b8f72; }
-.pk-stat span { color:#16a34a; font-weight:700; }
+.pk-stat { padding:8px 14px 2px; font-size:12px; color:#888888; }
+.pk-stat span { color:#3a6600; font-weight:700; }
 /* 운동 카드 목록 */
 .pk-list { padding:0 14px; }
-.pk-card { background:#f0f2f0; border:1px solid #d0dcd0; border-radius:10px; padding:10px 12px; margin-bottom:7px; cursor:pointer; transition:border-color .15s; }
-.pk-card:active { border-color:#16a34a44; }
+.pk-card { background:#ffffff; border:1px solid #e5e5e5; border-radius:10px; padding:10px 12px; margin-bottom:7px; cursor:pointer; transition:border-color .15s; }
+.pk-card:active { border-color:#3a660044; }
 .pk-card-row { display:flex; align-items:center; gap:10px; }
-.pk-thumb { width:48px; height:48px; border-radius:8px; background:#e8ebe8; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; overflow:hidden; }
+.pk-thumb { width:48px; height:48px; border-radius:8px; background:#f5f5f0; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; overflow:hidden; }
 .pk-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
 .pk-info { flex:1; min-width:0; }
 .pk-name { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.pk-en { font-size:10px; color:#6b8f72; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pk-en { font-size:10px; color:#888888; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .pk-tags { margin-top:4px; display:flex; gap:4px; flex-wrap:wrap; align-items:center; }
-.pk-tag-tool { background:#4ade8018; border:1px solid #4ade8033; border-radius:6px; padding:1px 7px; font-size:10px; color:#16a34a99; }
-.pk-tag-part { background:transparent; border:1px solid #c0d0c0; border-radius:6px; padding:1px 7px; font-size:10px; color:#6b8f72; }
-.pk-tag-mine { background:#4ade8022; border:1px solid #4ade8055; border-radius:6px; padding:1px 7px; font-size:10px; color:#16a34a; font-weight:600; }
-.pk-add { flex-shrink:0; background:#4ade8022; border:1px solid #4ade8044; border-radius:8px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; color:#16a34a; cursor:pointer; transition:all .15s; }
-.pk-add:active { background:#4ade8044; border-color:#16a34a88; }
+.pk-tag-tool { background:#C8FF0018; border:1px solid #C8FF0033; border-radius:6px; padding:1px 7px; font-size:10px; color:#3a660099; }
+.pk-tag-part { background:transparent; border:1px solid #e5e5e5; border-radius:6px; padding:1px 7px; font-size:10px; color:#888888; }
+.pk-tag-mine { background:#C8FF0022; border:1px solid #C8FF0055; border-radius:6px; padding:1px 7px; font-size:10px; color:#3a6600; font-weight:600; }
+.pk-add { flex-shrink:0; background:#C8FF0022; border:1px solid #C8FF0044; border-radius:8px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; color:#3a6600; cursor:pointer; transition:all .15s; }
+.pk-add:active { background:#C8FF0044; border-color:#3a660088; }
 /* 더보기 */
-.pk-more { width:100%; background:#f0f2f0; border:1px solid #d0dcd0; border-radius:10px; padding:12px; color:#6b8f72; font-size:13px; cursor:pointer; margin:4px 0; font-family:inherit; transition:all .15s; }
-.pk-more:hover { border-color:#16a34a44; color:#16a34a; }
+.pk-more { width:100%; background:#ffffff; border:1px solid #e5e5e5; border-radius:10px; padding:12px; color:#888888; font-size:13px; cursor:pointer; margin:4px 0; font-family:inherit; transition:all .15s; }
+.pk-more:hover { border-color:#3a660044; color:#3a6600; }
 /* 루틴 피커/저장 모달 */
 .wlog-rt-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:320; align-items:center; justify-content:center; }
 .wlog-rt-modal-bg.open { display:flex; }
-.wlog-rt-modal { background:#f0f2f0; border-radius:16px; padding:24px 20px; width:calc(100% - 40px); max-width:360px; }
+.wlog-rt-modal { background:#ffffff; border-radius:16px; padding:24px 20px; width:calc(100% - 40px); max-width:360px; }
 .wlog-rt-modal-title { font-size:16px; font-weight:700; margin-bottom:14px; }
-.wlog-rt-modal input[type=text] { width:100%; background:#ffffff; border:1.5px solid #c0d0c0; border-radius:8px; padding:10px 14px; color:#1a1a1a; font-size:14px; font-family:inherit; margin-bottom:12px; }
+.wlog-rt-modal input[type=text] { width:100%; background:#ffffff; border:1.5px solid #e5e5e5; border-radius:8px; padding:10px 14px; color:#1a1a1a; font-size:14px; font-family:inherit; margin-bottom:12px; }
 .wlog-rt-modal-btns { display:flex; gap:8px; }
 .wlog-rt-modal-btns button { flex:1; padding:10px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; border:none; }
-.wlog-rt-cancel { background:#d0dcd0; color:#6b8f72; }
-.wlog-rt-ok { background:#4ade8022; color:#16a34a; border:1.5px solid #4ade8066 !important; }
+.wlog-rt-cancel { background:#e5e5e5; color:#888888; }
+.wlog-rt-ok { background:#C8FF0022; color:#3a6600; border:1.5px solid #C8FF0066 !important; }
 
 /* ── 통계 탭 ───────────────────────────────────────────── */
 .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:18px; }
-.stat-card { background:#f0f2f0; border:1px solid #d0dcd0; border-radius:10px; padding:16px 14px; text-align:center; }
-.stat-card-num { font-size:28px; font-weight:800; color:#16a34a; }
-.stat-card-label { font-size:11px; color:#6b8f72; margin-top:4px; }
+.stat-card { background:#ffffff; border:1px solid #e5e5e5; border-radius:10px; padding:16px 14px; text-align:center; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
+.stat-card-num { font-size:28px; font-weight:800; color:#3a6600; }
+.stat-card-label { font-size:11px; color:#888888; margin-top:4px; }
 .stat-section { margin-bottom:20px; }
-.stat-section-title { font-size:13px; font-weight:700; color:#6b8f72; margin-bottom:4px; letter-spacing:0.5px; }
-.stat-section-desc  { font-size:11px; color:#5a7f5a; margin-bottom:12px; line-height:1.5; }
+.stat-section-title { font-size:13px; font-weight:700; color:#888888; margin-bottom:4px; letter-spacing:0.5px; }
+.stat-section-desc  { font-size:11px; color:#888888; margin-bottom:12px; line-height:1.5; }
 .stat-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
 .stat-bar-name { font-size:12px; color:#444444; min-width:80px; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.stat-bar-fill { height:20px; background:linear-gradient(90deg,#4ade8033,#4ade8066); border-radius:4px; min-width:2px; transition:width .3s; }
-.stat-bar-cnt { font-size:11px; color:#6b8f72; min-width:28px; }
+.stat-bar-fill { height:20px; background:linear-gradient(90deg,#C8FF00,#a0d800); border-radius:4px; min-width:2px; transition:width .3s; }
+.stat-bar-cnt { font-size:11px; color:#888888; min-width:28px; }
 .stat-trend-row { display:flex; align-items:flex-end; gap:4px; height:100px; padding:0 4px; margin-top:20px; }
 .stat-trend-col { flex:1; display:flex; flex-direction:column; align-items:center; }
-.stat-trend-bar { width:100%; background:#4ade8044; border-radius:4px 4px 0 0; min-height:2px; transition:height .3s; }
-.stat-trend-label { font-size:9px; color:#5a7f5a; margin-top:4px; }
-.stat-trend-num { font-size:10px; color:#16a34a; margin-bottom:2px; }
+.stat-trend-bar { width:100%; background:#C8FF00; border-radius:4px 4px 0 0; min-height:2px; transition:height .3s; }
+.stat-trend-label { font-size:9px; color:#888888; margin-top:4px; }
+.stat-trend-num { font-size:10px; color:#3a6600; margin-bottom:2px; }
 
 /* ── Anatomy Tab ─────────────────────────────────────────── */
 .anatomy-view { display:flex; justify-content:center; margin-top:4px; }
@@ -334,22 +334,22 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .mv-photo-slot { flex:1; min-width:0; background:#111; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
 .mv-photo-slot img { width:100%; height:auto; display:block; max-height:calc(100dvh - 140px); object-fit:contain; flex:1; }
 .mv-photo-label { font-size:11px; color:#555; padding:5px 6px; text-align:center; flex-shrink:0; }
-.modal-close-x { position:absolute; top:14px; right:16px; background:none; border:none; color:#16a34a; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; line-height:1; }
+.modal-close-x { position:absolute; top:14px; right:16px; background:none; border:none; color:#C8FF00; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; line-height:1; }
 
 /* ── Loading / Error / Empty ─────────────────────────────── */
-.loading { text-align:center; padding:40px; color:#5a7f5a; }
-.empty { text-align:center; padding:40px 20px; color:#5a7f5a; font-size:14px; line-height:1.8; }
+.loading { text-align:center; padding:40px; color:#888888; }
+.empty { text-align:center; padding:40px 20px; color:#888888; font-size:14px; line-height:1.8; }
 .error-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100dvh; padding:40px 20px; text-align:center; }
 .error-screen h2 { font-size:20px; font-weight:700; margin-bottom:10px; }
 .error-screen p { font-size:14px; color:#555; line-height:1.6; }
 
 /* ── Toast ───────────────────────────────────────────────── */
-.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#ffffff; color:#16a34a; border:1px solid #16a34a; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; box-shadow:0 2px 12px rgba(0,0,0,0.1); }
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#C8FF00; color:#000000; border:none; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s; z-index:9999; white-space:nowrap; box-shadow:0 2px 12px rgba(0,0,0,0.15); }
 
 /* 루틴 공유 링크 */
 .import-link-card {
-  background: #f0f2f0;
-  border: 1px solid #d0dcd0;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
   border-radius: 12px;
   padding: 14px;
   margin: 6px 14px 12px;
@@ -359,7 +359,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 }
 .import-link-card input[type="text"] {
   background: #ffffff;
-  border: 1px solid #c0d0c0;
+  border: 1px solid #e5e5e5;
   border-radius: 8px;
   padding: 10px 14px;
   color: #fff;
@@ -369,7 +369,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   font-family: inherit;
   outline: none;
 }
-.import-link-card input[type="text"]:focus { border-color: #4ade80; }
+.import-link-card input[type="text"]:focus { border-color: #C8FF00; }
 .import-link-actions {
   display: flex;
   gap: 8px;
@@ -381,8 +381,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   border: none;
   cursor: pointer;
   font-size: 14px;
-  background: #4CAF50;
-  color: #fff;
+  background: #C8FF00;
+  color: #000000;
   font-family: inherit;
 }
 .import-link-actions .btn-cancel {
@@ -391,8 +391,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   border: none;
   cursor: pointer;
   font-size: 14px;
-  background: #d0dcd0;
-  color: #6b8f72;
+  background: #e5e5e5;
+  color: #888888;
   font-family: inherit;
 }
 .btn-link-copy {
@@ -400,8 +400,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   padding: 3px 10px;
   border-radius: 6px;
   background: transparent;
-  border: 1px solid #d0dcd0;
-  color: #6b8f72;
+  border: 1px solid #e5e5e5;
+  color: #888888;
   cursor: pointer;
   margin-left: 6px;
   font-family: inherit;
@@ -411,8 +411,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   padding: 6px 14px;
   border-radius: 8px;
   background: transparent;
-  border: 1px solid #4ade80;
-  color: #4ade80;
+  border: 1px solid #C8FF00;
+  color: #C8FF00;
   cursor: pointer;
   font-family: inherit;
 }
@@ -429,7 +429,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 
 <!-- 로딩 화면 -->
 <div id="loadingScreen" class="error-screen">
-  <h2 style="color:#6b8f72">로딩 중...</h2>
+  <h2 style="color:#888888">로딩 중...</h2>
 </div>
 
 <!-- 메인 콘텐츠 -->
@@ -440,11 +440,11 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div>
       <div class="header-title">VERA<span>GYM</span></div>
       <div class="header-sub" id="headerSub">베라짐 회원</div>
-      <div id="tokenDaysHdr" style="font-size:10px;color:#5a7f5a;margin-top:2px;font-weight:600"></div>
+      <div id="tokenDaysHdr" style="font-size:10px;color:#888888;margin-top:2px;font-weight:600"></div>
     </div>
     <div style="text-align:right">
       <div style="font-size:15px;font-weight:800" id="memberNameHdr">회원</div>
-      <div style="font-size:11px;color:#6b8f72;margin-top:2px" id="trainerInfoHdr"></div>
+      <div style="font-size:11px;color:#888888;margin-top:2px" id="trainerInfoHdr"></div>
     </div>
   </div>
 
@@ -651,7 +651,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <div class="wlog-rt-modal">
     <div class="wlog-rt-modal-title">루틴으로 저장</div>
     <input type="text" id="wlogRtSaveName" placeholder="루틴 이름" maxlength="30">
-    <div style="font-size:12px;color:#6b8f72;margin-bottom:14px" id="wlogRtSaveInfo"></div>
+    <div style="font-size:12px;color:#888888;margin-bottom:14px" id="wlogRtSaveInfo"></div>
     <div class="wlog-rt-modal-btns">
       <button class="wlog-rt-cancel vb vb-md vb-cancel" onclick="document.getElementById('wlogRtSaveBg').classList.remove('open')">취소</button>
       <button class="wlog-rt-ok vb vb-md vb-secondary" onclick="wlogDoSaveRoutine()">저장</button>
@@ -855,11 +855,11 @@ async function loadLogs(token) {
           ${s.notes ? `<div style="padding:14px 18px 0"><div class="sess-notes"><div class="sess-notes-label">트레이너 총평</div>${esc(s.notes)}</div></div>` : ''}
           ${s.note_photo_path ? `
           <div style="padding:8px 18px 0">
-            <div id="notePhotoInline${i}" style="display:none;margin-bottom:8px;position:relative;background:#f0f2f0;border-radius:10px;overflow:hidden;border:1px solid #d0dcd0;">
+            <div id="notePhotoInline${i}" style="display:none;margin-bottom:8px;position:relative;background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #e5e5e5;">
               <div style="padding:8px;text-align:center;">
                 <img id="notePhotoInlineImg${i}" src="" alt="PT 노트" style="max-width:100%;max-height:55dvh;object-fit:contain;display:block;margin:0 auto;border-radius:6px;">
               </div>
-              <button onclick="closeNotePhotoInline(${i})" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:#16a34a;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+              <button onclick="closeNotePhotoInline(${i})" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:#C8FF00;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
             </div>
             <button class="mv-photo-btn" id="notePhotoBtn${i}" onclick="toggleNotePhotoInline(${i}, '${s.note_photo_path}')">PT 노트 사진 보기</button>
           </div>` : ''}
@@ -885,7 +885,7 @@ async function toggleSess(i, logId) {
   ]);
   detailEl.dataset.loaded = '1';
   if (error || !exs || !exs.length) {
-    detailEl.innerHTML = '<div style="padding:10px 18px 14px;color:#5a7f5a;font-size:13px">운동 기록이 없어요</div>';
+    detailEl.innerHTML = '<div style="padding:10px 18px 14px;color:#888888;font-size:13px">운동 기록이 없어요</div>';
     return;
   }
   const photoMap = {};
@@ -900,13 +900,13 @@ async function toggleSess(i, logId) {
       const ref      = _exAll.find(x => x.id === ex.exercise_ref_id) || {};
       const imgUrl   = ref.image_url || '';
       const thumbHtml = imgUrl
-        ? `<div style="width:100%;height:140px;border-radius:10px;overflow:hidden;background:#e8ebe8;margin-top:6px"><img src="${imgUrl}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>`
+        ? `<div style="width:100%;height:140px;border-radius:10px;overflow:hidden;background:#f5f5f0;margin-top:6px"><img src="${imgUrl}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>`
         : '';
       const setsHtml = sets.length ? `
         <table class="sets-table">
           <tr><th>세트</th><th>무게(kg)</th><th>횟수</th></tr>
           ${sets.map((set, si) => `<tr><td class="set-cell">${si+1}세트</td><td>${set.weight??'-'}</td><td>${set.reps??'-'}</td></tr>`).join('')}
-        </table>` : '<div style="font-size:12px;color:#5a7f5a;padding:4px 0">세트 정보 없음</div>';
+        </table>` : '<div style="font-size:12px;color:#888888;padding:4px 0">세트 정보 없음</div>';
       const photoBtn = (photo?.start_path || photo?.end_path) ? `
         <button class="mv-photo-btn"
           onclick="viewMemberPhotos(${JSON.stringify(photo.start_path||null)}, ${JSON.stringify(photo.end_path||null)}, ${JSON.stringify(name)})">
@@ -949,7 +949,7 @@ async function loadSchedules(token) {
         <div><span class="sched-type-badge ${typeCls}">${s.type}</span></div>
         <div class="sched-time">${sTime}${eTime?' – '+eTime:''}</div>
         ${s.trainer_name?`<div class="sched-trainer">트레이너 · ${s.trainer_name}</div>`:''}
-        ${s.title?`<div style="font-size:12px;color:#6b8f72;margin-top:3px">${s.title}</div>`:''}
+        ${s.title?`<div style="font-size:12px;color:#888888;margin-top:3px">${s.title}</div>`:''}
       </div>
       <div class="sched-status ${badgeCls}">${badgeLabel}</div>
     </div>`;
@@ -1094,7 +1094,7 @@ function exRenderList() {
     `<span>${list.length}</span>${list.length===base ? '개 운동' : `개 / 전체 ${base}개`}`;
   if (!list.length) {
     wrap.innerHTML = _exSubView === 'mine'
-      ? `<div class="empty">내 운동이 없어요<br><span style="font-size:12px;color:#5a7f5a">전체운동에서 [＋ 추가] 버튼으로 추가해보세요</span></div>`
+      ? `<div class="empty">내 운동이 없어요<br><span style="font-size:12px;color:#888888">전체운동에서 [＋ 추가] 버튼으로 추가해보세요</span></div>`
       : `<div class="empty">해당하는 운동이 없어요</div>`;
     return;
   }
@@ -1199,7 +1199,7 @@ async function rtRenderRoutines() {
   if (!routines.length) {
     wrap.innerHTML = `<div class="rt-empty">
       저장된 루틴이 없습니다.<br>
-      위 버튼으로 <b style="color:#16a34a;">새 루틴</b>을 만들어보세요.
+      위 버튼으로 <b style="color:#3a6600;">새 루틴</b>을 만들어보세요.
     </div>`;
     return;
   }
@@ -1218,7 +1218,7 @@ async function rtRenderRoutines() {
       </div>
       <div class="rt-card-exs">
         ${r.exs.length === 0
-          ? '<span style="color:#5a7f5a;">운동 없음</span>'
+          ? '<span style="color:#888888;">운동 없음</span>'
           : r.exs.map(e => `
             <span class="rt-card-ex-chip">
               ${esc(e.name_ko)}
@@ -1245,14 +1245,14 @@ function rtStartNew() {
   overlay.id = 'rtNewOverlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:350;display:flex;align-items:center;justify-content:center;padding:24px;';
   overlay.innerHTML = `
-    <div style="background:#f0f2f0;border-radius:14px;padding:24px;width:100%;max-width:360px;border:1px solid #c0d0c0;">
+    <div style="background:#ffffff;border-radius:14px;padding:24px;width:100%;max-width:360px;border:1px solid #e5e5e5;">
       <div style="font-size:15px;font-weight:700;margin-bottom:8px;">새 루틴 만들기</div>
-      <div style="font-size:12px;color:#6b8f72;margin-bottom:12px;">
+      <div style="font-size:12px;color:#888888;margin-bottom:12px;">
         빈 루틴을 만들어요. 만든 후 운동을 추가할 수 있어요.
       </div>
       <input id="rtNewNameInput" type="text" placeholder="루틴 이름"
         style="width:100%;box-sizing:border-box;padding:10px 12px;background:#ffffff;
-               border:1px solid #c0d0c0;border-radius:8px;color:#1a1a1a;font-size:14px;
+               border:1px solid #e5e5e5;border-radius:8px;color:#1a1a1a;font-size:14px;
                outline:none;margin-bottom:16px;font-family:inherit;" maxlength="30"/>
       <div style="display:flex;gap:10px;">
         <button class="vb vb-md vb-cancel" onclick="document.getElementById('rtNewOverlay').remove()">취소</button>
@@ -1345,7 +1345,7 @@ async function wlogLoadList() {
 function wlogRenderList() {
   const wrap = document.getElementById('wlogList');
   if (!_wlogList.length) {
-    wrap.innerHTML = '<div class="empty">운동일지가 없어요<br><span style="font-size:12px;color:#5a7f5a">오른쪽 위 + 버튼으로 첫 일지를 작성해보세요</span></div>';
+    wrap.innerHTML = '<div class="empty">운동일지가 없어요<br><span style="font-size:12px;color:#888888">오른쪽 위 + 버튼으로 첫 일지를 작성해보세요</span></div>';
     return;
   }
   wrap.innerHTML = _wlogList.map((log, i) => {
@@ -1368,24 +1368,24 @@ async function wlogToggleDetail(idx, logId) {
   const arrow = document.getElementById('wlogArrow-' + idx);
   if (el.classList.contains('open')) { el.classList.remove('open'); if(arrow) arrow.classList.remove('open'); return; }
   if (!el.dataset.loaded) {
-    el.innerHTML = '<div style="color:#5a7f5a;font-size:12px;padding:4px 0">불러오는 중...</div>';
+    el.innerHTML = '<div style="color:#888888;font-size:12px;padding:4px 0">불러오는 중...</div>';
     const { data: exs } = await db.rpc('member_get_workout_log_detail', { p_token: _memberToken, p_log_id: logId });
     if (!exs || !exs.length) {
-      el.innerHTML = '<div style="color:#5a7f5a;font-size:12px;padding:4px 0">운동 기록이 없어요</div>';
+      el.innerHTML = '<div style="color:#888888;font-size:12px;padding:4px 0">운동 기록이 없어요</div>';
     } else {
       // exercise_ref_id로 이름·이미지 매칭
       el.innerHTML = exs.map(e => {
         const ref = _exAll.find(x => x.id === e.exercise_ref_id) || {};
         const name = e.custom_name || ref.name_ko || '운동';
         const imgUrl = ref.image_url || '';
-        const wmTag = _isUnilateral(e.weight_mode) ? '<span style="font-size:10px;color:#16a34a;margin-left:6px;background:#4ade8018;padding:1px 6px;border-radius:4px">한손</span>' : '';
+        const wmTag = _isUnilateral(e.weight_mode) ? '<span style="font-size:10px;color:#3a6600;margin-left:6px;background:#C8FF0018;padding:1px 6px;border-radius:4px">한손</span>' : '';
         const sets = e.sets_data || [];
         const setsHtml = sets.length ? `<table class="sets-table"><tr><th>세트</th><th>무게</th><th>횟수</th></tr>` +
           sets.map(s => `<tr><td class="set-cell">${s.set||''}</td><td>${s.weight||0}kg</td><td>${s.reps||0}회</td></tr>`).join('') +
           `</table>` : '';
-        const commentHtml = e.comment ? `<div style="font-size:11px;color:#6b8f72;margin-top:4px;padding:4px 8px;background:#e0e8e0;border-radius:4px">${esc(e.comment)}</div>` : '';
+        const commentHtml = e.comment ? `<div style="font-size:11px;color:#888888;margin-top:4px;padding:4px 8px;background:#e5e5e5;border-radius:4px">${esc(e.comment)}</div>` : '';
         const thumbHtml = imgUrl
-          ? `<div style="width:100%;height:140px;border-radius:10px;overflow:hidden;background:#e8ebe8;margin-top:6px"><img src="${imgUrl}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>`
+          ? `<div style="width:100%;height:140px;border-radius:10px;overflow:hidden;background:#f5f5f0;margin-top:6px"><img src="${imgUrl}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>`
           : '';
         return `<div class="wlog-detail-ex">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
@@ -1669,7 +1669,7 @@ function wlogRenderPicker() {
             <div class="pk-tags">
               ${ex.tool_unified ? `<span class="pk-tag-tool">${ex.tool_unified}</span>` : ''}
               ${ex.part_unified ? `<span class="pk-tag-part">${ex.part_unified}</span>` : ''}
-              ${_isUnilateral(ex.weight_mode) ? `<span class="pk-tag-tool" style="background:#4ade8011;border-color:#16a34a33;color:#16a34a">한손</span>` : ''}
+              ${_isUnilateral(ex.weight_mode) ? `<span class="pk-tag-tool" style="background:#C8FF0011;border-color:#3a660033;color:#3a6600">한손</span>` : ''}
               ${isMine ? `<span class="pk-tag-mine">내 운동</span>` : ''}
             </div>
           </div>
@@ -1701,8 +1701,8 @@ async function wlogPickEx(refId, btnEl) {
     });
     if (data) {
       showToast(`"${ex.name_ko || ex.name_en}" 추가됨`);
-      if (btnEl) { btnEl.textContent = '✓'; btnEl.style.color = '#22c55e'; }
-      if (card) { card.style.opacity = '1'; card.style.background = '#e8f5e8'; }
+      if (btnEl) { btnEl.textContent = '✓'; btnEl.style.color = '#C8FF00'; }
+      if (card) { card.style.opacity = '1'; card.style.background = '#f0ffd0'; }
     } else {
       if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
       showToast('추가 실패');
@@ -1878,17 +1878,17 @@ function statsRender(s) {
   const WEEK_CONFIG = [
     { min:7, emoji:'🔥🔥', color:'#f97316', msg:'완벽한 한 주!' },
     { min:5, emoji:'🔥',   color:'#facc15', msg:'이번 주 훌륭해요!' },
-    { min:3, emoji:'💪',   color:'#4ade80', msg:'이번 주 잘 하고 있어요!' },
-    { min:1, emoji:'😐',   color:'#86efac', msg:'조금 더 할 수 있어요' },
-    { min:0, emoji:'💤',   color:'#6b8f72', msg:'이번 주 아직 운동 전이에요' },
+    { min:3, emoji:'💪',   color:'#C8FF00', msg:'이번 주 잘 하고 있어요!' },
+    { min:1, emoji:'😐',   color:'#C8FF00', msg:'조금 더 할 수 있어요' },
+    { min:0, emoji:'💤',   color:'#888888', msg:'이번 주 아직 운동 전이에요' },
   ];
   const wc = WEEK_CONFIG.find(c => thisWeek >= c.min);
   let html = `
     <!-- 주간 빈도 배너 -->
-    <div style="background:linear-gradient(135deg,#f0f5f0,#e0efe0);border-radius:14px;padding:18px 20px;margin-bottom:14px">
+    <div style="background:linear-gradient(135deg,#f3ffe0,#f0ffd0);border-radius:14px;padding:18px 20px;margin-bottom:14px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div>
-          <div style="font-size:11px;color:#6b8f72;letter-spacing:1px;margin-bottom:2px">이번 주 운동</div>
+          <div style="font-size:11px;color:#888888;letter-spacing:1px;margin-bottom:2px">이번 주 운동</div>
           <div style="font-size:10px;color:#2a3a2a;margin-bottom:4px">월요일~오늘까지 운동한 날 수</div>
           <div style="display:flex;align-items:baseline;gap:4px">
             <span style="font-size:48px;font-weight:900;color:${wc.color};line-height:1">${thisWeek}</span>
@@ -1898,22 +1898,22 @@ function statsRender(s) {
           <div style="font-size:13px;color:${wc.color};margin-top:4px;font-weight:600">${wc.msg}</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:11px;color:#6b8f72;letter-spacing:1px;margin-bottom:4px">주당 평균</div>
-          <div style="font-size:28px;font-weight:800;color:#16a34a;line-height:1">${weeklyAvg}</div>
-          <div style="font-size:11px;color:#5a7f5a;margin-top:2px">회</div>
+          <div style="font-size:11px;color:#888888;letter-spacing:1px;margin-bottom:4px">주당 평균</div>
+          <div style="font-size:28px;font-weight:800;color:#3a6600;line-height:1">${weeklyAvg}</div>
+          <div style="font-size:11px;color:#888888;margin-top:2px">회</div>
         </div>
       </div>
-      <div style="display:flex;gap:16px;border-top:1px solid #e0efe0;padding-top:10px;flex-wrap:wrap">
-        <div style="font-size:11px;color:#5a7f5a">연속 출석 <span style="color:#4a7a4a;font-weight:600">${curStreak}일</span><span style="color:#d0e0d0;font-size:10px"> · 하루도 안 빠진 날 수</span></div>
-        <div style="font-size:11px;color:#5a7f5a">역대 최장 <span style="color:#4a7a4a;font-weight:600">${maxStreak}일</span><span style="color:#d0e0d0;font-size:10px"> · 지금까지 최고 기록</span></div>
+      <div style="display:flex;gap:16px;border-top:1px solid #f0ffd0;padding-top:10px;flex-wrap:wrap">
+        <div style="font-size:11px;color:#888888">연속 출석 <span style="color:#3a6600;font-weight:600">${curStreak}일</span><span style="color:#bbbbbb;font-size:10px"> · 하루도 안 빠진 날 수</span></div>
+        <div style="font-size:11px;color:#888888">역대 최장 <span style="color:#3a6600;font-weight:600">${maxStreak}일</span><span style="color:#bbbbbb;font-size:10px"> · 지금까지 최고 기록</span></div>
       </div>
     </div>
     <!-- 요약 카드 -->
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-card-num">${s.total_logs||0}</div><div class="stat-card-label">총 운동일지</div><div style="font-size:10px;color:#d0e0d0;margin-top:3px">지금까지 기록한 횟수</div></div>
-      <div class="stat-card"><div class="stat-card-num">${s.total_exercises||0}</div><div class="stat-card-label">운동 종류</div><div style="font-size:10px;color:#d0e0d0;margin-top:3px">해본 운동 가짓수</div></div>
-      <div class="stat-card"><div class="stat-card-num">${s.logs_this_month||0}</div><div class="stat-card-label">이번 달</div><div style="font-size:10px;color:#d0e0d0;margin-top:3px">이번 달 운동 횟수</div></div>
-      <div class="stat-card"><div class="stat-card-num">${s.recent_30d_count||0}</div><div class="stat-card-label">최근 30일</div><div style="font-size:10px;color:#d0e0d0;margin-top:3px">최근 한 달 운동 횟수</div></div>
+      <div class="stat-card"><div class="stat-card-num">${s.total_logs||0}</div><div class="stat-card-label">총 운동일지</div><div style="font-size:10px;color:#bbbbbb;margin-top:3px">지금까지 기록한 횟수</div></div>
+      <div class="stat-card"><div class="stat-card-num">${s.total_exercises||0}</div><div class="stat-card-label">운동 종류</div><div style="font-size:10px;color:#bbbbbb;margin-top:3px">해본 운동 가짓수</div></div>
+      <div class="stat-card"><div class="stat-card-num">${s.logs_this_month||0}</div><div class="stat-card-label">이번 달</div><div style="font-size:10px;color:#bbbbbb;margin-top:3px">이번 달 운동 횟수</div></div>
+      <div class="stat-card"><div class="stat-card-num">${s.recent_30d_count||0}</div><div class="stat-card-label">최근 30일</div><div style="font-size:10px;color:#bbbbbb;margin-top:3px">최근 한 달 운동 횟수</div></div>
     </div>`;
 
   // 많이 한 운동 TOP 5
@@ -1966,29 +1966,29 @@ function statsRender(s) {
     // 최근 일지 볼륨 추이
     html += `<div class="stat-section">
       <div class="stat-section-title">일지별 운동 볼륨</div>
-      <div class="stat-section-desc">볼륨 = 들어올린 무게(kg) × 횟수를 모두 더한 값이에요.<br>숫자가 클수록 그날 더 많은 운동을 한 거예요. 점점 높아지면 성장 중이에요! 📈<br><span style="color:#d0e0d0">※ 무게를 직접 입력한 운동만 계산돼요 · 한쪽(한손) 운동은 2배 적용</span></div>
+      <div class="stat-section-desc">볼륨 = 들어올린 무게(kg) × 횟수를 모두 더한 값이에요.<br>숫자가 클수록 그날 더 많은 운동을 한 거예요. 점점 높아지면 성장 중이에요! 📈<br><span style="color:#bbbbbb">※ 무게를 직접 입력한 운동만 계산돼요 · 한쪽(한손) 운동은 2배 적용</span></div>
       <div style="display:flex;gap:10px;margin-bottom:32px">
-        <div style="flex:1;background:#f0f5f0;border-radius:10px;padding:12px;text-align:center">
-          <div style="font-size:18px;font-weight:800;color:#16a34a">${fmtVol(avgVol)}</div>
-          <div style="font-size:11px;color:#6b8f72;margin-top:3px">일지 평균</div>
-          <div style="font-size:10px;color:#d0e0d0;margin-top:2px">내 평균 운동량</div>
+        <div style="flex:1;background:#f3ffe0;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:18px;font-weight:800;color:#3a6600">${fmtVol(avgVol)}</div>
+          <div style="font-size:11px;color:#888888;margin-top:3px">일지 평균</div>
+          <div style="font-size:10px;color:#bbbbbb;margin-top:2px">내 평균 운동량</div>
         </div>
-        <div style="flex:1;background:#f0f5f0;border-radius:10px;padding:12px;text-align:center">
-          <div style="font-size:18px;font-weight:800;color:#16a34a">${fmtVol(maxVol)}</div>
-          <div style="font-size:11px;color:#6b8f72;margin-top:3px">최고 기록</div>
-          <div style="font-size:10px;color:#d0e0d0;margin-top:2px">가장 많이 한 날</div>
+        <div style="flex:1;background:#f3ffe0;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:18px;font-weight:800;color:#3a6600">${fmtVol(maxVol)}</div>
+          <div style="font-size:11px;color:#888888;margin-top:3px">최고 기록</div>
+          <div style="font-size:10px;color:#bbbbbb;margin-top:2px">가장 많이 한 날</div>
         </div>
       </div>
       <div style="position:relative;margin-top:28px">
         <!-- 평균선 -->
-        <div style="position:absolute;left:0;right:0;top:${Math.round((1 - avgVol/maxBar)*80)}px;height:1px;background:#4ade8055;border-top:1px dashed #4ade8088;z-index:1"></div>
+        <div style="position:absolute;left:0;right:0;top:${Math.round((1 - avgVol/maxBar)*80)}px;height:1px;background:#C8FF0055;border-top:1px dashed #C8FF0088;z-index:1"></div>
         <div style="display:flex;align-items:flex-end;gap:4px;height:80px;padding-bottom:0">
           ${[...recentVols].reverse().map(r => {
             const h   = Math.max(Math.round(r.volume / maxBar * 80), 2);
             const pct = Math.round(r.volume / avgVol * 100);
-            const col = r.volume >= avgVol * 1.1 ? '#4ade80'
-                      : r.volume >= avgVol * 0.9 ? '#86efac'
-                      : '#b0e0c0';
+            const col = r.volume >= avgVol * 1.1 ? '#C8FF00'
+                      : r.volume >= avgVol * 0.9 ? '#C8FF00'
+                      : '#C8FF00';
             return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:default" title="${r.date} · ${fmtVol(r.volume)} (평균대비 ${pct}%)">
               <div style="width:100%;height:${h}px;background:${col};border-radius:3px 3px 0 0;transition:height .3s"></div>
               <div style="font-size:9px;color:#2a4a3a;white-space:nowrap">${r.date}</div>
@@ -2012,7 +2012,7 @@ function statsRender(s) {
           const w = Math.round(vol / maxPart * 100);
           return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
             <span style="font-size:12px;color:${color};width:44px;flex-shrink:0;font-weight:600">${esc(part)}</span>
-            <div style="flex:1;height:8px;background:#f0f5f0;border-radius:6px;overflow:hidden">
+            <div style="flex:1;height:8px;background:#f3ffe0;border-radius:6px;overflow:hidden">
               <div style="width:${w}%;height:100%;background:${color};border-radius:6px"></div>
             </div>
             <span style="font-size:12px;color:${color};width:52px;text-align:right">${fmtVol(vol)}</span>
@@ -2034,12 +2034,12 @@ function statsRender(s) {
       <div style="display:flex;align-items:flex-end;gap:6px;height:70px;margin-top:20px;margin-bottom:6px">
         ${dowData.map(d => {
           const h   = Math.max(Math.round(d.cnt / maxDow * 60), d.cnt > 0 ? 4 : 2);
-          const col = d.cnt === Math.max(...dowData.map(x => x.cnt)) ? '#4ade80'
-                    : d.cnt > 0 ? '#b0e0c0' : '#f0f5f0';
+          const col = d.cnt === Math.max(...dowData.map(x => x.cnt)) ? '#C8FF00'
+                    : d.cnt > 0 ? '#C8FF00' : '#f3ffe0';
           return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
-            <div style="font-size:9px;color:#5a7f5a">${d.cnt > 0 ? d.cnt : ''}</div>
+            <div style="font-size:9px;color:#888888">${d.cnt > 0 ? d.cnt : ''}</div>
             <div style="width:100%;height:${h}px;background:${col};border-radius:3px 3px 0 0"></div>
-            <div style="font-size:11px;color:${d.cnt === Math.max(...dowData.map(x=>x.cnt)) ? '#4ade80' : '#5a7f5a'}">${d.label}</div>
+            <div style="font-size:11px;color:${d.cnt === Math.max(...dowData.map(x=>x.cnt)) ? '#C8FF00' : '#888888'}">${d.label}</div>
           </div>`;
         }).join('')}
       </div>
@@ -2064,7 +2064,7 @@ function statsRender(s) {
     const partsSorted = Object.entries(partVol).sort((a, b) => b[1] - a[1]);
     html += `<div class="stat-section">
       <div class="stat-section-title">전신 부위별 운동량</div>
-      <div class="stat-section-desc">전체 운동량 중 각 신체 부위에 얼마나 집중했는지 비율로 보여줘요.<br>예) 가슴 30% → 내 전체 운동의 30%를 가슴에 썼다는 뜻이에요.<br>아래 작은 막대는 그 부위 안에서 어느 근육을 더 많이 썼는지 보여줘요 💡<br><span style="color:#d0e0d0">※ 무게를 직접 입력한 운동만 포함 (맨몸 운동 제외)</span></div>`;
+      <div class="stat-section-desc">전체 운동량 중 각 신체 부위에 얼마나 집중했는지 비율로 보여줘요.<br>예) 가슴 30% → 내 전체 운동의 30%를 가슴에 썼다는 뜻이에요.<br>아래 작은 막대는 그 부위 안에서 어느 근육을 더 많이 썼는지 보여줘요 💡<br><span style="color:#bbbbbb">※ 무게를 직접 입력한 운동만 포함 (맨몸 운동 제외)</span></div>`;
 
     for (const [part, vol] of partsSorted) {
       const partPct  = Math.round(vol / partTotal * 100);
@@ -2079,7 +2079,7 @@ function statsRender(s) {
         <!-- 부위 행 -->
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">
           <span style="font-size:15px;font-weight:700;color:${color};width:44px;flex-shrink:0">${esc(part)}</span>
-          <div style="flex:1;height:10px;background:#f0f5f0;border-radius:6px;overflow:hidden">
+          <div style="flex:1;height:10px;background:#f3ffe0;border-radius:6px;overflow:hidden">
             <div style="width:${partPct}%;height:100%;background:${color};border-radius:6px;transition:width .4s"></div>
           </div>
           <span style="font-size:15px;font-weight:700;color:${color};width:38px;text-align:right">${partPct}%</span>
@@ -2088,12 +2088,12 @@ function statsRender(s) {
       // 근육 상세 행
       if (muscles.length) {
         html += `<div style="padding-left:54px;display:flex;flex-direction:column;gap:4px">
-          <div style="font-size:10px;color:#d0e0d0;margin-bottom:3px">${esc(part)} 운동 중 주로 사용된 근육 비율</div>`;
+          <div style="font-size:10px;color:#bbbbbb;margin-bottom:3px">${esc(part)} 운동 중 주로 사용된 근육 비율</div>`;
         for (const m of muscles) {
           const mPct = muscleTotal > 0 ? Math.round(m.vol / muscleTotal * 100) : 0;
           html += `<div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:11px;color:#5a7a6a;width:58px;flex-shrink:0">${esc(m.name)}</span>
-            <div style="flex:1;height:5px;background:#f0f5f0;border-radius:4px;overflow:hidden">
+            <div style="flex:1;height:5px;background:#f3ffe0;border-radius:4px;overflow:hidden">
               <div style="width:${mPct}%;height:100%;background:${color};opacity:.55;border-radius:4px"></div>
             </div>
             <span style="font-size:11px;color:#4a6a5a;width:32px;text-align:right">${mPct}%</span>
@@ -2137,11 +2137,11 @@ function statsRender(s) {
         <div class="stat-section-desc">운동이 특정 부위에만 치우치지 않는지 확인해줘요. 꾸준히 참고하면 더 균형 잡힌 몸을 만들 수 있어요 ⚖️</div>
         <div style="display:flex;flex-direction:column;gap:8px">
           ${allItems.map(item => `
-            <div style="display:flex;align-items:flex-start;gap:10px;background:${item.icon==='⚠️'?'#fff0f0':item.icon==='💡'?'#fffdf0':'#f0f5f0'};border-radius:10px;padding:10px 12px">
+            <div style="display:flex;align-items:flex-start;gap:10px;background:${item.icon==='⚠️'?'#ffe4e6':item.icon==='💡'?'#fef9c3':'#f3ffe0'};border-radius:10px;padding:10px 12px">
               <span style="font-size:16px;flex-shrink:0">${item.icon}</span>
               <div>
-                <div style="font-size:13px;font-weight:600;color:${item.icon==='⚠️'?'#f87171':item.icon==='💡'?'#fbbf24':'#4ade80'}">${esc(item.msg)}</div>
-                <div style="font-size:11px;color:#6b8f72;margin-top:2px">${esc(item.sub)}</div>
+                <div style="font-size:13px;font-weight:600;color:${item.icon==='⚠️'?'#f87171':item.icon==='💡'?'#fbbf24':'#C8FF00'}">${esc(item.msg)}</div>
+                <div style="font-size:11px;color:#888888;margin-top:2px">${esc(item.sub)}</div>
               </div>
             </div>`).join('')}
         </div>
@@ -2212,7 +2212,7 @@ async function toggleNotePhotoInline(i, path) {
     if (error || !data?.signedUrl) {
       container.innerHTML = `
         <div style="padding:16px;text-align:center;color:#f87171;font-size:13px;">사진을 불러올 수 없습니다</div>
-        <button onclick="closeNotePhotoInline(${i})" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:#16a34a;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>`;
+        <button onclick="closeNotePhotoInline(${i})" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:#C8FF00;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>`;
       return;
     }
     _notePhotoUrlCache[path] = data.signedUrl;
