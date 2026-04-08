@@ -299,6 +299,8 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .sc-st-completed { background:#22c55e22; border:1px solid #22c55e44; color:#4ade80; }
 .sc-st-noshow { background:#f59e0b22; border:1px solid #f59e0b44; color:#fbbf24; }
 .sc-st-cancelled { background:#33333322; border:1px solid #33333344; color:#666; }
+.sc-st-pending_complete { background:#34d39922; border:1px dashed #34d39966; color:#34d399; }
+.sc-st-pending_noshow { background:#fbbf2422; border:1px dashed #fbbf2466; color:#fbbf24; }
 /* Action buttons */
 .sc-btn { border-radius:8px; padding:7px 12px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; border:1px solid; transition:all .15s; }
 .sc-btn-green { background:#22c55e22; border-color:#22c55e55; color:#4ade80; }
@@ -2042,8 +2044,8 @@ function switchTab(id, btn) {
 // 일정 탭
 // ══════════════════════════════════════════════════════════════
 const SC_TC = {PT:'#6c63ff',SPT:'#ffd54f',업무:'#81c784',청소:'#42a5f5',홍보:'#f06292',식사:'#ef9a9a'};
-const SC_SL = {scheduled:'예약',completed:'완료',noshow:'노쇼',cancelled:'취소'};
-const SC_SC = {scheduled:'sc-st-scheduled',completed:'sc-st-completed',noshow:'sc-st-noshow',cancelled:'sc-st-cancelled'};
+const SC_SL = {scheduled:'예약',pending_complete:'완료대기',pending_noshow:'노쇼대기',completed:'완료',noshow:'노쇼',cancelled:'취소'};
+const SC_SC = {scheduled:'sc-st-scheduled',pending_complete:'sc-st-pending_complete',pending_noshow:'sc-st-pending_noshow',completed:'sc-st-completed',noshow:'sc-st-noshow',cancelled:'sc-st-cancelled'};
 const SC_SLOTS=[];for(let _h=6;_h<=23;_h++){SC_SLOTS.push(String(_h).padStart(2,'0')+':00');if(_h<23)SC_SLOTS.push(String(_h).padStart(2,'0')+':30');}
 const SC_DAY=['일','월','화','수','목','금','토'];
 
@@ -2149,7 +2151,7 @@ function scRenderDayView(){
         let stxt='';
         if((sType==='PT'||sType==='SPT')&&s.pt_products){
           const ps=calcPtSession(s,scData);
-          stxt=`${sType} ${ps.num!=null?ps.num:'?'}/${ps.total}`;
+          stxt=`${sType} ${ps.num!=null?ps.num:'·'}/${ps.total}`;
         }
         const memName=s.members?.name||sType;
         const sid=s.id;
@@ -2217,11 +2219,13 @@ function scRenderCal(){
       let evBg,evOp='1',evExtra='';
       if(s.status==='noshow'){evBg='#f59e0b';evOp='0.5';evExtra='<div style="position:absolute;top:2px;right:4px;font-size:9px;opacity:.8">✓</div>';}
       else if(s.status==='completed'){evBg=SC_TC[sType]||'#6c63ff';evOp='0.45';evExtra='<div style="position:absolute;top:2px;right:4px;font-size:9px;opacity:.8">✓</div>';}
+      else if(s.status==='pending_complete'){evBg=SC_TC[sType]||'#6c63ff';evOp='0.7';evExtra='<div style="position:absolute;top:2px;right:4px;font-size:9px;opacity:.8">⏳</div>';}
+      else if(s.status==='pending_noshow'){evBg='#f59e0b';evOp='0.7';evExtra='<div style="position:absolute;top:2px;right:4px;font-size:9px;opacity:.8">⏳</div>';}
       else{evBg=SC_TC[sType]||'#6c63ff';}
       const memName=s.members?.name||'';
       const trainerName=s.trainers?.name||'';
       let stxt='';
-      if(sType==='PT'&&s.pt_products){const ps=calcPtSession(s,scData);stxt=`${ps.num!=null?ps.num:'?'}/${ps.total}`;}
+      if(sType==='PT'&&s.pt_products){const ps=calcPtSession(s,scData);stxt=`${ps.num!=null?ps.num:'·'}/${ps.total}`;}
       const line1=memName||sType;
       // PT: 항상 회차 표시. 전체 트레이너 시 트레이너명 앞에 붙임
       let line2='';
@@ -2255,7 +2259,7 @@ function scRenderList(){
       const tStr=s.start_time?s.start_time.slice(0,5):'--:--';
       const dur=scDurMin(s.start_time,s.end_time);
       const sType=s.type||'PT';
-      let stxt='';if(sType==='PT'&&s.pt_products){const ps=calcPtSession(s,scData);stxt=` ${ps.num!=null?ps.num:'?'}/${ps.total}`;}
+      let stxt='';if(sType==='PT'&&s.pt_products){const ps=calcPtSession(s,scData);stxt=` ${ps.num!=null?ps.num:'·'}/${ps.total}`;}
       const memberLine=s.members?.name?`${s.members.name} <span class="sc-card-dur">${sType}${stxt} (${dur}분)</span>`:`<span class="sc-card-dur">${sType} (${dur}분)</span>`;
       html+=`<div class="sc-card">
         <div class="sc-card-top">
@@ -2302,7 +2306,8 @@ function scOpenInfo(sched){
   let sessTxt='-';
   if(sched.pt_products){
     const ps=calcPtSession(sched,scData);
-    sessTxt=`${ps.num!=null?ps.num:'?'}/${ps.total}회 사용`;
+    sessTxt=`${ps.num!=null?ps.num:'·'}/${ps.total}회 사용`;
+    if(ps.num===null){sessTxt+=`<br><span style="color:#f59e0b;font-size:13px;">⚠️ 과거 미처리 수업입니다. 완료/노쇼 처리해주세요.</span>`;}
   }
   document.getElementById('scInfoDetail').innerHTML=`
     <div class="sc-dr"><span class="sc-dl">날짜/시간</span><span class="sc-dv">${mo}/${d}(${SC_DAY[dateObj.getDay()]}) ${tStr} (${dur}분)</span></div>
@@ -2329,6 +2334,14 @@ function scRenderInfoActions(){
     }
     b+=`<button class="vb vb-md vb-danger" style="flex:1;" onclick="scAskConfirm('cancel')">예약 취소</button>`;
   }
+  if(s.status==='pending_complete'||s.status==='pending_noshow'){
+    const plabel=s.status==='pending_complete'?'완료':'노쇼';
+    const pcolor=s.status==='pending_complete'?'#34d399':'#fbbf24';
+    b=`<div style="width:100%;background:#1a2e1a;border:1.5px solid ${pcolor};color:${pcolor};border-radius:12px;padding:14px;font-size:15px;text-align:center;line-height:1.6;">⏳ 트레이너가 ${plabel} 대기 요청함</div>`;
+    b+=`<button class="vb vb-md vb-success" style="flex:1;" onclick="scConfirmPending()">${plabel} 확정</button>`;
+    b+=`<button class="vb vb-md vb-danger" style="flex:1;" onclick="scRejectPending()">거부 (예약으로 복원)</button>`;
+    b+=`<button class="vb vb-md vb-cancel" style="flex:1;" onclick="closeModal('scInfoModal')">닫기</button>`;
+  }
   if(isPtSpt&&s.status==='completed'){
     b+=`<button class="vb vb-md vb-warning" id="scBtnToggle" style="flex:1;" onclick="scToggleNoshow()">노쇼로 변경</button>`;
     b+=`<button class="vb vb-md vb-primary" style="flex:1;" onclick="scAskConfirm('rollback')">완료 롤백</button>`;
@@ -2340,6 +2353,38 @@ function scRenderInfoActions(){
     b+=`<button class="vb vb-md vb-secondary" style="flex:1;" onclick="scOpenEdit()">날짜·시간 수정</button>`;
   }
   acts.innerHTML=b;acts.style.display='flex';
+}
+
+async function scConfirmPending(){
+  if(!scTarget)return;
+  const acts=document.getElementById('scInfoActions');
+  acts.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+    const{data,error}=await db.rpc('confirm_session_status',{p_schedule_id:scTarget.id});
+    if(error||!data?.ok)throw new Error(error?.message||data?.error||'확정 실패');
+    closeModal('scInfoModal');
+    showToast(data.new_status==='completed'?'완료 확정됨':'노쇼 확정됨');
+    await scLoad();
+  }catch(e){
+    showToast(e.message);
+    acts.querySelectorAll('button').forEach(b=>b.disabled=false);
+  }
+}
+
+async function scRejectPending(){
+  if(!scTarget)return;
+  const acts=document.getElementById('scInfoActions');
+  acts.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+    const{data,error}=await db.rpc('withdraw_pending_session',{p_schedule_id:scTarget.id});
+    if(error||!data?.ok)throw new Error(error?.message||data?.error||'거부 실패');
+    closeModal('scInfoModal');
+    showToast('대기 거부됨 — 예약 상태로 복원 (잔여 횟수 복원)');
+    await scLoad();
+  }catch(e){
+    showToast(e.message);
+    acts.querySelectorAll('button').forEach(b=>b.disabled=false);
+  }
 }
 
 const SC_CFG={
@@ -2593,7 +2638,7 @@ function drawBranchCanvas(dateStr){
         const name=cleanName(sess.members?.name||sess.notes||'');
         const ps=calcPtSession(sess,_bsSchedules);
         ctx.fillText(name||sType,cellX+COL_W/2,rowY+ROW_H/2-3);
-        ctx.fillStyle='#111';ctx.font=`9px ${FONT}`;ctx.fillText(sType==='SPT'?'SPT':(ps.total>0?`PT${ps.num!=null?ps.num:'?'}/${ps.total}`:'PT'),cellX+COL_W/2,rowY+ROW_H/2+8);
+        ctx.fillStyle='#111';ctx.font=`9px ${FONT}`;ctx.fillText(sType==='SPT'?'SPT':(ps.total>0?`PT${ps.num!=null?ps.num:'·'}/${ps.total}`:'PT'),cellX+COL_W/2,rowY+ROW_H/2+8);
         if(sType==='SPT')cntSPT++;else cntPT++;
       }else{
         ctx.fillText(sType,cellX+COL_W/2,rowY+ROW_H/2+4);

@@ -245,6 +245,11 @@ function calcPtSession(schedule, allSchedules) {
     return { num: schedule.session_number ?? used, total };
   }
 
+  // 완료대기/노쇼대기: 이미 횟수 차감됨 → completed와 동일하게 session_number 사용
+  if (schedule.status === 'pending_complete' || schedule.status === 'pending_noshow') {
+    return { num: schedule.session_number ?? used, total };
+  }
+
   // 취소: used만 표시
   if (schedule.status === 'cancelled') {
     return { num: used, total };

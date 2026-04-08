@@ -1295,13 +1295,21 @@ function renderCalGrid(dates){
         evBg=TYPE_COLORS[sType]||'#6c63ff';
         evOpacity='0.45';// 완료: 원래 색상 어둡게 + 체크
         evExtra='<div style="position:absolute;top:2px;right:4px;font-size:10px;opacity:0.9">✓</div>';
+      }else if(s.status==='pending_complete'){
+        evBg=TYPE_COLORS[sType]||'#6c63ff';
+        evOpacity='0.7';
+        evExtra='<div style="position:absolute;top:2px;right:4px;font-size:9px;opacity:0.8">⏳</div>';
+      }else if(s.status==='pending_noshow'){
+        evBg='#f59e0b';
+        evOpacity='0.7';
+        evExtra='<div style="position:absolute;top:2px;right:4px;font-size:9px;opacity:0.8">⏳</div>';
       }else{
         evBg=TYPE_COLORS[sType]||'#6c63ff';// scheduled: 기본
       }
       let sessionTxt='';
       if(sType==='PT'&&s.pt_products){
         const ps=calcPtSession(s,scheduleData);
-        sessionTxt=ps.num!=null?` ${ps.num}/${ps.total}`:` ?/${ps.total}`;
+        sessionTxt=ps.num!=null?` ${ps.num}/${ps.total}`:` ·/${ps.total}`;
       }
       let evLine1,evLine2;
       if(sType==='PT'){
@@ -1990,8 +1998,8 @@ async function downloadBranchSched(){
 
 
 // ══════════ 일정 상세/액션 모달 ══════════
-const SI_STATUS_COLOR={scheduled:'#6c63ff',completed:'#22c55e',noshow:'#f59e0b',cancelled:'#6b7280'};
-const SI_STATUS_LABEL={scheduled:'예약됨',completed:'완료',noshow:'노쇼',cancelled:'취소됨'};
+const SI_STATUS_COLOR={scheduled:'#6c63ff',pending_complete:'#34d399',pending_noshow:'#fbbf24',completed:'#22c55e',noshow:'#f59e0b',cancelled:'#6b7280'};
+const SI_STATUS_LABEL={scheduled:'예약됨',pending_complete:'완료대기',pending_noshow:'노쇼대기',completed:'완료',noshow:'노쇼',cancelled:'취소됨'};
 let _siTarget=null,_siActionPending=null;
 
 function calcDurMin(start,end){if(!start||!end)return 60;const[sh,sm]=start.split(':').map(Number);const[eh,em]=end.split(':').map(Number);const d=(eh*60+em)-(sh*60+sm);return d>0?d:60;}
@@ -2039,51 +2047,96 @@ function renderSiActions(){
   const s=_siTarget;
   const acts=document.getElementById('siActions');
   const isPtSpt=(s.type==='PT'||s.type==='SPT');
+
   if(s.status==='scheduled'){
     if(isPtSpt){
       acts.innerHTML=`
-        <button id="siBtnComplete" onclick="siAction('complete')" class="vb vb-lg vb-success">완료 처리</button>
-        <button id="siBtnNoshow" onclick="siAction('noshow')" class="vb vb-lg vb-warning">노쇼 처리</button>
+        <button id="siBtnPendingComplete" onclick="siRequestPending('pending_complete')" class="vb vb-lg vb-success">완료 대기 요청</button>
+        <button id="siBtnPendingNoshow" onclick="siRequestPending('pending_noshow')" class="vb vb-lg vb-warning">노쇼 대기 요청</button>
         <div class="vb-group">
           <button id="siBtnCancel" onclick="siAction('cancel')" class="vb vb-lg vb-danger" style="flex:1">예약 취소</button>
           <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)" class="vb vb-lg vb-cancel" style="flex:1">수정</button>
         </div>`;
     }else{
-      // 업무/청소/홍보/식사: 완료 버튼 추가 (세션 차감 없이 상태만 변경)
       acts.innerHTML=`
-        <button id="siBtnComplete" onclick="siAction('complete')" class="vb vb-lg vb-success">완료 처리</button>
+        <button id="siBtnPendingComplete" onclick="siRequestPending('pending_complete')" class="vb vb-lg vb-success">완료 대기 요청</button>
         <div class="vb-group">
           <button id="siBtnCancel" onclick="siAction('cancel')" class="vb vb-lg vb-danger" style="flex:1">예약 취소</button>
           <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)" class="vb vb-lg vb-cancel" style="flex:1">수정</button>
         </div>`;
     }
+
+  }else if(s.status==='pending_complete'||s.status==='pending_noshow'){
+    const statusLabel=s.status==='pending_complete'?'완료 대기 중':'노쇼 대기 중';
+    const statusColor=s.status==='pending_complete'?'#34d399':'#fbbf24';
+    acts.innerHTML=`
+      <div style="width:100%;background:#1a2e1a;border:1.5px solid ${statusColor}55;color:${statusColor};border-radius:12px;padding:14px;font-size:14px;text-align:center;line-height:1.6;">
+        ⏳ ${statusLabel} — 관리자 확인 대기
+      </div>
+      <button onclick="siWithdrawPending()" class="vb vb-lg vb-warning">대기 철회</button>
+      <button onclick="closeSchedInfo()" class="vb vb-lg vb-cancel">닫기</button>`;
+
   }else if(s.status==='completed'||s.status==='noshow'){
-    if(s.auto_completed){
-      // 자동완료 수업: 트레이너 수정 불가
-      acts.innerHTML=`
-        <div style="width:100%;background:#1e2a3a;border:1.5px solid #3a5a7a55;color:#7a9abd;border-radius:12px;padding:14px;font-size:14px;text-align:center;line-height:1.6;">
-          ⚙️ 자동 완료된 수업입니다.<br>수정이 필요하면 <strong style="color:#60a5fa;">관리자에게 문의</strong>해주세요.
-        </div>
-        <button onclick="closeSchedInfo()" class="vb vb-lg vb-cancel">닫기</button>`;
-    }else{
-      // 수동 완료/노쇼: 노쇼전환·취소·수정 제공 (예약상태 복원 없음 → 자동완료 루프 방지)
-      const toggleLabel = s.status==='completed' ? '노쇼 처리로 변경' : '완료 처리로 변경';
-      acts.innerHTML=`
-        <button id="siBtnToggleNoshow" onclick="siToggleNoshow()"
-          class="vb vb-lg vb-warning">${toggleLabel}</button>
-        <div class="vb-group">
-          <button id="siBtnCancelCompleted" onclick="siCancelCompleted()"
-            class="vb vb-lg vb-danger" style="flex:1">예약 취소</button>
-          <button onclick="closeSchedInfo();openSchedModal('${s.id}',null,null)"
-            class="vb vb-lg vb-cancel" style="flex:1">수정</button>
-        </div>`;
-    }
+    acts.innerHTML=`
+      <div style="width:100%;background:#1e2a3a;border:1.5px solid #3a5a7a55;color:#7a9abd;border-radius:12px;padding:14px;font-size:14px;text-align:center;line-height:1.6;">
+        ✅ ${s.status==='completed'?'완료':'노쇼'} 확정됨<br>수정이 필요하면 <strong style="color:#60a5fa;">관리자에게 문의</strong>해주세요.
+      </div>
+      <button onclick="closeSchedInfo()" class="vb vb-lg vb-cancel">닫기</button>`;
+
   }else{
     acts.innerHTML=`<button onclick="closeSchedInfo()" class="vb vb-lg vb-cancel">닫기</button>`;
   }
 }
 
+let _siPendingAction=null;
+async function siRequestPending(action){
+  if(!_siTarget)return;
+  const errEl=document.getElementById('siErr');
+  errEl.style.display='none';
+  const btnId=action==='pending_complete'?'siBtnPendingComplete':'siBtnPendingNoshow';
+  if(_siPendingAction!==action){
+    _siPendingAction=action;
+    const btn=document.getElementById(btnId);
+    if(btn)btn.textContent=action==='pending_complete'?'완료 대기 — 한 번 더 탭':'노쇼 대기 — 한 번 더 탭';
+    setTimeout(()=>{if(_siPendingAction===action){_siPendingAction=null;renderSiActions();}},3000);
+    return;
+  }
+  _siPendingAction=null;
+  document.getElementById('siActions').querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+    const{data,error}=await db.rpc('request_session_status',{p_schedule_id:_siTarget.id,p_action:action});
+    if(error||!data?.ok)throw new Error(error?.message||data?.error||'요청 실패');
+    closeSchedInfo();
+    showToast(action==='pending_complete'?'완료 대기 요청됨':'노쇼 대기 요청됨');
+    await loadScheduleView();
+    _tabCache.members=0;
+  }catch(e){
+    errEl.textContent=e.message;errEl.style.display='block';
+    document.getElementById('siActions').querySelectorAll('button').forEach(b=>b.disabled=false);
+    renderSiActions();
+  }
+}
+
+async function siWithdrawPending(){
+  if(!_siTarget)return;
+  const errEl=document.getElementById('siErr');
+  errEl.style.display='none';
+  document.getElementById('siActions').querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+    const{data,error}=await db.rpc('withdraw_pending_session',{p_schedule_id:_siTarget.id});
+    if(error||!data?.ok)throw new Error(error?.message||data?.error||'철회 실패');
+    closeSchedInfo();
+    showToast('대기가 철회되었습니다 (잔여 횟수 복원)');
+    await loadScheduleView();
+    _tabCache.members=0;
+  }catch(e){
+    errEl.textContent=e.message;errEl.style.display='block';
+    document.getElementById('siActions').querySelectorAll('button').forEach(b=>b.disabled=false);
+  }
+}
+
 async function siAction(action){
+  if(action==='complete'||action==='noshow'){showToast('완료/노쇼 처리는 관리자만 가능합니다');return;}
   if(!_siTarget)return;
   const errEl=document.getElementById('siErr');
   errEl.style.display='none';
@@ -2138,6 +2191,7 @@ async function siAction(action){
 // ── 완료 ↔ 노쇼 전환 (잔여횟수 변동 없음) ──────────────────────
 let _siTogglePending=false;
 async function siToggleNoshow(){
+  showToast('관리자만 가능합니다');return;
   if(!_siTarget)return;
   const btn=document.getElementById('siBtnToggleNoshow');
   const errEl=document.getElementById('siErr');
@@ -2168,6 +2222,7 @@ async function siToggleNoshow(){
 // 완료/노쇼 수업 취소 (잔여횟수 복원 + 상태 cancelled)
 let _siCancelCompletedPending=false;
 async function siCancelCompleted(){
+  showToast('관리자만 가능합니다');return;
   if(!_siTarget)return;
   const btn=document.getElementById('siBtnCancelCompleted');
   const errEl=document.getElementById('siErr');
@@ -2197,6 +2252,7 @@ async function siCancelCompleted(){
 
 let _siRollbackPending=false;
 async function siRollback(){
+  showToast('관리자만 가능합니다');return;
   if(!_siTarget)return;
   const btn=document.getElementById('siBtnRollback');
   const errEl=document.getElementById('siErr');
@@ -2227,7 +2283,7 @@ async function siRollback(){
 function closeSchedInfo(){
   document.getElementById('schedInfoModal').style.display='none';
   document.body.style.overflow='';
-  _siTarget=null;_siActionPending=null;
+  _siTarget=null;_siActionPending=null;_siPendingAction=null;
   _siTogglePending=false;_siCancelCompletedPending=false;_siRollbackPending=false;
 }
 
