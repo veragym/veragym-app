@@ -593,6 +593,11 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
       <input id="mName" type="text" placeholder="홍길동" autocomplete="off" oninput="onMemberNameInput()">
       <div class="hint" id="mNameHint" style="display:none;color:#f87171"></div>
     </div>
+    <div class="field">
+      <label>전화번호</label>
+      <input id="mPhone" type="tel" placeholder="010-1234-5678" autocomplete="off" maxlength="20">
+      <div class="hint">입력 시 이름+뒤4자리로 저장됩니다 (예: 홍길동5678)</div>
+    </div>
     <div class="field" id="mSuffixField" style="display:none">
       <label>구분 suffix (선택) <span style="font-size:10px;color:#666">— 동명이인 구분용</span></label>
       <input id="mSuffix" type="text" placeholder="예: 73051" autocomplete="off" maxlength="10">
@@ -1283,7 +1288,7 @@ function searchMembers(query) {
   }
   if (summary) summary.style.display = 'none';
   if (breadcrumb) breadcrumb.style.display = 'none';
-  const results = _allMembers.filter(m => m.name && m.name.toLowerCase().includes(q.toLowerCase()));
+  const results = _allMembers.filter(m => (m.name && m.name.toLowerCase().includes(q.toLowerCase())) || (m.phone && m.phone.includes(q)));
   const wrap = document.getElementById('memberList');
   if (!results.length) { wrap.innerHTML = '<div class="empty">검색 결과가 없어요</div>'; return; }
   wrap.innerHTML = results.map(m => memberRow(m)).join('');
@@ -1645,6 +1650,7 @@ async function addPtProduct() {
 function openAddMember() {
   // 초기화
   document.getElementById('mName').value = '';
+  document.getElementById('mPhone').value = '';
   document.getElementById('mSuffix').value = '';
   document.getElementById('mNotes').value = '';
   document.getElementById('mContractDate').value = new Date().toISOString().slice(0, 10);
@@ -1699,8 +1705,11 @@ function calcPaymentAmount() {
 
 async function addMember() {
   const rawName      = document.getElementById('mName').value.trim();
+  const phone        = document.getElementById('mPhone').value.trim();
   const suffix       = document.getElementById('mSuffix').value.trim();
-  const name         = rawName + suffix;
+  // 전화번호 뒤 4자리를 이름에 자동 붙임 (suffix가 있으면 suffix 우선)
+  const phoneLast4   = phone.replace(/\D/g, '').slice(-4);
+  const name         = rawName + (suffix || phoneLast4);
   const notes        = document.getElementById('mNotes').value.trim();
   const trainerId    = document.getElementById('mTrainer').value || null;
   const contractTrId = document.getElementById('mContractTrainer').value || null;
@@ -1732,7 +1741,7 @@ async function addMember() {
   try {
     // 1. 회원 추가
     const { data: newMember, error: e1 } = await db.from('members')
-      .insert({ name, gym_location: gym, notes: notes || null, trainer_id: trainerId, is_active: true })
+      .insert({ name, gym_location: gym, notes: notes || null, trainer_id: trainerId, is_active: true, phone: phone || null })
       .select('id').single();
     if (e1) throw e1;
     newMemberId = newMember.id;
