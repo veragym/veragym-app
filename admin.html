@@ -1617,8 +1617,7 @@ async function addPtProduct() {
         member_id: _currentMemberId,
         total_sessions: sessions,
         payment_amount: Math.round(paymentAmt * 1.1),
-        net_amount: paymentAmt,
-        price_per_session: pricePerSess > 0 ? pricePerSess : null,
+        // net_amount, price_per_session은 DB GENERATED 컬럼 — 자동 계산
         trainer_id: contractTr,
         trainer_name: trainerRow ? trainerRow.name : null,
         pt_product_id: ptProductId,
@@ -1761,8 +1760,7 @@ async function addMember() {
           member_id: newMember.id,
           total_sessions: sessions,
           payment_amount: Math.round(paymentAmt * 1.1),
-          net_amount: paymentAmt,
-          price_per_session: pricePerSess > 0 ? pricePerSess : null,
+          // net_amount, price_per_session은 DB GENERATED 컬럼 — 자동 계산
           trainer_id: contractTrId || trainerId,
           trainer_name: trainerRow ? trainerRow.name : null,
           pt_product_id: ptData2.id,
