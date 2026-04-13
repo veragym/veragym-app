@@ -240,7 +240,10 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .sc-date-pill.active .pill-num { color:#c9a84c; }
 .sc-date-pill.active .pill-day { color:#a07830; }
 /* 트레이너 컬럼 데이뷰 */
-.sc-dv-header { padding:10px 14px; font-size:12px; color:#6a5830; border-bottom:1px solid #1a1a10; background:#0f0f08; }
+.sc-dv-header { padding:10px 14px; font-size:12px; color:#6a5830; border-bottom:1px solid #1a1a10; background:#0f0f08; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.sc-bulk-complete-btn { font-size:11px; font-weight:700; padding:4px 12px; border-radius:6px; border:1px solid #c9a84c55; background:#c9a84c22; color:#c9a84c; cursor:pointer; white-space:nowrap; transition:background .15s; }
+.sc-bulk-complete-btn:hover { background:#c9a84c33; }
+.sc-bulk-complete-btn:disabled { opacity:.5; cursor:not-allowed; }
 .sc-dv-cols { display:flex; overflow-x:auto; -webkit-overflow-scrolling:touch; min-height:200px; }
 .sc-trainer-col { flex:0 0 155px; border-right:1px solid #1a1a10; }
 .sc-trainer-col:last-child { border-right:none; }
@@ -2141,7 +2144,9 @@ function scRenderDayView(){
   const dayData=scData.filter(s=>s.sched_date===scSelectedDate&&s.status!=='cancelled');
   const[yr,mo,da]=scSelectedDate.split('-').map(Number);
   const dow=new Date(yr,mo-1,da).getDay();
-  let html=`<div class="sc-dv-header">${mo}/${da}(${SC_DAY[dow]}) · ${branch||'전체 지점'} · 트레이너 ${trainers.length}명 · 수업 ${dayData.length}건</div>`;
+  const bulkTargets=dayData.filter(s=>(s.type==='PT'||s.type==='SPT')&&(s.status==='scheduled'||s.status==='pending_complete'));
+  const bulkBtn=bulkTargets.length?`<button class="sc-bulk-complete-btn" onclick="scBulkCompletePT()">PT 일괄 완료 (${bulkTargets.length}건)</button>`:'';
+  let html=`<div class="sc-dv-header"><span>${mo}/${da}(${SC_DAY[dow]}) · ${branch||'전체 지점'} · 트레이너 ${trainers.length}명 · 수업 ${dayData.length}건</span>${bulkBtn}</div>`;
   html+='<div class="sc-dv-cols">';
   trainers.forEach(trainer=>{
     const sessions=dayData.filter(s=>s.trainer_id===trainer.id)
@@ -2174,6 +2179,31 @@ function scRenderDayView(){
   });
   html+='</div>';
   dv.innerHTML=html;
+}
+
+async function scBulkCompletePT(){
+  const branch=document.getElementById('scBranchSel')?.value||'';
+  const targets=scData.filter(s=>s.sched_date===scSelectedDate&&(s.type==='PT'||s.type==='SPT')&&(s.status==='scheduled'||s.status==='pending_complete')&&(!branch||s.trainers?.gym_location===branch));
+  if(!targets.length)return;
+  if(!confirm(`${targets.length}건의 PT 수업을 일괄 완료합니다`))return;
+  const btn=document.querySelector('.sc-bulk-complete-btn');
+  if(btn)btn.disabled=true;
+  let done=0,fail=0;
+  for(const s of targets){
+    if(btn)btn.textContent=`처리 중 (${done+1}/${targets.length})...`;
+    try{
+      let res;
+      if(s.status==='scheduled'){
+        res=await db.rpc('process_session',{p_schedule_id:s.id,p_action:'completed'});
+      }else{
+        res=await db.rpc('confirm_session_status',{p_schedule_id:s.id});
+      }
+      if(res.error)throw res.error;
+    }catch(e){fail++;}
+    done++;
+  }
+  showToast(`${done-fail}건 완료${fail?` (실패 ${fail}건)`:''}`);
+  await scRefresh();
 }
 
 const SC_CAL_START=6,SC_CAL_END=23,SC_CAL_PX=56;
