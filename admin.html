@@ -2192,13 +2192,13 @@ async function scBulkCompletePT(){
   for(const s of targets){
     if(btn)btn.textContent=`처리 중 (${done+1}/${targets.length})...`;
     try{
-      let res;
+      let data,error;
       if(s.status==='scheduled'){
-        res=await db.rpc('process_session',{p_schedule_id:s.id,p_action:'completed'});
+        ({data,error}=await db.rpc('process_session',{p_schedule_id:s.id,p_action:'completed'}));
       }else{
-        res=await db.rpc('confirm_session_status',{p_schedule_id:s.id});
+        ({data,error}=await db.rpc('confirm_session_status',{p_schedule_id:s.id}));
       }
-      if(res.error)throw res.error;
+      if(error||!data?.ok)throw new Error(error?.message||data?.error||'처리 실패');
     }catch(e){fail++;}
     done++;
   }
