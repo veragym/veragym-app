@@ -2000,14 +2000,13 @@ async function downloadBranchSched(){
 // ══════════ 일정 상세/액션 모달 ══════════
 const SI_STATUS_COLOR={scheduled:'#6c63ff',pending_complete:'#34d399',pending_noshow:'#fbbf24',completed:'#22c55e',noshow:'#f59e0b',cancelled:'#6b7280'};
 const SI_STATUS_LABEL={scheduled:'예약됨',pending_complete:'완료대기',pending_noshow:'노쇼대기',completed:'완료',noshow:'노쇼',cancelled:'취소됨'};
-let _siTarget=null,_siActionPending=null;
+let _siTarget=null;
 
 function calcDurMin(start,end){if(!start||!end)return 60;const[sh,sm]=start.split(':').map(Number);const[eh,em]=end.split(':').map(Number);const d=(eh*60+em)-(sh*60+sm);return d>0?d:60;}
 
 function openSchedInfo(schedId){
   _siTarget=scheduleData.find(s=>s.id===schedId);
   if(!_siTarget)return;
-  _siActionPending=null;
   const s=_siTarget;
   const mem=myMembersForSched.find(m=>m.id===s.member_id);
   // 헤더: PT=회원명, SPT/업무=notes, 기타=유형명
@@ -2088,20 +2087,18 @@ function renderSiActions(){
   }
 }
 
-let _siPendingAction=null;
 async function siRequestPending(action){
   if(!_siTarget)return;
+  const msg=action==='pending_complete'
+    ?'수업 완료 대기를 요청할까요?\n관리자 확인 후 최종 처리됩니다.'
+    :'노쇼 대기를 요청할까요?\n관리자 확인 후 최종 처리됩니다.';
+  const confirmed=await showConfirm(msg,{
+    okText:action==='pending_complete'?'완료 대기 요청':'노쇼 대기 요청',
+    danger:action==='pending_noshow'
+  });
+  if(!confirmed)return;
   const errEl=document.getElementById('siErr');
   errEl.style.display='none';
-  const btnId=action==='pending_complete'?'siBtnPendingComplete':'siBtnPendingNoshow';
-  if(_siPendingAction!==action){
-    _siPendingAction=action;
-    const btn=document.getElementById(btnId);
-    if(btn)btn.textContent=action==='pending_complete'?'완료 대기 — 한 번 더 탭':'노쇼 대기 — 한 번 더 탭';
-    setTimeout(()=>{if(_siPendingAction===action){_siPendingAction=null;renderSiActions();}},3000);
-    return;
-  }
-  _siPendingAction=null;
   document.getElementById('siActions').querySelectorAll('button').forEach(b=>b.disabled=true);
   try{
     const{data,error}=await db.rpc('request_session_status',{p_schedule_id:_siTarget.id,p_action:action});
@@ -2138,20 +2135,12 @@ async function siWithdrawPending(){
 async function siAction(action){
   if(action==='complete'||action==='noshow'){showToast('완료/노쇼 처리는 관리자만 가능합니다');return;}
   if(!_siTarget)return;
+  if(action==='cancel'){
+    const confirmed=await showConfirm('예약을 취소할까요?\n취소 후에는 되돌릴 수 없습니다.',{okText:'예약 취소',danger:true});
+    if(!confirmed)return;
+  }
   const errEl=document.getElementById('siErr');
   errEl.style.display='none';
-  // 1차 탭: 확인 요청
-  if(_siActionPending!==action){
-    _siActionPending=action;
-    const ids={complete:'siBtnComplete',noshow:'siBtnNoshow',cancel:'siBtnCancel'};
-    const labels={complete:'완료 처리 — 한 번 더 탭해서 확인',noshow:'노쇼 처리 — 한 번 더 탭해서 확인',cancel:'취소 — 한 번 더 탭해서 확인'};
-    const btn=document.getElementById(ids[action]);
-    if(btn){btn.textContent=labels[action];}
-    setTimeout(()=>{if(_siActionPending===action){_siActionPending=null;renderSiActions();}},3000);
-    return;
-  }
-  // 2차 탭: 실행
-  _siActionPending=null;
   document.getElementById('siActions').querySelectorAll('button').forEach(b=>b.disabled=true);
   try{
     if(action==='complete'||action==='noshow'){
@@ -2283,7 +2272,7 @@ async function siRollback(){
 function closeSchedInfo(){
   document.getElementById('schedInfoModal').style.display='none';
   document.body.style.overflow='';
-  _siTarget=null;_siActionPending=null;_siPendingAction=null;
+  _siTarget=null;
   _siTogglePending=false;_siCancelCompletedPending=false;_siRollbackPending=false;
 }
 
