@@ -2183,7 +2183,8 @@ function scRenderDayView(){
 
 async function scBulkCompletePT(){
   const branch=document.getElementById('scBranchSel')?.value||'';
-  const targets=scData.filter(s=>s.sched_date===scSelectedDate&&(s.type==='PT'||s.type==='SPT')&&(s.status==='scheduled'||s.status==='pending_complete')&&(!branch||s.trainers?.gym_location===branch));
+  const branchTrainerIds=branch?(_scAllTrainers||[]).filter(t=>t.gym_location===branch).map(t=>t.id):null;
+  const targets=scData.filter(s=>s.sched_date===scSelectedDate&&(s.type==='PT'||s.type==='SPT')&&(s.status==='scheduled'||s.status==='pending_complete')&&(!branchTrainerIds||branchTrainerIds.includes(s.trainer_id)));
   if(!targets.length)return;
   if(!confirm(`${targets.length}건의 PT 수업을 일괄 완료합니다`))return;
   const btn=document.querySelector('.sc-bulk-complete-btn');
