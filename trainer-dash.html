@@ -1607,7 +1607,19 @@ function _fallbackCopy(text) {
 
 function renderForecasts() {
   const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
-  const list = _revForecasts.filter(f => f.forecast_month === month);
+  const list = _revForecasts
+    .filter(f => f.forecast_month === month)
+    .sort((a, b) => {
+      // 1. 미등록 최우선
+      if (a.is_registered !== b.is_registered) return a.is_registered ? 1 : -1;
+      // 2. 결제예정일 빠른 순 (없으면 뒤로)
+      const da = a.payment_due_date || '';
+      const db2 = b.payment_due_date || '';
+      if (da && !db2) return -1;
+      if (!da && db2) return 1;
+      if (da && db2) return da < db2 ? -1 : da > db2 ? 1 : 0;
+      return 0;
+    });
   const el = document.getElementById('revForecastList');
 
   if (!list.length) {

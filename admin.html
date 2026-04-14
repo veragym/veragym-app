@@ -2084,7 +2084,12 @@ async function loadScheduleTab(){
 }
 
 function scOnBranchChange(){scRefresh();}
-function scMoveDays(n){scStart=scAddDays(scStart,n);scRefresh();}
+function scMoveDays(n){
+  scStart=scAddDays(scStart,n);
+  // 이전 주(←)로 갈 때는 마지막 날짜(오른쪽 끝) 선택
+  if(n<0) scSelectedDate=scYMD(scAddDays(scStart,6));
+  scRefresh();
+}
 
 async function scRefresh(){
   if(!scStart)scStart=scDayStart(new Date());
