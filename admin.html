@@ -2188,7 +2188,6 @@ function scRenderDayView(){
 
 async function scBulkCompletePT(){
   const branch=document.getElementById('scBranchSel')?.value||'';
-  // scRefresh()와 동일한 로직: 지점 필터 트레이너 ID가 없으면 전체 허용
   let branchTrainerIds=null;
   if(branch){
     const ids=(_scAllTrainers||[]).filter(t=>t.gym_location===branch).map(t=>t.id);
@@ -2196,10 +2195,9 @@ async function scBulkCompletePT(){
   }
   const targets=scData.filter(s=>s.sched_date===scSelectedDate&&(s.type==='PT'||s.type==='SPT')&&(s.status==='scheduled'||s.status==='pending_complete')&&(!branchTrainerIds||branchTrainerIds.includes(s.trainer_id)));
   if(!targets.length){showToast('처리할 수업이 없습니다');return;}
-  // confirm() 대신 토스트+버튼 방식으로 교체 (팝업 차단 방지)
   const btn=document.querySelector('.sc-bulk-complete-btn');
   if(btn){btn.disabled=true;btn.textContent=`처리 중 (0/${targets.length})...`;}
-  let done=0,fail=0,failMsgs=[];
+  let done=0,fail=0,firstErr='';
   for(const s of targets){
     if(btn)btn.textContent=`처리 중 (${done+1}/${targets.length})...`;
     try{
@@ -2209,15 +2207,25 @@ async function scBulkCompletePT(){
       }else{
         ({data,error}=await db.rpc('confirm_session_status',{p_schedule_id:s.id}));
       }
-      if(error||!data?.ok)throw new Error(error?.message||data?.error||'처리 실패');
-    }catch(e){fail++;failMsgs.push(`ID ${s.id}: ${e.message}`);}
-    done++;
+      const errMsg=error?.message||data?.error||null;
+      if(error||!data?.ok){
+        if(!firstErr)firstErr=errMsg||'처리 실패';
+        fail++;
+        console.warn('[일괄완료 실패]',s.id,errMsg,data);
+      }else{
+        done++;
+      }
+    }catch(e){
+      fail++;
+      if(!firstErr)firstErr=e.message;
+      console.error('[일괄완료 예외]',s.id,e);
+    }
   }
-  // 버튼 복구 (scRefresh가 DOM 교체하므로 재조회)
-  const btn2=document.querySelector('.sc-bulk-complete-btn');
-  if(btn2)btn2.disabled=false;
-  if(fail>0)console.warn('[일괄완료 실패 목록]',failMsgs);
-  showToast(`${done-fail}건 완료${fail?` (실패 ${fail}건 — 콘솔 확인)`:''}`);
+  if(fail>0){
+    showToast(`${done}건 완료, ${fail}건 실패 — ${firstErr}`);
+  }else{
+    showToast(`${done}건 완료`);
+  }
   await scRefresh();
 }
 
