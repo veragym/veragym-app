@@ -62,6 +62,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .badge { font-size:10px; padding:2px 8px; border-radius:20px; font-weight:600; }
 .badge-active { background:#3b82f622; border:1px solid #3b82f644; color:#60a5fa; }
 .badge-inactive { background:#33000088; border:1px solid #550000; color:#f87171; }
+.badge-absent { background:#78350f33; border:1px solid #92400e55; color:#fbbf24; }
 .badge-req-pending { background:#f59e0b22; border:1px solid #f59e0b44; color:#fbbf24; }
 .badge-req-done { background:#22c55e22; border:1px solid #22c55e44; color:#4ade80; }
 .card-arrow { color:#1e3a5f; font-size:18px; flex-shrink:0; }
@@ -556,7 +557,7 @@ function switchTab(id, btn) {
 async function loadMembers() {
   document.getElementById('memberList').innerHTML = '<div class="loading">불러오는 중...</div>';
   const { data, error } = await db.from('members')
-    .select('id,name,gym_location,notes,is_active,member_status').eq('trainer_id', me.id).eq('member_status','active').order('name');
+    .select('id,name,gym_location,notes,is_active,member_status').eq('trainer_id', me.id).eq('is_active', true).order('name');
   if (await handleDbError(error, '회원 불러오기 실패')) {
     document.getElementById('memberList').innerHTML = '<div class="empty">불러오기 실패<br><button class="retry-btn" onclick="loadMembers()">다시 시도</button></div>';
     return;
@@ -583,7 +584,7 @@ function renderMemberList() {
       <div class="card-info">
         <div class="card-name">
           ${esc(m.name)}
-          <span class="badge ${m.is_active ? 'badge-active' : 'badge-inactive'}">${m.is_active ? '활성' : '비활성'}</span>
+          <span class="badge ${m.member_status === 'long_absent' ? 'badge-absent' : m.is_active ? 'badge-active' : 'badge-inactive'}">${m.member_status === 'long_absent' ? '장기미방문' : m.is_active ? '활성' : '비활성'}</span>
         </div>
         <div class="card-sub">${esc(m.gym_location)}${m.notes ? ' · ' + esc(m.notes.slice(0,20)) : ''}</div>
       </div>

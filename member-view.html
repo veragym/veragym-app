@@ -971,11 +971,11 @@ async function loadSchedules(token) {
   if (error || !scheds) { wrap.innerHTML = `<div class="empty">⚠️<br>일정을 불러오지 못했어요</div>`; return; }
   if (!scheds.length) { wrap.innerHTML = `<div class="empty">등록된 PT 일정이 없어요</div>`; return; }
   // status 기준으로 분류 (날짜 기준 X — 트레이너 완료/노쇼 처리 즉시 반영)
-  const upcoming = scheds.filter(s => ['scheduled','pending_complete','pending_noshow'].includes(s.status));
-  const past     = scheds.filter(s => ['completed','noshow'].includes(s.status));
+  const upcoming = scheds.filter(s => ['scheduled'].includes(s.status));
+  const past     = scheds.filter(s => ['completed','noshow','pending_complete','pending_noshow'].includes(s.status));
   const WDAYS    = ['일','월','화','수','목','금','토'];
-  const STATUS_LABEL = { scheduled:'예정', pending_complete:'완료대기', pending_noshow:'노쇼대기', completed:'완료', noshow:'노쇼' };
-  const STATUS_CLS   = { scheduled:'upcoming', pending_complete:'upcoming', pending_noshow:'upcoming', completed:'done', noshow:'done' };
+  const STATUS_LABEL = { scheduled:'예정', pending_complete:'완료', pending_noshow:'노쇼', completed:'완료', noshow:'노쇼' };
+  const STATUS_CLS   = { scheduled:'upcoming', pending_complete:'done', pending_noshow:'done', completed:'done', noshow:'done' };
   function renderCard(s) {
     const d = new Date(s.sched_date + 'T00:00:00');
     const sTime = (s.start_time||'').slice(0,5);
