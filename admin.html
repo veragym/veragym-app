@@ -3063,10 +3063,13 @@ async function loadAdminRevenue() {
       return;
     }
 
+    // 지점 내 모든 트레이너 ID (관리자 포함) — payment_records 집계용
+    const allGymTrainerIds = (trainers || []).map(t => t.id);
+
     // 병렬: 예상매출 + 결제기록
     const [fRes, pRes] = await Promise.all([
       db.from('sales_forecasts').select('*').in('trainer_id', trainerIds).order('created_at'),
-      db.from('payment_records').select('payment_date,net_amount,trainer_id').in('trainer_id', trainerIds)
+      db.from('payment_records').select('payment_date,net_amount,trainer_id').in('trainer_id', allGymTrainerIds)
     ]);
     _admRevForecasts = fRes.data || [];
     _admRevPayments = pRes.data || [];
