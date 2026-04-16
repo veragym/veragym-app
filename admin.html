@@ -3220,10 +3220,13 @@ function admRenderForecastDetail(detail, forecasts) {
       : isReg ? 'background:#16a34a33;color:#4ade80' : 'background:#7f1d1d44;color:#f87171';
     const badgeText = isPending ? '대기' : isReg ? '등록' : '미등록';
     const nameColor = isUnreg ? '#f87171' : isPending ? '#93c5fd' : '#ddd';
-    return `<div class="adm-fc-item${isUnreg?' unreg':''}">
+    return `<div class="adm-fc-item${isUnreg?' unreg':''}" id="adm-fc-${f.id}">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:13px;font-weight:600;color:${nameColor}">${esc(f.member_name)}</span>
-        <span style="font-size:11px;padding:2px 6px;border-radius:4px;font-weight:600;${badgeStyle}">${badgeText}</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;padding:2px 6px;border-radius:4px;font-weight:600;${badgeStyle}">${badgeText}</span>
+          <button style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #c9a84c44;background:transparent;color:#c9a84c;cursor:pointer" onclick="admToggleFcEdit('${f.id}')">수정</button>
+        </div>
       </div>
       <div style="display:flex;gap:10px;font-size:11px;color:#888;margin-top:4px">
         <span>단가 ${(f.price_per_session||0).toLocaleString()}</span>
@@ -3233,9 +3236,13 @@ function admRenderForecastDetail(detail, forecasts) {
       </div>
       ${f.memo?`<div style="font-size:10px;color:#666;margin-top:3px">${esc(f.memo)}</div>`:''}
       ${isUnreg&&f.unregistered_reason?`<div style="font-size:10px;color:#f87171aa;margin-top:3px;padding:3px 6px;background:#7f1d1d22;border-radius:4px">사유: ${esc(f.unregistered_reason)}</div>`:''}
-      <div style="display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid #1a1510">
-        ${!isReg?`<button style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #16a34a44;background:transparent;color:#4ade80;cursor:pointer" onclick="admSetForecastStatus('${f.id}',true)">등록</button>`:''}
-        ${!isUnreg?`<button style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #7f1d1d44;background:transparent;color:#f87171;cursor:pointer" onclick="admSetForecastStatus('${f.id}',false)">미등록</button>`:''}
+      <div id="adm-fc-edit-${f.id}" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid #1a1510">
+        <div style="font-size:10px;color:#888;margin-bottom:6px">상태 변경</div>
+        <div style="display:flex;gap:6px">
+          <button style="font-size:10px;padding:3px 10px;border-radius:4px;border:1px solid #1e3a5f88;background:${isPending?'#1e3a5f44':'transparent'};color:#93c5fd;cursor:pointer;font-weight:${isPending?'700':'400'}" onclick="admSetFcStatus('${f.id}',null)">대기</button>
+          <button style="font-size:10px;padding:3px 10px;border-radius:4px;border:1px solid #16a34a44;background:${isReg?'#16a34a33':'transparent'};color:#4ade80;cursor:pointer;font-weight:${isReg?'700':'400'}" onclick="admSetFcStatus('${f.id}',true)">등록</button>
+          <button style="font-size:10px;padding:3px 10px;border-radius:4px;border:1px solid #7f1d1d44;background:${isUnreg?'#7f1d1d33':'transparent'};color:#f87171;cursor:pointer;font-weight:${isUnreg?'700':'400'}" onclick="admSetFcStatus('${f.id}',false)">미등록</button>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -3301,8 +3308,32 @@ async function admConfirmUnregistered() {
   } catch(e) { errBox.textContent='저장 실패: '+(e.message||''); errBox.style.display='block'; }
   btn.disabled = false;
 }
+function admToggleFcEdit(id) {
+  const panel = document.getElementById('adm-fc-edit-' + id);
+  if (panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+async function admSetFcStatus(id, status) {
+  if (status === false) {
+    // 미등록 → 사유 모달 열기 (기존 로직 재사용)
+    admSetForecastStatus(id, false);
+  } else {
+    // 대기(null) 또는 등록(true) → 직접 업데이트
+    const { error } = await db.from('sales_forecasts')
+      .update({ is_registered: status, unreg_reason: null })
+      .eq('id', id);
+    if (error) { showToast('저장 실패: ' + error.message); return; }
+    const f = _admRevForecasts.find(x => x.id === id);
+    if (f) { f.is_registered = status; f.unreg_reason = null; }
+    // 패널 닫기 + 재렌더
+    const detail = document.getElementById('adm-rev-detail');
+    if (detail) admRenderForecastDetail(detail, _admRevForecasts);
+    showToast(status === true ? '등록 처리되었습니다.' : '대기 상태로 변경되었습니다.');
+  }
+}
 // ── 공개 API (HTML onclick에서 호출) ──────────────────────────
 window.admSetForecastStatus   = admSetForecastStatus;
+window.admToggleFcEdit        = admToggleFcEdit;
+window.admSetFcStatus         = admSetFcStatus;
 window.admConfirmUnregistered = admConfirmUnregistered;
 window.openEditPtProduct      = openEditPtProduct;
 window.openEditMember         = openEditMember;
