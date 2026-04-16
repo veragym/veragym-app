@@ -1669,6 +1669,7 @@ async function saveEditPtProduct() {
     if (error) throw error;
     closeModal('editPtModal');
     showToast('PT 상품 수정 완료!');
+    _payDataLoaded = false;
     await loadPtProducts(_currentMemberId);
   } catch(e) {
     errBox.textContent = '저장 실패: ' + (e.message || ''); errBox.style.display = 'block';
@@ -1754,6 +1755,7 @@ async function addPtProduct() {
 
     closeModal('addPtModal');
     showToast('PT 상품이 추가됐어요!');
+    _payDataLoaded = false;
     await loadPtProducts(_currentMemberId);
   } catch(e) {
     // 롤백: PT상품만 생성되고 결제 실패 시 정리
