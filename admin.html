@@ -3191,8 +3191,8 @@ function renderAdminTrainerList() {
     const fcTotal = forecasts.reduce((s,f) => s + (f.price_per_session * f.session_count), 0);
     const fcCount = forecasts.length;
 
-    return `<div class="adm-trainer-card" onclick="toggleAdminTrainerDetail(this,'${t.id}','${month}')">
-      <div style="display:flex;justify-content:space-between;align-items:center">
+    return `<div class="adm-trainer-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleAdminTrainerDetail(this.closest('.adm-trainer-card'),'${t.id}','${month}')">
         <span style="font-size:14px;font-weight:600;color:#fff">${esc(t.name)}</span>
         <div style="text-align:right">
           <div style="font-size:14px;font-weight:700;color:#c9a84c">${_admFmtWon(fcTotal)}</div>
@@ -3210,7 +3210,13 @@ function admRenderForecastDetail(detail, forecasts) {
     detail.innerHTML = '<div style="text-align:center;color:#555;font-size:12px;padding:10px 0;margin-top:8px">등록된 예상매출이 없습니다.</div>';
     return;
   }
-  detail.innerHTML = forecasts.map(f => {
+  const statusOrder = f => f.is_registered === null || f.is_registered === undefined ? 0 : f.is_registered === false ? 1 : 2;
+  const sorted = [...forecasts].sort((a, b) => {
+    const so = statusOrder(a) - statusOrder(b);
+    if (so !== 0) return so;
+    return (a.payment_due_date || '9999') < (b.payment_due_date || '9999') ? -1 : 1;
+  });
+  detail.innerHTML = sorted.map(f => {
     const amt = f.price_per_session * f.session_count;
     const isPending = f.is_registered === null || f.is_registered === undefined;
     const isReg = f.is_registered === true;
@@ -3319,11 +3325,11 @@ async function admSetFcStatus(id, status) {
   } else {
     // 대기(null) 또는 등록(true) → 직접 업데이트
     const { error } = await db.from('sales_forecasts')
-      .update({ is_registered: status, unreg_reason: null })
+      .update({ is_registered: status, unregistered_reason: null })
       .eq('id', id);
     if (error) { showToast('저장 실패: ' + error.message); return; }
     const f = _admRevForecasts.find(x => x.id === id);
-    if (f) { f.is_registered = status; f.unreg_reason = null; }
+    if (f) { f.is_registered = status; f.unregistered_reason = null; }
     // 패널 닫기 + 재렌더
     const detail = document.getElementById('adm-rev-detail');
     if (detail) admRenderForecastDetail(detail, _admRevForecasts);
