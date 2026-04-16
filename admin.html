@@ -1667,6 +1667,15 @@ async function saveEditPtProduct() {
       status: isActive ? 'active' : 'done'
     }).eq('id', _editPtProductId);
     if (error) throw error;
+    // payment_records도 동기화 (total_sessions, payment_amount 업데이트)
+    if (pps > 0 && total > 0) {
+      const paymentAmount = Math.round(pps * total * 1.1);
+      const { error: e2 } = await db.from('payment_records').update({
+        total_sessions: total,
+        payment_amount: paymentAmount
+      }).eq('pt_product_id', _editPtProductId);
+      if (e2) console.warn('payment_records 동기화 실패:', e2.message);
+    }
     closeModal('editPtModal');
     showToast('PT 상품 수정 완료!');
     _payDataLoaded = false;
