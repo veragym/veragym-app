@@ -668,7 +668,10 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
       <div class="modal-title" id="detailMemberName" style="margin-bottom:0"></div>
-      <button class="vb vb-sm vb-primary-gradient" onclick="openAddPtProduct()">+ PT 상품</button>
+      <div style="display:flex;gap:6px">
+        <button class="vb vb-sm vb-ghost" style="color:#c9a84c;border-color:#c9a84c44" onclick="openEditMember()">수정</button>
+        <button class="vb vb-sm vb-primary-gradient" onclick="openAddPtProduct()">+ PT 상품</button>
+      </div>
     </div>
     <div id="detailMemberMeta" style="font-size:12px;color:#666;margin-bottom:14px"></div>
 
@@ -705,6 +708,27 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div style="font-size:11px;color:#888;letter-spacing:1.2px;margin-bottom:10px;font-weight:600">PT 상품 목록</div>
     <div id="ptProductList"></div>
     <button class="vb vb-lg vb-cancel" style="margin-top:16px;" onclick="closeModal('memberDetailModal')">닫기</button>
+  </div>
+</div>
+
+<!-- 회원 이름/연락처 수정 모달 -->
+<div id="editMemberModal" class="modal-bg" onclick="closeModal('editMemberModal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">회원 정보 수정</div>
+    <div class="err-box" id="editMemberErr"></div>
+    <div class="field">
+      <label>회원명 <span style="color:#f87171">*</span></label>
+      <input id="editMemberName" type="text" placeholder="홍길동" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>연락처</label>
+      <input id="editMemberPhone" type="tel" placeholder="010-1234-5678" autocomplete="off" maxlength="20">
+    </div>
+    <div class="vb-group">
+      <button class="vb vb-lg vb-cancel" onclick="closeModal('editMemberModal')">취소</button>
+      <button class="vb vb-lg vb-primary-gradient" id="btnEditMemberSave" onclick="saveEditMember()">저장</button>
+    </div>
   </div>
 </div>
 
@@ -1680,6 +1704,58 @@ async function saveEditPtProduct() {
     showToast('PT 상품 수정 완료!');
     _payDataLoaded = false;
     await loadPtProducts(_currentMemberId);
+  } catch(e) {
+    errBox.textContent = '저장 실패: ' + (e.message || ''); errBox.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = '저장';
+}
+
+function openEditMember() {
+  const m = _allMembers.find(x => x.id === _currentMemberId);
+  if (!m) return;
+  document.getElementById('editMemberName').value = m.name || '';
+  document.getElementById('editMemberPhone').value = m.phone || '';
+  document.getElementById('editMemberErr').style.display = 'none';
+  openModal('editMemberModal');
+}
+
+async function saveEditMember() {
+  const name = document.getElementById('editMemberName').value.trim();
+  const phone = document.getElementById('editMemberPhone').value.trim();
+  const errBox = document.getElementById('editMemberErr');
+  errBox.style.display = 'none';
+  if (!name) { errBox.textContent = '회원명을 입력해주세요'; errBox.style.display = 'block'; return; }
+
+  const btn = document.getElementById('btnEditMemberSave');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
+  try {
+    const m = _allMembers.find(x => x.id === _currentMemberId);
+    const oldName = m?.name;
+
+    // 1. members 테이블 업데이트
+    const { error } = await db.from('members').update({
+      name,
+      phone: phone || null
+    }).eq('id', _currentMemberId);
+    if (error) throw error;
+
+    // 2. 이름이 바뀐 경우 payment_records.member_name 일괄 동기화
+    if (oldName && oldName !== name) {
+      const { error: e2 } = await db.from('payment_records')
+        .update({ member_name: name })
+        .eq('member_id', _currentMemberId);
+      if (e2) console.warn('payment_records 이름 동기화 실패:', e2.message);
+    }
+
+    // 3. 로컬 캐시 갱신
+    if (m) { m.name = name; m.phone = phone || null; }
+
+    // 4. UI 갱신
+    document.getElementById('detailMemberName').textContent = name;
+    closeModal('editMemberModal');
+    showToast('회원 정보가 수정됐어요');
+    _payDataLoaded = false;
+    await loadMembers();
   } catch(e) {
     errBox.textContent = '저장 실패: ' + (e.message || ''); errBox.style.display = 'block';
   }
@@ -3229,6 +3305,8 @@ async function admConfirmUnregistered() {
 window.admSetForecastStatus   = admSetForecastStatus;
 window.admConfirmUnregistered = admConfirmUnregistered;
 window.openEditPtProduct      = openEditPtProduct;
+window.openEditMember         = openEditMember;
+window.saveEditMember         = saveEditMember;
 window.saveEditPtProduct      = saveEditPtProduct;
 window.addMember              = addMember;
 window.addPtProduct           = addPtProduct;
