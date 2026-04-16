@@ -399,6 +399,23 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   </div>
 </div>
 
+<!-- 미등록 사유 모달 -->
+<div id="unregReasonModal" class="modal-bg" onclick="closeModal('unregReasonModal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">미등록 사유 입력</div>
+    <div class="err-box" id="unregReasonErr"></div>
+    <div class="field">
+      <label>미등록 사유</label>
+      <textarea id="unregReasonText" placeholder="사유를 입력해주세요 (예: 결제 연기, 회원 요청 등)" rows="3" style="width:100%;background:#080e1a;border:1.5px solid #7f1d1d88;border-radius:10px;padding:12px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;resize:none"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('unregReasonModal')">취소</button>
+      <button class="btn-save" id="btnSaveUnregReason" style="background:#7f1d1d;border-color:#f87171" onclick="confirmUnregistered()">미등록 처리</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Tab: 요청사항 ────────────────────────────────────────── -->
 <div id="tab-requests" class="tab-content">
   <div class="sec-header">
@@ -1629,11 +1646,19 @@ function renderForecasts() {
 
   el.innerHTML = list.map(f => {
     const amt = f.price_per_session * f.session_count;
-    const unreg = !f.is_registered;
-    return `<div class="fc-card${unreg?' unregistered':''}">
+    const isPending = f.is_registered === null || f.is_registered === undefined;
+    const isReg = f.is_registered === true;
+    const isUnreg = f.is_registered === false;
+    const badgeStyle = isPending
+      ? 'background:#1e3a5f66;color:#93c5fd'
+      : isReg ? 'background:#16a34a33;color:#4ade80' : 'background:#7f1d1d44;color:#f87171';
+    const badgeText = isPending ? '대기' : isReg ? '등록' : '미등록';
+    const cardClass = isUnreg ? ' unregistered' : '';
+    const nameColor = isUnreg ? '#f87171' : isPending ? '#93c5fd' : '#fff';
+    return `<div class="fc-card${cardClass}">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:14px;font-weight:600;color:${unreg?'#f87171':'#fff'}">${f.member_name}</span>
-        <span style="font-size:11px;padding:3px 8px;border-radius:6px;font-weight:600;${unreg?'background:#7f1d1d44;color:#f87171':'background:#16a34a33;color:#4ade80'}">${unreg?'미등록':'등록'}</span>
+        <span style="font-size:14px;font-weight:600;color:${nameColor}">${f.member_name}</span>
+        <span style="font-size:11px;padding:3px 8px;border-radius:6px;font-weight:600;${badgeStyle}">${badgeText}</span>
       </div>
       <div style="display:flex;gap:12px;margin-top:6px;font-size:12px;color:#888">
         <span>단가 ${(f.price_per_session||0).toLocaleString()}</span>
@@ -1642,9 +1667,10 @@ function renderForecasts() {
       </div>
       ${f.payment_due_date?`<div style="font-size:11px;color:#60a5fa88;margin-top:4px">결제예정일 ${f.payment_due_date}</div>`:''}
       ${f.memo?`<div style="font-size:11px;color:#666;margin-top:2px">${f.memo}</div>`:''}
+      ${isUnreg&&f.unregistered_reason?`<div style="font-size:11px;color:#f87171aa;margin-top:4px;padding:4px 8px;background:#7f1d1d22;border-radius:6px">사유: ${f.unregistered_reason}</div>`:''}
       <div class="log-actions" style="margin-top:10px;padding-top:10px;border-top:1px solid #1e3a5f22">
-        <button class="btn-sm" style="color:#4ade80;border-color:#16a34a44" onclick="setForecastStatus('${f.id}',true)">등록</button>
-        <button class="btn-sm" style="color:#f87171;border-color:#7f1d1d44" onclick="setForecastStatus('${f.id}',false)">미등록</button>
+        ${!isReg?`<button class="btn-sm" style="color:#4ade80;border-color:#16a34a44" onclick="setForecastStatus('${f.id}',true)">등록</button>`:''}
+        ${!isUnreg?`<button class="btn-sm" style="color:#f87171;border-color:#7f1d1d44" onclick="setForecastStatus('${f.id}',false)">미등록</button>`:''}
         <button class="btn-sm" style="color:#60a5fa;border-color:#3b82f633" onclick="editForecast('${f.id}')">수정</button>
         <button class="btn-sm btn-danger" onclick="deleteForecast('${f.id}')">삭제</button>
       </div>
@@ -1652,18 +1678,49 @@ function renderForecasts() {
   }).join('');
 }
 
+let _unregTargetId = null;
 async function setForecastStatus(id, isRegistered) {
+  if (!isRegistered) {
+    // 미등록 → 사유 모달 표시
+    _unregTargetId = id;
+    const f = _revForecasts.find(x=>x.id===id);
+    document.getElementById('unregReasonText').value = f?.unregistered_reason || '';
+    document.getElementById('unregReasonErr').style.display = 'none';
+    openModal('unregReasonModal');
+    return;
+  }
+  // 등록 처리
   const f = _revForecasts.find(x=>x.id===id);
   if (!f) return;
-  if (f.is_registered === isRegistered) return;
   try {
-    const { error } = await db.from('sales_forecasts').update({ is_registered: isRegistered, updated_at: new Date().toISOString() }).eq('id', id);
+    const { error } = await db.from('sales_forecasts').update({ is_registered: true, unregistered_reason: null, updated_at: new Date().toISOString() }).eq('id', id);
     if (error) throw error;
-    f.is_registered = isRegistered;
+    f.is_registered = true;
+    f.unregistered_reason = null;
     renderForecasts();
     updateForecastTotal();
-    showToast(isRegistered ? '등록 처리됨' : '미등록 처리됨');
+    showToast('등록 처리됨');
   } catch(e) { showToast('변경 실패: ' + (e.message||'')); }
+}
+async function confirmUnregistered() {
+  const reason = document.getElementById('unregReasonText').value.trim();
+  const errBox = document.getElementById('unregReasonErr');
+  if (!reason) { errBox.textContent='사유를 입력해주세요'; errBox.style.display='block'; return; }
+  const f = _revForecasts.find(x=>x.id===_unregTargetId);
+  if (!f) { closeModal('unregReasonModal'); return; }
+  const btn = document.getElementById('btnSaveUnregReason');
+  btn.disabled = true;
+  try {
+    const { error } = await db.from('sales_forecasts').update({ is_registered: false, unregistered_reason: reason, updated_at: new Date().toISOString() }).eq('id', _unregTargetId);
+    if (error) throw error;
+    f.is_registered = false;
+    f.unregistered_reason = reason;
+    closeModal('unregReasonModal');
+    renderForecasts();
+    updateForecastTotal();
+    showToast('미등록 처리됨');
+  } catch(e) { errBox.textContent='저장 실패: '+(e.message||''); errBox.style.display='block'; }
+  btn.disabled = false;
 }
 
 async function deleteForecast(id) {
@@ -2844,6 +2901,7 @@ window.saveTarget          = saveTarget;
 window.selectLinkLog       = selectLinkLog;
 window.selectSchedTime     = selectSchedTime;
 window.setForecastStatus   = setForecastStatus;
+window.confirmUnregistered = confirmUnregistered;
 window.showMemberDetail    = showMemberDetail;
 window.showMemberList      = showMemberList;
 window.siAction            = siAction;

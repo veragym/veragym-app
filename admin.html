@@ -747,6 +747,45 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   </div>
 </div>
 
+<!-- PT 상품 수정 모달 -->
+<div id="editPtModal" class="modal-bg" onclick="closeModal('editPtModal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">PT 상품 수정</div>
+    <div class="err-box" id="editPtErr"></div>
+    <div class="field">
+      <label>계약일 <span style="color:#f87171">*</span></label>
+      <input id="editPtDate" type="date">
+    </div>
+    <div style="display:flex;gap:10px">
+      <div class="field" style="flex:1">
+        <label>총 횟수 <span style="color:#f87171">*</span></label>
+        <input id="editPtTotal" type="number" min="1" placeholder="30">
+      </div>
+      <div class="field" style="flex:1">
+        <label>잔여 횟수 <span style="color:#f87171">*</span></label>
+        <input id="editPtRemaining" type="number" min="0" placeholder="30">
+      </div>
+    </div>
+    <div class="field">
+      <label>계약 트레이너 <span style="color:#f87171">*</span></label>
+      <select id="editPtContractTrainer"></select>
+    </div>
+    <div class="field">
+      <label>세션단가</label>
+      <input id="editPtPPS" type="number" min="0" placeholder="55000">
+    </div>
+    <div class="field">
+      <label>메모 (선택)</label>
+      <textarea id="editPtNotes" rows="2" style="width:100%;background:#0a0a08;border:1.5px solid #2a2518;border-radius:10px;padding:12px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;resize:none"></textarea>
+    </div>
+    <div class="vb-group">
+      <button class="vb vb-lg vb-cancel" onclick="closeModal('editPtModal')">취소</button>
+      <button class="vb vb-lg vb-primary-gradient" id="btnEditPtSave" onclick="saveEditPtProduct()">저장</button>
+    </div>
+  </div>
+</div>
+
 <!-- 담당트레이너 변경 모달 -->
 <div id="changeTrainerModal" class="modal-bg" onclick="closeModal('changeTrainerModal',event)">
   <div class="modal">
@@ -771,6 +810,23 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div class="vb-group">
       <button class="vb vb-lg vb-cancel" onclick="closeModal('changeTrainerModal')">취소</button>
       <button class="vb vb-lg vb-primary-gradient" id="btnCtSave" onclick="saveChangeTrainer()">변경</button>
+    </div>
+  </div>
+</div>
+
+<!-- 관리자 미등록 사유 모달 -->
+<div id="admUnregReasonModal" class="modal-bg" onclick="closeModal('admUnregReasonModal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">미등록 사유 입력</div>
+    <div class="err-box" id="admUnregReasonErr"></div>
+    <div class="field">
+      <label>미등록 사유</label>
+      <textarea id="admUnregReasonText" placeholder="사유를 입력해주세요" rows="3" style="width:100%;background:#080e1a;border:1.5px solid #7f1d1d88;border-radius:10px;padding:12px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;resize:none"></textarea>
+    </div>
+    <div class="vb-group">
+      <button class="vb vb-lg vb-cancel" onclick="closeModal('admUnregReasonModal')">취소</button>
+      <button class="vb vb-lg" id="btnAdmUnregSave" style="background:#7f1d1d;border-color:#f87171;color:#f87171" onclick="admConfirmUnregistered()">미등록 처리</button>
     </div>
   </div>
 </div>
@@ -1468,12 +1524,14 @@ async function adminSetStatus() {
   await loadMembers();
 }
 
+let _currentPtProducts = [];
 async function loadPtProducts(memberId) {
   const { data, error } = await db
     .from('pt_products')
     .select('id,contract_date,total_sessions,remaining_sessions,contract_trainer_id,price_per_session,notes,is_active')
     .eq('member_id', memberId)
     .order('created_at', { ascending: false });
+  _currentPtProducts = data || [];
   const wrap = document.getElementById('ptProductList');
   if (error) { wrap.innerHTML = '<div class="empty">불러오기 실패</div>'; return; }
   if (!data || !data.length) { wrap.innerHTML = '<div style="text-align:center;padding:20px;color:#444;font-size:13px">등록된 PT 상품이 없어요</div>'; return; }
@@ -1504,9 +1562,11 @@ async function loadPtProducts(memberId) {
         계약 ${esc(ct?.name) || '미지정'} · 담당 <span style="color:#c9a84c">${esc(at?.name) || '미배정'}</span>
         ${p.notes ? `<br>${esc(p.notes)}` : ''}
       </div>
-      <div style="margin-top:8px">
+      <div style="margin-top:8px;display:flex;gap:6px">
         <button class="vb vb-sm vb-ghost"
           onclick="openChangeTrainer('${p.id}','${cId}')">담당 트레이너 변경</button>
+        <button class="vb vb-sm vb-ghost" style="color:#c9a84c;border-color:#c9a84c44"
+          onclick="openEditPtProduct('${p.id}')">수정</button>
       </div>
     </div>`;
   }).join('');
@@ -1555,6 +1615,65 @@ async function saveChangeTrainer() {
   } finally {
     btn.disabled = false; btn.textContent = '변경';
   }
+}
+
+let _editPtProductId = null;
+function openEditPtProduct(productId) {
+  const p = _currentPtProducts?.find(x => x.id === productId);
+  if (!p) return;
+  _editPtProductId = productId;
+  document.getElementById('editPtErr').style.display = 'none';
+  document.getElementById('editPtDate').value = p.contract_date || '';
+  document.getElementById('editPtTotal').value = p.total_sessions || '';
+  document.getElementById('editPtRemaining').value = p.remaining_sessions ?? '';
+  document.getElementById('editPtPPS').value = p.price_per_session || '';
+  document.getElementById('editPtNotes').value = p.notes || '';
+  const m = _allMembers.find(x => x.id === _currentMemberId);
+  const gym = m?.gym_location || '';
+  const trainers = _allTrainers
+    .filter(t => t.is_active && (!gym || t.gym_location === gym))
+    .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  document.getElementById('editPtContractTrainer').innerHTML =
+    '<option value="">-- 선택 --</option>' +
+    trainers.map(t => `<option value="${t.id}"${t.id === p.contract_trainer_id ? ' selected' : ''}>${t.name}</option>`).join('');
+  openModal('editPtModal');
+}
+async function saveEditPtProduct() {
+  const date = document.getElementById('editPtDate').value;
+  const total = parseInt(document.getElementById('editPtTotal').value);
+  const remaining = parseInt(document.getElementById('editPtRemaining').value);
+  const contractTr = document.getElementById('editPtContractTrainer').value;
+  const pps = parseInt(document.getElementById('editPtPPS').value) || 0;
+  const notes = document.getElementById('editPtNotes').value.trim();
+  const errBox = document.getElementById('editPtErr');
+  errBox.style.display = 'none';
+  if (!date) { errBox.textContent = '계약일을 입력해주세요'; errBox.style.display = 'block'; return; }
+  if (!total || total < 1) { errBox.textContent = '총 횟수를 입력해주세요'; errBox.style.display = 'block'; return; }
+  if (remaining === undefined || isNaN(remaining) || remaining < 0) { errBox.textContent = '잔여 횟수를 입력해주세요'; errBox.style.display = 'block'; return; }
+  if (remaining > total) { errBox.textContent = '잔여 횟수가 총 횟수보다 클 수 없습니다'; errBox.style.display = 'block'; return; }
+  if (!contractTr) { errBox.textContent = '계약 트레이너를 선택해주세요'; errBox.style.display = 'block'; return; }
+  const btn = document.getElementById('btnEditPtSave');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
+  try {
+    const isActive = remaining > 0;
+    const { error } = await db.from('pt_products').update({
+      contract_date: date,
+      total_sessions: total,
+      remaining_sessions: remaining,
+      contract_trainer_id: contractTr,
+      price_per_session: pps || null,
+      notes: notes || null,
+      is_active: isActive,
+      status: isActive ? 'active' : 'done'
+    }).eq('id', _editPtProductId);
+    if (error) throw error;
+    closeModal('editPtModal');
+    showToast('PT 상품 수정 완료!');
+    await loadPtProducts(_currentMemberId);
+  } catch(e) {
+    errBox.textContent = '저장 실패: ' + (e.message || ''); errBox.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = '저장';
 }
 
 function openAddPtProduct() {
@@ -2995,36 +3114,108 @@ function renderAdminTrainerList() {
   }).join('');
 }
 
-function toggleAdminTrainerDetail(card, trainerId, month) {
-  const detail = card.querySelector('.adm-trainer-detail');
-  if (detail.style.display !== 'none') {
-    detail.style.display = 'none';
-    return;
-  }
-  const forecasts = _admRevForecasts.filter(f => f.trainer_id === trainerId && f.forecast_month === month);
+let _admUnregTargetId = null;
+function admRenderForecastDetail(detail, forecasts) {
   if (!forecasts.length) {
     detail.innerHTML = '<div style="text-align:center;color:#555;font-size:12px;padding:10px 0;margin-top:8px">등록된 예상매출이 없습니다.</div>';
-  } else {
-    detail.innerHTML = forecasts.map(f => {
-      const amt = f.price_per_session * f.session_count;
-      const unreg = !f.is_registered;
-      return `<div class="adm-fc-item${unreg?' unreg':''}">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:13px;font-weight:600;color:${unreg?'#f87171':'#ddd'}">${esc(f.member_name)}</span>
-          <span style="font-size:11px;padding:2px 6px;border-radius:4px;font-weight:600;${unreg?'background:#7f1d1d44;color:#f87171':'background:#16a34a33;color:#4ade80'}">${unreg?'미등록':'등록'}</span>
-        </div>
-        <div style="display:flex;gap:10px;font-size:11px;color:#888;margin-top:4px">
-          <span>단가 ${(f.price_per_session||0).toLocaleString()}</span>
-          <span>${f.session_count}회</span>
-          <span style="color:#c9a84c">${_admFmtWon(amt)}</span>
-        </div>
-        ${f.memo?`<div style="font-size:10px;color:#666;margin-top:3px">${f.memo}</div>`:''}
-      </div>`;
-    }).join('');
+    return;
   }
+  detail.innerHTML = forecasts.map(f => {
+    const amt = f.price_per_session * f.session_count;
+    const isPending = f.is_registered === null || f.is_registered === undefined;
+    const isReg = f.is_registered === true;
+    const isUnreg = f.is_registered === false;
+    const badgeStyle = isPending
+      ? 'background:#1e3a5f66;color:#93c5fd'
+      : isReg ? 'background:#16a34a33;color:#4ade80' : 'background:#7f1d1d44;color:#f87171';
+    const badgeText = isPending ? '대기' : isReg ? '등록' : '미등록';
+    const nameColor = isUnreg ? '#f87171' : isPending ? '#93c5fd' : '#ddd';
+    return `<div class="adm-fc-item${isUnreg?' unreg':''}">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;font-weight:600;color:${nameColor}">${esc(f.member_name)}</span>
+        <span style="font-size:11px;padding:2px 6px;border-radius:4px;font-weight:600;${badgeStyle}">${badgeText}</span>
+      </div>
+      <div style="display:flex;gap:10px;font-size:11px;color:#888;margin-top:4px">
+        <span>단가 ${(f.price_per_session||0).toLocaleString()}</span>
+        <span>${f.session_count}회</span>
+        <span style="color:#c9a84c">${_admFmtWon(amt)}</span>
+        ${f.payment_due_date?`<span style="color:#60a5fa88">결제예정일 ${f.payment_due_date}</span>`:''}
+      </div>
+      ${f.memo?`<div style="font-size:10px;color:#666;margin-top:3px">${esc(f.memo)}</div>`:''}
+      ${isUnreg&&f.unregistered_reason?`<div style="font-size:10px;color:#f87171aa;margin-top:3px;padding:3px 6px;background:#7f1d1d22;border-radius:4px">사유: ${esc(f.unregistered_reason)}</div>`:''}
+      <div style="display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid #1a1510">
+        ${!isReg?`<button style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #16a34a44;background:transparent;color:#4ade80;cursor:pointer" onclick="admSetForecastStatus('${f.id}',true)">등록</button>`:''}
+        ${!isUnreg?`<button style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #7f1d1d44;background:transparent;color:#f87171;cursor:pointer" onclick="admSetForecastStatus('${f.id}',false)">미등록</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleAdminTrainerDetail(card, trainerId, month) {
+  const detail = card.querySelector('.adm-trainer-detail');
+  if (detail.style.display !== 'none') { detail.style.display = 'none'; return; }
+  const forecasts = _admRevForecasts.filter(f => f.trainer_id === trainerId && f.forecast_month === month);
+  admRenderForecastDetail(detail, forecasts);
   detail.style.display = 'block';
 }
+async function admSetForecastStatus(id, isRegistered) {
+  if (!isRegistered) {
+    _admUnregTargetId = id;
+    const f = _admRevForecasts.find(x => x.id === id);
+    document.getElementById('admUnregReasonText').value = f?.unregistered_reason || '';
+    document.getElementById('admUnregReasonErr').style.display = 'none';
+    openModal('admUnregReasonModal');
+    return;
+  }
+  const f = _admRevForecasts.find(x => x.id === id);
+  if (!f) return;
+  try {
+    const { error } = await db.from('sales_forecasts').update({ is_registered: true, unregistered_reason: null, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) throw error;
+    f.is_registered = true; f.unregistered_reason = null;
+    // 열린 detail 패널 재렌더
+    document.querySelectorAll('.adm-trainer-detail').forEach(d => {
+      if (d.style.display !== 'none') {
+        const card = d.closest('[onclick*="toggleAdminTrainerDetail"]');
+        if (card) {
+          const match = card.getAttribute('onclick').match(/'([^']+)','([^']+)'\)/);
+          if (match) admRenderForecastDetail(d, _admRevForecasts.filter(x => x.trainer_id === match[1] && x.forecast_month === match[2]));
+        }
+      }
+    });
+    showToast('등록 처리됨');
+  } catch(e) { showToast('변경 실패: ' + (e.message||'')); }
+}
+async function admConfirmUnregistered() {
+  const reason = document.getElementById('admUnregReasonText').value.trim();
+  const errBox = document.getElementById('admUnregReasonErr');
+  if (!reason) { errBox.textContent='사유를 입력해주세요'; errBox.style.display='block'; return; }
+  const f = _admRevForecasts.find(x => x.id === _admUnregTargetId);
+  if (!f) { closeModal('admUnregReasonModal'); return; }
+  const btn = document.getElementById('btnAdmUnregSave');
+  btn.disabled = true;
+  try {
+    const { error } = await db.from('sales_forecasts').update({ is_registered: false, unregistered_reason: reason, updated_at: new Date().toISOString() }).eq('id', _admUnregTargetId);
+    if (error) throw error;
+    f.is_registered = false; f.unregistered_reason = reason;
+    closeModal('admUnregReasonModal');
+    document.querySelectorAll('.adm-trainer-detail').forEach(d => {
+      if (d.style.display !== 'none') {
+        const card = d.closest('[onclick*="toggleAdminTrainerDetail"]');
+        if (card) {
+          const match = card.getAttribute('onclick').match(/'([^']+)','([^']+)'\)/);
+          if (match) admRenderForecastDetail(d, _admRevForecasts.filter(x => x.trainer_id === match[1] && x.forecast_month === match[2]));
+        }
+      }
+    });
+    showToast('미등록 처리됨');
+  } catch(e) { errBox.textContent='저장 실패: '+(e.message||''); errBox.style.display='block'; }
+  btn.disabled = false;
+}
 // ── 공개 API (HTML onclick에서 호출) ──────────────────────────
+window.admSetForecastStatus   = admSetForecastStatus;
+window.admConfirmUnregistered = admConfirmUnregistered;
+window.openEditPtProduct      = openEditPtProduct;
+window.saveEditPtProduct      = saveEditPtProduct;
 window.addMember              = addMember;
 window.addPtProduct           = addPtProduct;
 window.addTrainer             = addTrainer;
