@@ -1327,7 +1327,7 @@ const SPT_STATUS_ACTIONS = [
   { v:'unreachable', label:'연락안됨' },
   { v:'other',       label:'기타' },
 ];
-const SPT_LOCKED = new Set(['completed','rejected','unreachable','other']);
+const SPT_LOCKED = new Set(); // 제한 없음 - 모든 상태에서 수정 가능
 
 function sptFmtMD(isoStr) {
   if (!isoStr) return '';
