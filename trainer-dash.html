@@ -1395,11 +1395,20 @@ function sptRenderList() {
     const inProg = r.in_progress || 0;
     const managing = r.managing || 0;
     const registered = r.registered || 0;
+    const completed = r.completed || 0;
+    const rejected = r.rejected || 0;
+    const unreachable = r.unreachable || 0;
+    const other = r.other || 0;
+    // 우선순위: in_progress > managing > pending > registered > completed > rejected > unreachable > other
     const status = inProg > 0 ? 'in_progress'
       : managing > 0 ? 'managing'
       : !r.all_done ? 'pending'
       : registered > 0 ? 'registered'
-      : 'completed';
+      : completed > 0 ? 'completed'
+      : rejected > 0 ? 'rejected'
+      : unreachable > 0 ? 'unreachable'
+      : other > 0 ? 'other'
+      : 'pending';
     const badge = `<span class="spt-badge spt-badge-${status}">${esc(SPT_STATUS_LABEL[status] || status)}</span>`;
     const next = r.next_at ? `<span>다음: <b>${esc(sptFmtDT(r.next_at))}</b></span>` : '';
     return `
