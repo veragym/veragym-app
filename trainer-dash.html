@@ -213,23 +213,17 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .spt-progress-bar{width:64px;height:4px;background:#222;border-radius:99px;overflow:hidden}
 .spt-progress-bar>i{display:block;height:100%;background:#c9a84c;border-radius:99px}
 
-/* ── 세션 카드 (1회차, 2회차...) ─────────────────────────── */
-.spt-sess-card{background:#111;border:1px solid #222;border-radius:12px;padding:10px 12px;margin-bottom:8px}
-.spt-sess-card.readonly{opacity:.75}
-.spt-sess-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.spt-sess-num{font-size:13px;font-weight:700;color:#fff}
-.spt-sess-inline{display:flex;gap:8px;align-items:center}
-.spt-sess-inline input[type=datetime-local]{flex:1;background:#0a0a0a;border:1.5px solid #222;border-radius:8px;padding:7px 10px;font-size:12px;color:#fff;outline:none;font-family:inherit;transition:border-color .2s}
-.spt-sess-inline input[type=datetime-local]:focus{border-color:#c9a84c}
-.spt-sess-inline input[type=datetime-local]::-webkit-calendar-picker-indicator{filter:invert(.8) sepia(1) hue-rotate(5deg) saturate(2)}
-.spt-status-select-sm{flex:none;width:90px;background:#0a0a0a;border:1.5px solid #333;border-radius:8px;padding:7px 8px;font-size:12px;color:#c9a84c;outline:none;font-family:inherit;cursor:pointer}
-.spt-sess-btn{flex:none;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;color:#c9a84c;cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s}
-.spt-sess-btn:hover{border-color:#c9a84c;background:#c9a84c11}
-.spt-sess-btn.primary{background:#c9a84c22;border-color:#c9a84c55;color:#c9a84c}
-.spt-sess-btn:disabled{opacity:.5;cursor:default}
-.spt-sess-readonly{font-size:12px;color:#777}
-.spt-sess-readonly .notes{margin-top:6px;color:#aaa;white-space:pre-wrap}
-.spt-sess-note{font-size:11px;color:#777;margin-top:6px}
+/* ── 세션 행 (N차 + date + time) ─────────────────────────── */
+.spt-sess-list{padding:6px 0}
+.spt-sess-simple{display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid #181818}
+.spt-sess-simple:last-child{border-bottom:none}
+.spt-sess-label{font-size:13px;font-weight:700;color:#fff;white-space:nowrap;min-width:26px}
+.spt-sess-simple input[type=date]{flex:1;background:#0a0a0a;border:1.5px solid #222;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none;font-family:inherit;transition:border-color .2s}
+.spt-sess-simple input[type=time]{flex:none;width:80px;background:#0a0a0a;border:1.5px solid #222;border-radius:8px;padding:6px 8px;font-size:12px;color:#fff;outline:none;font-family:inherit;transition:border-color .2s}
+.spt-sess-simple input:focus{border-color:#c9a84c}
+.spt-sess-simple input:disabled{opacity:.5;cursor:default}
+.spt-sess-simple input::-webkit-calendar-picker-indicator{filter:invert(.8) sepia(1) hue-rotate(5deg) saturate(2)}
+.spt-status-select-sm{flex:none;min-width:78px;background:#0a0a0a;border:1.5px solid #333;border-radius:8px;padding:6px 8px;font-size:12px;color:#c9a84c;outline:none;font-family:inherit;cursor:pointer}
 
 /* ── 상태 배지 (8종) ─────────────────────────────────────── */
 .spt-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:.2px}
@@ -356,16 +350,18 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   </div>
   <!-- 상세 뷰 -->
   <div id="view-spt-detail" style="display:none">
-    <div class="detail-header">
-      <button class="btn-back" onclick="sptSaveAndClose()">저장 후 닫기</button>
-      <div>
-        <div class="sec-title" id="sptDetailName"></div>
-        <div style="font-size:12px;color:#888;margin-top:2px" id="sptDetailSub"></div>
+    <div class="detail-header" style="gap:8px;padding:10px 14px;margin-bottom:10px">
+      <div style="flex:1;min-width:0">
+        <div class="sec-title" id="sptDetailName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+        <div style="font-size:11px;color:#888" id="sptDetailSub"></div>
       </div>
+      <select class="spt-status-select-sm" id="sptGlobalStatus" onchange="sptChangeAllStatus(this.value)">
+        <option value="" disabled selected>상태</option>
+      </select>
+      <button class="btn-back" onclick="sptSaveAndClose()">저장후닫기</button>
     </div>
     <div id="sptDetailPref"></div>
-    <div class="divider" style="color:#c9a84c">회차</div>
-    <div id="sptSessionCards"><div class="loading">불러오는 중...</div></div>
+    <div id="sptSessionCards" class="spt-sess-list"><div class="loading">불러오는 중...</div></div>
 
     <!-- 트레이너 코멘트 섹션 -->
     <div class="spt-comments-section">
@@ -1442,6 +1438,8 @@ async function sptShowDetail(memberId) {
   const prefEl = document.getElementById('sptDetailPref');
   prefEl.innerHTML = '<div class="loading" style="font-size:12px;padding:8px">불러오는 중...</div>';
 
+  const gSel = document.getElementById('sptGlobalStatus');
+  if (gSel) gSel.innerHTML = '<option value="" disabled selected>상태</option>';
   document.getElementById('sptSessionCards').innerHTML = '<div class="loading">불러오는 중...</div>';
   document.getElementById('sptCommentList').innerHTML = '<div class="loading">불러오는 중...</div>';
   document.getElementById('sptCommentAddBox').innerHTML = '';
@@ -1490,43 +1488,60 @@ function sptRenderSessions() {
     return;
   }
   wrap.innerHTML = _sptCurrentSessions.map(s => sptRenderSessionCard(s)).join('');
+  sptUpdateStatusDropdown(_sptCurrentSessions);
+}
+
+function sptDeriveStatus(sessions) {
+  if (!sessions || !sessions.length) return 'pending';
+  const counts = {};
+  for (const s of sessions) counts[s.status] = (counts[s.status] || 0) + 1;
+  const order = ['in_progress','managing','pending','registered','completed','rejected','unreachable','other'];
+  for (const st of order) { if (counts[st]) return st; }
+  return 'pending';
+}
+
+function sptUpdateStatusDropdown(sessions) {
+  const sel = document.getElementById('sptGlobalStatus');
+  if (!sel) return;
+  const current = sptDeriveStatus(sessions);
+  sel.innerHTML = SPT_STATUS_ACTIONS
+    .map(a => `<option value="${a.v}"${a.v === current ? ' selected' : ''}>${a.label}</option>`)
+    .join('');
+}
+
+async function sptChangeAllStatus(newStatus) {
+  const saves = _sptCurrentSessions
+    .filter(s => !SPT_LOCKED.has(s.status))
+    .map(s => db.rpc('spt_session_update_status', {
+      p_session_id: s.id,
+      p_new_status: newStatus,
+      p_scheduled_at: (() => {
+        const dateEl = document.getElementById(`sptDate-${s.id}`);
+        const timeEl = document.getElementById(`sptTime-${s.id}`);
+        if (dateEl?.value && timeEl?.value) return sptFromLocalInput(dateEl.value + 'T' + timeEl.value);
+        return s.scheduled_at || null;
+      })()
+    }));
+  if (!saves.length) { showToast('변경 가능한 세션이 없습니다'); return; }
+  const results = await Promise.all(saves);
+  const failed = results.filter(r => r.error || !r.data?.ok);
+  if (failed.length) { showToast('일부 실패: ' + _sptRpcErrMsg(failed[0].data, failed[0].error)); }
+  else showToast(`${SPT_STATUS_LABEL[newStatus]||newStatus} 처리됨`);
+  if (_sptCurrentMemberId) await sptLoadSessions(_sptCurrentMemberId);
+  _sptLoadedAt = 0;
+  sptLoadList();
 }
 
 function sptRenderSessionCard(s) {
   const locked = SPT_LOCKED.has(s.status);
-  const badgeClass = 'spt-badge-' + s.status;
-  const badgeLabel = SPT_STATUS_LABEL[s.status] || s.status;
-  if (locked) {
-    const when = s.completed_at ? sptFmtMD(s.completed_at)
-               : (s.scheduled_at ? sptFmtMD(s.scheduled_at) : '');
-    return `
-      <div class="spt-sess-card readonly">
-        <div class="spt-sess-head">
-          <span class="spt-sess-num">${s.session_number}회차</span>
-          <span class="spt-badge ${badgeClass}">${esc(badgeLabel)}</span>
-          ${when ? `<span style="font-size:11px;color:#666;margin-left:auto">${esc(when)}</span>` : ''}
-        </div>
-      </div>`;
-  }
-  const schedVal = sptToLocalInput(s.scheduled_at);
-  const statusOpts = SPT_STATUS_ACTIONS
-    .filter(a => a.v !== s.status)
-    .map(a => `<option value="${a.v}">${a.label}</option>`)
-    .join('');
-  return `
-    <div class="spt-sess-card" id="sptSess-${esc(s.id)}">
-      <div class="spt-sess-head">
-        <span class="spt-sess-num">${s.session_number}회차</span>
-        <span class="spt-badge ${badgeClass}">${esc(badgeLabel)}</span>
-      </div>
-      <div class="spt-sess-inline">
-        <input type="datetime-local" id="sptSched-${esc(s.id)}" value="${esc(schedVal)}">
-        <select class="spt-status-select-sm" onchange="sptChangeStatus('${esc(s.id)}',this.value)">
-          <option value="" disabled selected>상태</option>
-          ${statusOpts}
-        </select>
-      </div>
-    </div>`;
+  const dt = s.scheduled_at || s.completed_at || '';
+  const local = dt ? sptToLocalInput(dt) : '';
+  const [dateVal, timeVal] = local ? local.split('T') : ['', ''];
+  return `<div class="spt-sess-simple">
+    <span class="spt-sess-label">${s.session_number}차</span>
+    <input type="date" id="sptDate-${esc(s.id)}" value="${esc(dateVal)}"${locked ? ' disabled' : ''}>
+    <input type="time" id="sptTime-${esc(s.id)}" value="${esc(timeVal)}"${locked ? ' disabled' : ''}>
+  </div>`;
 }
 
 function _sptRpcErrMsg(data, error) {
@@ -1628,11 +1643,14 @@ async function sptSaveAndClose() {
   const saves = [];
   for (const s of _sptCurrentSessions) {
     if (SPT_LOCKED.has(s.status)) continue;
-    const inp = document.getElementById(`sptSched-${s.id}`);
-    if (!inp || !inp.value) continue;
-    const newIso = sptFromLocalInput(inp.value);
+    const dateEl = document.getElementById(`sptDate-${s.id}`);
+    const timeEl = document.getElementById(`sptTime-${s.id}`);
+    if (!dateEl?.value) continue;
+    const localStr = dateEl.value + 'T' + (timeEl?.value || '00:00');
+    const newIso = sptFromLocalInput(localStr);
     if (!newIso) continue;
-    if (inp.value === sptToLocalInput(s.scheduled_at)) continue;
+    const oldLocal = s.scheduled_at ? sptToLocalInput(s.scheduled_at) : '';
+    if (localStr === oldLocal) continue;
     saves.push(db.rpc('spt_session_update_status', {
       p_session_id: s.id,
       p_new_status: s.status,
@@ -3508,9 +3526,7 @@ window.sptLoadList         = sptLoadList;
 window.sptShowList         = sptShowList;
 window.sptShowDetail       = sptShowDetail;
 window.sptSaveAndClose     = sptSaveAndClose;
-window.sptChangeStatus     = sptChangeStatus;
-window.sptSaveSchedule     = sptSaveSchedule;
-window.sptSaveNotes        = sptSaveNotes;
+window.sptChangeAllStatus  = sptChangeAllStatus;
 window.sptOpenCommentAdd   = sptOpenCommentAdd;
 window.sptCloseCommentAdd  = sptCloseCommentAdd;
 window.sptSubmitCommentAdd = sptSubmitCommentAdd;
