@@ -344,6 +344,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <div id="view-spt-list">
     <div class="sec-header">
       <div><span class="sec-title">배정된 SPT</span><span class="sec-count" id="sptCount"></span></div>
+      <button class="btn-action" onclick="sptLoadList()" style="font-size:12px;padding:4px 10px;">동기화</button>
     </div>
     <div id="sptList"><div class="loading">불러오는 중...</div></div>
   </div>
@@ -1310,7 +1311,7 @@ let _sptCurrentMemberId = null; // 현재 열린 상세 회원 id
 let _sptCurrentSessions = [];   // 현재 상세 뷰의 세션들
 let _sptLoaded = false;
 let _sptLoadedAt = 0;
-const SPT_CACHE_MS = 30_000;
+const SPT_CACHE_MS = 0;
 function _sptCacheValid() { return Date.now() - _sptLoadedAt < SPT_CACHE_MS; }
 
 const SPT_STATUS_LABEL = {
