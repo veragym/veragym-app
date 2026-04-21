@@ -1327,7 +1327,7 @@ const SPT_STATUS_ACTIONS = [
   { v:'unreachable', label:'연락안됨' },
   { v:'other',       label:'기타' },
 ];
-const SPT_LOCKED = new Set(['completed','rejected','unreachable','other','registered']);
+const SPT_LOCKED = new Set(['completed','rejected','unreachable','other']);
 
 function sptFmtMD(isoStr) {
   if (!isoStr) return '';
@@ -1719,8 +1719,8 @@ function sptOpenCommentAdd() {
     <div class="spt-comment-addbox">
       <textarea id="sptNewComment" placeholder="이 회원에 대한 관찰, 체크포인트, 주의사항 등 (최대 2000자)" maxlength="2000"></textarea>
       <div class="btns">
-        <button class="spt-sess-btn" onclick="sptCloseCommentAdd()">취소</button>
-        <button class="spt-sess-btn primary" onclick="sptSubmitCommentAdd()">저장</button>
+        <button class="btn btn-secondary" onclick="sptCloseCommentAdd()">취소</button>
+        <button class="btn btn-primary" onclick="sptSubmitCommentAdd()">저장</button>
       </div>
     </div>`;
   setTimeout(() => {
@@ -1768,8 +1768,8 @@ function sptCommentEdit(commentId) {
   editBox.innerHTML = `
     <textarea maxlength="2000">${esc(original)}</textarea>
     <div class="btns">
-      <button class="spt-sess-btn" data-action="cancel">취소</button>
-      <button class="spt-sess-btn primary" data-action="save">저장</button>
+      <button class="btn btn-secondary" data-action="cancel">취소</button>
+      <button class="btn btn-primary" data-action="save">저장</button>
     </div>`;
   row.appendChild(editBox);
   editBox.querySelector('[data-action=cancel]').onclick = () => editBox.remove();
