@@ -200,6 +200,77 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .cal-event{position:absolute;left:2px;right:2px;border-radius:6px;padding:3px 4px;overflow:hidden;cursor:pointer;z-index:2;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .cal-event-title{font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4;width:100%;text-align:center}
 .cal-event-sub{font-size:10px;color:rgba(255,255,255,0.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;font-weight:600}
+
+/* ── SPT 탭 (다크+골드) ──────────────────────────────────── */
+.spt-card{background:#111;border:1px solid #222;border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.spt-card:hover,.spt-card:active{border-color:#c9a84c44}
+.spt-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.spt-card-name{font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.spt-card-phone{font-size:12px;color:#888}
+.spt-card-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:#aaa}
+.spt-card-meta b{color:#c9a84c;font-weight:600}
+.spt-progress{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#aaa}
+.spt-progress-bar{width:64px;height:4px;background:#222;border-radius:99px;overflow:hidden}
+.spt-progress-bar>i{display:block;height:100%;background:#c9a84c;border-radius:99px}
+
+/* ── 세션 카드 (1회차, 2회차...) ─────────────────────────── */
+.spt-sess-card{background:#111;border:1px solid #222;border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.spt-sess-card.readonly{opacity:.78}
+.spt-sess-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.spt-sess-num{font-size:14px;font-weight:700;color:#fff}
+.spt-sess-row{margin-bottom:10px}
+.spt-sess-row label{display:block;font-size:11px;color:#888;margin-bottom:4px;font-weight:600;letter-spacing:.3px}
+.spt-sess-row input[type=datetime-local],.spt-sess-row textarea{width:100%;background:#0a0a0a;border:1.5px solid #222;border-radius:10px;padding:10px 12px;font-size:13px;color:#fff;outline:none;font-family:inherit;transition:border-color .2s;resize:none}
+.spt-sess-row input[type=datetime-local]:focus,.spt-sess-row textarea:focus{border-color:#c9a84c}
+.spt-sess-row input[type=datetime-local]::-webkit-calendar-picker-indicator{filter:invert(.8) sepia(1) hue-rotate(5deg) saturate(2)}
+.spt-sess-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #222}
+.spt-sess-btn{flex:none;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;color:#c9a84c;cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s}
+.spt-sess-btn:hover{border-color:#c9a84c;background:#c9a84c11}
+.spt-sess-btn.primary{background:#c9a84c22;border-color:#c9a84c55;color:#c9a84c}
+.spt-sess-btn.danger{color:#ef4444;border-color:#3a1a1a}
+.spt-sess-btn.danger:hover{border-color:#ef4444;background:#ef444411}
+.spt-sess-btn:disabled{opacity:.5;cursor:default}
+.spt-sess-readonly{font-size:12px;color:#888;line-height:1.6}
+.spt-sess-readonly .notes{margin-top:6px;color:#aaa;white-space:pre-wrap}
+.spt-sess-note{font-size:11px;color:#777;margin-top:6px}
+
+/* ── 상태 배지 (6종) ─────────────────────────────────────── */
+.spt-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:.2px}
+.spt-badge-pending{background:#2a2a2a;color:#aaa;border:1px solid #333}
+.spt-badge-in_progress{background:#c9a84c22;color:#c9a84c;border:1px solid #c9a84c55}
+.spt-badge-completed{background:#22c55e22;color:#4ade80;border:1px solid #22c55e55}
+.spt-badge-rejected{background:#ef444422;color:#f87171;border:1px solid #ef444455}
+.spt-badge-unreachable{background:#f59e0b22;color:#fbbf24;border:1px solid #f59e0b55}
+.spt-badge-other{background:#2a2a2a;color:#999;border:1px solid #444}
+
+/* ── 코멘트 섹션 ─────────────────────────────────────────── */
+.spt-comments-section{margin-top:18px;padding-top:14px;border-top:1px solid #222}
+.spt-comments-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.spt-comments-head .sec-title{font-size:14px;font-weight:700;color:#c9a84c}
+.spt-comment-addbtn{background:#c9a84c22;border:1px solid #c9a84c55;border-radius:8px;padding:6px 12px;font-size:12px;color:#c9a84c;cursor:pointer;font-family:inherit;font-weight:600}
+.spt-comment-addbtn:hover{background:#c9a84c33}
+.spt-comment-row{background:#0f0f0f;border:1px solid #1a1a1a;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.spt-comment-body{flex:1;min-width:0;font-size:13px;color:#ddd;line-height:1.55;word-break:break-word}
+.spt-comment-date{color:#c9a84c;font-weight:600;margin-right:6px}
+.spt-comment-author{color:#fff;font-weight:600;margin-right:6px}
+.spt-comment-sep{color:#555;margin-right:6px}
+.spt-comment-content{color:#c8c8c8;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.spt-comment-row.expanded .spt-comment-content{-webkit-line-clamp:unset;overflow:visible}
+.spt-comment-actions{display:flex;gap:6px;flex-shrink:0}
+.spt-comment-actions .btn-xs{background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:4px 9px;font-size:11px;color:#c9a84c;cursor:pointer;font-family:inherit;font-weight:600}
+.spt-comment-actions .btn-xs:hover{border-color:#c9a84c}
+.spt-comment-actions .btn-xs.btn-danger{color:#f87171;border-color:#3a1a1a}
+.spt-comment-actions .btn-xs.btn-danger:hover{border-color:#ef4444}
+.spt-comment-edit{margin-top:6px;width:100%}
+.spt-comment-edit textarea{width:100%;background:#0a0a0a;border:1.5px solid #222;border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;outline:none;font-family:inherit;resize:vertical;min-height:60px}
+.spt-comment-edit textarea:focus{border-color:#c9a84c}
+.spt-comment-edit .btns{display:flex;gap:6px;margin-top:6px;justify-content:flex-end}
+.spt-comment-addbox{background:#0f0f0f;border:1px solid #222;border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.spt-comment-addbox textarea{width:100%;background:#0a0a0a;border:1.5px solid #222;border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;outline:none;font-family:inherit;resize:vertical;min-height:70px}
+.spt-comment-addbox textarea:focus{border-color:#c9a84c}
+.spt-comment-addbox .btns{display:flex;gap:6px;margin-top:6px;justify-content:flex-end}
+.spt-pref-box{background:#0f0f0f;border:1px solid #222;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#aaa;line-height:1.6}
+.spt-pref-box b{color:#c9a84c;font-weight:600}
 </style>
 </head>
 <body>
@@ -218,6 +289,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <button class="tab-btn active" id="nav-members" onclick="switchTab('members',this)">내 회원</button>
   <button class="tab-btn" id="nav-logs" onclick="switchTab('logs',this)">수업일지</button>
   <button class="tab-btn" id="nav-schedule" onclick="switchTab('schedule',this)">일정</button>
+  <button class="tab-btn" id="nav-spt" onclick="switchTab('spt',this)">SPT</button>
   <button class="tab-btn" id="nav-revenue" onclick="switchTab('revenue',this)">매출관리</button>
   <button class="tab-btn" onclick="location.href='exercise-library.html'">운동DB</button>
   <button class="tab-btn" id="nav-requests" onclick="switchTab('requests',this)">요청사항</button>
@@ -270,6 +342,40 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     </div>
     <div class="cal-grid-scroll" id="calGridScroll">
       <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Tab: SPT (무료 체험 PT) ─────────────────────────────── -->
+<div id="tab-spt" class="tab-content">
+  <!-- 목록 뷰 -->
+  <div id="view-spt-list">
+    <div class="sec-header">
+      <div><span class="sec-title">배정된 SPT</span><span class="sec-count" id="sptCount"></span></div>
+    </div>
+    <div id="sptList"><div class="loading">불러오는 중...</div></div>
+  </div>
+  <!-- 상세 뷰 -->
+  <div id="view-spt-detail" style="display:none">
+    <div class="detail-header">
+      <button class="btn-back" onclick="sptShowList()">목록</button>
+      <div>
+        <div class="sec-title" id="sptDetailName"></div>
+        <div style="font-size:12px;color:#888;margin-top:2px" id="sptDetailSub"></div>
+      </div>
+    </div>
+    <div id="sptDetailPref"></div>
+    <div class="divider" style="color:#c9a84c">회차</div>
+    <div id="sptSessionCards"><div class="loading">불러오는 중...</div></div>
+
+    <!-- 회원 코멘트 섹션 -->
+    <div class="spt-comments-section">
+      <div class="spt-comments-head">
+        <span class="sec-title">회원 코멘트</span>
+        <button class="spt-comment-addbtn" onclick="sptOpenCommentAdd()">+ 코멘트 추가</button>
+      </div>
+      <div id="sptCommentAddBox"></div>
+      <div id="sptCommentList"><div class="loading">불러오는 중...</div></div>
     </div>
   </div>
 </div>
@@ -1202,6 +1308,486 @@ async function doLogout() {
   location.replace('trainer-login.html');
 }
 
+// ══════════════════════════════════════════════════════════════
+// SPT 탭 (무료 체험 PT)
+// ══════════════════════════════════════════════════════════════
+let _sptList = [];              // spt_list_my_members 결과
+let _sptCurrentMemberId = null; // 현재 열린 상세 회원 id
+let _sptCurrentSessions = [];   // 현재 상세 뷰의 세션들
+let _sptLoaded = false;
+let _sptLoadedAt = 0;
+const SPT_CACHE_MS = 30_000;
+function _sptCacheValid() { return Date.now() - _sptLoadedAt < SPT_CACHE_MS; }
+
+const SPT_STATUS_LABEL = {
+  pending:'진행전', in_progress:'진행중', completed:'완료',
+  rejected:'거부', unreachable:'연락안됨', other:'기타'
+};
+const SPT_STATUS_ACTIONS = [
+  { v:'in_progress', label:'진행중' },
+  { v:'completed',   label:'완료' },
+  { v:'rejected',    label:'거부' },
+  { v:'unreachable', label:'연락안됨' },
+  { v:'other',       label:'기타' },
+];
+const SPT_LOCKED = new Set(['completed','rejected','unreachable','other']);
+
+function sptFmtMD(isoStr) {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  if (isNaN(d)) return '';
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+function sptFmtDT(isoStr) {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  if (isNaN(d)) return '';
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${d.getFullYear()}-${mm}-${dd} ${hh}:${mi}`;
+}
+// datetime-local input value (YYYY-MM-DDTHH:MM) from ISO timestamp
+function sptToLocalInput(isoStr) {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  if (isNaN(d)) return '';
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${d.getFullYear()}-${mm}-${dd}T${hh}:${mi}`;
+}
+function sptFromLocalInput(v) {
+  if (!v) return null;
+  const d = new Date(v);
+  return isNaN(d) ? null : d.toISOString();
+}
+
+async function sptLoadList() {
+  const listEl = document.getElementById('sptList');
+  if (!listEl) return;
+  listEl.innerHTML = '<div class="loading">불러오는 중...</div>';
+  try {
+    const { data, error } = await db.rpc('spt_list_my_members');
+    if (error) {
+      console.error('spt_list_my_members failed:', error);
+      listEl.innerHTML = '<div class="empty">불러오기 실패<br><button class="retry-btn" onclick="sptLoadList()">다시 시도</button></div>';
+      return;
+    }
+    _sptList = data || [];
+    _sptLoaded = true;
+    _sptLoadedAt = Date.now();
+    document.getElementById('sptCount').textContent = `(${_sptList.length}명)`;
+    sptRenderList();
+  } catch (e) {
+    console.error('sptLoadList failed:', e);
+    listEl.innerHTML = '<div class="empty">오류가 발생했습니다</div>';
+  }
+}
+
+function sptRenderList() {
+  const listEl = document.getElementById('sptList');
+  if (!_sptList.length) {
+    listEl.innerHTML = '<div class="empty">배정된 SPT 회원이 없습니다</div>';
+    return;
+  }
+  listEl.innerHTML = _sptList.map(r => {
+    const slot = r.preferred_time_slot || '전체';
+    const inProg = r.in_progress || 0;
+    const status = inProg > 0 ? 'in_progress' : r.all_done ? 'completed' : 'pending';
+    const badge = `<span class="spt-badge spt-badge-${status}">${esc(SPT_STATUS_LABEL[status] || status)}</span>`;
+    const next = r.next_at ? `<span>다음: <b>${esc(sptFmtDT(r.next_at))}</b></span>` : '';
+    return `
+      <div class="spt-card" onclick="sptShowDetail('${esc(r.member_id)}')">
+        <div class="spt-card-head">
+          <div class="spt-card-name">${esc(r.member_name||'')}
+            <span class="spt-card-phone">${esc(r.phone||'')}</span>
+          </div>
+          ${badge}
+        </div>
+        <div class="spt-card-meta">
+          <span>시간대: <b>${esc(slot)}</b></span>
+          ${next}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function sptShowList() {
+  document.getElementById('view-spt-list').style.display = '';
+  document.getElementById('view-spt-detail').style.display = 'none';
+  _sptCurrentMemberId = null;
+}
+
+async function sptShowDetail(memberId) {
+  _sptCurrentMemberId = memberId;
+  document.getElementById('view-spt-list').style.display = 'none';
+  document.getElementById('view-spt-detail').style.display = '';
+
+  const summary = _sptList.find(r => r.member_id === memberId);
+  document.getElementById('sptDetailName').textContent = summary?.member_name || '회원';
+  document.getElementById('sptDetailSub').textContent = summary?.phone || '';
+
+  // 희망시간 + 관리자 메모 박스 (spt_members 에서 master_notes 조회)
+  const prefEl = document.getElementById('sptDetailPref');
+  prefEl.innerHTML = '<div class="loading" style="font-size:12px;padding:8px">불러오는 중...</div>';
+
+  document.getElementById('sptSessionCards').innerHTML = '<div class="loading">불러오는 중...</div>';
+  document.getElementById('sptCommentList').innerHTML = '<div class="loading">불러오는 중...</div>';
+  document.getElementById('sptCommentAddBox').innerHTML = '';
+
+  // 병렬 로드 (pref + sessions + comments)
+  const [sptMemberRes] = await Promise.all([
+    db.from('spt_members').select('preferred_time_slot,preferred_time_detail,master_notes').eq('member_id', memberId).maybeSingle(),
+    sptLoadSessions(memberId),
+    sptLoadComments(memberId)
+  ]);
+
+  const pref = sptMemberRes?.data;
+  const slot = pref?.preferred_time_slot || summary?.preferred_time_slot || '전체';
+  const detail = pref?.preferred_time_detail || summary?.preferred_time_detail || '';
+  const masterNotes = pref?.master_notes || '';
+  prefEl.innerHTML = `<div class="spt-pref-box">
+    <div>이름: <b>${esc(summary?.member_name || '')}</b> &nbsp; 연락처: <b>${esc(summary?.phone || '-')}</b></div>
+    <div>희망 시간대: <b>${esc(slot)}</b>${detail ? ` &nbsp; 희망 상세: ${esc(detail)}` : ''}</div>
+    ${masterNotes ? `<div style="margin-top:6px;padding-top:6px;border-top:1px solid #222;color:#888">관리자 메모: <span style="color:#aaa">${esc(masterNotes)}</span></div>` : ''}
+  </div>`;
+}
+
+async function sptLoadSessions(memberId) {
+  try {
+    const { data, error } = await db.from('spt_sessions')
+      .select('id, session_number, status, scheduled_at, completed_at, notes')
+      .eq('member_id', memberId)
+      .order('session_number', { ascending: true });
+    if (error) {
+      console.error('sessions load failed:', error);
+      document.getElementById('sptSessionCards').innerHTML = '<div class="empty">세션 불러오기 실패</div>';
+      return;
+    }
+    _sptCurrentSessions = data || [];
+    sptRenderSessions();
+  } catch (e) {
+    console.error('sptLoadSessions failed:', e);
+    document.getElementById('sptSessionCards').innerHTML = '<div class="empty">오류</div>';
+  }
+}
+
+function sptRenderSessions() {
+  const wrap = document.getElementById('sptSessionCards');
+  if (!_sptCurrentSessions.length) {
+    wrap.innerHTML = '<div class="empty">세션이 없습니다</div>';
+    return;
+  }
+  wrap.innerHTML = _sptCurrentSessions.map(s => sptRenderSessionCard(s)).join('');
+}
+
+function sptRenderSessionCard(s) {
+  const locked = SPT_LOCKED.has(s.status);
+  const badgeClass = 'spt-badge-' + s.status;
+  const badgeLabel = SPT_STATUS_LABEL[s.status] || s.status;
+  if (locked) {
+    // readonly
+    const when = s.completed_at ? sptFmtDT(s.completed_at)
+               : (s.scheduled_at ? sptFmtDT(s.scheduled_at) : '-');
+    const notesHtml = s.notes
+      ? `<div class="notes">${esc(s.notes)}</div>`
+      : `<div class="notes" style="color:#555">(노트 없음)</div>`;
+    return `
+      <div class="spt-sess-card readonly">
+        <div class="spt-sess-head">
+          <div class="spt-sess-num">${s.session_number}회차</div>
+          <span class="spt-badge ${badgeClass}">${esc(badgeLabel)}</span>
+        </div>
+        <div class="spt-sess-readonly">
+          <div>일시: ${esc(when)}</div>
+          ${notesHtml}
+          <div class="spt-sess-note">종결됨 · 변경은 관리자에게 문의</div>
+        </div>
+      </div>`;
+  }
+  // editable (pending / in_progress)
+  const schedVal = sptToLocalInput(s.scheduled_at);
+  const notesVal = s.notes || '';
+  const statusBtns = SPT_STATUS_ACTIONS
+    .filter(a => a.v !== s.status) // 현재 상태는 버튼에서 제외 (pending 기본 제외 포함)
+    .map(a => {
+      const cls = (a.v === 'rejected' || a.v === 'unreachable') ? 'spt-sess-btn' :
+                  (a.v === 'completed' || a.v === 'in_progress') ? 'spt-sess-btn primary' :
+                  'spt-sess-btn';
+      return `<button class="${cls}" onclick="sptChangeStatus('${esc(s.id)}','${a.v}')">${a.label}</button>`;
+    }).join('');
+  return `
+    <div class="spt-sess-card" id="sptSess-${esc(s.id)}">
+      <div class="spt-sess-head">
+        <div class="spt-sess-num">${s.session_number}회차</div>
+        <span class="spt-badge ${badgeClass}">${esc(badgeLabel)}</span>
+      </div>
+      <div class="spt-sess-row">
+        <label>일정 (수업 일시)</label>
+        <input type="datetime-local" id="sptSched-${esc(s.id)}" value="${esc(schedVal)}">
+      </div>
+      <div class="spt-sess-row">
+        <label>수업 노트</label>
+        <textarea id="sptNotes-${esc(s.id)}" rows="3" placeholder="이번 수업 내용, 컨디션, 피드백...">${esc(notesVal)}</textarea>
+      </div>
+      <div class="spt-sess-actions">
+        <button class="spt-sess-btn primary" onclick="sptSaveSchedule('${esc(s.id)}')">일정 저장</button>
+        <button class="spt-sess-btn" onclick="sptSaveNotes('${esc(s.id)}')">노트 저장</button>
+      </div>
+      <div class="spt-sess-actions">
+        <span style="font-size:11px;color:#777;align-self:center;margin-right:4px">상태전환:</span>
+        ${statusBtns}
+      </div>
+    </div>`;
+}
+
+function _sptRpcErrMsg(data, error) {
+  const code = data?.code;
+  const base = data?.error || error?.message || '오류';
+  const hint = {
+    NO_TRAINER:    '트레이너 배정 후 상태 전환 가능',
+    LOCKED:        '종결된 세션은 관리자만 변경 가능',
+    NOT_ASSIGNED:  '배정되지 않은 회원',
+    FORBIDDEN:     '권한이 없습니다',
+    INVALID:       '잘못된 상태값',
+    NOT_FOUND:     '세션을 찾을 수 없습니다',
+    INVALID_CONTENT:'내용은 1~2000자',
+  }[code];
+  return hint || base;
+}
+
+async function sptChangeStatus(sessionId, newStatus) {
+  // in_progress로 변경 시 scheduled_at 수집
+  const inp = document.getElementById(`sptSched-${sessionId}`);
+  const schedIso = inp ? sptFromLocalInput(inp.value) : null;
+  if (newStatus === 'in_progress' && !schedIso) {
+    showToast('일정 일시를 먼저 입력해주세요');
+    return;
+  }
+  try {
+    const { data, error } = await db.rpc('spt_session_update_status', {
+      p_session_id: sessionId,
+      p_new_status: newStatus,
+      p_scheduled_at: schedIso
+    });
+    if (error || !data?.ok) {
+      showToast('실패: ' + _sptRpcErrMsg(data, error));
+      return;
+    }
+    showToast(`${SPT_STATUS_LABEL[newStatus]||newStatus} 처리됨`);
+    // 현재 회원의 세션 재로드 + 목록 재로드 (진행률 갱신)
+    if (_sptCurrentMemberId) await sptLoadSessions(_sptCurrentMemberId);
+    _sptLoadedAt = 0;
+    sptLoadList();
+  } catch (e) {
+    console.error('sptChangeStatus failed:', e);
+    showToast('오류가 발생했습니다');
+  }
+}
+
+async function sptSaveSchedule(sessionId) {
+  const inp = document.getElementById(`sptSched-${sessionId}`);
+  if (!inp) return;
+  const schedIso = sptFromLocalInput(inp.value);
+  if (!schedIso) { showToast('일시를 선택해주세요'); return; }
+  // 일정만 갱신: in_progress 로 세팅
+  try {
+    const sess = _sptCurrentSessions.find(s => s.id === sessionId);
+    const target = (sess && sess.status === 'in_progress') ? 'in_progress' : 'in_progress';
+    const { data, error } = await db.rpc('spt_session_update_status', {
+      p_session_id: sessionId,
+      p_new_status: target,
+      p_scheduled_at: schedIso
+    });
+    if (error || !data?.ok) {
+      showToast('일정 저장 실패: ' + _sptRpcErrMsg(data, error));
+      return;
+    }
+    showToast('일정 저장됨');
+    if (_sptCurrentMemberId) await sptLoadSessions(_sptCurrentMemberId);
+    _sptLoadedAt = 0;
+    sptLoadList();
+  } catch (e) {
+    console.error('sptSaveSchedule failed:', e);
+    showToast('오류가 발생했습니다');
+  }
+}
+
+async function sptSaveNotes(sessionId) {
+  const ta = document.getElementById(`sptNotes-${sessionId}`);
+  if (!ta) return;
+  const notes = ta.value;
+  try {
+    const { data, error } = await db.rpc('spt_session_save_notes', {
+      p_session_id: sessionId,
+      p_notes: notes
+    });
+    if (error || !data?.ok) {
+      showToast('노트 저장 실패: ' + _sptRpcErrMsg(data, error));
+      return;
+    }
+    showToast('노트 저장됨');
+    // 로컬 캐시 갱신
+    const sess = _sptCurrentSessions.find(s => s.id === sessionId);
+    if (sess) sess.notes = notes;
+  } catch (e) {
+    console.error('sptSaveNotes failed:', e);
+    showToast('오류가 발생했습니다');
+  }
+}
+
+// ── 코멘트 ─────────────────────────────────────────────────
+async function sptLoadComments(memberId) {
+  const listEl = document.getElementById('sptCommentList');
+  if (!listEl) return;
+  try {
+    const { data, error } = await db.from('spt_member_comments')
+      .select('id, trainer_id, trainer_name, content, created_at, updated_at')
+      .eq('member_id', memberId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('comments load failed:', error);
+      listEl.innerHTML = '<div class="empty">코멘트 불러오기 실패</div>';
+      return;
+    }
+    sptRenderComments(data || []);
+  } catch (e) {
+    console.error('sptLoadComments failed:', e);
+    listEl.innerHTML = '<div class="empty">오류</div>';
+  }
+}
+
+function sptRenderComments(rows) {
+  const listEl = document.getElementById('sptCommentList');
+  if (!rows.length) {
+    listEl.innerHTML = '<div class="empty" style="padding:20px">아직 코멘트가 없습니다</div>';
+    return;
+  }
+  listEl.innerHTML = rows.map(r => {
+    const mine = r.trainer_id && me && r.trainer_id === me.id;
+    const actions = mine
+      ? `<button class="btn-xs" onclick="sptCommentEdit('${esc(r.id)}')">수정</button>
+         <button class="btn-xs btn-danger" onclick="sptCommentDelete('${esc(r.id)}')">삭제</button>`
+      : '';
+    const edited = (r.updated_at && r.created_at && r.updated_at !== r.created_at)
+      ? ` <span style="font-size:10px;color:#666">(수정됨)</span>` : '';
+    return `
+      <div class="spt-comment-row" data-id="${esc(r.id)}">
+        <div class="spt-comment-body" onclick="this.closest('.spt-comment-row').classList.toggle('expanded')">
+          <span class="spt-comment-date">${esc(sptFmtMD(r.created_at))}</span>
+          <span class="spt-comment-author">${esc(r.trainer_name||'-')}</span>
+          <span class="spt-comment-sep">:</span>
+          <span class="spt-comment-content">${esc(r.content||'')}</span>${edited}
+        </div>
+        <div class="spt-comment-actions">${actions}</div>
+      </div>`;
+  }).join('');
+}
+
+function sptOpenCommentAdd() {
+  const box = document.getElementById('sptCommentAddBox');
+  if (box.innerHTML.trim()) { box.innerHTML = ''; return; }
+  box.innerHTML = `
+    <div class="spt-comment-addbox">
+      <textarea id="sptNewComment" placeholder="이 회원에 대한 관찰, 체크포인트, 주의사항 등 (최대 2000자)" maxlength="2000"></textarea>
+      <div class="btns">
+        <button class="spt-sess-btn" onclick="sptCloseCommentAdd()">취소</button>
+        <button class="spt-sess-btn primary" onclick="sptSubmitCommentAdd()">저장</button>
+      </div>
+    </div>`;
+  setTimeout(() => {
+    const ta = document.getElementById('sptNewComment');
+    if (ta) ta.focus();
+  }, 30);
+}
+function sptCloseCommentAdd() {
+  document.getElementById('sptCommentAddBox').innerHTML = '';
+}
+
+async function sptSubmitCommentAdd() {
+  const ta = document.getElementById('sptNewComment');
+  if (!ta) return;
+  const content = ta.value.trim();
+  if (!content) { showToast('내용을 입력해주세요'); return; }
+  if (content.length > 2000) { showToast('2000자 이내로 입력해주세요'); return; }
+  if (!_sptCurrentMemberId) { showToast('회원 정보 없음'); return; }
+  try {
+    const { data, error } = await db.rpc('spt_comment_add', {
+      p_member_id: _sptCurrentMemberId,
+      p_content: content
+    });
+    if (error || !data?.ok) {
+      showToast('저장 실패: ' + _sptRpcErrMsg(data, error));
+      return;
+    }
+    sptCloseCommentAdd();
+    showToast('코멘트 추가됨');
+    await sptLoadComments(_sptCurrentMemberId);
+  } catch (e) {
+    console.error('sptSubmitCommentAdd failed:', e);
+    showToast('오류가 발생했습니다');
+  }
+}
+
+function sptCommentEdit(commentId) {
+  const row = document.querySelector(`.spt-comment-row[data-id="${commentId}"]`);
+  if (!row) return;
+  const contentEl = row.querySelector('.spt-comment-content');
+  const original = contentEl ? contentEl.textContent : '';
+  if (row.querySelector('.spt-comment-edit')) return; // already open
+  const editBox = document.createElement('div');
+  editBox.className = 'spt-comment-edit';
+  editBox.innerHTML = `
+    <textarea maxlength="2000">${esc(original)}</textarea>
+    <div class="btns">
+      <button class="spt-sess-btn" data-action="cancel">취소</button>
+      <button class="spt-sess-btn primary" data-action="save">저장</button>
+    </div>`;
+  row.appendChild(editBox);
+  editBox.querySelector('[data-action=cancel]').onclick = () => editBox.remove();
+  editBox.querySelector('[data-action=save]').onclick = async () => {
+    const newContent = editBox.querySelector('textarea').value.trim();
+    if (!newContent) { showToast('내용을 입력해주세요'); return; }
+    try {
+      const { data, error } = await db.rpc('spt_comment_update', {
+        p_comment_id: commentId,
+        p_content: newContent
+      });
+      if (error || !data?.ok) {
+        showToast('수정 실패: ' + _sptRpcErrMsg(data, error));
+        return;
+      }
+      showToast('수정되었습니다');
+      if (_sptCurrentMemberId) await sptLoadComments(_sptCurrentMemberId);
+    } catch (e) {
+      console.error('sptCommentEdit save failed:', e);
+      showToast('오류가 발생했습니다');
+    }
+  };
+  const ta = editBox.querySelector('textarea');
+  if (ta) ta.focus();
+}
+
+async function sptCommentDelete(commentId) {
+  const ok = await showConfirm('이 코멘트를 삭제하시겠습니까?', { okText:'삭제', danger:true });
+  if (!ok) return;
+  try {
+    const { data, error } = await db.rpc('spt_comment_delete', { p_comment_id: commentId });
+    if (error || !data?.ok) {
+      showToast('삭제 실패: ' + _sptRpcErrMsg(data, error));
+      return;
+    }
+    showToast('삭제되었습니다');
+    if (_sptCurrentMemberId) await sptLoadComments(_sptCurrentMemberId);
+  } catch (e) {
+    console.error('sptCommentDelete failed:', e);
+    showToast('오류가 발생했습니다');
+  }
+}
+
 init();
 
 // ─── 타이머 정리 (페이지 이탈 시 메모리 누수 방지) ──────────
@@ -1380,7 +1966,7 @@ async function handleDbError(error, fallbackMsg) {
   return true;
 }
 const _origSwitchTab=switchTab;
-switchTab=function(id,btn){_origSwitchTab(id,btn);if(id==='schedule')loadScheduleView();if(id==='revenue')loadRevenue();if(id==='imggen'){igLoadExCache();igRenderList();}};
+switchTab=function(id,btn){_origSwitchTab(id,btn);if(id==='schedule')loadScheduleView();if(id==='revenue')loadRevenue();if(id==='imggen'){igLoadExCache();igRenderList();}if(id==='spt'){sptShowList();if(!_sptLoaded||!_sptCacheValid())sptLoadList();}};
 
 // ══════════ 매출관리 (Revenue) ══════════
 let _revPayments = [];        // payment_records for this trainer
@@ -2910,6 +3496,17 @@ window.siCancelCompleted   = siCancelCompleted;
 window.siToggleNoshow      = siToggleNoshow;
 window.switchRevMonth      = switchRevMonth;
 window.switchTab           = switchTab;
+window.sptLoadList         = sptLoadList;
+window.sptShowList         = sptShowList;
+window.sptShowDetail       = sptShowDetail;
+window.sptChangeStatus     = sptChangeStatus;
+window.sptSaveSchedule     = sptSaveSchedule;
+window.sptSaveNotes        = sptSaveNotes;
+window.sptOpenCommentAdd   = sptOpenCommentAdd;
+window.sptCloseCommentAdd  = sptCloseCommentAdd;
+window.sptSubmitCommentAdd = sptSubmitCommentAdd;
+window.sptCommentEdit      = sptCommentEdit;
+window.sptCommentDelete    = sptCommentDelete;
 window.toggleTimePicker    = toggleTimePicker;
 window.updateRevPeriodUI   = updateRevPeriodUI;
 window.viewNotePhoto       = viewNotePhoto;
