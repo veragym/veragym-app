@@ -344,6 +344,17 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <div id="view-spt-list">
     <div class="sec-header">
       <div><span class="sec-title">배정된 SPT</span><span class="sec-count" id="sptCount"></span></div>
+      <select class="spt-status-select-sm" id="sptFilterStatus" onchange="sptSetFilter(this.value)">
+        <option value="all">전체</option>
+        <option value="pending">진행전</option>
+        <option value="in_progress">진행중</option>
+        <option value="managing">관리중</option>
+        <option value="registered">등록</option>
+        <option value="completed">완료</option>
+        <option value="rejected">거부</option>
+        <option value="unreachable">연락안됨</option>
+        <option value="other">기타</option>
+      </select>
     </div>
     <div id="sptList"><div class="loading">불러오는 중...</div></div>
   </div>
@@ -1306,6 +1317,7 @@ async function doLogout() {
 // SPT 탭 (무료 체험 PT)
 // ══════════════════════════════════════════════════════════════
 let _sptList = [];              // spt_list_my_members 결과
+let _sptFilter = 'all';         // 목록 필터 상태 (all | pending | in_progress | ...)
 let _sptCurrentMemberId = null; // 현재 열린 상세 회원 id
 let _sptCurrentSessions = [];   // 현재 상세 뷰의 세션들
 let _sptLoaded = false;
@@ -1384,31 +1396,53 @@ async function sptLoadList() {
   }
 }
 
+function sptRowStatus(r) {
+  const inProg = r.in_progress || 0;
+  const managing = r.managing || 0;
+  const registered = r.registered || 0;
+  const completed = r.completed || 0;
+  const rejected = r.rejected || 0;
+  const unreachable = r.unreachable || 0;
+  const other = r.other || 0;
+  // 우선순위: in_progress > managing > pending > registered > completed > rejected > unreachable > other
+  return inProg > 0 ? 'in_progress'
+    : managing > 0 ? 'managing'
+    : !r.all_done ? 'pending'
+    : registered > 0 ? 'registered'
+    : completed > 0 ? 'completed'
+    : rejected > 0 ? 'rejected'
+    : unreachable > 0 ? 'unreachable'
+    : other > 0 ? 'other'
+    : 'pending';
+}
+
+function sptSetFilter(v) {
+  _sptFilter = v || 'all';
+  sptRenderList();
+}
+
 function sptRenderList() {
   const listEl = document.getElementById('sptList');
+  const filtered = _sptFilter === 'all'
+    ? _sptList
+    : _sptList.filter(r => sptRowStatus(r) === _sptFilter);
+  const countEl = document.getElementById('sptCount');
+  if (countEl) {
+    countEl.textContent = _sptFilter === 'all'
+      ? `(${_sptList.length}명)`
+      : `(${filtered.length}/${_sptList.length}명)`;
+  }
   if (!_sptList.length) {
     listEl.innerHTML = '<div class="empty">배정된 SPT 회원이 없습니다</div>';
     return;
   }
-  listEl.innerHTML = _sptList.map(r => {
+  if (!filtered.length) {
+    listEl.innerHTML = '<div class="empty">해당 상태의 회원이 없습니다</div>';
+    return;
+  }
+  listEl.innerHTML = filtered.map(r => {
     const slot = r.preferred_time_slot || '전체';
-    const inProg = r.in_progress || 0;
-    const managing = r.managing || 0;
-    const registered = r.registered || 0;
-    const completed = r.completed || 0;
-    const rejected = r.rejected || 0;
-    const unreachable = r.unreachable || 0;
-    const other = r.other || 0;
-    // 우선순위: in_progress > managing > pending > registered > completed > rejected > unreachable > other
-    const status = inProg > 0 ? 'in_progress'
-      : managing > 0 ? 'managing'
-      : !r.all_done ? 'pending'
-      : registered > 0 ? 'registered'
-      : completed > 0 ? 'completed'
-      : rejected > 0 ? 'rejected'
-      : unreachable > 0 ? 'unreachable'
-      : other > 0 ? 'other'
-      : 'pending';
+    const status = sptRowStatus(r);
     const badge = `<span class="spt-badge spt-badge-${status}">${esc(SPT_STATUS_LABEL[status] || status)}</span>`;
     const next = r.next_at ? `<span>다음: <b>${esc(sptFmtDT(r.next_at))}</b></span>` : '';
     return `
@@ -2248,8 +2282,11 @@ function renderForecasts() {
   const list = _revForecasts
     .filter(f => f.forecast_month === month)
     .sort((a, b) => {
-      // 1. 미등록 최우선
-      if (a.is_registered !== b.is_registered) return a.is_registered ? 1 : -1;
+      // 1. 대기(null) > 미등록(false) > 등록(true)
+      const rank = r => (r.is_registered === null || r.is_registered === undefined) ? 0
+                      : r.is_registered === false ? 1 : 2;
+      const ra = rank(a), rb = rank(b);
+      if (ra !== rb) return ra - rb;
       // 2. 결제예정일 빠른 순 (없으면 뒤로)
       const da = a.payment_due_date || '';
       const db2 = b.payment_due_date || '';
@@ -3531,6 +3568,7 @@ window.siToggleNoshow      = siToggleNoshow;
 window.switchRevMonth      = switchRevMonth;
 window.switchTab           = switchTab;
 window.sptLoadList         = sptLoadList;
+window.sptSetFilter        = sptSetFilter;
 window.sptShowList         = sptShowList;
 window.sptShowDetail       = sptShowDetail;
 window.sptSaveAndClose     = sptSaveAndClose;
