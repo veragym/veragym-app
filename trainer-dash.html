@@ -1765,7 +1765,8 @@ function sptRenderComments(rows) {
   listEl.innerHTML = rows.map(r => {
     const mine = r.trainer_id && me && r.trainer_id === me.id;
     const actions = mine
-      ? `<button class="btn-xs" onclick="sptCommentEdit('${esc(r.id)}')">수정</button>`
+      ? `<button class="btn-xs" onclick="sptCommentEdit('${esc(r.id)}')">수정</button>
+         <button class="btn-xs btn-danger" onclick="sptCommentDelete('${esc(r.id)}')">삭제</button>`
       : '';
     const edited = (r.updated_at && r.created_at && r.updated_at !== r.created_at)
       ? ` <span style="font-size:10px;color:#666">(수정됨)</span>` : '';
