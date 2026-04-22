@@ -219,7 +219,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .spt-card-name{font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .spt-card-phone{font-size:12px;color:#4a6580}
 .spt-card-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:#8aa4c4}
-.spt-card-meta b{color:#60a5fa;font-weight:600}
+.spt-card-meta b{color:#60a5fa;font-weight:400}
 .spt-progress{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#8aa4c4}
 .spt-progress-bar{width:64px;height:4px;background:#141f35;border-radius:99px;overflow:hidden}
 .spt-progress-bar>i{display:block;height:100%;background:#3b82f6;border-radius:99px}
@@ -1765,8 +1765,7 @@ function sptRenderComments(rows) {
   listEl.innerHTML = rows.map(r => {
     const mine = r.trainer_id && me && r.trainer_id === me.id;
     const actions = mine
-      ? `<button class="btn-xs" onclick="sptCommentEdit('${esc(r.id)}')">수정</button>
-         <button class="btn-xs btn-danger" onclick="sptCommentDelete('${esc(r.id)}')">삭제</button>`
+      ? `<button class="btn-xs" onclick="sptCommentEdit('${esc(r.id)}')">수정</button>`
       : '';
     const edited = (r.updated_at && r.created_at && r.updated_at !== r.created_at)
       ? ` <span style="font-size:10px;color:#666">(수정됨)</span>` : '';
