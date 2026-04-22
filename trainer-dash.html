@@ -1342,6 +1342,7 @@ const SPT_STATUS_LABEL = {
   managing:'관리중', registered:'등록'
 };
 const SPT_STATUS_ACTIONS = [
+  { v:'pending',     label:'진행전' },
   { v:'in_progress', label:'진행중' },
   { v:'managing',    label:'관리중' },
   { v:'registered',  label:'등록' },
@@ -1714,12 +1715,12 @@ async function sptSaveAndClose() {
     if (SPT_LOCKED.has(s.status)) continue;
     const dateEl = document.getElementById(`sptDate-${s.id}`);
     const timeEl = document.getElementById(`sptTime-${s.id}`);
-    if (!dateEl?.value) continue;
-    const localStr = dateEl.value + 'T' + (timeEl?.value || '00:00');
-    const newIso = sptFromLocalInput(localStr);
-    if (!newIso) continue;
-    const oldLocal = s.scheduled_at ? sptToLocalInput(s.scheduled_at) : '';
-    if (localStr === oldLocal) continue;
+    if (!dateEl) continue;
+    const hasDate = !!dateEl.value;
+    const newIso = hasDate ? sptFromLocalInput(dateEl.value + 'T' + (timeEl?.value || '00:00')) : null;
+    if (hasDate && !newIso) continue; // 파싱 실패
+    const oldIso = s.scheduled_at || null;
+    if (newIso === oldIso) continue; // 변경 없음
     saves.push(db.rpc('spt_session_update_status', {
       p_session_id: s.id,
       p_new_status: s.status,
