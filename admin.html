@@ -727,7 +727,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
           <option value="active">🟢 유효</option>
           <option value="long_absent">🟡 장기미방문</option>
           <option value="expired">🔴 만료</option>
-          <option value="">🔄 자동 계산</option>
         </select>
         <button class="vb vb-sm vb-primary-gradient" id="statusOverrideBtn" onclick="adminSetStatus()">변경</button>
       </div>
@@ -1663,16 +1662,16 @@ async function saveChangeTrainer() {
   const btn = document.getElementById('btnCtSave');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
   try {
-    // members.trainer_id만 업데이트 (담당=배정 통합)
+    // RPC admin_set_member_trainer 사용 (RLS 우회, 관리자 권한 체크 내장)
     if (_currentMemberId) {
-      // .select() 체이닝해서 실제 업데이트된 행을 반환받아 사일런트 0-row 실패 감지
-      const { data: updated, error: e1 } = await db.from('members')
-        .update({ trainer_id: newTrId })
-        .eq('id', _currentMemberId)
-        .select('id');
+      const { data: rpcResult, error: e1 } = await db.rpc('admin_set_member_trainer', {
+        p_member_id: _currentMemberId,
+        p_trainer_id: newTrId
+      });
       if (e1) throw e1;
-      if (!updated || updated.length === 0) {
-        throw new Error('권한 부족 또는 대상 회원을 찾을 수 없습니다 (RLS 확인 필요)');
+      if (!rpcResult || rpcResult.ok !== true) {
+        const msg = rpcResult?.error || 'unknown';
+        throw new Error('저장 실패: ' + msg);
       }
     }
     closeModal('changeTrainerModal');
