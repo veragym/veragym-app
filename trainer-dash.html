@@ -2217,8 +2217,10 @@ function renderRevSummary() {
 
 function updateForecastTotal() {
   const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
+  // 미등록 처리(is_registered === false) 내역은 합계에서 제외
+  // 대기(null)와 등록완료(true)는 포함
   const total = _revForecasts
-    .filter(f => f.forecast_month === month)
+    .filter(f => f.forecast_month === month && f.is_registered !== false)
     .reduce((s,f) => s + (f.price_per_session * f.session_count), 0);
   document.getElementById('revForecastTotal').textContent = _fmtWon(total);
 }
