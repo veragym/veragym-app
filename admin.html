@@ -1749,15 +1749,23 @@ async function saveEditPtProduct() {
       status: isActive ? 'active' : 'done'
     }).eq('id', _editPtProductId);
     if (error) throw error;
-    // payment_records도 동기화 (total_sessions, payment_amount 업데이트)
+    // payment_records 동기화
+    // - 트레이너/계약일/회원명/총횟수는 항상 동기화 (매출관리 필터는 trainer_id + payment_date 기반)
+    // - 결제금액은 단가·횟수 모두 있을 때만 재계산 (net_amount, price_per_session은 GENERATED 컬럼 → 자동)
+    const trainerRow = _allTrainers.find(t => t.id === contractTr);
+    const member = _allMembers.find(x => x.id === _currentMemberId);
+    const paymentUpdate = {
+      payment_date: date,
+      total_sessions: total,
+      trainer_id: contractTr,
+      trainer_name: trainerRow ? trainerRow.name : null,
+      member_name: member?.name || '',
+    };
     if (pps > 0 && total > 0) {
-      const paymentAmount = Math.round(pps * total * 1.1);
-      const { error: e2 } = await db.from('payment_records').update({
-        total_sessions: total,
-        payment_amount: paymentAmount
-      }).eq('pt_product_id', _editPtProductId);
-      if (e2) console.warn('payment_records 동기화 실패:', e2.message);
+      paymentUpdate.payment_amount = Math.round(pps * total * 1.1);
     }
+    const { error: e2 } = await db.from('payment_records').update(paymentUpdate).eq('pt_product_id', _editPtProductId);
+    if (e2) console.warn('payment_records 동기화 실패:', e2.message);
     // members.member_status / is_active 자동 재계산 (p_status=null → 자동계산 모드)
     if (_currentMemberId) {
       const { error: e3 } = await db.rpc('admin_set_member_status', { p_member_id: _currentMemberId, p_status: null });
