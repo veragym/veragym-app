@@ -3003,9 +3003,60 @@ init();
 
 // ══════════ 전체 시간표 캔버스 (관리자용) ══════════
 const BS_DAYS=['일','월','화','수','목','금','토'];
-let _bsTrainers=[],_bsSchedules=[],_bsCurrentDate='';
+const BS_DEFAULT_EXCLUDE=['워크인','최고야']; // 최초 진입 시 자동 제외 (변경 시 localStorage 우선)
+let _bsTrainersAll=[],_bsTrainers=[],_bsSchedules=[],_bsCurrentDate='';
+let _bsSelectedSet=new Set(); // 표시할 트레이너 id Set
 
 function closeBranchSchedModal(){document.getElementById('branchSchedModal').style.display='none';}
+
+// ── 트레이너 선택 필터 ──
+function _bsSelKey(branch){return 'bs.selectedTrainers.'+(branch||'전체');}
+function _bsLoadSelection(branch,all){
+  try{
+    const raw=localStorage.getItem(_bsSelKey(branch));
+    if(raw){const arr=JSON.parse(raw);if(Array.isArray(arr))return new Set(arr);}
+  }catch(e){}
+  // 기본값: 더미(워크인/최고야) 제외 전체
+  return new Set(all.filter(t=>!BS_DEFAULT_EXCLUDE.includes(t.name)).map(t=>t.id));
+}
+function _bsSaveSelection(branch){
+  try{localStorage.setItem(_bsSelKey(branch),JSON.stringify([..._bsSelectedSet]));}catch(e){}
+}
+function _bsToggleFilterPanel(){
+  const p=document.getElementById('bsFilterPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+function _bsRenderTrainerFilter(){
+  const host=document.getElementById('bsFilterChecks');
+  if(!host)return;
+  host.innerHTML=_bsTrainersAll.map(t=>`
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#ddd;cursor:pointer;padding:4px 6px;background:#1a1a14;border-radius:6px;">
+      <input type="checkbox" ${_bsSelectedSet.has(t.id)?'checked':''} onchange="_bsToggleTrainer('${t.id}',this.checked)">
+      <span>${(t.name||'').replace(/'/g,'&#39;')}</span>
+    </label>
+  `).join('');
+  const btn=document.getElementById('bsBtnFilter');
+  if(btn)btn.textContent=`트레이너 ${_bsSelectedSet.size}/${_bsTrainersAll.length} ▼`;
+}
+async function _bsToggleTrainer(id,checked){
+  if(checked)_bsSelectedSet.add(id);else _bsSelectedSet.delete(id);
+  const branch=document.getElementById('scBranchSel')?.value||'';
+  _bsSaveSelection(branch);
+  _bsTrainers=_bsTrainersAll.filter(t=>_bsSelectedSet.has(t.id));
+  const btn=document.getElementById('bsBtnFilter');
+  if(btn)btn.textContent=`트레이너 ${_bsSelectedSet.size}/${_bsTrainersAll.length} ▼`;
+  await _bsLoadDay(_bsCurrentDate);
+  drawBranchCanvas(_bsCurrentDate);
+}
+async function _bsSelectAllTrainers(all){
+  _bsSelectedSet=all?new Set(_bsTrainersAll.map(t=>t.id)):new Set();
+  const branch=document.getElementById('scBranchSel')?.value||'';
+  _bsSaveSelection(branch);
+  _bsTrainers=_bsTrainersAll.filter(t=>_bsSelectedSet.has(t.id));
+  _bsRenderTrainerFilter();
+  await _bsLoadDay(_bsCurrentDate);
+  drawBranchCanvas(_bsCurrentDate);
+}
 
 function _bsSetDayBtn(offset){
   document.getElementById('bsBtnToday').style.background=offset===0?'#c9a84c':'#1a1a14';
@@ -3031,15 +3082,20 @@ async function openBranchSchedModal(dateStr){
   _bsCurrentDate=dateStr||today;
   document.getElementById('bsDatePicker').value=_bsCurrentDate;
   document.getElementById('bsSubtitle').textContent='불러오는 중...';
-  // 오늘/내일 버튼 상태
   _bsSetDayBtn(_bsCurrentDate===today?0:_bsCurrentDate===tomorrow?1:-1);
-  // 선택된 지점으로 트레이너 필터 (없으면 전체)
-  // 전체시간표 이미지에서 강제 제외: 더미 트레이너 (워크인, 최고야 등)
-  const BS_EXCLUDE_TRAINERS = ['워크인','최고야'];
+  // 1) 지점 내 활성 트레이너 전체 (사용자 선택 UI용 풀)
   const branch=document.getElementById('scBranchSel')?.value||'';
-  _bsTrainers=branch
-    ?(_scAllTrainers||[]).filter(t=>t.gym_location===branch&&t.is_active!==false&&!BS_EXCLUDE_TRAINERS.includes(t.name))
-    :(_scAllTrainers||[]).filter(t=>t.is_active!==false&&!BS_EXCLUDE_TRAINERS.includes(t.name));
+  _bsTrainersAll=branch
+    ?(_scAllTrainers||[]).filter(t=>t.gym_location===branch&&t.is_active!==false)
+    :(_scAllTrainers||[]).filter(t=>t.is_active!==false);
+  // 2) 사용자 선택 로드 (지점별 localStorage). 없으면 기본값(더미 제외 전체).
+  _bsSelectedSet=_bsLoadSelection(branch,_bsTrainersAll);
+  // 3) 캔버스 렌더 대상은 선택된 트레이너만
+  _bsTrainers=_bsTrainersAll.filter(t=>_bsSelectedSet.has(t.id));
+  // 4) 필터 패널 갱신 (체크박스 + 카운트)
+  _bsRenderTrainerFilter();
+  // 패널은 기본 접힘 상태
+  const fp=document.getElementById('bsFilterPanel');if(fp)fp.style.display='none';
   await _bsLoadDay(_bsCurrentDate);
   drawBranchCanvas(_bsCurrentDate);
 }
@@ -3645,6 +3701,16 @@ window.scExecCreate            = scExecCreate;
       <button class="vb vb-md vb-primary-gradient" id="bsBtnToday" onclick="onBsDay(0)" style="flex:1;">오늘</button>
       <button class="vb vb-md vb-secondary" id="bsBtnTomorrow" onclick="onBsDay(1)" style="flex:1;">내일</button>
       <input type="hidden" id="bsDatePicker" value="">
+    </div>
+    <div style="padding:6px 16px;border-bottom:1px solid #2a251833;flex-shrink:0;">
+      <button class="vb vb-sm vb-secondary" id="bsBtnFilter" onclick="_bsToggleFilterPanel()" style="width:100%;font-size:12px;">트레이너 선택 ▼</button>
+    </div>
+    <div id="bsFilterPanel" style="display:none;padding:10px 16px;border-bottom:1px solid #2a251833;background:#0d0d08;flex-shrink:0;max-height:240px;overflow-y:auto;">
+      <div id="bsFilterChecks" style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;"></div>
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <button class="vb vb-sm vb-secondary" onclick="_bsSelectAllTrainers(true)" style="flex:1;font-size:11px;">전체 선택</button>
+        <button class="vb vb-sm vb-secondary" onclick="_bsSelectAllTrainers(false)" style="flex:1;font-size:11px;">전체 해제</button>
+      </div>
     </div>
     <div style="overflow:auto;-webkit-overflow-scrolling:touch;flex:1;display:flex;align-items:flex-start;justify-content:flex-start;background:#f4f4f4;" id="bsCanvasWrap">
       <canvas id="bsCanvas" style="display:block;"></canvas>
