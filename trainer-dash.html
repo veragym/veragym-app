@@ -2539,10 +2539,11 @@ async function openBranchSchedModal(){
   _bsCurrentDate=today;
   document.getElementById('bsDatePicker').value=today;
   document.getElementById('bsSubtitle').textContent='불러오는 중...';
-  // 같은 지점 비관리자 트레이너 목록
+  // 같은 지점 비관리자 트레이너 목록 (관리자가 데일리차트에 표시 설정한 사람만)
   const gym=me?.gym_location||'';
   const{data:trainerList}=await db.from('trainers')
-    .select('id,name').eq('gym_location',gym).eq('is_active',true).eq('is_admin',false).order('name');
+    .select('id,name').eq('gym_location',gym).eq('is_active',true).eq('is_admin',false)
+    .eq('show_on_chart',true).order('name');
   _bsTrainers=trainerList||[];
   await _bsLoadDay(today);
   drawBranchCanvas(today);

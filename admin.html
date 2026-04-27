@@ -2358,7 +2358,7 @@ function scDurMin(s,e){if(!s||!e)return 60;const[sh,sm]=s.split(':').map(Number)
 async function loadScheduleTab(){
   if(!scStart)scStart=scDayStart(new Date());
   if(!scTrainersLoaded){
-    const{data}=await db.from('trainers').select('id,name,gym_location').eq('is_active',true).order('name');
+    const{data}=await db.from('trainers').select('id,name,gym_location,show_on_chart').eq('is_active',true).order('name');
     _scAllTrainers=data||[];
     // 지점 드롭다운 채우기
     const branchSel=document.getElementById('scBranchSel');
@@ -2431,16 +2431,7 @@ function scSelectDate(dateStr){
   scRenderDayView();
 }
 
-// 일정 탭 트레이너 필터 — 모달(데일리차트)와 같은 localStorage 키 공유
-const SC_DEFAULT_EXCLUDE=['워크인','최고야'];
-function scSelKey(branch){return 'bs.selectedTrainers.'+(branch||'전체');}
-function scLoadSelection(branch,all){
-  try{const raw=localStorage.getItem(scSelKey(branch));if(raw){const a=JSON.parse(raw);if(Array.isArray(a))return new Set(a);}}catch(e){}
-  return new Set(all.filter(t=>!SC_DEFAULT_EXCLUDE.includes(t.name)).map(t=>t.id));
-}
-function scSaveSelection(branch,sel){
-  try{localStorage.setItem(scSelKey(branch),JSON.stringify([...sel]));}catch(e){}
-}
+// 일정 탭 트레이너 필터 — DB 기반 (trainers.show_on_chart) — 모든 디바이스에 즉시 동기화
 function scAllInBranch(branch){
   return (branch?_scAllTrainers.filter(t=>t.gym_location===branch):(_scAllTrainers||[])).filter(t=>t.is_active!==false);
 }
@@ -2454,30 +2445,33 @@ function scRenderFilterChecks(){
   if(!host)return;
   const branch=document.getElementById('scBranchSel')?.value||'';
   const all=scAllInBranch(branch);
-  const sel=scLoadSelection(branch,all);
+  const onCount=all.filter(t=>t.show_on_chart!==false).length;
   host.innerHTML=all.map(t=>`
     <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#ddd;cursor:pointer;padding:5px 8px;background:#1a1a14;border-radius:6px;border:1px solid #2a2518;">
-      <input type="checkbox" ${sel.has(t.id)?'checked':''} onchange="scToggleTrainer('${t.id}',this.checked)">
+      <input type="checkbox" ${t.show_on_chart!==false?'checked':''} onchange="scToggleTrainer('${t.id}',this.checked)">
       <span>${(t.name||'').replace(/'/g,'&#39;')}</span>
     </label>
   `).join('');
   const btn=document.getElementById('scBtnFilter');
-  if(btn)btn.textContent=`트레이너 ${sel.size}/${all.length}`;
+  if(btn)btn.textContent=`트레이너 ${onCount}/${all.length}`;
 }
-function scToggleTrainer(id,checked){
-  const branch=document.getElementById('scBranchSel')?.value||'';
-  const all=scAllInBranch(branch);
-  const sel=scLoadSelection(branch,all);
-  if(checked)sel.add(id);else sel.delete(id);
-  scSaveSelection(branch,sel);
+async function scToggleTrainer(id,checked){
+  // DB 업데이트 + 로컬 캐시 즉시 갱신
+  const{error}=await db.from('trainers').update({show_on_chart:checked}).eq('id',id);
+  if(error){alert('업데이트 실패: '+error.message);return;}
+  const t=_scAllTrainers.find(t=>t.id===id);
+  if(t)t.show_on_chart=checked;
   scRenderFilterChecks();
   scRenderDayView();
 }
-function scSelectAllTrainers(allOn){
+async function scSelectAllTrainers(allOn){
   const branch=document.getElementById('scBranchSel')?.value||'';
   const all=scAllInBranch(branch);
-  const sel=allOn?new Set(all.map(t=>t.id)):new Set();
-  scSaveSelection(branch,sel);
+  const ids=all.map(t=>t.id);
+  if(!ids.length)return;
+  const{error}=await db.from('trainers').update({show_on_chart:allOn}).in('id',ids);
+  if(error){alert('업데이트 실패: '+error.message);return;}
+  all.forEach(t=>{t.show_on_chart=allOn;});
   scRenderFilterChecks();
   scRenderDayView();
 }
@@ -2487,11 +2481,10 @@ function scRenderDayView(){
   if(!scSelectedDate){dv.innerHTML='<div style="padding:24px;text-align:center;color:#444;font-size:13px;">날짜를 선택해 주세요</div>';return;}
   const branch=document.getElementById('scBranchSel')?.value||'';
   const allInBranch=scAllInBranch(branch);
-  const selSet=scLoadSelection(branch,allInBranch);
-  const trainers=allInBranch.filter(t=>selSet.has(t.id));
+  const trainers=allInBranch.filter(t=>t.show_on_chart!==false);
   // 필터 버튼 카운트 갱신
   const fb=document.getElementById('scBtnFilter');
-  if(fb)fb.textContent=`트레이너 ${selSet.size}/${allInBranch.length}`;
+  if(fb)fb.textContent=`트레이너 ${trainers.length}/${allInBranch.length}`;
   if(!trainers.length){dv.innerHTML='<div style="padding:24px;text-align:center;color:#444;font-size:13px;">선택된 트레이너 없음 — 상단 "트레이너" 버튼으로 선택해주세요</div>';return;}
   const dayData=scData.filter(s=>s.sched_date===scSelectedDate&&s.status!=='cancelled');
   const[yr,mo,da]=scSelectedDate.split('-').map(Number);
@@ -3073,25 +3066,11 @@ init();
 
 // ══════════ 전체 시간표 캔버스 (관리자용) ══════════
 const BS_DAYS=['일','월','화','수','목','금','토'];
-const BS_DEFAULT_EXCLUDE=['워크인','최고야']; // 최초 진입 시 자동 제외 (변경 시 localStorage 우선)
 let _bsTrainersAll=[],_bsTrainers=[],_bsSchedules=[],_bsCurrentDate='';
-let _bsSelectedSet=new Set(); // 표시할 트레이너 id Set
 
 function closeBranchSchedModal(){document.getElementById('branchSchedModal').style.display='none';}
 
-// ── 트레이너 선택 필터 ──
-function _bsSelKey(branch){return 'bs.selectedTrainers.'+(branch||'전체');}
-function _bsLoadSelection(branch,all){
-  try{
-    const raw=localStorage.getItem(_bsSelKey(branch));
-    if(raw){const arr=JSON.parse(raw);if(Array.isArray(arr))return new Set(arr);}
-  }catch(e){}
-  // 기본값: 더미(워크인/최고야) 제외 전체
-  return new Set(all.filter(t=>!BS_DEFAULT_EXCLUDE.includes(t.name)).map(t=>t.id));
-}
-function _bsSaveSelection(branch){
-  try{localStorage.setItem(_bsSelKey(branch),JSON.stringify([..._bsSelectedSet]));}catch(e){}
-}
+// ── 트레이너 선택 필터 (DB 기반: trainers.show_on_chart) ──
 function _bsToggleFilterPanel(){
   const p=document.getElementById('bsFilterPanel');
   p.style.display=p.style.display==='none'?'block':'none';
@@ -3099,30 +3078,35 @@ function _bsToggleFilterPanel(){
 function _bsRenderTrainerFilter(){
   const host=document.getElementById('bsFilterChecks');
   if(!host)return;
+  const onCount=_bsTrainersAll.filter(t=>t.show_on_chart!==false).length;
   host.innerHTML=_bsTrainersAll.map(t=>`
     <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#ddd;cursor:pointer;padding:4px 6px;background:#1a1a14;border-radius:6px;">
-      <input type="checkbox" ${_bsSelectedSet.has(t.id)?'checked':''} onchange="_bsToggleTrainer('${t.id}',this.checked)">
+      <input type="checkbox" ${t.show_on_chart!==false?'checked':''} onchange="_bsToggleTrainer('${t.id}',this.checked)">
       <span>${(t.name||'').replace(/'/g,'&#39;')}</span>
     </label>
   `).join('');
   const btn=document.getElementById('bsBtnFilter');
-  if(btn)btn.textContent=`트레이너 ${_bsSelectedSet.size}/${_bsTrainersAll.length} ▼`;
+  if(btn)btn.textContent=`트레이너 ${onCount}/${_bsTrainersAll.length} ▼`;
 }
 async function _bsToggleTrainer(id,checked){
-  if(checked)_bsSelectedSet.add(id);else _bsSelectedSet.delete(id);
-  const branch=document.getElementById('scBranchSel')?.value||'';
-  _bsSaveSelection(branch);
-  _bsTrainers=_bsTrainersAll.filter(t=>_bsSelectedSet.has(t.id));
-  const btn=document.getElementById('bsBtnFilter');
-  if(btn)btn.textContent=`트레이너 ${_bsSelectedSet.size}/${_bsTrainersAll.length} ▼`;
+  const{error}=await db.from('trainers').update({show_on_chart:checked}).eq('id',id);
+  if(error){alert('업데이트 실패: '+error.message);return;}
+  // 로컬 캐시 즉시 갱신
+  const t1=_bsTrainersAll.find(t=>t.id===id);if(t1)t1.show_on_chart=checked;
+  const t2=(_scAllTrainers||[]).find(t=>t.id===id);if(t2)t2.show_on_chart=checked;
+  _bsTrainers=_bsTrainersAll.filter(t=>t.show_on_chart!==false);
+  _bsRenderTrainerFilter();
   await _bsLoadDay(_bsCurrentDate);
   drawBranchCanvas(_bsCurrentDate);
 }
-async function _bsSelectAllTrainers(all){
-  _bsSelectedSet=all?new Set(_bsTrainersAll.map(t=>t.id)):new Set();
-  const branch=document.getElementById('scBranchSel')?.value||'';
-  _bsSaveSelection(branch);
-  _bsTrainers=_bsTrainersAll.filter(t=>_bsSelectedSet.has(t.id));
+async function _bsSelectAllTrainers(allOn){
+  const ids=_bsTrainersAll.map(t=>t.id);
+  if(!ids.length)return;
+  const{error}=await db.from('trainers').update({show_on_chart:allOn}).in('id',ids);
+  if(error){alert('업데이트 실패: '+error.message);return;}
+  _bsTrainersAll.forEach(t=>{t.show_on_chart=allOn;});
+  (_scAllTrainers||[]).forEach(t=>{if(_bsTrainersAll.some(b=>b.id===t.id))t.show_on_chart=allOn;});
+  _bsTrainers=_bsTrainersAll.filter(t=>t.show_on_chart!==false);
   _bsRenderTrainerFilter();
   await _bsLoadDay(_bsCurrentDate);
   drawBranchCanvas(_bsCurrentDate);
@@ -3153,18 +3137,15 @@ async function openBranchSchedModal(dateStr){
   document.getElementById('bsDatePicker').value=_bsCurrentDate;
   document.getElementById('bsSubtitle').textContent='불러오는 중...';
   _bsSetDayBtn(_bsCurrentDate===today?0:_bsCurrentDate===tomorrow?1:-1);
-  // 1) 지점 내 활성 트레이너 전체 (사용자 선택 UI용 풀)
+  // 1) 지점 내 활성 트레이너 전체 (사용자 선택 UI용 풀, show_on_chart 무관)
   const branch=document.getElementById('scBranchSel')?.value||'';
   _bsTrainersAll=branch
     ?(_scAllTrainers||[]).filter(t=>t.gym_location===branch&&t.is_active!==false)
     :(_scAllTrainers||[]).filter(t=>t.is_active!==false);
-  // 2) 사용자 선택 로드 (지점별 localStorage). 없으면 기본값(더미 제외 전체).
-  _bsSelectedSet=_bsLoadSelection(branch,_bsTrainersAll);
-  // 3) 캔버스 렌더 대상은 선택된 트레이너만
-  _bsTrainers=_bsTrainersAll.filter(t=>_bsSelectedSet.has(t.id));
-  // 4) 필터 패널 갱신 (체크박스 + 카운트)
+  // 2) 캔버스 렌더 대상은 show_on_chart=true 만
+  _bsTrainers=_bsTrainersAll.filter(t=>t.show_on_chart!==false);
+  // 3) 필터 패널 갱신
   _bsRenderTrainerFilter();
-  // 패널은 기본 접힘 상태
   const fp=document.getElementById('bsFilterPanel');if(fp)fp.style.display='none';
   await _bsLoadDay(_bsCurrentDate);
   drawBranchCanvas(_bsCurrentDate);
