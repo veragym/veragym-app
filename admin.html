@@ -520,10 +520,19 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <select class="sc-trainer-sel" id="scBranchSel" onchange="scOnBranchChange()" style="max-width:90px">
       <option value="">전체 지점</option>
     </select>
+    <button id="scBtnFilter" onclick="scToggleFilterPanel()" title="트레이너 표시 선택"
+      style="background:#1a1a14;border:1px solid #2a2518;color:#c9a84c;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;flex-shrink:0;">트레이너</button>
     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:auto;">
       <button class="sc-nav-arrow" onclick="scMoveDays(-7)">&#8249;</button>
       <span id="scRange" class="sc-date-range" style="font-size:12px;white-space:nowrap;"></span>
       <button class="sc-nav-arrow" onclick="scMoveDays(7)">&#8250;</button>
+    </div>
+  </div>
+  <div id="scFilterPanel" style="display:none;padding:10px 12px;background:#0d0d08;border-bottom:1px solid #2a2518;max-height:240px;overflow-y:auto;">
+    <div id="scFilterChecks" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:4px;"></div>
+    <div style="display:flex;gap:6px;margin-top:8px;">
+      <button onclick="scSelectAllTrainers(true)" style="flex:1;background:#1a1a14;border:1px solid #2a2518;color:#c9a84c;border-radius:6px;padding:6px 8px;font-size:11px;cursor:pointer;">전체 선택</button>
+      <button onclick="scSelectAllTrainers(false)" style="flex:1;background:#1a1a14;border:1px solid #2a2518;color:#888;border-radius:6px;padding:6px 8px;font-size:11px;cursor:pointer;">전체 해제</button>
     </div>
   </div>
   <!-- 날짜 버튼 행 (7일) -->
@@ -2360,7 +2369,12 @@ async function loadScheduleTab(){
   await scRefresh();
 }
 
-function scOnBranchChange(){scRefresh();}
+function scOnBranchChange(){
+  // 패널 열려 있으면 새 지점 트레이너로 갱신
+  const fp=document.getElementById('scFilterPanel');
+  if(fp&&fp.style.display==='block')scRenderFilterChecks();
+  scRefresh();
+}
 function scMoveDays(n){
   scStart=scAddDays(scStart,n);
   // 이전 주(←)로 갈 때는 마지막 날짜(오른쪽 끝) 선택
@@ -2417,12 +2431,68 @@ function scSelectDate(dateStr){
   scRenderDayView();
 }
 
+// 일정 탭 트레이너 필터 — 모달(데일리차트)와 같은 localStorage 키 공유
+const SC_DEFAULT_EXCLUDE=['워크인','최고야'];
+function scSelKey(branch){return 'bs.selectedTrainers.'+(branch||'전체');}
+function scLoadSelection(branch,all){
+  try{const raw=localStorage.getItem(scSelKey(branch));if(raw){const a=JSON.parse(raw);if(Array.isArray(a))return new Set(a);}}catch(e){}
+  return new Set(all.filter(t=>!SC_DEFAULT_EXCLUDE.includes(t.name)).map(t=>t.id));
+}
+function scSaveSelection(branch,sel){
+  try{localStorage.setItem(scSelKey(branch),JSON.stringify([...sel]));}catch(e){}
+}
+function scAllInBranch(branch){
+  return (branch?_scAllTrainers.filter(t=>t.gym_location===branch):(_scAllTrainers||[])).filter(t=>t.is_active!==false);
+}
+function scToggleFilterPanel(){
+  const p=document.getElementById('scFilterPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+  if(p.style.display==='block')scRenderFilterChecks();
+}
+function scRenderFilterChecks(){
+  const host=document.getElementById('scFilterChecks');
+  if(!host)return;
+  const branch=document.getElementById('scBranchSel')?.value||'';
+  const all=scAllInBranch(branch);
+  const sel=scLoadSelection(branch,all);
+  host.innerHTML=all.map(t=>`
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#ddd;cursor:pointer;padding:5px 8px;background:#1a1a14;border-radius:6px;border:1px solid #2a2518;">
+      <input type="checkbox" ${sel.has(t.id)?'checked':''} onchange="scToggleTrainer('${t.id}',this.checked)">
+      <span>${(t.name||'').replace(/'/g,'&#39;')}</span>
+    </label>
+  `).join('');
+  const btn=document.getElementById('scBtnFilter');
+  if(btn)btn.textContent=`트레이너 ${sel.size}/${all.length}`;
+}
+function scToggleTrainer(id,checked){
+  const branch=document.getElementById('scBranchSel')?.value||'';
+  const all=scAllInBranch(branch);
+  const sel=scLoadSelection(branch,all);
+  if(checked)sel.add(id);else sel.delete(id);
+  scSaveSelection(branch,sel);
+  scRenderFilterChecks();
+  scRenderDayView();
+}
+function scSelectAllTrainers(allOn){
+  const branch=document.getElementById('scBranchSel')?.value||'';
+  const all=scAllInBranch(branch);
+  const sel=allOn?new Set(all.map(t=>t.id)):new Set();
+  scSaveSelection(branch,sel);
+  scRenderFilterChecks();
+  scRenderDayView();
+}
+
 function scRenderDayView(){
   const dv=document.getElementById('scDayView');
   if(!scSelectedDate){dv.innerHTML='<div style="padding:24px;text-align:center;color:#444;font-size:13px;">날짜를 선택해 주세요</div>';return;}
   const branch=document.getElementById('scBranchSel')?.value||'';
-  const trainers=branch?_scAllTrainers.filter(t=>t.gym_location===branch):_scAllTrainers;
-  if(!trainers.length){dv.innerHTML='<div style="padding:24px;text-align:center;color:#444;font-size:13px;">트레이너 없음</div>';return;}
+  const allInBranch=scAllInBranch(branch);
+  const selSet=scLoadSelection(branch,allInBranch);
+  const trainers=allInBranch.filter(t=>selSet.has(t.id));
+  // 필터 버튼 카운트 갱신
+  const fb=document.getElementById('scBtnFilter');
+  if(fb)fb.textContent=`트레이너 ${selSet.size}/${allInBranch.length}`;
+  if(!trainers.length){dv.innerHTML='<div style="padding:24px;text-align:center;color:#444;font-size:13px;">선택된 트레이너 없음 — 상단 "트레이너" 버튼으로 선택해주세요</div>';return;}
   const dayData=scData.filter(s=>s.sched_date===scSelectedDate&&s.status!=='cancelled');
   const[yr,mo,da]=scSelectedDate.split('-').map(Number);
   const dow=new Date(yr,mo-1,da).getDay();
