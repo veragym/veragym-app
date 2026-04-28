@@ -842,17 +842,73 @@ async function init() {
 }
 
 // ── PT 잔여 현황 ─────────────────────────────────────────────
+// v22: PT 업그레이드 도입 — 한 회원이 여러 pt_products 행을 가질 수 있음
+//      · 헤더: "총 잔여 N회 / 총 M회" 합산 표시
+//      · 펼침: 상품별 카드 (계약일/단가/잔여 표시)
+//      · 단일 상품인 경우 펼침 자동 노출 (기존 UX 유지)
 async function loadPtBanner(token) {
   const { data } = await db.rpc('member_get_pt_products', { p_token: token });
   if (!data || !data.length) return;
   const el = document.getElementById('ptBanner');
   if (!el) return;
+
+  // 활성 상품만 (RPC 가 active 만 반환하는지 불명확하므로 클라이언트 필터)
+  const products = (data || []).filter(p =>
+    !p.status || p.status === 'active' || p.status === 'pending'
+  );
+  if (!products.length) return;
+
+  // 합산 (총 잔여 / 총 계약 회수)
+  const sumRemain = products.reduce((s, p) => s + (p.remaining_sessions || 0), 0);
+  const sumTotal  = products.reduce((s, p) => s + (p.total_sessions || 0), 0);
+  const sumPct    = sumTotal > 0 ? Math.round(sumRemain / sumTotal * 100) : 0;
+  const isMulti   = products.length > 1;
+
   el.style.display = '';
-  el.innerHTML = data.map(p => {
+
+  // 상품별 카드 (단일이면 헤더 펼침 카드 1개만)
+  const productCards = products.map(p => {
     const pct = p.total_sessions > 0 ? Math.round(p.remaining_sessions / p.total_sessions * 100) : 0;
     const dateStr = p.contract_date ? p.contract_date.slice(0, 7).replace('-', '.') : '';
     const trainerStr = p.trainer_name ? ` · ${esc(p.trainer_name)}` : '';
-    return `<div class="pt-banner">
+    const priceStr = p.price_per_session ? ` · ${(p.price_per_session).toLocaleString()}원/회` : '';
+    return `<div class="pt-banner pt-banner-detail">
+      <div class="pt-banner-row">
+        <span class="pt-banner-label" style="font-size:12px;">계약 ${dateStr}${trainerStr}${priceStr}</span>
+        <span class="pt-banner-val">${p.remaining_sessions}회 <span style="font-size:11px;color:#4a6a88">/ ${p.total_sessions}회</span></span>
+      </div>
+      <div class="pt-bar-track"><div class="pt-bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+
+  if (isMulti) {
+    // 다중 상품: 합산 헤더 + 펼침 토글
+    el.innerHTML = `
+      <div class="pt-banner pt-banner-summary" id="ptBannerSummary" style="cursor:pointer;">
+        <div class="pt-banner-row">
+          <span class="pt-banner-label">PT 총 잔여 횟수 <span style="font-size:11px;color:#4a6a88">(${products.length}개 상품)</span></span>
+          <span class="pt-banner-val">${sumRemain}회 <span style="font-size:11px;color:#4a6a88">/ ${sumTotal}회</span></span>
+        </div>
+        <div class="pt-bar-track"><div class="pt-bar-fill" style="width:${sumPct}%"></div></div>
+        <div style="font-size:10px;color:#3a5878;margin-top:5px;text-align:right;" id="ptBannerToggle">상품별 보기 ▼</div>
+      </div>
+      <div id="ptBannerDetails" style="display:none;">${productCards}</div>
+    `;
+    const summary = el.querySelector('#ptBannerSummary');
+    const details = el.querySelector('#ptBannerDetails');
+    const toggle  = el.querySelector('#ptBannerToggle');
+    summary?.addEventListener('click', () => {
+      const open = details.style.display !== 'none';
+      details.style.display = open ? 'none' : '';
+      toggle.textContent = open ? '상품별 보기 ▼' : '접기 ▲';
+    });
+  } else {
+    // 단일 상품: 기존 표시 그대로 (단가 추가)
+    const p = products[0];
+    const pct = p.total_sessions > 0 ? Math.round(p.remaining_sessions / p.total_sessions * 100) : 0;
+    const dateStr = p.contract_date ? p.contract_date.slice(0, 7).replace('-', '.') : '';
+    const trainerStr = p.trainer_name ? ` · ${esc(p.trainer_name)}` : '';
+    el.innerHTML = `<div class="pt-banner">
       <div class="pt-banner-row">
         <span class="pt-banner-label">PT 잔여 횟수${trainerStr}</span>
         <span class="pt-banner-val">${p.remaining_sessions}회 <span style="font-size:11px;color:#4a6a88">/ ${p.total_sessions}회</span></span>
@@ -860,7 +916,7 @@ async function loadPtBanner(token) {
       <div class="pt-bar-track"><div class="pt-bar-fill" style="width:${pct}%"></div></div>
       ${dateStr ? `<div style="font-size:10px;color:#3a5878;margin-top:5px">계약 ${dateStr}</div>` : ''}
     </div>`;
-  }).join('');
+  }
 }
 
 // ── 수업 기록 로드 ───────────────────────────────────────────

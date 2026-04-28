@@ -3407,39 +3407,59 @@ function renderStats() {
   }).join('');
 
   // 트레이너별 당월 매출 순위
+  // v22: PT 업그레이드 도입 — 한 회원이 여러 결제행을 가질 수 있음
+  //      · 결제건수 (count) = payment_records row 수
+  //      · 고유회원수 (members) = DISTINCT member_id (업그레이드 결제는 같은 회원으로 합산)
   const cm = _admCurMonth();
   const cmPayments = _allPayments.filter(p => p.payment_date.slice(0,7) === cm);
   const trainerMap = {};
   cmPayments.forEach(p => {
     if (!p.trainer_id) return;
-    if (!trainerMap[p.trainer_id]) trainerMap[p.trainer_id] = { name: p.trainer_name||'미지정', total: 0, count: 0 };
+    if (!trainerMap[p.trainer_id]) trainerMap[p.trainer_id] = {
+      name: p.trainer_name||'미지정', total: 0, count: 0, memberSet: new Set()
+    };
     trainerMap[p.trainer_id].total += (p.net_amount||0);
     trainerMap[p.trainer_id].count++;
+    if (p.member_id) trainerMap[p.trainer_id].memberSet.add(p.member_id);
   });
-  const trainerRank = Object.values(trainerMap).sort((a,b) => b.total - a.total);
+  const trainerRank = Object.values(trainerMap)
+    .map(t => ({ ...t, memberCount: t.memberSet.size }))
+    .sort((a,b) => b.total - a.total);
 
   document.getElementById('statTrainerRank').innerHTML = trainerRank.length
     ? trainerRank.map((t, i) => `<div class="stat-trainer-row">
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:12px;font-weight:700;color:${i<3?'#c9a84c':'#666'};width:18px">${i+1}</span>
           <span style="font-size:13px;font-weight:600;color:#ddd">${t.name}</span>
-          <span style="font-size:11px;color:#555">${t.count}건</span>
+          <span style="font-size:11px;color:#555" title="결제건수 / 고유회원수">${t.count}건 · ${t.memberCount}명</span>
         </div>
         <span style="font-size:13px;font-weight:700;color:#c9a84c">${_admFmtWon(t.total)}</span>
       </div>`).join('')
     : '<div style="text-align:center;color:#555;font-size:13px;padding:20px 0">당월 결제 데이터가 없습니다.</div>';
 
   // 주요 지표
+  // v22: 회당 평균 단가는 "가중평균" 으로 계산 — Σ(price_per_session × total_sessions) / Σ(total_sessions)
+  //      단순 평균은 단가 다른 결제행이 row 단위로 평등 가중되어 왜곡됨 (PT 업그레이드 시 단가 변경 시나리오 대응)
   const allTimeNet = _allPayments.reduce((s,p) => s + (p.net_amount||0), 0);
   const cmNet = cmPayments.reduce((s,p) => s + (p.net_amount||0), 0);
-  const avgPerSession = _allPayments.length ? Math.round(_allPayments.reduce((s,p) => s + (p.price_per_session||0), 0) / _allPayments.length / 1000) * 1000 : 0;
+  let weightedSum = 0, weightTotal = 0;
+  _allPayments.forEach(p => {
+    const sess = p.total_sessions || 0;
+    if (sess > 0 && p.price_per_session) {
+      weightedSum += p.price_per_session * sess;
+      weightTotal += sess;
+    }
+  });
+  const avgPerSession = weightTotal > 0 ? Math.round(weightedSum / weightTotal / 1000) * 1000 : 0;
   const avgMonthly = monthlyData.length ? Math.round(monthlyData.reduce((s,d) => s + d.total, 0) / monthlyData.length) : 0;
+  const uniqueMembers = new Set(_allPayments.map(p => p.member_id).filter(Boolean)).size;
 
   document.getElementById('statKeyMetrics').innerHTML = [
     { label: '당월 순매출', val: _admFmtWon(cmNet), color: '#4ade80' },
     { label: '월평균 순매출', val: _admFmtWon(avgMonthly), color: '#c9a84c' },
-    { label: '총 결제 건수', val: _allPayments.length.toLocaleString() + '건', color: '#fff' },
-    { label: '회당 평균 단가', val: _admFmtWon(avgPerSession), color: '#fff' }
+    { label: '총 결제건수', val: _allPayments.length.toLocaleString() + '건', color: '#fff' },
+    { label: '고유 회원수', val: uniqueMembers.toLocaleString() + '명', color: '#fff' },
+    { label: '회당 평균 단가 (가중)', val: _admFmtWon(avgPerSession), color: '#fff' }
   ].map(m => `<div class="pay-stat-box">
     <div class="pay-stat-label">${m.label}</div>
     <div class="pay-stat-val" style="color:${m.color};font-size:14px">${m.val}</div>
