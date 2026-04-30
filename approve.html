@@ -135,7 +135,7 @@ async function load() {
     return;
   }
   try {
-    const res = await fetch(`${EDGE}?token=${encodeURIComponent(TOKEN)}`);
+    const res = await fetch(`${EDGE}?token=${encodeURIComponent(TOKEN)}&action=info`);
     const data = await res.json();
 
     if (!data.ok) {
