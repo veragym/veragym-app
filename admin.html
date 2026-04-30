@@ -1918,6 +1918,32 @@ async function addPtProduct() {
       if (e2) throw e2;
     }
 
+    // 3. v15.4: pt_registrations 동시 생성 (회원관리앱에 PT 매출 보이도록)
+    //    sync_status='synced' 로 저장 — sync RPC 가 다시 INSERT 시도하지 않음
+    try {
+      const member = _allMembers.find(x => x.id === _currentMemberId);
+      if (member) {
+        await db.from('pt_registrations').insert({
+          name: member.name || '',
+          phone: member.phone || null,
+          pt_count: sessions,
+          session_price: pricePerSess > 0 ? pricePerSess : Math.round(paymentAmt / sessions),
+          contract_trainer_id: contractTr,
+          assigned_trainer_id: contractTr,
+          contract_date: date,
+          total_payment_cash: 0,
+          total_payment_card: paymentAmt > 0 ? Math.round(paymentAmt * 1.1) : 0,
+          notes: notes || null,
+          sync_status: 'synced',
+          veragym_member_id: _currentMemberId,
+          synced_at: new Date().toISOString(),
+          gym_location: member.gym_location || '미사점',
+        });
+      }
+    } catch (e3) {
+      console.warn('[addPtProduct] pt_registrations 동시 생성 실패 (PT 자체는 생성됨):', e3);
+    }
+
     closeModal('addPtModal');
     showToast('PT 상품이 추가됐어요!');
     _payDataLoaded = false;
