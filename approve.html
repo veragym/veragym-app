@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>베라짐 자동발송 승인</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    background: #0f1626;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; }
+  .header { text-align: center; margin-bottom: 16px; color: #94a3b8; font-size: 13px; }
+  .topic {
+    font-size: 22px; font-weight: 700; line-height: 1.3;
+    margin-bottom: 8px; color: #fff;
+  }
+  .meta { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
+  .meta b { color: #cbd5e1; }
+  .caption {
+    background: #1a2332; border-radius: 10px; padding: 12px 14px;
+    font-size: 14px; line-height: 1.6; color: #cbd5e1;
+    white-space: pre-wrap; margin-bottom: 20px; max-height: 180px; overflow-y: auto;
+  }
+  .gallery {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-bottom: 24px;
+  }
+  .gallery img {
+    width: 100%; aspect-ratio: 1/1; object-fit: cover;
+    border-radius: 8px; cursor: pointer;
+    transition: transform .15s;
+  }
+  .gallery img:active { transform: scale(0.97); }
+  .btns {
+    position: sticky; bottom: 16px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .btn {
+    display: block; text-align: center;
+    padding: 18px 0; border-radius: 12px;
+    font-size: 16px; font-weight: 700;
+    border: none; cursor: pointer;
+    text-decoration: none; color: white;
+    transition: opacity .15s;
+  }
+  .btn:active { opacity: 0.85; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.approve { background: #22c55e; }
+  .btn.reject { background: #ef4444; }
+  .loading { text-align: center; padding: 60px 0; color: #64748b; }
+  .error {
+    background: #7f1d1d33; border: 1px solid #ef4444;
+    padding: 16px; border-radius: 10px; color: #fca5a5; text-align: center;
+  }
+  .result {
+    text-align: center; padding: 40px 20px;
+  }
+  .result h1 { font-size: 32px; margin-bottom: 12px; }
+  .result.ok h1 { color: #22c55e; }
+  .result.no h1 { color: #ef4444; }
+  .result p { color: #94a3b8; line-height: 1.6; }
+
+  /* 라이트박스 (이미지 확대) */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,.95);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 100vh; border-radius: 8px; }
+  .lightbox .close {
+    position: fixed; top: 20px; right: 20px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,.2); border: none;
+    color: white; font-size: 20px; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="content">
+    <div class="loading">불러오는 중...</div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <button class="close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" alt="">
+</div>
+
+<script>
+const EDGE = 'https://lrzffwawpoidimlrbfxe.supabase.co/functions/v1/approve';
+const params = new URLSearchParams(location.search);
+const TOKEN = params.get('token');
+const $ = (id) => document.getElementById(id);
+
+function esc(s) {
+  if (s == null) return '';
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+function fmtKst(iso) {
+  if (!iso) return '?';
+  try {
+    return new Date(iso).toLocaleString('ko-KR', {
+      timeZone: 'Asia/Seoul', dateStyle: 'short', timeStyle: 'short'
+    });
+  } catch { return iso; }
+}
+
+function openLightbox(src) {
+  $('lightboxImg').src = src;
+  $('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  $('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+$('lightbox').addEventListener('click', e => {
+  if (e.target === $('lightbox')) closeLightbox();
+});
+
+async function load() {
+  if (!TOKEN) {
+    $('content').innerHTML = '<div class="error">잘못된 접근: token 없음</div>';
+    return;
+  }
+  try {
+    const res = await fetch(`${EDGE}?token=${encodeURIComponent(TOKEN)}`);
+    const data = await res.json();
+
+    if (!data.ok) {
+      $('content').innerHTML = `<div class="error">${esc(data.error || '알 수 없는 오류')}</div>`;
+      return;
+    }
+
+    if (data.status !== 'pending_approval') {
+      const decided = fmtKst(data.decided_at);
+      const label = { approved: '✅ 이미 승인됨', rejected: '❌ 이미 거절됨', posted: '📢 이미 게시됨' }[data.status] || data.status;
+      $('content').innerHTML = `
+        <div class="result">
+          <h1>${esc(label)}</h1>
+          <p style="margin-top:8px">${esc(data.topic || '')}</p>
+          <p style="margin-top:16px;font-size:13px">처리 시각: ${esc(decided)}</p>
+        </div>`;
+      return;
+    }
+
+    renderPreview(data);
+  } catch (e) {
+    console.error(e);
+    $('content').innerHTML = `<div class="error">네트워크 오류: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderPreview(data) {
+  const sched = fmtKst(data.scheduled_at);
+  const slides = data.image_urls || [];
+  const galleryHtml = slides.map(url =>
+    `<img src="${esc(url)}" alt="슬라이드" loading="lazy" onclick="openLightbox('${esc(url).replace(/'/g, "\\'")}')">`
+  ).join('');
+
+  $('content').innerHTML = `
+    <div class="header">베라짐 자동발송 · 승인 요청</div>
+    <div class="topic">${esc(data.topic || '')}</div>
+    <div class="meta">
+      <b>슬라이드 ${slides.length}장</b> · 게시 예정: <b>${esc(sched)} KST</b>
+    </div>
+    <div class="caption">${esc(data.caption || '')}</div>
+    <div class="gallery">${galleryHtml}</div>
+    <div class="btns">
+      <button class="btn reject" onclick="decide('reject')">❌ 거절</button>
+      <button class="btn approve" onclick="decide('approve')">✅ 승인</button>
+    </div>
+  `;
+}
+
+let deciding = false;
+async function decide(action) {
+  if (deciding) return;
+  if (!confirm(action === 'approve' ? '승인하시겠습니까?' : '거절하시겠습니까?')) return;
+  deciding = true;
+  document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+
+  try {
+    const res = await fetch(`${EDGE}?token=${encodeURIComponent(TOKEN)}&action=${action}`);
+    const data = await res.json();
+
+    if (!data.ok) {
+      alert('처리 실패: ' + (data.error || '알 수 없는 오류'));
+      deciding = false;
+      document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+      return;
+    }
+
+    const ok = data.status === 'approved';
+    $('content').innerHTML = `
+      <div class="result ${ok ? 'ok' : 'no'}">
+        <h1>${ok ? '✅ 승인 완료' : '❌ 거절 완료'}</h1>
+        <p style="margin-top:12px;font-size:16px;color:#cbd5e1">${esc(data.topic || '')}</p>
+        ${ok ? `<p style="margin-top:8px">${esc(fmtKst(data.scheduled_at))} KST 게시 예정</p>` : `<p style="margin-top:8px">다음 큐 항목으로 자동 재선정됩니다.</p>`}
+        <p style="margin-top:24px;font-size:13px">이 창은 닫으셔도 됩니다.</p>
+      </div>`;
+  } catch (e) {
+    alert('네트워크 오류: ' + e.message);
+    deciding = false;
+    document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+  }
+}
+
+load();
+</script>
+</body>
+</html>
