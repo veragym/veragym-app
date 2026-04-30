@@ -1811,11 +1811,13 @@ async function saveEditMember() {
   try {
     const m = _allMembers.find(x => x.id === _currentMemberId);
     const oldName = m?.name;
+    const oldPhone = m?.phone || null;
+    const newPhone = phone || null;
 
     // 1. members 테이블 업데이트
     const { error } = await db.from('members').update({
       name,
-      phone: phone || null
+      phone: newPhone
     }).eq('id', _currentMemberId);
     if (error) throw error;
 
@@ -1825,10 +1827,25 @@ async function saveEditMember() {
         .update({ member_name: name })
         .eq('member_id', _currentMemberId);
       if (e2) console.warn('payment_records 이름 동기화 실패:', e2.message);
+
+      // ★ #12 역방향 sync: 회원관리앱 pt_registrations.name 도 같이 동기화
+      // (matched 키: veragym_member_id — Group A #11 백필로 830건 매핑됨)
+      const { error: e3 } = await db.from('pt_registrations')
+        .update({ name })
+        .eq('veragym_member_id', _currentMemberId);
+      if (e3) console.warn('pt_registrations 이름 동기화 실패:', e3.message);
+    }
+
+    // 2-2. phone 이 바뀐 경우 pt_registrations.phone 동기화
+    if (oldPhone !== newPhone) {
+      const { error: e4 } = await db.from('pt_registrations')
+        .update({ phone: newPhone })
+        .eq('veragym_member_id', _currentMemberId);
+      if (e4) console.warn('pt_registrations 전화번호 동기화 실패:', e4.message);
     }
 
     // 3. 로컬 캐시 갱신
-    if (m) { m.name = name; m.phone = phone || null; }
+    if (m) { m.name = name; m.phone = newPhone; }
 
     // 4. UI 갱신
     document.getElementById('detailMemberName').textContent = name;
