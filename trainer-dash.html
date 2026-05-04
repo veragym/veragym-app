@@ -469,6 +469,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   <div style="background:#0d1520;border:1px solid #3b82f622;border-radius:12px;padding:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="display:flex;gap:4px">
+        <button id="revMonthPrev" class="rev-month-btn" onclick="switchRevMonth('prev')">전월</button>
         <button id="revMonthCur" class="rev-month-btn active" onclick="switchRevMonth('cur')">당월</button>
         <button id="revMonthNext" class="rev-month-btn" onclick="switchRevMonth('next')">다음 달</button>
       </div>
@@ -2081,6 +2082,16 @@ function _nextMonth() {
   d.setMonth(d.getMonth()+1);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
+function _prevMonth() {
+  const d = new Date();
+  d.setMonth(d.getMonth()-1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function _selectedRevMonth() {
+  if (_revMonthMode === 'prev') return _prevMonth();
+  if (_revMonthMode === 'next') return _nextMonth();
+  return _curMonth();
+}
 function _fmtWon(n) {
   return (n||0).toLocaleString('ko-KR') + '원';
 }
@@ -2216,7 +2227,7 @@ function renderRevSummary() {
 }
 
 function updateForecastTotal() {
-  const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
+  const month = _selectedRevMonth();
   // 미등록 처리(is_registered === false) 내역은 합계에서 제외
   // 대기(null)와 등록완료(true)는 포함
   const total = _revForecasts
@@ -2245,6 +2256,7 @@ async function saveTarget() {
 // ── <3> 예상매출 목록 ──
 function switchRevMonth(mode) {
   _revMonthMode = mode;
+  document.getElementById('revMonthPrev').classList.toggle('active', mode==='prev');
   document.getElementById('revMonthCur').classList.toggle('active', mode==='cur');
   document.getElementById('revMonthNext').classList.toggle('active', mode==='next');
   renderForecasts();
@@ -2252,7 +2264,7 @@ function switchRevMonth(mode) {
 }
 
 function copyForecastText() {
-  const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
+  const month = _selectedRevMonth();
   const list = _revForecasts.filter(f => f.forecast_month === month);
   const [y, m] = month.split('-');
   const weekNum = _revMonthMode === 'cur' ? Math.ceil(new Date().getDate() / 7) : 1;
@@ -2308,7 +2320,7 @@ function _fallbackCopy(text) {
 }
 
 function renderForecasts() {
-  const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
+  const month = _selectedRevMonth();
   const list = _revForecasts
     .filter(f => f.forecast_month === month)
     .sort((a, b) => {
@@ -2483,7 +2495,7 @@ async function saveForecast() {
       showToast('수정 완료!');
     } else {
       // ── 신규 등록
-      const month = _revMonthMode === 'cur' ? _curMonth() : _nextMonth();
+      const month = _selectedRevMonth();
       const { data, error } = await db.from('sales_forecasts').insert({
         trainer_id: me.id,
         forecast_month: month,
