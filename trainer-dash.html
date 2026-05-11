@@ -733,9 +733,20 @@ async function showMemberDetail(memberId) {
   document.getElementById('detailName').textContent = m.name;
   document.getElementById('detailSub').textContent = `${m.gym_location}${m.notes ? ' · ' + m.notes : ''}`;
 
-  // 토큰 링크 — 개별 조회 (목록 SELECT에서 token 제거로 보안 강화)
+  // 토큰 링크 + 수업 기록 + 회원 운동일지 3개를 병렬 fetch (이전엔 직렬이라 진입 지연 컸음)
   document.getElementById('detailTokenBox').innerHTML = '<div class="loading" style="font-size:12px">링크 불러오는 중...</div>';
-  const { data: tokenData } = await db.from('members').select('token').eq('id', memberId).single();
+  document.getElementById('memberLogs').innerHTML = '<div class="loading">불러오는 중...</div>';
+
+  const tokenP = db.from('members').select('token').eq('id', memberId).single();
+  const logsP  = db.from('workout_logs')
+    .select('id,session_date,notes,member_id,note_photo_path,workout_log_exercises(custom_name,sets_data,sets,reps)')
+    .eq('member_id', memberId)
+    .eq('is_deleted', false)
+    .order('session_date', { ascending: false })
+    .limit(30);
+  loadMemberSelfLogs(memberId); // 가장 무거운 RPC를 먼저 kick off
+
+  const { data: tokenData } = await tokenP;
   const tokenUrl = tokenData?.token ? `${APP_URL}?token=${tokenData.token}` : null;
   document.getElementById('detailTokenBox').innerHTML = tokenUrl
     ? `<div class="token-box" onclick="copyToken('${tokenUrl}')">
@@ -746,15 +757,7 @@ async function showMemberDetail(memberId) {
        <div style="font-size:11px;color:#2a4060;margin-top:6px">이 링크를 회원에게 전달하면 수업 기록을 볼 수 있습니다</div>`
     : '<div style="font-size:12px;color:#888">링크를 불러올 수 없습니다</div>';
 
-  // 해당 회원 수업 기록 (필요 필드만 선택)
-  document.getElementById('memberLogs').innerHTML = '<div class="loading">불러오는 중...</div>';
-  const { data: logs, error: logErr } = await db.from('workout_logs')
-    .select('id,session_date,notes,member_id,note_photo_path,workout_log_exercises(custom_name,sets_data,sets,reps)')
-    .eq('member_id', memberId)
-    .eq('is_deleted', false)
-    .order('session_date', { ascending: false })
-    .limit(30);
-
+  const { data: logs, error: logErr } = await logsP;
   if (logErr) { document.getElementById('memberLogs').innerHTML = '<div class="empty">수업 기록 불러오기 실패</div>'; }
   else {
     renderLogCards('memberLogs', logs || [], false);
@@ -774,9 +777,6 @@ async function showMemberDetail(memberId) {
       document.getElementById('memberLogs').appendChild(moreBtn);
     }
   }
-
-  // 회원 운동일지 (회원이 직접 작성한 기록) — 읽기 전용 (수업기록 오류와 무관하게 항상 실행)
-  loadMemberSelfLogs(memberId);
 }
 
 async function loadMemberSelfLogs(memberId) {
@@ -1334,7 +1334,7 @@ let _sptCurrentMemberId = null; // 현재 열린 상세 회원 id
 let _sptCurrentSessions = [];   // 현재 상세 뷰의 세션들
 let _sptLoaded = false;
 let _sptLoadedAt = 0;
-const SPT_CACHE_MS = 0;
+const SPT_CACHE_MS = 30_000;
 function _sptCacheValid() { return Date.now() - _sptLoadedAt < SPT_CACHE_MS; }
 
 const SPT_STATUS_LABEL = {
