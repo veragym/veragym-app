@@ -82,6 +82,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .ex-item:last-child { border-bottom:none; }
 .ex-item-name { font-size:14px; font-weight:700; }
 .ex-item-cat { font-size:11px; color:#888888; margin-top:2px; }
+.ex-item-comment { margin-top:8px; padding:8px 10px; background:#fff7ed; border-left:3px solid #f97316; border-radius:6px; font-size:12px; color:#333; line-height:1.5; white-space:pre-wrap; }
 .sets-table { width:100%; border-collapse:collapse; margin-top:8px; }
 .sets-table th { font-size:11px; color:#888888; padding:4px 8px; text-align:center; font-weight:500; }
 .sets-table td { font-size:14px; color:#444444; padding:6px 8px; text-align:center; border-top:1px solid #e5e5e5; }
@@ -1011,11 +1012,12 @@ async function toggleSess(i, logId) {
         <button class="mv-photo-btn"
           onclick="viewMemberPhotos(${JSON.stringify(photo.start_path||null)}, ${JSON.stringify(photo.end_path||null)}, ${JSON.stringify(name)})">
           📷 자세 사진 보기</button>` : '';
+      const commentHtml = ex.comment ? `<div class="ex-item-comment">${ex.comment.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>` : '';
       return `<div class="ex-item">
         <div class="ex-item-name">${name}</div>
         ${category ? `<div class="ex-item-cat">${category}</div>` : ''}
         ${thumbHtml}
-        ${setsHtml}${photoBtn}
+        ${setsHtml}${photoBtn}${commentHtml}
       </div>`;
     }).join('');
 }

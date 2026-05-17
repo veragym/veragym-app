@@ -671,7 +671,7 @@ async function loadExistingLog() {
       tool:    r.exercise_refs?.tool_unified || '',
       weight_mode: r.weight_mode || defaultWeightMode(r.exercise_refs?.tool_unified || ''),
       sets:    setsArr,
-      comment: '',
+      comment: r.comment || '',
       photos:  { start: pu.start || null, end: pu.end || null },
     };
   });
@@ -945,6 +945,7 @@ async function saveSession() {
         weight:          ex.sets[0]?.weight || null,
         weight_mode:     ex.weight_mode || 'total',
         order_index:     i,
+        comment:         ex.comment || null,
         photo_urls:      (ex.photos?.start || ex.photos?.end)
                            ? { start: ex.photos.start || null, end: ex.photos.end || null }
                            : null,
