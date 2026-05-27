@@ -393,6 +393,293 @@ body { background:#f8faff !important; color:#0f172a !important; }
 .spt-comment-addbox { background:#f0f9ff !important; border-color:#bfdbfe44 !important; }
 .spt-pref-box { background:#f0f9ff !important; border-color:#bfdbfe44 !important; color:#475569 !important; }
 .spt-pref-box b { color:#3b82f6 !important; }
+
+/* ═══════════════════════════════════════════════════════
+   LIGHT THEME — INLINE STYLE OVERRIDES (다크 잔재 제거)
+   ═══════════════════════════════════════════════════════ */
+
+/* ── 매출관리 탭 ─────────────────────────────────────── */
+#tab-revenue > div[style*="background:#0d1520"],
+#tab-revenue > div[style*="background:#0d1525"],
+#tab-revenue > div[style*="background:#0a1525"] {
+  background:#ffffff !important;
+  border-color:#bfdbfe !important;
+}
+#tab-revenue span[style*="color:#888"],
+#tab-revenue span[style*="color:#666"],
+#tab-revenue span[style*="color:#555"] {
+  color:#64748b !important;
+}
+#tab-revenue span[style*="color:#fff"][id^="rev"] {
+  color:#0f172a !important;
+}
+#tab-revenue select[id^="rev"] {
+  background:#f0f9ff !important;
+  border-color:#bfdbfe !important;
+  color:#0f172a !important;
+}
+#tab-revenue input#revTargetInput {
+  background:#f0f9ff !important;
+  border-color:#bfdbfe !important;
+  color:#3b82f6 !important;
+}
+/* 예상매출 카드 */
+.fc-card {
+  background:#ffffff !important;
+  border-color:#bfdbfe !important;
+}
+.fc-card span[style*="color:#888"] { color:#64748b !important; }
+.fc-card span[style*="color:#666"] { color:#64748b !important; }
+.fc-card div[style*="border-top:1px solid #1e3a5f22"] {
+  border-top-color:#bfdbfe !important;
+}
+.fc-card.unregistered {
+  background:#fff5f5 !important;
+  border-color:#fca5a5 !important;
+}
+
+/* 매출 공유 버튼 */
+#tab-revenue button[onclick="copyForecastText()"] {
+  background:#eff6ff !important;
+  border-color:#bfdbfe !important;
+  color:#3b82f6 !important;
+}
+
+/* ── 회원 상세 — 미세 텍스트 ─────────────────────────── */
+#detailSub,
+.divider span[style*="color:#2a4060"] {
+  color:#64748b !important;
+}
+#tab-members div[style*="color:#3a5878"] { color:#64748b !important; }
+#tab-members div[style*="color:#888"]    { color:#64748b !important; }
+#tab-members div[style*="color:#2a4060"] { color:#94a3b8 !important; }
+.token-box span[style*="color:#3a5878"] { color:#64748b !important; }
+.token-box span[style*="color:#60a5fa"] { color:#3b82f6 !important; }
+
+/* ── 회원 운동일지 카드 ──────────────────────────────── */
+#memberSelfLogs .card div[style*="color:#60a5fa"] { color:#3b82f6 !important; }
+#memberSelfLogs .card span[style*="color:#60a5fa"] { color:#3b82f6 !important; }
+#memberSelfLogs .card span[style*="color:#3a5878"] { color:#64748b !important; }
+#memberSelfLogs .card span[style*="color:#a0b8d8"] { color:#475569 !important; }
+#memberSelfLogs .card div[style*="color:#2a4060"] { color:#94a3b8 !important; }
+#memberSelfLogs .card div[style*="border-top:1px solid #1a3a6033"] {
+  border-top-color:#bfdbfe44 !important;
+}
+#memberSelfLogs .card div[style*="background:#0a1428"] {
+  background:#eff6ff !important;
+}
+#memberSelfLogs .card div[style*="background:#0a142833"] {
+  background:#eff6ff !important;
+}
+#memberSelfLogs .card div[style*="border-bottom:1px solid #1a3a6022"] {
+  border-bottom-color:#bfdbfe44 !important;
+}
+#memberSelfLogs .card span[style*="background:#1a3a5f"] {
+  background:#dbeafe !important;
+  color:#3b82f6 !important;
+}
+#memberSelfLogs .card span[style*="background:#1a3a1a"] {
+  background:#dcfce7 !important;
+  color:#15803d !important;
+}
+#memberSelfLogs .card span[style*="color:#e0eeff"] { color:#0f172a !important; }
+#memberSelfLogs .card span[style*="color:#4ade80"] { color:#15803d !important; }
+#memberSelfLogs .card div[style*="color:#6b8ab0"] { color:#475569 !important; }
+#memberSelfLogs .card tr[style*="color:#3a5878"] th { color:#64748b !important; }
+#memberSelfLogs .card tr[style*="color:#c8d8f0"] { color:#0f172a !important; }
+#memberSelfLogs .card tr[style*="border-bottom:1px solid #1a3a6033"] th,
+#memberSelfLogs .card tr[style*="border-bottom:1px solid #0d2a4a22"] td {
+  border-bottom-color:#bfdbfe44 !important;
+}
+
+/* "더보기" 버튼 */
+#memberLogs button[style*="border:1px solid #1a3a60"] {
+  border-color:#bfdbfe !important;
+  color:#475569 !important;
+}
+
+/* ── 수업일지 노쇼 배지 ──────────────────────────────── */
+.log-card span[style*="background:#f59e0b22"] {
+  background:#fef3c7 !important;
+  color:#b45309 !important;
+  border-color:#fcd34d !important;
+}
+.log-card div[style*="color:#6a6a8a"] { color:#64748b !important; }
+
+/* ── 요청사항 타입 태그 (다크에서 정의된 것 light 유지) ─ */
+.type-db { background:#dbeafe !important; border-color:#bfdbfe !important; color:#3b82f6 !important; }
+.type-bug { background:#fee2e2 !important; border-color:#fecaca !important; color:#dc2626 !important; }
+.type-other { background:#f1f5f9 !important; border-color:#cbd5e1 !important; color:#64748b !important; }
+.badge-active { background:#dbeafe !important; border-color:#bfdbfe !important; color:#3b82f6 !important; }
+.badge-inactive { background:#fee2e2 !important; border-color:#fecaca !important; color:#dc2626 !important; }
+.badge-absent { background:#fef3c7 !important; border-color:#fcd34d !important; color:#b45309 !important; }
+.badge-req-pending { background:#fef3c7 !important; border-color:#fcd34d !important; color:#b45309 !important; }
+.badge-req-done { background:#dcfce7 !important; border-color:#86efac !important; color:#15803d !important; }
+
+/* ── 토큰 박스 ───────────────────────────────────────── */
+.token-box { background:#eff6ff !important; }
+
+/* ── 노트 사진 오버레이 ──────────────────────────────── */
+#notePhotoOverlay button[style*="background:#1e3a5f"] {
+  background:#3b82f6 !important;
+}
+
+/* ── 미등록 사유 모달 ────────────────────────────────── */
+#unregReasonText {
+  background:#fff5f5 !important;
+  border-color:#fca5a5 !important;
+  color:#0f172a !important;
+}
+#btnSaveUnregReason[style*="background:#7f1d1d"] {
+  background:#dc2626 !important;
+  border-color:#ef4444 !important;
+  color:#fff !important;
+}
+
+/* ── 예상매출 모달 — fcMemo / fcDueDate / fcAmount ──── */
+#fcMemo {
+  background:#f0f9ff !important;
+  border-color:#bfdbfe !important;
+  color:#0f172a !important;
+}
+#fcDueDate { color-scheme: light !important; }
+#fcAmount { color:#3b82f6 !important; }
+
+/* ── 캘린더 — 전체 시간표 모달 ────────────────────────── */
+#branchSchedModal > div[style*="background:#0d1525"] {
+  background:#ffffff !important;
+  border:1px solid #bfdbfe !important;
+}
+#branchSchedModal div[style*="border-bottom:1px solid #1e3a5f44"] {
+  border-bottom-color:#bfdbfe !important;
+}
+#branchSchedModal div[style*="border-bottom:1px solid #1e3a5f33"] {
+  border-bottom-color:#bfdbfe44 !important;
+}
+#branchSchedModal div[style*="border-top:1px solid #1e3a5f33"] {
+  border-top-color:#bfdbfe44 !important;
+}
+#branchSchedModal div[style*="color:#fff"]:not([id]) { color:#0f172a !important; }
+#branchSchedModal #bsSubtitle { color:#64748b !important; }
+#branchSchedModal div[style*="background:#f4f4f4"] {
+  background:#f8faff !important;
+}
+/* 오늘/내일 비활성 버튼 */
+#bsBtnTomorrow,
+#bsBtnToday {
+  /* JS가 inline style 갱신 → CSS로는 강제 변경하지 않음 */
+}
+
+/* ── 캘린더 — gutter (전체 시간표 버튼) ──────────────── */
+.cal-gutter[onclick] {
+  border-color:#3b82f655 !important;
+}
+.cal-gutter[onclick] span { color:#3b82f6 !important; }
+
+/* ── 일정 추가/수정 모달 ──────────────────────────────── */
+#schedModal > div[style*="background:#1e1e2e"] {
+  background:#ffffff !important;
+  color:#0f172a !important;
+}
+#schedModal h3 { color:#0f172a !important; }
+#schedModal label { color:#64748b !important; }
+#schedModal input, #schedModal select, #schedModal textarea {
+  background:#f0f9ff !important;
+  border-color:#bfdbfe !important;
+  color:#0f172a !important;
+}
+#schedModal button[onclick="closeSchedModal()"] { color:#64748b !important; }
+#schedStartDisplay {
+  background:#eff6ff !important;
+  border-color:#3b82f6 !important;
+  color:#0f172a !important;
+}
+#schedStartDisplay span#schedStartLabel { color:#0f172a !important; }
+#schedStartDisplay span:not(#schedStartLabel) { color:#64748b !important; }
+#schedEndDisplay {
+  background:#f0f9ff !important;
+  border-color:#bfdbfe !important;
+  color:#64748b !important;
+}
+#timePickerDrop {
+  background:#ffffff !important;
+  border-color:#bfdbfe !important;
+}
+#timePickerDrop > div {
+  color:#0f172a !important;
+  border-bottom-color:#bfdbfe44 !important;
+}
+#timePickerDrop > div[style*="background:#1e1040"] {
+  background:#dbeafe !important;
+  color:#3b82f6 !important;
+}
+#schedModalErr {
+  background:#fef2f2 !important;
+  color:#dc2626 !important;
+  border-color:#fca5a5 !important;
+}
+
+/* ── 일정 상세 모달 ──────────────────────────────────── */
+#schedInfoModal > div[style*="background:#1e1e2e"] {
+  background:#ffffff !important;
+  color:#0f172a !important;
+}
+#schedInfoModal div[style*="background:#3a3a5c"] { background:#bfdbfe !important; }
+#schedInfoModal #siMember { color:#0f172a !important; }
+#schedInfoModal div[style*="background:#141428"] {
+  background:#f0f9ff !important;
+}
+#schedInfoModal div[style*="border-bottom:1px solid #2a2a3c"] {
+  border-bottom-color:#bfdbfe44 !important;
+}
+#schedInfoModal span[style*="color:#6a6a8a"] { color:#64748b !important; }
+#schedInfoModal span[style*="color:#fff"] { color:#0f172a !important; }
+#siErr {
+  background:#fef2f2 !important;
+  color:#dc2626 !important;
+  border-color:#fca5a5 !important;
+}
+/* 상태 알림 박스 (대기/완료/노쇼) */
+#siActions > div[style*="background:#1a2e1a"],
+#siActions > div[style*="background:#1e2a3a"] {
+  background:#f0f9ff !important;
+  border-color:#bfdbfe !important;
+  color:#475569 !important;
+}
+#siActions strong[style*="color:#60a5fa"] { color:#3b82f6 !important; }
+
+/* ── 수업일지 연결 모달 ──────────────────────────────── */
+#linkLogModal > div[style*="background:#1e1e2e"] {
+  background:#ffffff !important;
+  color:#0f172a !important;
+}
+#linkLogModal div[style*="background:#3a3a5c"] { background:#bfdbfe !important; }
+#linkLogModal div[style*="color:#fff"] { color:#0f172a !important; }
+#linkLogModal #linkLogSubtitle { color:#64748b !important; }
+#linkLogList button[style*="background:#141428"] {
+  background:#f0f9ff !important;
+  border-color:#bfdbfe !important;
+  color:#0f172a !important;
+}
+#linkLogList button div[style*="color:#6a6a8a"] { color:#64748b !important; }
+
+/* ── SPT 상세 — pref-box 관리자 메모 ──────────────────── */
+.spt-pref-box div[style*="border-top:1px solid #222"] {
+  border-top-color:#bfdbfe44 !important;
+  color:#64748b !important;
+}
+.spt-pref-box span[style*="color:#aaa"] { color:#475569 !important; }
+.spt-pref-box div[style*="color:#888"] { color:#64748b !important; }
+
+/* SPT 상세 헤더 — sptDetailSub */
+#sptDetailSub[style*="color:#888"] { color:#64748b !important; }
+
+/* SPT 코멘트 — 수정됨 표시 */
+.spt-comment-body span[style*="color:#666"] { color:#94a3b8 !important; }
+
+/* ── 캘린더 cal-event 안 텍스트는 백그라운드 색이 진하므로
+      흰색 유지 (CSS 그대로 둠) ─────────────────────────── */
+
 </style>
 </head>
 <body>
@@ -528,8 +815,8 @@ body { background:#f8faff !important; color:#0f172a !important; }
     </div>
     <!-- 날짜 선택 (오늘/내일) -->
     <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid #1e3a5f33;flex-shrink:0;">
-      <button id="bsBtnToday" onclick="onBsDay(0)" style="flex:1;background:#6c63ff;border:none;color:#fff;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">오늘</button>
-      <button id="bsBtnTomorrow" onclick="onBsDay(1)" style="flex:1;background:#1e3a5f;border:1px solid #2a5a8f55;color:#7fb3d3;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">내일</button>
+      <button id="bsBtnToday" onclick="onBsDay(0)" style="flex:1;background:#3b82f6;border:none;color:#fff;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">오늘</button>
+      <button id="bsBtnTomorrow" onclick="onBsDay(1)" style="flex:1;background:#eff6ff;border:1px solid #bfdbfe;color:#3b82f6;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">내일</button>
       <input type="hidden" id="bsDatePicker" value="">
     </div>
     <!-- 캔버스 영역 -->
@@ -538,7 +825,7 @@ body { background:#f8faff !important; color:#0f172a !important; }
     </div>
     <!-- 저장/공유 버튼 -->
     <div style="padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #1e3a5f33;flex-shrink:0;">
-      <button onclick="downloadBranchSched()" style="width:100%;background:linear-gradient(135deg,#6c63ff,#4a43cc);border:none;color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">📥 저장 / 공유</button>
+      <button onclick="downloadBranchSched()" style="width:100%;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">📥 저장 / 공유</button>
     </div>
   </div>
 </div>
@@ -869,12 +1156,12 @@ async function showMemberDetail(memberId) {
   const tokenUrl = tokenData?.token ? `${APP_URL}?token=${tokenData.token}` : null;
   document.getElementById('detailTokenBox').innerHTML = tokenUrl
     ? `<div class="token-box" onclick="copyToken('${tokenUrl}')">
-        <span style="font-size:11px;color:#3a5878">링크</span>
+        <span style="font-size:11px;color:#64748b">링크</span>
         <span class="token-url">${tokenUrl}</span>
-        <span style="font-size:11px;color:#60a5fa;flex-shrink:0">복사</span>
+        <span style="font-size:11px;color:#3b82f6;flex-shrink:0">복사</span>
        </div>
-       <div style="font-size:11px;color:#2a4060;margin-top:6px">이 링크를 회원에게 전달하면 수업 기록을 볼 수 있습니다</div>`
-    : '<div style="font-size:12px;color:#888">링크를 불러올 수 없습니다</div>';
+       <div style="font-size:11px;color:#94a3b8;margin-top:6px">이 링크를 회원에게 전달하면 수업 기록을 볼 수 있습니다</div>`
+    : '<div style="font-size:12px;color:#64748b">링크를 불러올 수 없습니다</div>';
 
   const { data: logs, error: logErr } = await logsP;
   if (logErr) { document.getElementById('memberLogs').innerHTML = '<div class="empty">수업 기록 불러오기 실패</div>'; }
@@ -883,7 +1170,7 @@ async function showMemberDetail(memberId) {
     if ((logs || []).length === 30) {
       const moreBtn = document.createElement('button');
       moreBtn.textContent = '더 보기';
-      moreBtn.style.cssText = 'display:block;width:100%;margin-top:10px;padding:10px;background:transparent;border:1px solid #1a3a60;border-radius:8px;color:#7a9ab8;font-size:13px;cursor:pointer';
+      moreBtn.style.cssText = 'display:block;width:100%;margin-top:10px;padding:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;color:#3b82f6;font-size:13px;cursor:pointer;font-weight:600';
       moreBtn.onclick = async () => {
         if (moreBtn.disabled) return;
         moreBtn.textContent = '불러오는 중...'; moreBtn.disabled = true; moreBtn.style.opacity = '0.5';
@@ -921,20 +1208,20 @@ async function loadMemberSelfLogs(memberId) {
         const imgUrl = e.image_url || '';
         const wm = e.weight_mode;
         const isUni = (wm === 'each' || wm === 'single');
-        const wmTag = isUni ? '<span style="font-size:10px;background:#1a3a1a;color:#4ade80;padding:2px 5px;border-radius:4px;margin-left:5px">한손</span>' : '';
+        const wmTag = isUni ? '<span style="font-size:10px;background:#dcfce7;color:#15803d;padding:2px 5px;border-radius:4px;margin-left:5px">한손</span>' : '';
         const thumbHtml = imgUrl
-          ? `<div style="width:100%;border-radius:10px;overflow:hidden;background:#0a1428;margin:6px 0"><img src="${esc(imgUrl)}" loading="lazy" style="width:100%;display:block;object-fit:cover;max-height:180px" onerror="this.parentElement.style.display='none'"></div>`
+          ? `<div style="width:100%;border-radius:10px;overflow:hidden;background:#eff6ff;margin:6px 0"><img src="${esc(imgUrl)}" loading="lazy" style="width:100%;display:block;object-fit:cover;max-height:180px" onerror="this.parentElement.style.display='none'"></div>`
           : '';
         const setsStr = sets.length
           ? `<table style="width:100%;table-layout:fixed;border-collapse:collapse;margin-top:6px;font-size:12px">
-               <tr style="color:#3a5878;border-bottom:1px solid #1a3a6033">
+               <tr style="color:#64748b;border-bottom:1px solid #bfdbfe">
                  <th style="padding:5px 0;text-align:center;font-weight:600">세트</th>
                  <th style="padding:5px 0;text-align:center;font-weight:600">무게</th>
                  <th style="padding:5px 0;text-align:center;font-weight:600">횟수</th>
                </tr>` +
             sets.map(s => {
-              const wmLabel = isUni ? '<span style="font-size:10px;color:#4ade80"> (한쪽)</span>' : '';
-              return `<tr style="border-bottom:1px solid #0d2a4a22;color:#c8d8f0">
+              const wmLabel = isUni ? '<span style="font-size:10px;color:#15803d"> (한쪽)</span>' : '';
+              return `<tr style="border-bottom:1px solid #bfdbfe44;color:#0f172a">
                 <td style="padding:5px 0;text-align:center">${s.set||''}</td>
                 <td style="padding:5px 0;text-align:center">${s.weight||0}kg${wmLabel}</td>
                 <td style="padding:5px 0;text-align:center">${s.reps||0}회</td>
@@ -942,24 +1229,24 @@ async function loadMemberSelfLogs(memberId) {
             }).join('') +
             `</table>`
           : '';
-        const commentHtml = e.comment ? `<div style="font-size:11px;color:#6b8ab0;margin-top:5px;padding:4px 8px;background:#0a142833;border-radius:6px">${esc(e.comment)}</div>` : '';
-        return `<div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #1a3a6022">
+        const commentHtml = e.comment ? `<div style="font-size:11px;color:#475569;margin-top:5px;padding:4px 8px;background:#eff6ff;border-radius:6px">${esc(e.comment)}</div>` : '';
+        return `<div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #bfdbfe44">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-            <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#1a3a5f;color:#60a5fa;font-size:10px;font-weight:700;flex-shrink:0">${idx+1}</span>
-            <span style="font-size:13px;font-weight:600;color:#e0eeff">${esc(e.name)}${wmTag}</span>
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#dbeafe;color:#3b82f6;font-size:10px;font-weight:700;flex-shrink:0">${idx+1}</span>
+            <span style="font-size:13px;font-weight:600;color:#0f172a">${esc(e.name)}${wmTag}</span>
           </div>
           ${thumbHtml}${setsStr}${commentHtml}
         </div>`;
       }).join('');
       return `
-        <div class="card" style="margin-bottom:8px;padding:14px;cursor:pointer" onclick="this.querySelector('.msl-detail').classList.toggle('open')">
+        <div class="card" style="margin-bottom:8px;padding:14px;cursor:pointer;display:block" onclick="this.querySelector('.msl-detail').classList.toggle('open')">
           <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px">
-            <span style="font-size:13px;font-weight:600;color:#60a5fa">${dateStr}</span>
-            <span style="font-size:11px;color:#3a5878;white-space:nowrap">(${exs.length}종목)</span>
-            <span style="font-size:12px;color:#a0b8d8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(firstName)}</span>
+            <span style="font-size:13px;font-weight:600;color:#3b82f6">${dateStr}</span>
+            <span style="font-size:11px;color:#64748b;white-space:nowrap">(${exs.length}종목)</span>
+            <span style="font-size:12px;color:#475569;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(firstName)}</span>
           </div>
-          ${log.notes ? `<div style="font-size:11px;color:#2a4060;margin-top:4px">${esc(log.notes)}</div>` : ''}
-          <div class="msl-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #1a3a6033">${exHtml || '<div style="color:#2a4060;font-size:12px">운동 기록 없음</div>'}</div>
+          ${log.notes ? `<div style="font-size:11px;color:#94a3b8;margin-top:4px">${esc(log.notes)}</div>` : ''}
+          <div class="msl-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #bfdbfe44">${exHtml || '<div style="color:#94a3b8;font-size:12px">운동 기록 없음</div>'}</div>
         </div>`;
     }).join('');
   } catch (e) {
@@ -1060,14 +1347,14 @@ function renderLogCards(containerId, logs, showMember) {
     _logDataMap[log.id] = { date: log.session_date, member: log.members?.name || '', notes: log.notes || '' };
     const canShare = !isNoshow && exs.length > 0;
     return `
-      <div class="log-card" style="${isNoshow ? 'opacity:0.6;border-color:#f59e0b44;' : ''}">
+      <div class="log-card" style="${isNoshow ? 'opacity:0.7;border-color:#fcd34d;' : ''}">
         <div class="log-header">
           <span class="log-date">${dateStr}</span>
-          ${isNoshow ? `<span style="background:#f59e0b22;border:1px solid #f59e0b66;color:#f59e0b;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;margin-left:6px;">노쇼</span>` : ''}
+          ${isNoshow ? `<span style="background:#fef3c7;border:1px solid #fcd34d;color:#b45309;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;margin-left:6px;">노쇼</span>` : ''}
           ${showMember ? `<span class="log-member">${esc(log.members?.name || '-')}</span>` : ''}
         </div>
         ${isNoshow
-          ? `<div style="color:#6a6a8a;font-size:13px;padding:6px 0;">운동 내용 없음</div>`
+          ? `<div style="color:#64748b;font-size:13px;padding:6px 0;">운동 내용 없음</div>`
           : (exs.length ? `<div class="log-exercises">${exs.map(e => {
               const nm = esc(e.custom_name || '운동');
               const setInfo = e.sets_data?.length
@@ -1080,7 +1367,7 @@ function renderLogCards(containerId, logs, showMember) {
         <div class="log-actions">
           ${isNoshow ? '' : `<button class="btn-sm" onclick="location.href='session-write.html?log=${log.id}'">수정</button>`}
           ${log.note_photo_path ? `<button class="btn-sm" onclick="viewNotePhoto('${log.note_photo_path}')">노트 사진</button>` : ''}
-          ${canShare ? `<button class="btn-sm" style="color:#4ade80;border-color:#16a34a44" onclick="generateWorkoutCard('${log.id}')">이미지 저장</button>` : ''}
+          ${canShare ? `<button class="btn-sm" style="color:#15803d !important;border-color:#86efac !important;background:#dcfce7 !important" onclick="generateWorkoutCard('${log.id}')">이미지 저장</button>` : ''}
           <button class="btn-sm btn-danger" onclick="deleteLog('${log.id}')">삭제</button>
         </div>
       </div>`;
@@ -1648,7 +1935,7 @@ async function sptShowDetail(memberId) {
   prefEl.innerHTML = `<div class="spt-pref-box">
     <div>이름: <b>${esc(summary?.member_name || '')}</b> &nbsp; 연락처: <b>${esc(summary?.phone || '-')}</b></div>
     <div>희망 시간대: <b>${esc(slot)}</b>${detail ? ` &nbsp; 희망 상세: ${esc(detail)}` : ''}</div>
-    ${masterNotes ? `<div style="margin-top:6px;padding-top:6px;border-top:1px solid #222;color:#888">관리자 메모: <span style="color:#aaa">${esc(masterNotes)}</span></div>` : ''}
+    ${masterNotes ? `<div style="margin-top:6px;padding-top:6px;border-top:1px solid #bfdbfe44;color:#64748b">관리자 메모: <span style="color:#475569">${esc(masterNotes)}</span></div>` : ''}
   </div>`;
 }
 
@@ -1889,7 +2176,7 @@ function sptRenderComments(rows) {
          <button class="btn-xs btn-danger" onclick="sptCommentDelete('${esc(r.id)}')">삭제</button>`
       : '';
     const edited = (r.updated_at && r.created_at && r.updated_at !== r.created_at)
-      ? ` <span style="font-size:10px;color:#666">(수정됨)</span>` : '';
+      ? ` <span style="font-size:10px;color:#94a3b8">(수정됨)</span>` : '';
     return `
       <div class="spt-comment-row" data-id="${esc(r.id)}">
         <div class="spt-comment-body" onclick="this.closest('.spt-comment-row').classList.toggle('expanded')">
@@ -2057,9 +2344,9 @@ function renderCalGrid(dates){
   // ── 날짜 헤더 ──
   // gutter에 시간표 버튼 삽입
   document.getElementById('calDateRow').innerHTML=
-    '<div class="cal-gutter" onclick="openBranchSchedModal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none;border:1px solid #6c63ff55;border-radius:6px;margin:3px;">'+
-    '<span style="font-size:9px;color:#6c63ff;font-weight:700;line-height:1.5;text-align:center;">전체</span>'+
-    '<span style="font-size:9px;color:#6c63ff;font-weight:700;line-height:1.5;text-align:center;">시간표</span>'+
+    '<div class="cal-gutter" onclick="openBranchSchedModal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none;border:1px solid #3b82f655;border-radius:6px;margin:3px;">'+
+    '<span style="font-size:9px;color:#3b82f6;font-weight:700;line-height:1.5;text-align:center;">전체</span>'+
+    '<span style="font-size:9px;color:#3b82f6;font-weight:700;line-height:1.5;text-align:center;">시간표</span>'+
     '</div>'+
     dates.map(d=>{
       const isToday=toYMD(d)===todayYMD;
@@ -2459,7 +2746,7 @@ function renderForecasts() {
   const el = document.getElementById('revForecastList');
 
   if (!list.length) {
-    el.innerHTML = '<div style="text-align:center;color:#555;font-size:13px;padding:20px 0">등록된 예상매출이 없습니다.</div>';
+    el.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0">등록된 예상매출이 없습니다.</div>';
     return;
   }
 
@@ -2474,23 +2761,27 @@ function renderForecasts() {
     const badgeText = isPending ? '대기' : isReg ? '등록' : '미등록';
     const cardClass = isUnreg ? ' unregistered' : '';
     const nameColor = isUnreg ? '#f87171' : isPending ? '#93c5fd' : '#fff';
+    const lightNameColor = isUnreg ? '#dc2626' : isPending ? '#3b82f6' : '#0f172a';
+    const lightBadgeStyle = isPending
+      ? 'background:#dbeafe;color:#3b82f6'
+      : isReg ? 'background:#dcfce7;color:#15803d' : 'background:#fee2e2;color:#dc2626';
     return `<div class="fc-card${cardClass}">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:14px;font-weight:600;color:${nameColor}">${f.member_name}</span>
-        <span style="font-size:11px;padding:3px 8px;border-radius:6px;font-weight:600;${badgeStyle}">${badgeText}</span>
+        <span style="font-size:14px;font-weight:600;color:${lightNameColor}">${esc(f.member_name)}</span>
+        <span style="font-size:11px;padding:3px 8px;border-radius:6px;font-weight:600;${lightBadgeStyle}">${badgeText}</span>
       </div>
-      <div style="display:flex;gap:12px;margin-top:6px;font-size:12px;color:#888">
+      <div style="display:flex;gap:12px;margin-top:6px;font-size:12px;color:#64748b">
         <span>단가 ${(f.price_per_session||0).toLocaleString()}</span>
         <span>${f.session_count}회</span>
-        <span style="color:#60a5fa;font-weight:600">${_fmtWon(amt)}</span>
+        <span style="color:#3b82f6;font-weight:600">${_fmtWon(amt)}</span>
       </div>
-      ${f.payment_due_date?`<div style="font-size:11px;color:#60a5fa88;margin-top:4px">결제예정일 ${f.payment_due_date}</div>`:''}
-      ${f.memo?`<div style="font-size:11px;color:#666;margin-top:2px">${f.memo}</div>`:''}
-      ${isUnreg&&f.unregistered_reason?`<div style="font-size:11px;color:#f87171aa;margin-top:4px;padding:4px 8px;background:#7f1d1d22;border-radius:6px">사유: ${f.unregistered_reason}</div>`:''}
-      <div class="log-actions" style="margin-top:10px;padding-top:10px;border-top:1px solid #1e3a5f22">
-        ${!isReg?`<button class="btn-sm" style="color:#4ade80;border-color:#16a34a44" onclick="setForecastStatus('${f.id}',true)">등록</button>`:''}
-        ${!isUnreg?`<button class="btn-sm" style="color:#f87171;border-color:#7f1d1d44" onclick="setForecastStatus('${f.id}',false)">미등록</button>`:''}
-        <button class="btn-sm" style="color:#60a5fa;border-color:#3b82f633" onclick="editForecast('${f.id}')">수정</button>
+      ${f.payment_due_date?`<div style="font-size:11px;color:#3b82f6aa;margin-top:4px">결제예정일 ${esc(f.payment_due_date)}</div>`:''}
+      ${f.memo?`<div style="font-size:11px;color:#64748b;margin-top:2px">${esc(f.memo)}</div>`:''}
+      ${isUnreg&&f.unregistered_reason?`<div style="font-size:11px;color:#dc2626;margin-top:4px;padding:4px 8px;background:#fef2f2;border-radius:6px">사유: ${esc(f.unregistered_reason)}</div>`:''}
+      <div class="log-actions" style="margin-top:10px;padding-top:10px;border-top:1px solid #bfdbfe">
+        ${!isReg?`<button class="btn-sm" style="color:#15803d !important;border-color:#86efac !important;background:#dcfce7 !important" onclick="setForecastStatus('${f.id}',true)">등록</button>`:''}
+        ${!isUnreg?`<button class="btn-sm" style="color:#dc2626 !important;border-color:#fca5a5 !important;background:#fef2f2 !important" onclick="setForecastStatus('${f.id}',false)">미등록</button>`:''}
+        <button class="btn-sm" style="color:#3b82f6 !important;border-color:#bfdbfe !important;background:#eff6ff !important" onclick="editForecast('${f.id}')">수정</button>
         <button class="btn-sm btn-danger" onclick="deleteForecast('${f.id}')">삭제</button>
       </div>
     </div>`;
@@ -2647,10 +2938,12 @@ function closeBranchSchedModal(){
 
 // 오늘/내일 버튼 토글 상태 반영
 function _bsSetDayBtn(offset){
-  document.getElementById('bsBtnToday').style.background=offset===0?'#6c63ff':'#1e3a5f';
-  document.getElementById('bsBtnToday').style.color=offset===0?'#fff':'#7fb3d3';
-  document.getElementById('bsBtnTomorrow').style.background=offset===1?'#6c63ff':'#1e3a5f';
-  document.getElementById('bsBtnTomorrow').style.color=offset===1?'#fff':'#7fb3d3';
+  document.getElementById('bsBtnToday').style.background=offset===0?'#3b82f6':'#eff6ff';
+  document.getElementById('bsBtnToday').style.color=offset===0?'#fff':'#3b82f6';
+  document.getElementById('bsBtnToday').style.border=offset===0?'none':'1px solid #bfdbfe';
+  document.getElementById('bsBtnTomorrow').style.background=offset===1?'#3b82f6':'#eff6ff';
+  document.getElementById('bsBtnTomorrow').style.color=offset===1?'#fff':'#3b82f6';
+  document.getElementById('bsBtnTomorrow').style.border=offset===1?'none':'1px solid #bfdbfe';
 }
 
 async function onBsDay(offset){
@@ -3216,7 +3509,7 @@ function toggleTimePicker(){
   }
   drop.innerHTML=opts.map(t=>{
     const isSel=t===cur;
-    return`<div onclick="selectSchedTime('${t}')" style="padding:10px 14px;font-size:15px;color:${isSel?'#6c63ff':'#ccc'};background:${isSel?'#1e1040':'transparent'};cursor:pointer;border-bottom:1px solid #2a2a3c22;font-weight:${isSel?700:400};-webkit-tap-highlight-color:transparent">${formatKorTime(t)}</div>`;
+    return`<div onclick="selectSchedTime('${t}')" style="padding:10px 14px;font-size:15px;color:${isSel?'#3b82f6':'#0f172a'};background:${isSel?'#dbeafe':'transparent'};cursor:pointer;border-bottom:1px solid #bfdbfe44;font-weight:${isSel?700:400};-webkit-tap-highlight-color:transparent">${formatKorTime(t)}</div>`;
   }).join('');
   drop.style.display='block';
   const idx=opts.indexOf(cur);
@@ -3322,7 +3615,7 @@ async function deleteSchedule(){
     btn.style.background = '#ff4d4f';
     btn.style.borderColor = '#ff4d4f';
     btn.style.color = '#fff';
-    setTimeout(()=>{ if(_deleteConfirmPending){ _deleteConfirmPending=false; btn.textContent='삭제'; btn.style.background='#3a1a1a'; btn.style.borderColor='#ff4d4f55'; btn.style.color='#ff4d4f'; }}, 3000);
+    setTimeout(()=>{ if(_deleteConfirmPending){ _deleteConfirmPending=false; btn.textContent='삭제'; btn.style.background='#fef2f2'; btn.style.borderColor='#fca5a5'; btn.style.color='#dc2626'; }}, 3000);
     return;
   }
   _deleteConfirmPending = false;
@@ -3339,7 +3632,7 @@ async function openLinkLogModal(scheduleId,memberId,schedDate,memberName){
   _linkLogDate=schedDate;_linkLogMemberName=memberName;
   document.getElementById('linkLogSubtitle').textContent=`${memberName||'회원'} · ${schedDate}`;
   const listEl=document.getElementById('linkLogList');
-  listEl.innerHTML='<div style="color:#6a6a8a;font-size:13px;text-align:center;padding:12px;">불러오는 중...</div>';
+  listEl.innerHTML='<div style="color:#64748b;font-size:13px;text-align:center;padding:12px;">불러오는 중...</div>';
   document.getElementById('linkLogModal').style.display='flex';
   document.body.style.overflow='hidden';
   const{data:drafts,error}=await db.from('workout_logs')
@@ -3348,14 +3641,14 @@ async function openLinkLogModal(scheduleId,memberId,schedDate,memberName){
     .is('schedule_id',null).eq('is_deleted',false).eq('is_noshow',false)
     .order('created_at',{ascending:false});
   if(error||!drafts?.length){
-    listEl.innerHTML='<div style="color:#6a6a8a;font-size:13px;text-align:center;padding:12px;">미연결 수업일지가 없어요</div>';
+    listEl.innerHTML='<div style="color:#64748b;font-size:13px;text-align:center;padding:12px;">미연결 수업일지가 없어요</div>';
     return;
   }
   listEl.innerHTML=drafts.map(d=>{
     const exNames=(d.workout_log_exercises||[]).slice(0,2).map(e=>e.custom_name).join(', ');
-    return`<button onclick="selectLinkLog('${d.id}')" style="background:#141428;border:1px solid #2a2a4a;border-radius:12px;padding:12px 14px;text-align:left;color:#fff;cursor:pointer;font-family:inherit;width:100%;">
-      <div style="font-size:13px;font-weight:700;margin-bottom:3px;">${d.session_date||'날짜 미정'}</div>
-      <div style="font-size:11px;color:#6a6a8a;">${exNames||d.notes||'내용 없음'}</div>
+    return`<button onclick="selectLinkLog('${d.id}')" style="background:#f0f9ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 14px;text-align:left;color:#0f172a;cursor:pointer;font-family:inherit;width:100%;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:3px;">${esc(d.session_date||'날짜 미정')}</div>
+      <div style="font-size:11px;color:#64748b;">${esc(exNames||d.notes||'내용 없음')}</div>
     </button>`;
   }).join('');
 }
