@@ -701,24 +701,24 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
       <option value="">전체 지점</option>
     </select>
     <button id="scBtnFilter" onclick="scToggleFilterPanel()" title="트레이너 표시 선택"
-      style="background:#1a1a14;border:1px solid #2a2518;color:#c9a84c;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;flex-shrink:0;">트레이너</button>
+      style="background:#f0edd8;border:1px solid #ddd4b8;color:#c9a84c;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;flex-shrink:0;">트레이너</button>
     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:auto;">
       <button class="sc-nav-arrow" onclick="scMoveDays(-7)">&#8249;</button>
       <span id="scRange" class="sc-date-range" style="font-size:12px;white-space:nowrap;"></span>
       <button class="sc-nav-arrow" onclick="scMoveDays(7)">&#8250;</button>
     </div>
   </div>
-  <div id="scFilterPanel" style="display:none;padding:10px 12px;background:#0d0d08;border-bottom:1px solid #2a2518;max-height:240px;overflow-y:auto;">
+  <div id="scFilterPanel" style="display:none;padding:10px 12px;background:#f8f7f3;border-bottom:1px solid #ddd4b8;max-height:240px;overflow-y:auto;">
     <div id="scFilterChecks" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:4px;"></div>
     <div style="display:flex;gap:6px;margin-top:8px;">
-      <button onclick="scSelectAllTrainers(true)" style="flex:1;background:#1a1a14;border:1px solid #2a2518;color:#c9a84c;border-radius:6px;padding:6px 8px;font-size:11px;cursor:pointer;">전체 선택</button>
-      <button onclick="scSelectAllTrainers(false)" style="flex:1;background:#1a1a14;border:1px solid #2a2518;color:#888;border-radius:6px;padding:6px 8px;font-size:11px;cursor:pointer;">전체 해제</button>
+      <button onclick="scSelectAllTrainers(true)" style="flex:1;background:#f0edd8;border:1px solid #ddd4b8;color:#c9a84c;border-radius:6px;padding:6px 8px;font-size:11px;cursor:pointer;">전체 선택</button>
+      <button onclick="scSelectAllTrainers(false)" style="flex:1;background:#f0edd8;border:1px solid #ddd4b8;color:#8a7a68;border-radius:6px;padding:6px 8px;font-size:11px;cursor:pointer;">전체 해제</button>
     </div>
   </div>
   <!-- 날짜 버튼 행 (7일) -->
-  <div id="scDatePills" style="display:flex;background:#111108;border-bottom:2px solid #2a2518;position:sticky;top:145px;z-index:95;"></div>
+  <div id="scDatePills" style="display:flex;background:#fffff8;border-bottom:2px solid #ddd4b8;position:sticky;top:145px;z-index:95;"></div>
   <!-- 트레이너 컬럼 데이뷰 -->
-  <div id="scDayView" style="overflow-y:auto;height:calc(100dvh - 57px - 44px - 44px - 52px);background:#0d0d08;"></div>
+  <div id="scDayView" style="overflow-y:auto;height:calc(100dvh - 57px - 44px - 44px - 52px);background:#fafaf7;"></div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -909,10 +909,10 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
     <div id="detailMemberMeta" style="font-size:12px;color:#666;margin-bottom:14px"></div>
 
     <!-- 회원 상태 수동 변경 -->
-    <div style="background:#0f0f0a;border:1px solid #2a2518;border-radius:10px;padding:12px 14px;margin-bottom:16px">
-      <div style="font-size:11px;color:#888;font-weight:600;letter-spacing:1.2px;margin-bottom:10px">회원 상태</div>
+    <div style="background:#f4f2ec;border:1px solid #ddd4b8;border-radius:10px;padding:12px 14px;margin-bottom:16px">
+      <div style="font-size:11px;color:#8a7a68;font-weight:600;letter-spacing:1.2px;margin-bottom:10px">회원 상태</div>
       <div style="display:flex;align-items:center;gap:8px">
-        <select id="statusOverrideSelect" style="flex:1;background:#0a0a08;border:1.5px solid #2a2518;border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;outline:none;font-family:inherit">
+        <select id="statusOverrideSelect" style="flex:1;background:#fffef8;border:1.5px solid #ddd4b8;border-radius:8px;padding:8px 10px;font-size:13px;color:#1a1a14;outline:none;font-family:inherit">
           <option value="">⚪ 자동 (기본)</option>
           <option value="active">🟢 유효</option>
           <option value="long_absent">🟡 장기미방문</option>
@@ -920,12 +920,12 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
         </select>
         <button class="vb vb-sm vb-primary-gradient" id="statusOverrideBtn" onclick="adminSetStatus()">변경</button>
       </div>
-      <div id="statusOverrideNote" style="font-size:10px;color:#666;margin-top:6px"></div>
+      <div id="statusOverrideNote" style="font-size:10px;color:#8a7a68;margin-top:6px"></div>
     </div>
 
     <!-- 회원앱 토큰 관리 -->
-    <div style="background:#080e1a;border:1px solid #1e3a5f44;border-radius:10px;padding:12px 14px;margin-bottom:16px">
-      <div style="font-size:11px;color:#888;font-weight:600;letter-spacing:1.2px;margin-bottom:10px">회원앱 토큰</div>
+    <div style="background:#f4f2ec;border:1px solid #ddd4b8;border-radius:10px;padding:12px 14px;margin-bottom:16px">
+      <div style="font-size:11px;color:#8a7a68;font-weight:600;letter-spacing:1.2px;margin-bottom:10px">회원앱 토큰</div>
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div>
           <div id="tokenStatusBadge" style="font-size:13px;font-weight:700"></div>
@@ -2384,7 +2384,7 @@ function _renderExList() {
       <div style="display:flex;align-items:center;gap:12px">
         ${r.image_url
           ? `<img src="${esc(r.image_url)}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#222" loading="lazy" onerror="this.style.display='none'">`
-          : `<div style="width:56px;height:56px;border-radius:8px;background:#1a1a12;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0"></div>`}
+          : `<div style="width:56px;height:56px;border-radius:8px;background:#f0edd8;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0"></div>`}
         <div style="flex:1;min-width:0">
           <div class="ex-name">${esc(r.name_ko)}</div>
           ${r.name_en ? `<div class="ex-en">${esc(r.name_en)}</div>` : ''}
@@ -2431,7 +2431,7 @@ async function openExDetail(id) {
   const muscles = r.muscles_detail || '정보 없음';
   document.getElementById('exDetailMuscles').innerHTML =
     muscles.split('·').map(m => m.trim()).filter(Boolean)
-      .map(m => `<span style="display:inline-block;background:#1a1a12;border:1px solid #2a2518;border-radius:8px;padding:4px 12px;margin:3px;font-size:13px">${esc(m)}</span>`)
+      .map(m => `<span style="display:inline-block;background:#f0edd8;border:1px solid #ddd4b8;border-radius:8px;padding:4px 12px;margin:3px;font-size:13px;color:#3a3020">${esc(m)}</span>`)
       .join('') || '<span style="color:#444">정보 없음</span>';
 
   // 근육 편집 필드 초기화
@@ -2679,7 +2679,7 @@ function scRenderFilterChecks(){
   const all=scAllInBranch(branch);
   const onCount=all.filter(t=>t.show_on_chart!==false).length;
   host.innerHTML=all.map(t=>`
-    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#ddd;cursor:pointer;padding:5px 8px;background:#1a1a14;border-radius:6px;border:1px solid #2a2518;">
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#3a3020;cursor:pointer;padding:5px 8px;background:#f0edd8;border-radius:6px;border:1px solid #ddd4b8;">
       <input type="checkbox" ${t.show_on_chart!==false?'checked':''} onchange="scToggleTrainer('${t.id}',this.checked)">
       <span>${(t.name||'').replace(/'/g,'&#39;')}</span>
     </label>
@@ -3940,6 +3940,8 @@ window.adminSetStatus         = adminSetStatus;
 window.calcPaymentAmount      = calcPaymentAmount;
 window.calcPtPayment          = calcPtPayment;
 window.clearExSearch          = clearExSearch;
+window.setExTool              = setExTool;
+window.setExPart              = setExPart;
 window.clearMemberSearch      = clearMemberSearch;
 window.closeBranchSchedModal  = closeBranchSchedModal;
 window.completeReq            = completeReq;
