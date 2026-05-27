@@ -165,7 +165,7 @@ function showToast(msg, duration = 2400) {
 }
 
 // ── 커스텀 확인 모달 ────────────────────────────────────────
-function showConfirm(message, { okText = '확인', cancelText = '취소', danger = false } = {}) {
+function showConfirm(message, { okText = '확인', cancelText = '취소', danger = false, dismissOnBackdrop = true } = {}) {
   return new Promise(resolve => {
     const existing = document.getElementById('_confirmBg');
     if (existing) existing.remove();
@@ -188,7 +188,9 @@ function showConfirm(message, { okText = '확인', cancelText = '취소', danger
     const cleanup = (result) => { bg.remove(); resolve(result); };
     bg.querySelector('#_confirmOk').addEventListener('click', () => cleanup(true));
     bg.querySelector('#_confirmCancel').addEventListener('click', () => cleanup(false));
-    bg.addEventListener('click', e => { if (e.target === bg) cleanup(false); });
+    if (dismissOnBackdrop) {
+      bg.addEventListener('click', e => { if (e.target === bg) cleanup(false); });
+    }
 
     document.body.appendChild(bg);
     bg.querySelector('#_confirmOk').focus();

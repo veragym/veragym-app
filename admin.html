@@ -317,6 +317,153 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .sc-dl { color:#666; width:52px; flex-shrink:0; }
 .sc-dv { color:#ccc; font-weight:600; flex:1; }
 .sc-warn { background:#1a1200; border:1px solid #c9a84c44; border-radius:8px; padding:11px 13px; font-size:13px; color:#c9a84c88; margin-bottom:14px; line-height:1.5; display:none; }
+
+/* ═══════════════════════════════════════════════════════
+   WHITE / GOLD LIGHT THEME
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --bg-btn: #f0edd8 !important;
+  --bg-btn-hover: #ede8d0 !important;
+  --border-btn: #ddd4b8 !important;
+  --text-muted: #7a6a58 !important;
+  --text-sub: #8a7a68 !important;
+}
+body { background:#fafaf7 !important; color:#1a1a14 !important; }
+.header { background:#fffff8 !important; border-bottom-color:#ddd4b8 !important; }
+.header-sub { color:#8a7a68 !important; }
+.btn-logout { border-color:#ddd4b8 !important; color:#8a7a68 !important; }
+.tabs { background:#fffff8 !important; border-bottom-color:#ddd4b8 !important; }
+.tab-btn { color:#8a7a68 !important; }
+.tab-btn.active { color:#c9a84c !important; border-bottom-color:#c9a84c !important; }
+.card { background:#ffffff !important; border-color:#ddd4b8 !important; }
+.avatar { background:#f0edd8 !important; }
+.sub-row { color:#7a6a58 !important; }
+.badge-trainer { background:#e8e0cc !important; border-color:#ddd4b8 !important; color:#7a6a58 !important; }
+.btn-sm { background:#f0edd8 !important; border-color:#ddd4b8 !important; color:#7a6a58 !important; }
+.btn-sm:hover { border-color:#c9a84c55 !important; color:#c9a84c !important; }
+.btn-cancel { background:#f0edd8 !important; border-color:#ddd4b8 !important; color:#8a7a68 !important; }
+.sec-count { color:#8a7a68 !important; }
+.group-label::after { background:#ddd4b8 !important; }
+.loading { color:#8a7a68 !important; }
+.empty { color:#8a7a68 !important; }
+.modal { background:#ffffff !important; border-top-color:#ddd4b8 !important; }
+.modal-handle { background:#ddd4b8 !important; }
+.modal-title { color:#1a1a14 !important; }
+.field label { color:#7a6a58 !important; }
+.field input, .field select { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
+.field input:focus, .field select:focus { border-color:#c9a84c !important; }
+.field input::placeholder { color:#a09080 !important; }
+.field .hint { color:#8a7a68 !important; }
+.memo-modal { background:#ffffff !important; border-top-color:#ddd4b8 !important; }
+.memo-meta { color:#8a7a68 !important; }
+.memo-body { background:#f4f2ec !important; color:#1a1a14 !important; }
+.req-card { background:#ffffff !important; border-color:#ddd4b8 !important; }
+.req-content { color:#1a1a14 !important; }
+.req-status { color:#8a7a68 !important; }
+.req-meta { color:#8a7a68 !important; }
+.branch-chip { background:#ffffff !important; border-color:#ddd4b8 !important; }
+.branch-chip:hover, .branch-chip.active { background:#fdf8eb !important; border-color:#c9a84c88 !important; }
+.branch-chip-name { color:#8a7a68 !important; }
+.branch-chip-label { color:#8a7a68 !important; }
+.hier-row { background:#ffffff !important; border-color:#ddd4b8 !important; }
+.hier-row:hover { border-color:#c9a84c55 !important; }
+.hier-sub { color:#7a6a58 !important; }
+.hier-arrow { color:#c9a84c88 !important; }
+.acc-block { border-color:#ddd4b8 !important; }
+.acc-header { background:#fafaf7 !important; }
+.acc-header:hover { background:#f8f7f0 !important; }
+.acc-header.open { background:#fdf8eb !important; }
+.acc-header-count { color:#8a7a68 !important; }
+.acc-arrow { color:#8a7a68 !important; }
+.acc-arrow.open { color:#c9a84c !important; }
+.acc-body { background:#f8f7f3 !important; border-top-color:#ddd4b8 !important; }
+.acc-sub-block { border-color:#e8e0cc !important; }
+.acc-sub-header { background:#fafaf7 !important; }
+.acc-sub-header:hover { background:#f8f7f0 !important; }
+.acc-sub-header.open { background:#fdf8eb !important; }
+.acc-sub-title { color:#1a1a14 !important; }
+.acc-sub-count { color:#8a7a68 !important; }
+.acc-sub-body { background:#f4f2ec !important; border-top-color:#ddd4b8 !important; }
+.member-row:hover { background:#fdf8eb !important; }
+.member-row-arrow { color:#c9a84c88 !important; }
+.pt-card { background:#ffffff !important; border-color:#ddd4b8 !important; }
+.pt-sessions-label { color:#8a7a68 !important; }
+.pt-meta { color:#7a6a58 !important; }
+.ex-search-area { background:#fafaf7 !important; }
+.ex-search { background:#ffffff !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
+.ex-search::placeholder { color:#a09080 !important; }
+.ex-clear-btn { color:#8a7a68 !important; }
+.ex-filter-label { color:#8a7a68 !important; }
+.ex-chip { background:#f0edd8 !important; border-color:#ddd4b8 !important; color:#7a6a58 !important; }
+.ex-chip:hover { border-color:#c9a84c55 !important; color:#5a4a38 !important; }
+.ex-chip.active { background:#c9a84c22 !important; border-color:#c9a84c88 !important; color:#c9a84c !important; }
+.ex-stat-bar { color:#7a6a58 !important; }
+.ex-card { background:#ffffff !important; border-color:#ddd4b8 !important; }
+.ex-name { color:#1a1a14 !important; }
+.ex-en { color:#8a7a68 !important; }
+.ex-tag-part { border-color:#ddd4b8 !important; color:#7a6a58 !important; }
+.ex-tag-muscle { color:#7a6a58 !important; }
+.ex-more-btn { background:#f0edd8 !important; border-color:#ddd4b8 !important; color:#7a6a58 !important; }
+.img-upload-zone { border-color:#ddd4b8 !important; }
+.adm-trainer-card { background:#ffffff !important; border-color:#ddd4b8 !important; }
+.adm-fc-item { background:#f8f7f3 !important; border-color:#e8e0cc !important; }
+.adm-fc-item.unreg { border-color:#f8717144 !important; background:#fff5f5 !important; }
+.rev-sub-tabs { background:#f4f2ec !important; border-color:#ddd4b8 !important; }
+.rev-sub-btn { color:#7a6a58 !important; }
+.rev-sub-btn.active { background:#c9a84c22 !important; color:#c9a84c !important; }
+.rev-month-btn { background:#f0edd8 !important; border-color:#ddd4b8 !important; color:#8a7a68 !important; }
+.rev-month-btn.active { background:#c9a84c22 !important; color:#c9a84c !important; border-color:#c9a84c55 !important; }
+.pay-filter-sel, .pay-search { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
+.pay-stat-box { background:#ffffff !important; border-color:#ddd4b8 !important; }
+.pay-stat-label { color:#8a7a68 !important; }
+.pay-stat-val { color:#1a1a14 !important; }
+.pay-item { background:#ffffff !important; border-color:#ddd4b8 !important; }
+.pay-item-name { color:#1a1a14 !important; }
+.pay-item-sub { color:#8a7a68 !important; }
+.stat-section { background:#ffffff !important; border-color:#ddd4b8 !important; }
+.stat-section-title { color:#7a6a58 !important; }
+.stat-bar-label { font-size:11px !important; color:#7a6a58 !important; }
+.stat-bar-val { font-size:11px !important; color:#a8893a !important; }
+.stat-trainer-row { border-bottom-color:#e8e0cc !important; }
+.sc-ctrl { background:#fffff8 !important; border-bottom-color:#ddd4b8 !important; }
+.sc-date-pill .pill-num { color:#8a7a68 !important; }
+.sc-date-pill .pill-day { color:#a09080 !important; }
+.sc-date-pill.today .pill-num { color:#1a1a14 !important; }
+.sc-date-pill.active { background:#fdf8eb !important; }
+.sc-date-pill.active .pill-num { color:#c9a84c !important; }
+.sc-date-pill.active .pill-day { color:#a8893a !important; }
+.sc-dv-header { background:#f8f7f3 !important; border-bottom-color:#ddd4b8 !important; color:#8a7a68 !important; }
+.sc-trainer-col { border-right-color:#e8e0cc !important; }
+.sc-trainer-col-hdr { background:#fdf8eb !important; border-bottom-color:#ddd4b8 !important; }
+.sc-trainer-sess { border-bottom-color:#f0edd8 !important; }
+.sc-trainer-sess:active { background:#fdf8eb !important; }
+.sc-trainer-sess .sess-name { color:#1a1a14 !important; }
+.sc-trainer-sess .sess-sub { color:#8a7a68 !important; }
+.sc-trainer-empty { color:#c9a84c88 !important; }
+.sc-trainer-sel { background:#ffffff !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
+.sc-trainer-sel option { background:#ffffff !important; color:#1a1a14 !important; }
+.sc-vtoggle { border-color:#ddd4b8 !important; }
+.sc-vbtn { background:#f0edd8 !important; color:#7a6a58 !important; }
+.sc-vbtn.active { background:#c9a84c22 !important; color:#c9a84c !important; }
+.sc-date-row { background:#fffff8 !important; border-bottom-color:#ddd4b8 !important; }
+.sc-gutter { border-right-color:#ddd4b844 !important; }
+.sc-dhdr-name { color:#a09080 !important; }
+.sc-dhdr-num { color:#5a4a38 !important; }
+.sc-gridline-hr { background:#ddd4b844 !important; }
+.sc-gridline-half { border-top-color:#ddd4b822 !important; }
+.sc-dayoff { background:#f5f5f0 !important; }
+.sc-card { background:#ffffff !important; border-color:#ddd4b8 !important; }
+.sc-card-trainer { background:#f0edd8 !important; border-color:#ddd4b8 !important; color:#8a7a68 !important; }
+.sc-card-time { color:#1a1a14 !important; }
+.sc-card-member { color:#3a3020 !important; }
+.sc-card-dur { color:#8a7a68 !important; }
+.sc-dg-label::after { background:#ddd4b8 !important; }
+.sc-detail { background:#f8f7f3 !important; border-color:#ddd4b8 !important; }
+.sc-dl { color:#8a7a68 !important; }
+.sc-dv { color:#1a1a14 !important; }
+.sc-warn { background:#fdf8eb !important; border-color:#c9a84c44 !important; color:#a8893a !important; }
+.toast { background:#fdf8eb !important; color:#a8893a !important; border-color:#c9a84c44 !important; }
+#memberSearchInput { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; caret-color:#c9a84c !important; }
 </style>
 </head>
 <body>
@@ -733,6 +880,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
       <div style="font-size:11px;color:#888;font-weight:600;letter-spacing:1.2px;margin-bottom:10px">회원 상태</div>
       <div style="display:flex;align-items:center;gap:8px">
         <select id="statusOverrideSelect" style="flex:1;background:#0a0a08;border:1.5px solid #2a2518;border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;outline:none;font-family:inherit">
+          <option value="">⚪ 자동 (기본)</option>
           <option value="active">🟢 유효</option>
           <option value="long_absent">🟡 장기미방문</option>
           <option value="expired">🔴 만료</option>
@@ -981,7 +1129,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
     <div class="err-box" id="changePwErr"></div>
     <div class="field">
       <label>새 비밀번호 <span style="color:#f87171">*</span></label>
-      <input id="newPw" type="text" placeholder="4자 이상 입력" autocomplete="off"
+      <input id="newPw" type="password" placeholder="4자 이상 입력" autocomplete="new-password"
              style="letter-spacing:2px;font-family:monospace">
       <div class="hint">변경 후 트레이너에게 새 비밀번호를 알려주세요</div>
     </div>
@@ -1668,6 +1816,11 @@ function openChangeTrainer(productId, contractTrainerId) {
 
 async function saveChangeTrainer() {
   const newTrId    = document.getElementById('ctTrainerSel').value || null;
+  if (!newTrId) {
+    if (!confirm('담당 트레이너를 "미배정"으로 저장하시겠습니까?\n\n미배정 상태에선 회원 상태가 자동으로 "장기미방문"이 되고, 트레이너 앱에서 이 회원을 볼 수 없습니다.')) {
+      return;
+    }
+  }
   const btn = document.getElementById('btnCtSave');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
   try {
@@ -1776,7 +1929,10 @@ async function saveEditPtProduct() {
     const { error: e2 } = await db.from('payment_records').update(paymentUpdate).eq('pt_product_id', _editPtProductId);
     if (e2) console.warn('payment_records 동기화 실패:', e2.message);
     // members.member_status / is_active 자동 재계산 (p_status=null → 자동계산 모드)
-    if (_currentMemberId) {
+    // status_override가 걸려있는 회원은 호출하지 않음 (사용자가 수동 설정한 값을 보존)
+    // status_override=NULL 회원은 pt_products AFTER 트리거가 이미 갱신하지만 명시 호출 유지
+    const _curMember = _allMembers.find(x => x.id === _currentMemberId);
+    if (_currentMemberId && !_curMember?.status_override) {
       const { error: e3 } = await db.rpc('admin_set_member_status', { p_member_id: _currentMemberId, p_status: null });
       if (e3) console.warn('회원 상태 자동동기화 실패:', e3.message);
     }

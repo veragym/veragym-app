@@ -167,7 +167,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .rt-card-ex-chip .rt-chip-x { color:#ef4444; cursor:pointer; font-size:11px; line-height:1; }
 .rt-card-bottom { display:flex; align-items:center; justify-content:space-between; }
 .rt-card-info { font-size:11px; color:#888888; }
-.rt-card-add-btn { background:#bbbbbb; border:1px solid #C8FF0044; border-radius:8px; color:#3a6600; font-size:12px; font-weight:600; padding:5px 12px; cursor:pointer; font-family:inherit; }
+.rt-card-add-btn { background:#f0ffd0; border:1px solid #C8FF0066; border-radius:8px; color:#3a6600; font-size:12px; font-weight:600; padding:5px 12px; cursor:pointer; font-family:inherit; }
 .rt-card-add-btn:active { background:#C8FF0022; }
 
 /* ── 운동 상세 모달 ──────────────────────────────────────── */
@@ -175,7 +175,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .ex-modal-bg.open { display:flex; }
 .ex-modal { background:#ffffff; border-radius:20px 20px 0 0; padding:20px 20px calc(32px + env(safe-area-inset-bottom)); width:100%; max-height:90dvh; overflow-y:auto; animation:slideUp .25s ease; border-top:1px solid #e5e5e5; position:relative; }
 @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-.ex-modal-close { position:absolute; top:14px; right:16px; background:none; border:none; color:#C8FF00; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; }
+.ex-modal-close { position:absolute; top:14px; right:16px; background:none; border:none; color:#3a6600; font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; padding:0; }
 .ex-modal-img { width:100%; max-height:240px; object-fit:cover; border-radius:12px; background:#f5f5f0; margin-bottom:16px; display:block; }
 .ex-modal-no-img { width:100%; height:140px; background:#f5f5f0; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:40px; margin-bottom:16px; }
 .ex-modal-name { font-size:22px; font-weight:800; margin-bottom:4px; }
@@ -217,7 +217,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 /* ── 운동카드 (트레이너앱 스타일 · 그린) ─────────────────── */
 .wlog-ex-card { background:#ffffff; border:1px solid #e5e5e5; border-radius:14px; margin-bottom:10px; overflow:hidden; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
 .wlog-ex-head { display:flex; align-items:center; padding:14px 16px; gap:10px; }
-.wlog-ex-order { width:26px; height:26px; border-radius:50%; background:#bbbbbb; color:#3a6600; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+.wlog-ex-order { width:26px; height:26px; border-radius:50%; background:#C8FF0044; color:#3a6600; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
 .wlog-ex-name-area { flex:1; min-width:0; }
 .wlog-ex-name { font-size:14px; font-weight:700; }
 .wlog-ex-sub { font-size:11px; color:#888888; margin-top:2px; }
@@ -228,12 +228,12 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .wlog-set-header span { font-size:10px; color:#888888; text-align:center; }
 .wlog-set-row { display:grid; grid-template-columns:36px 1fr 1fr auto; gap:6px; margin-bottom:6px; align-items:center; }
 .wlog-set-row-end { display:flex; align-items:center; gap:4px; }
-.wlog-set-num { background:#bbbbbb; border-radius:6px; height:38px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#3a6600; }
+.wlog-set-num { background:#C8FF0033; border-radius:6px; height:38px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#3a6600; }
 .wlog-set-input { background:#f9f9f9; border:1.5px solid #e5e5e5; border-radius:10px; padding:10px 6px; font-size:15px; font-weight:700; color:#1a1a1a; text-align:center; outline:none; font-family:inherit; width:100%; -moz-appearance:textfield; height:38px; box-sizing:border-box; }
 .wlog-set-input::-webkit-outer-spin-button, .wlog-set-input::-webkit-inner-spin-button { -webkit-appearance:none; }
 .wlog-set-input:focus { border-color:#3a6600; }
 .wlog-wm-chip { font-size:12px; font-weight:700; border:1.5px solid #e5e5e5; border-radius:10px; cursor:pointer; height:38px; padding:0 8px; transition:background 0.15s; white-space:nowrap; font-family:inherit; }
-.wlog-wm-total { background:#bbbbbb; color:#3a6600; }
+.wlog-wm-total { background:#C8FF0033; color:#3a6600; }
 .wlog-wm-single { background:#f0ffd0; color:#3a6600; }
 .wlog-set-del { background:none; border:none; color:#888888; font-size:18px; cursor:pointer; padding:4px; height:38px; display:flex; align-items:center; justify-content:center; }
 .wlog-set-del:active { color:#f87171; }
@@ -363,7 +363,7 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
   border: 1px solid #e5e5e5;
   border-radius: 8px;
   padding: 10px 14px;
-  color: #fff;
+  color: #1a1a1a;
   font-size: 14px;
   width: 100%;
   box-sizing: border-box;
