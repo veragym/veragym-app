@@ -2710,36 +2710,73 @@ async function scSelectAllTrainers(allOn){
 
 function scRenderDayView(){
   const dv=document.getElementById('scDayView');
-  if(!scSelectedDate){dv.innerHTML='<div style="padding:24px;text-align:center;color:#444;font-size:13px;">날짜를 선택해 주세요</div>';return;}
+  if(!scSelectedDate){dv.innerHTML='<div style="padding:24px;text-align:center;color:#8a7a68;font-size:13px;">날짜를 선택해 주세요</div>';return;}
   const branch=document.getElementById('scBranchSel')?.value||'';
   const allInBranch=scAllInBranch(branch);
   const trainers=allInBranch.filter(t=>t.show_on_chart!==false);
-  // 필터 버튼 카운트 갱신
   const fb=document.getElementById('scBtnFilter');
   if(fb)fb.textContent=`트레이너 ${trainers.length}/${allInBranch.length}`;
-  if(!trainers.length){dv.innerHTML='<div style="padding:24px;text-align:center;color:#444;font-size:13px;">선택된 트레이너 없음 — 상단 "트레이너" 버튼으로 선택해주세요</div>';return;}
+  if(!trainers.length){dv.innerHTML='<div style="padding:24px;text-align:center;color:#8a7a68;font-size:13px;">선택된 트레이너 없음 — 상단 "트레이너" 버튼으로 선택해주세요</div>';return;}
   const dayData=scData.filter(s=>s.sched_date===scSelectedDate&&s.status!=='cancelled');
   const[yr,mo,da]=scSelectedDate.split('-').map(Number);
   const dow=new Date(yr,mo-1,da).getDay();
   const bulkTargets=dayData.filter(s=>(s.type==='PT'||s.type==='SPT')&&(s.status==='scheduled'||s.status==='pending_complete'));
   const bulkBtn=bulkTargets.length?`<button class="sc-bulk-complete-btn" onclick="scBulkCompletePT()">PT 일괄 완료 (${bulkTargets.length}건)</button>`:'';
-  let html=`<div class="sc-dv-header"><span>${mo}/${da}(${SC_DAY[dow]}) · ${branch||'전체 지점'} · 트레이너 ${trainers.length}명 · 수업 ${dayData.length}건</span>${bulkBtn}</div>`;
-  html+='<div class="sc-dv-cols">';
+
+  // ── 시간 그리드 계산 ──────────────────────────────────────
+  const HOUR_PX=68; // 1시간 = 68px
+  const toMin=t=>{const[h,m]=(t||'00:00').split(':').map(Number);return h*60+m;};
+  const starts=dayData.filter(s=>s.start_time).map(s=>toMin(s.start_time));
+  const ends=dayData.filter(s=>s.end_time).map(s=>toMin(s.end_time));
+  const gs=starts.length?Math.floor(Math.min(...starts)/60)*60:9*60;  // 그리드 시작(분)
+  const ge=ends.length?Math.ceil(Math.max(...ends)/60)*60:22*60;      // 그리드 끝(분)
+  const gridH=(ge-gs)*HOUR_PX/60;
+
+  // ── 헤더 행 (트레이너 이름) ─────────────────────────────
+  let hdrHtml=`<div style="display:flex;position:sticky;top:0;z-index:10;background:#fdf8eb;border-bottom:1px solid #ddd4b8;">`;
+  hdrHtml+=`<div style="flex:0 0 36px;border-right:1px solid #ddd4b8;"></div>`;
+  trainers.forEach(trainer=>{
+    hdrHtml+=`<div class="sc-trainer-col-hdr" style="flex:0 0 155px;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 4px;">
+      <span>${esc(trainer.name)}</span>
+      <button onclick="event.stopPropagation();scOpenCreate('${trainer.id}')" title="수업 추가"
+        style="background:#c9a84c22;border:1px solid #c9a84c55;color:#c9a84c;border-radius:99px;width:20px;height:20px;line-height:1;font-size:14px;font-weight:700;cursor:pointer;padding:0;flex-shrink:0;">+</button>
+    </div>`;
+  });
+  hdrHtml+=`</div>`;
+
+  // ── 시간 그리드 본문 ─────────────────────────────────────
+  // 가로 시간선
+  let hLines='';
+  for(let m=gs;m<ge;m+=60){
+    const top=(m-gs)*HOUR_PX/60;
+    hLines+=`<div style="position:absolute;top:${top}px;left:0;right:0;height:1px;background:#ddd4b855;pointer-events:none;"></div>`;
+  }
+
+  let bodyHtml=`<div style="display:flex;">`;
+  // 시간 거터 (36px)
+  bodyHtml+=`<div style="flex:0 0 36px;border-right:1px solid #ddd4b8;position:relative;height:${gridH}px;">`;
+  for(let m=gs;m<ge;m+=60){
+    const top=(m-gs)*HOUR_PX/60;
+    bodyHtml+=`<div style="position:absolute;top:${top}px;right:4px;font-size:10px;color:#a09080;line-height:1;transform:translateY(-50%);">${String(m/60).padStart(2,'0')}</div>`;
+  }
+  bodyHtml+=`</div>`;
+
+  // 트레이너 컬럼
   trainers.forEach(trainer=>{
     const sessions=dayData.filter(s=>s.trainer_id===trainer.id)
       .sort((a,b)=>a.start_time.localeCompare(b.start_time));
-    html+=`<div class="sc-trainer-col">
-      <div class="sc-trainer-col-hdr" style="display:flex;align-items:center;justify-content:center;gap:6px;">
-        <span>${trainer.name}</span>
-        <button onclick="event.stopPropagation();scOpenCreate('${trainer.id}')" title="수업 추가"
-          style="background:#c9a84c22;border:1px solid #c9a84c55;color:#c9a84c;border-radius:99px;width:20px;height:20px;line-height:1;font-size:14px;font-weight:700;cursor:pointer;padding:0;">+</button>
-      </div>`;
+    bodyHtml+=`<div class="sc-trainer-col" style="position:relative;height:${gridH}px;">${hLines}`;
     if(!sessions.length){
-      html+='<div class="sc-trainer-empty">예약 없음</div>';
+      bodyHtml+=`<div class="sc-trainer-empty" style="position:absolute;top:0;left:0;right:0;padding-top:20px;">예약 없음</div>`;
     }else{
       sessions.forEach(s=>{
+        const sm=toMin(s.start_time);
+        const em=toMin(s.end_time||s.start_time);
+        const dur=Math.max(em-sm,0);
+        const top=(sm-gs)*HOUR_PX/60;
+        const cardH=Math.max(dur*HOUR_PX/60-2,30);
         const tStr=s.start_time?s.start_time.slice(0,5):'--:--';
-        const dur=scDurMin(s.start_time,s.end_time);
+        const durReal=scDurMin(s.start_time,s.end_time);
         const sType=s.type||'PT';
         let stxt='';
         if((sType==='PT'||sType==='SPT')&&s.pt_products){
@@ -2748,17 +2785,20 @@ function scRenderDayView(){
         }
         const memName=s.members?.name||sType;
         const sid=s.id;
-        const statusBadge=s.status==='completed'?'<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;background:#4ade8022;border:1px solid #4ade8055;color:#4ade80;margin-left:5px;">완료</span>':s.status==='noshow'?'<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;background:#f59e0b22;border:1px solid #f59e0b55;color:#f59e0b;margin-left:5px;">노쇼</span>':'';
-        html+=`<div class="sc-trainer-sess" onclick="scOpenInfo('${sid}')">
-          <div class="sess-time" style="display:flex;align-items:center;">${tStr} · ${dur}분${sType!=='PT'&&sType!=='SPT'?' · '+sType:''}${statusBadge}</div>
-          <div class="sess-name">${memName}</div>
-          ${stxt?`<div class="sess-sub">${stxt}</div>`:''}
+        const statusBadge=s.status==='completed'?'<span style="font-size:9px;padding:1px 5px;border-radius:99px;background:#4ade8022;border:1px solid #4ade8055;color:#4ade80;">완료</span>':s.status==='noshow'?'<span style="font-size:9px;padding:1px 5px;border-radius:99px;background:#f59e0b22;border:1px solid #f59e0b55;color:#f59e0b;">노쇼</span>':s.status==='pending_complete'?'<span style="font-size:9px;padding:1px 5px;border-radius:99px;background:#3b82f622;border:1px solid #3b82f655;color:#3b82f6;">대기</span>':'';
+        bodyHtml+=`<div class="sc-trainer-sess" onclick="scOpenInfo('${sid}')" style="position:absolute;left:2px;right:2px;top:${top}px;height:${cardH}px;overflow:hidden;padding:4px 6px;box-sizing:border-box;border-radius:6px;">
+          <div class="sess-time" style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">${esc(tStr)} · ${esc(String(durReal))}분${sType!=='PT'&&sType!=='SPT'?' · '+esc(sType):''}${statusBadge}</div>
+          <div class="sess-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(memName)}</div>
+          ${stxt&&cardH>46?`<div class="sess-sub">${esc(stxt)}</div>`:''}
         </div>`;
       });
     }
-    html+='</div>';
+    bodyHtml+=`</div>`;
   });
-  html+='</div>';
+  bodyHtml+=`</div>`;
+
+  let html=`<div class="sc-dv-header"><span>${mo}/${da}(${SC_DAY[dow]}) · ${branch||'전체 지점'} · 트레이너 ${trainers.length}명 · 수업 ${dayData.length}건</span>${bulkBtn}</div>`;
+  html+=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">${hdrHtml}${bodyHtml}</div>`;
   dv.innerHTML=html;
 }
 
