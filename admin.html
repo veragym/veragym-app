@@ -2736,8 +2736,11 @@ function scRenderDayView(){
   let hdrHtml=`<div style="display:flex;position:sticky;top:0;z-index:10;background:#fdf8eb;border-bottom:1px solid #ddd4b8;">`;
   hdrHtml+=`<div style="flex:0 0 36px;border-right:1px solid #ddd4b8;"></div>`;
   trainers.forEach(trainer=>{
-    hdrHtml+=`<div class="sc-trainer-col-hdr" style="flex:0 0 155px;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 4px;">
-      <span>${esc(trainer.name)}</span>
+    const locTag=(!branch&&trainer.gym_location)
+      ?`<div style="font-size:9px;color:#a09080;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:115px;">${esc(trainer.gym_location)}</div>`
+      :'';
+    hdrHtml+=`<div class="sc-trainer-col-hdr" style="flex:0 0 155px;height:48px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:4px;padding:4px 4px;">
+      <div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;">${locTag}<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:115px;">${esc(trainer.name)}</span></div>
       <button onclick="event.stopPropagation();scOpenCreate('${trainer.id}')" title="수업 추가"
         style="background:#c9a84c22;border:1px solid #c9a84c55;color:#c9a84c;border-radius:99px;width:20px;height:20px;line-height:1;font-size:14px;font-weight:700;cursor:pointer;padding:0;flex-shrink:0;">+</button>
     </div>`;

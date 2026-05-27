@@ -137,20 +137,20 @@ async function routinePickerOpen(options) {
 
   const sheet = document.createElement('div');
   sheet.style.cssText = `
-    background:#1a2636;width:100%;max-height:70vh;
+    background:#ffffff;width:100%;max-height:70vh;
     border-radius:16px 16px 0 0;overflow:hidden;display:flex;flex-direction:column;
   `;
 
   // 헤더
   const header = document.createElement('div');
   header.style.cssText = `
-    padding:16px 20px;border-bottom:1px solid #2a3a4a;
+    padding:16px 20px;border-bottom:1px solid #bfdbfe;
     display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
   `;
   header.innerHTML = `
-    <span style="font-size:15px;font-weight:700;color:#e0eaf4;">루틴 불러오기</span>
+    <span style="font-size:15px;font-weight:700;color:#0f172a;">루틴 불러오기</span>
     <button onclick="document.getElementById('routinePickerOverlay').remove()"
-      style="background:none;border:none;color:#8aa8c4;font-size:20px;cursor:pointer;line-height:1;">✕</button>
+      style="background:none;border:none;color:#64748b;font-size:20px;cursor:pointer;line-height:1;">✕</button>
   `;
 
   // 목록
@@ -159,7 +159,7 @@ async function routinePickerOpen(options) {
 
   if (routines.length === 0) {
     list.innerHTML = `
-      <div style="padding:32px;text-align:center;color:#8aa8c4;font-size:14px;">
+      <div style="padding:32px;text-align:center;color:#64748b;font-size:14px;">
         저장된 루틴이 없습니다.<br>수업일지에서 운동 구성 후 루틴으로 저장해 보세요.
       </div>`;
   } else {
@@ -170,20 +170,20 @@ async function routinePickerOpen(options) {
       routineMap[r.id] = r;
       const item = document.createElement('div');
       item.style.cssText = `
-        padding:14px 20px;cursor:pointer;border-bottom:1px solid #1e2e3e;
+        padding:14px 20px;cursor:pointer;border-bottom:1px solid #e8f4ff;
         display:flex;align-items:center;gap:12px;
       `;
       item.dataset.rid = r.id;
       const nameSpan = document.createElement('span');
-      nameSpan.style.cssText = 'flex:1;font-size:14px;color:#e0eaf4;';
+      nameSpan.style.cssText = 'flex:1;font-size:14px;color:#0f172a;';
       nameSpan.textContent = r.name;
       item.appendChild(nameSpan);
       const copyBtn = document.createElement('button');
       copyBtn.textContent = '링크복사';
-      copyBtn.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:6px;background:transparent;border:1px solid #1e3a5f44;color:#8aa8c4;cursor:pointer;margin-left:4px;font-family:inherit;flex-shrink:0;';
+      copyBtn.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:6px;background:transparent;border:1px solid #bfdbfe;color:#64748b;cursor:pointer;margin-left:4px;font-family:inherit;flex-shrink:0;';
       copyBtn.addEventListener('click', (ev) => { ev.stopPropagation(); copyShareLink(r.id, 'trainer_routines'); });
       const dateSpan = document.createElement('span');
-      dateSpan.style.cssText = 'font-size:11px;color:#8aa8c4;';
+      dateSpan.style.cssText = 'font-size:11px;color:#94a3b8;';
       dateSpan.textContent = r.created_at.slice(0,10);
       item.appendChild(dateSpan);
       item.appendChild(copyBtn);
@@ -329,20 +329,20 @@ function routineSaveModalOpen(trainerId, exercises) {
   `;
 
   overlay.innerHTML = `
-    <div style="background:#1a2636;border-radius:14px;padding:24px;width:100%;max-width:360px;">
-      <div style="font-size:15px;font-weight:700;color:#e0eaf4;margin-bottom:16px;">루틴으로 저장</div>
-      <div style="font-size:12px;color:#8aa8c4;margin-bottom:8px;">
+    <div style="background:#ffffff;border-radius:14px;padding:24px;width:100%;max-width:360px;border:1px solid #bfdbfe;">
+      <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:16px;">루틴으로 저장</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:8px;">
         운동 ${exercises.length}개가 포함됩니다
       </div>
       <input id="routineNameInput" type="text" placeholder="루틴 이름을 입력하세요"
         style="width:100%;box-sizing:border-box;padding:10px 12px;
-               background:#0d1b2a;border:1px solid #2a3a4a;border-radius:8px;
-               color:#e0eaf4;font-size:14px;outline:none;margin-bottom:16px;"
+               background:#f0f9ff;border:1px solid #bfdbfe;border-radius:8px;
+               color:#0f172a;font-size:14px;outline:none;margin-bottom:16px;"
         maxlength="30" />
       <div style="display:flex;gap:10px;">
         <button onclick="document.getElementById('routineSaveOverlay').remove()"
-          style="flex:1;padding:11px;background:#1e2e3e;border:none;border-radius:8px;
-                 color:#8aa8c4;font-size:14px;cursor:pointer;">취소</button>
+          style="flex:1;padding:11px;background:#f1f5f9;border:none;border-radius:8px;
+                 color:#64748b;font-size:14px;cursor:pointer;">취소</button>
         <button id="routineSaveConfirmBtn"
           style="flex:1;padding:11px;background:#3b82f6;border:none;border-radius:8px;
                  color:#fff;font-size:14px;font-weight:600;cursor:pointer;">저장</button>

@@ -729,19 +729,19 @@ async function buildCanvas(memberName, programName) {
   }
 
   // ── 배경 + 헤더 ──────────────────────────────────────────
-  ctx.fillStyle = '#080e1a'; ctx.fillRect(0, 0, W, totalH);
-  ctx.fillStyle = '#0d1525'; ctx.fillRect(0, 0, W, HEADER_H);
-  ctx.fillStyle = '#1e3a5f33'; ctx.fillRect(0, HEADER_H - 1, W, 1);
+  ctx.fillStyle = '#f8faff'; ctx.fillRect(0, 0, W, totalH);
+  ctx.fillStyle = '#eff6ff'; ctx.fillRect(0, 0, W, HEADER_H);
+  ctx.fillStyle = '#bfdbfe'; ctx.fillRect(0, HEADER_H - 1, W, 1);
 
   // 로고
   ctx.font = `bold 46px ${FONT}`;
-  ctx.fillStyle = '#ffffff'; ctx.fillText('VERA', PAD, 64);
+  ctx.fillStyle = '#0f172a'; ctx.fillText('VERA', PAD, 64);
   const vW = ctx.measureText('VERA').width;
   ctx.fillStyle = '#3b82f6'; ctx.fillText('GYM', PAD + vW + 6, 64);
 
   // 회원명 + 프로그램명
   ctx.font = `bold 36px ${FONT}`;
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#0f172a';
   ctx.fillText(`'${memberName}'님`, PAD, 116);
   if (programName) {
     const nmW = ctx.measureText(`'${memberName}'님`).width;
@@ -763,7 +763,7 @@ async function buildCanvas(memberName, programName) {
       const img = imgMap[i];
       const scale = Math.min(COL / img.naturalWidth, imgH / img.naturalHeight);
       const iW = img.naturalWidth * scale, iH = img.naturalHeight * scale;
-      ctx.fillStyle = '#0d1a2e'; ctx.fillRect(PAD, y, COL, imgH);
+      ctx.fillStyle = '#dbeafe'; ctx.fillRect(PAD, y, COL, imgH);
       ctx.drawImage(img, PAD + (COL - iW) / 2, y + (imgH - iH) / 2, iW, iH);
       ctx.restore();
       y += imgH + 18;
@@ -774,18 +774,18 @@ async function buildCanvas(memberName, programName) {
     ctx.fillStyle = '#3b82f6';
     ctx.fillText(`${i + 1}.`, PAD, y + 32);
     const numW = ctx.measureText(`${i + 1}. `).width + 2;
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#0f172a';
     ctx.fillText(ex.name, PAD + numW, y + 32);
     if (cat) {
-      ctx.font = `22px ${FONT}`; ctx.fillStyle = '#4a6580';
+      ctx.font = `22px ${FONT}`; ctx.fillStyle = '#64748b';
       ctx.fillText(cat, PAD + numW, y + 58);
     }
     y += NAME_H;
 
     // 세트 헤더
     const colW = COL / 3;
-    ctx.fillStyle = '#0a1525'; rRect(PAD, y, COL, SET_HDR, 8); ctx.fill();
-    ctx.font = `20px ${FONT}`; ctx.fillStyle = '#3a5878'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#dbeafe'; rRect(PAD, y, COL, SET_HDR, 8); ctx.fill();
+    ctx.font = `20px ${FONT}`; ctx.fillStyle = '#3b82f6'; ctx.textAlign = 'center';
     ctx.fillText('세트', PAD + colW * 0.5, y + 26);
     const weightLabel = ex.weight_mode === 'single' ? '한쪽 (kg)' : '무게 (kg)';
     ctx.fillText(weightLabel, PAD + colW * 1.5, y + 26);
@@ -794,11 +794,11 @@ async function buildCanvas(memberName, programName) {
 
     // 세트 행
     ex.sets.forEach((s, si) => {
-      ctx.fillStyle = si % 2 === 0 ? '#0d1a2e' : '#091422';
+      ctx.fillStyle = si % 2 === 0 ? '#f0f9ff' : '#e8f4ff';
       ctx.fillRect(PAD, y, COL, SET_ROW);
       ctx.textAlign = 'center'; ctx.font = `24px ${FONT}`;
-      ctx.fillStyle = '#5a7898'; ctx.fillText(String(si + 1), PAD + colW * 0.5, y + 28);
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#3b82f6'; ctx.fillText(String(si + 1), PAD + colW * 0.5, y + 28);
+      ctx.fillStyle = '#0f172a';
       const wDisp = (ex.weight_mode === 'single' && s.weight > 0)
         ? `${s.weight}×2`
         : (s.weight !== undefined ? String(s.weight) : '─');
@@ -809,14 +809,14 @@ async function buildCanvas(memberName, programName) {
 
     // 구분선
     if (i < exercises.length - 1) {
-      y += 16; ctx.fillStyle = '#1e3a5f33'; ctx.fillRect(PAD, y, COL, 1); y += EX_SEP;
+      y += 16; ctx.fillStyle = '#bfdbfe'; ctx.fillRect(PAD, y, COL, 1); y += EX_SEP;
     } else { y += EX_SEP; }
   }
 
   // ── 푸터 ─────────────────────────────────────────────────
   const fy = totalH - FOOTER_H;
-  ctx.fillStyle = '#1e3a5f22'; ctx.fillRect(0, fy, W, 1);
-  ctx.font = `22px ${FONT}`; ctx.fillStyle = '#2a4060'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#bfdbfe'; ctx.fillRect(0, fy, W, 1);
+  ctx.font = `22px ${FONT}`; ctx.fillStyle = '#64748b'; ctx.textAlign = 'center';
   ctx.fillText('VERA GYM | 트레이너 맞춤 프로그램', W / 2, fy + 44);
   ctx.textAlign = 'left';
 
