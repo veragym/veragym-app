@@ -464,6 +464,39 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
 .sc-warn { background:#fdf8eb !important; border-color:#c9a84c44 !important; color:#a8893a !important; }
 .toast { background:#fdf8eb !important; color:#a8893a !important; border-color:#c9a84c44 !important; }
 #memberSearchInput { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; caret-color:#c9a84c !important; }
+
+/* ── 일정탭 inline style 요소 ── */
+#scDayView { background:#fafaf7 !important; }
+#scDatePills { background:#fffff8 !important; border-bottom-color:#ddd4b8 !important; }
+#scFilterPanel { background:#f8f7f3 !important; border-bottom-color:#ddd4b8 !important; }
+#scBtnFilter { background:#f0edd8 !important; border-color:#ddd4b8 !important; color:#c9a84c !important; }
+.sc-date-pill { border-right-color:#e8e0cc !important; }
+
+/* ── 일정 모달 입력 (inline style #1a2a3a) ── */
+#scEditDate, #scEditStart, #scEditEnd,
+#scCrDate, #scCrStart, #scCrDuration, #scCrTrainer,
+#scCrMember, #scCrProduct, #scCrNotes { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
+#scConfirmMsg { color:#3a3020 !important; }
+#scEditArea > div > div > div { color:#7a6a58 !important; }
+
+/* ── 매출관리 inline style 요소 ── */
+#revGymSelect { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
+#revSub-forecast > div:nth-child(2),
+#revSub-forecast > div:nth-child(3) { background:#ffffff !important; border-color:#ddd4b8 !important; }
+#adminRevForecast { color:#1a1a14 !important; }
+
+/* ── 트레이너 카드 이름 (JS 생성 color:#fff) ── */
+.adm-trainer-card > div > span { color:#1a1a14 !important; }
+
+/* ── 회원 상세 모달 inline style 요소 ── */
+#mNotes, #ptNotes, #editPtNotes, #admUnregReasonText { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
+#statusOverrideSelect { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
+#ctContractName { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#7a6a58 !important; }
+
+/* ── 운동DB 상세 모달 ── */
+#exDetailImg { background:#f0edd8 !important; }
+#exDetailMuscles { background:#f4f2ec !important; color:#3a3020 !important; }
+#exEditPrimary, #exEditSyn1, #exEditSyn2 { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
 </style>
 </head>
 <body>
@@ -3748,7 +3781,7 @@ function renderAdminTrainerList() {
 
     return `<div class="adm-trainer-card">
       <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleAdminTrainerDetail(this.closest('.adm-trainer-card'),'${t.id}','${month}')">
-        <span style="font-size:14px;font-weight:600;color:#fff">${esc(t.name)}</span>
+        <span style="font-size:14px;font-weight:600;color:#1a1a14">${esc(t.name)}</span>
         <div style="text-align:right">
           <div style="font-size:14px;font-weight:700;color:#c9a84c">${_admFmtWon(fcTotal)}</div>
           <div style="font-size:11px;color:#666">${fcCount}건</div>
@@ -3780,7 +3813,7 @@ function admRenderForecastDetail(detail, forecasts) {
       ? 'background:#1e3a5f66;color:#93c5fd'
       : isReg ? 'background:#16a34a33;color:#4ade80' : 'background:#7f1d1d44;color:#f87171';
     const badgeText = isPending ? '대기' : isReg ? '등록' : '미등록';
-    const nameColor = isUnreg ? '#f87171' : isPending ? '#93c5fd' : '#ddd';
+    const nameColor = isUnreg ? '#ef4444' : isPending ? '#3b82f6' : '#1a1a14';
     return `<div class="adm-fc-item${isUnreg?' unreg':''}" id="adm-fc-${f.id}">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:13px;font-weight:600;color:${nameColor}">${esc(f.member_name)}</span>
