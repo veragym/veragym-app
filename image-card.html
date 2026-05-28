@@ -332,8 +332,7 @@ body { background:#f8faff !important; color:#0f172a !important; }
 <!-- 하단 버튼 -->
 <div class="add-bar">
   <button class="btn-add-ex vb vb-md vb-secondary" onclick="openSearch()">＋ 운동 추가</button>
-  <button class="btn-add-ex vb vb-md vb-ghost"
-    onclick="routinePickerOpen({ trainerId: trainer?.id, onSelect: loadRoutineIntoImageCard, withImageUrl: true })">
+  <button class="btn-add-ex vb vb-md vb-ghost" onclick="openRoutineModal()">
     루틴 불러오기
   </button>
   <button class="btn-gen-img vb vb-md vb-primary-gradient" id="btnGenImg" onclick="generateImage()">이미지 생성</button>
@@ -833,6 +832,12 @@ function showToast(msg) {
 }
 
 init();
+
+function openRoutineModal() {
+  if (!trainer) { showToast('인증 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+  routinePickerOpen({ trainerId: trainer.id, onSelect: loadRoutineIntoImageCard, withImageUrl: true })
+    .catch(e => { console.error('routinePickerOpen:', e); showToast('루틴 불러오기 오류'); });
+}
 
 // ─── 루틴 불러오기 콜백 (image-card 전용: image_url 포함) ───
 async function loadRoutineIntoImageCard(routineExs) {
