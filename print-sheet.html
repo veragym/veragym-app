@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="베라짐 트레이너">
+<meta name="theme-color" content="#3b82f6">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PT처방전 | A4 출력</title>
+<style>
+/* ─── 앱 공통 ────────────────────────────────────────── */
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: -apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif;
+  background:#f8faff; color:#0f172a;
+  min-height:100dvh; padding-bottom:80px;
+}
+:root{--blue:#3b82f6;--blue-lt:#60a5fa;--blue-bg:#dbeafe;--orange:#E8660A;}
+
+.header {
+  background:#fff; border-bottom:1px solid #bfdbfe;
+  padding:14px 16px; display:flex; align-items:center; gap:12px;
+  position:sticky; top:0; z-index:100;
+}
+.header-title { font-size:16px; font-weight:800; flex:1; }
+.header-title span { color:var(--blue); }
+.btn-back {
+  background:none; border:1px solid #bfdbfe; border-radius:8px;
+  color:var(--blue); font-size:13px; font-weight:600;
+  padding:7px 12px; cursor:pointer; flex-shrink:0; font-family:inherit;
+}
+.tabs {
+  display:flex; background:#fff; border-bottom:1px solid #bfdbfe;
+  position:sticky; top:57px; z-index:99; overflow-x:auto; scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none;}
+.tab-btn {
+  flex:none; min-width:70px; padding:13px 16px; font-size:12px; font-weight:600;
+  color:#64748b; background:none; border:none; border-bottom:2px solid transparent;
+  cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:inherit;
+}
+.tab-btn.active { color:var(--blue); border-bottom-color:var(--blue); }
+
+/* ─── 설정 패널 ──────────────────────────────────────── */
+.settings {
+  background:#f0f9ff; border-bottom:1px solid #bfdbfe;
+  padding:12px 16px;
+}
+.settings-row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+.settings-row:last-child { margin-bottom:0; }
+.s-label { font-size:11px; color:#64748b; font-weight:600; min-width:70px; flex-shrink:0; }
+.s-input {
+  flex:1; background:#fff; border:1.5px solid #bfdbfe; border-radius:8px;
+  padding:8px 10px; font-size:13px; color:#0f172a; outline:none; font-family:inherit;
+}
+.s-input:focus { border-color:var(--blue); }
+.s-input::placeholder { color:#94a3b8; }
+
+.suggest-btn {
+  background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px;
+  color:var(--blue); font-size:10px; font-weight:700; padding:5px 8px;
+  cursor:pointer; white-space:nowrap; font-family:inherit; flex-shrink:0;
+}
+.suggest-btn:active { background:#dbeafe; }
+
+.sets-toggle {
+  display:flex; gap:6px; align-items:center;
+}
+.sets-opt {
+  background:#fff; border:1.5px solid #bfdbfe; border-radius:6px;
+  color:#64748b; font-size:12px; font-weight:700; padding:5px 10px;
+  cursor:pointer; font-family:inherit;
+}
+.sets-opt.on { background:var(--blue-bg); border-color:var(--blue); color:var(--blue); }
+
+.section-divider {
+  font-size:11px; font-weight:700; color:var(--orange);
+  margin:6px 0 4px; padding-left:2px; letter-spacing:0.3px;
+}
+
+/* ─── A4 시트 미리보기 ──────────────────────────────── */
+.sheet-wrap {
+  padding:20px 16px 10px;
+  display:flex; justify-content:center;
+}
+
+.a4 {
+  background:#fff;
+  width:794px; min-height:1123px;
+  padding:36px 44px 32px;
+  box-shadow:0 0 24px rgba(0,0,0,0.10);
+  font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  font-size:11px; color:#111;
+  transform-origin:top center;
+}
+
+/* ── 시트 헤더 ── */
+.sh-header {
+  display:flex; justify-content:space-between; align-items:flex-end;
+  border-bottom:2.5px solid #111; padding-bottom:8px; margin-bottom:6px;
+}
+.sh-brand { font-size:20px; font-weight:900; letter-spacing:-0.5px; color:#111; }
+.sh-brand span { color:var(--orange); }
+.sh-title { font-size:14px; font-weight:700; color:#444; align-self:center; }
+.sh-meta { text-align:right; font-size:10px; color:#555; line-height:1.8; }
+.sh-meta strong { color:#111; }
+
+/* ── 프로그램 제목 ── */
+.sh-program {
+  background:#f8f8f8; border-left:4px solid var(--orange);
+  padding:6px 10px; margin:8px 0 10px;
+  font-size:12px; font-weight:700; color:#222;
+}
+.sh-program span { color:#666; font-weight:400; font-size:10px; margin-left:6px; }
+
+/* ── 운동 2열 그리드 ── */
+.ex-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:8px 14px; margin-bottom:10px;
+}
+.ex-block { break-inside:avoid; }
+.ex-block-head {
+  display:flex; align-items:center; gap:6px;
+  background:#f0f0f0; padding:4px 8px; border-radius:4px 4px 0 0;
+  border:1px solid #ddd; border-bottom:none;
+}
+.ex-num {
+  width:18px; height:18px; border-radius:50%; background:#111; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; font-weight:900; flex-shrink:0;
+}
+.ex-nm { font-size:11px; font-weight:700; color:#111; }
+.ex-sub-tag {
+  font-size:8.5px; color:#666; background:#e8e8e8;
+  border-radius:3px; padding:1px 5px; white-space:nowrap;
+}
+.ex-table {
+  width:100%; border-collapse:collapse;
+  border:1px solid #ddd; border-top:none;
+}
+.ex-table th {
+  background:#fafafa; border-bottom:1px solid #ddd; border-right:1px solid #e0e0e0;
+  padding:4px 6px; font-size:9px; font-weight:700; color:#555; text-align:center;
+}
+.ex-table th:last-child { border-right:none; }
+.ex-table td {
+  border-bottom:1px solid #eee; border-right:1px solid #eee;
+  padding:5px 6px; text-align:center; font-size:10px; color:#333; height:22px;
+}
+.ex-table td:last-child { border-right:none; }
+.ex-table tr:last-child td { border-bottom:none; }
+.ex-table td.set-n { font-weight:700; color:#555; background:#fafafa; }
+
+/* ── 워밍업 + 스트레칭 ── */
+.wu-section {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:10px; margin-bottom:10px;
+  border-top:1.5px solid #ddd; padding-top:10px;
+}
+.wu-block h4 {
+  font-size:10px; font-weight:900; color:#111;
+  margin-bottom:5px; display:flex; align-items:center; gap:4px;
+}
+.wu-list { list-style:none; }
+.wu-list li {
+  display:flex; gap:6px; align-items:baseline;
+  font-size:10px; color:#333; padding:3px 0;
+  border-bottom:1px dashed #e0e0e0;
+}
+.wu-list li:last-child { border-bottom:none; }
+.wu-list li span { color:#999; font-size:9px; flex-shrink:0; }
+
+/* ── 메모 ── */
+.sh-notes {
+  border-top:1.5px solid #ddd; padding-top:8px; margin-bottom:8px;
+}
+.sh-notes h4 { font-size:10px; font-weight:900; color:#111; margin-bottom:6px; }
+.note-lines { display:flex; flex-direction:column; gap:5px; }
+.note-line { border-bottom:1px solid #ccc; height:18px; }
+
+/* ── 시트 푸터 ── */
+.sh-footer {
+  display:flex; justify-content:space-between; align-items:center;
+  border-top:1.5px solid #111; padding-top:6px; margin-top:6px;
+}
+.sh-footer-brand { font-size:10px; font-weight:900; color:#111; }
+.sh-footer-brand span { color:var(--orange); }
+.sh-footer-sub { font-size:9px; color:#888; }
+
+/* ─── 하단 액션바 ──────────────────────────────────────── */
+.action-bar {
+  position:fixed; bottom:0; left:0; right:0;
+  background:#fff; border-top:1px solid #bfdbfe;
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  display:flex; gap:8px; z-index:100;
+}
+.act-btn {
+  flex:1; border:none; border-radius:12px; padding:14px;
+  font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;
+}
+.act-print { background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; }
+.act-save  { background:linear-gradient(135deg,#E8660A,#c45508); color:#fff; }
+.act-back  { background:#f0f9ff; color:#3b82f6; border:1.5px solid #bfdbfe; flex:0.6; }
+
+/* ─── 인쇄 CSS ───────────────────────────────────────── */
+@media print {
+  @page { size:A4 portrait; margin:0; }
+  body * { visibility:hidden; }
+  .a4, .a4 * { visibility:visible; }
+  .a4 {
+    position:fixed; top:0; left:0;
+    width:210mm; min-height:297mm;
+    padding:10mm 12mm 8mm;
+    box-shadow:none;
+    font-size:9pt;
+    margin:0;
+    transform:none !important;
+  }
+  .sh-brand { font-size:16pt; }
+  .sh-program { font-size:10pt; }
+  .ex-nm { font-size:9pt; }
+}
+</style>
+</head>
+<body>
+
+<div id="toast" style="position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#dbeafe;color:#1d4ed8;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:opacity 0.3s;z-index:999;white-space:nowrap;pointer-events:none;border:1px solid #93c5fd;"></div>
+
+<!-- 헤더 -->
+<div class="header">
+  <button class="btn-back" onclick="location.href='image-card.html'">← 이미지생성</button>
+  <div class="header-title">VERA<span>GYM</span> <span style="color:#E8660A;font-size:13px;">A4 출력지</span></div>
+</div>
+
+<!-- 탭 -->
+<div class="tabs">
+  <button class="tab-btn" onclick="location.href='trainer-dash.html'">내 회원</button>
+  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=logs'">수업일지</button>
+  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=schedule'">일정</button>
+  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=spt'">SPT</button>
+  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=revenue'">매출관리</button>
+  <button class="tab-btn" onclick="location.href='exercise-library.html'">운동DB</button>
+  <button class="tab-btn active">이미지생성</button>
+</div>
+
+<!-- 설정 패널 -->
+<div class="settings" id="settingsPanel">
+
+  <!-- 날짜/메모 -->
+  <div class="settings-row">
+    <span class="s-label">📅 날짜</span>
+    <input class="s-input" id="cfgDate" type="date" style="flex:0.6;max-width:160px;">
+    <span class="s-label" style="margin-left:8px;">📝 오늘 포인트</span>
+    <input class="s-input" id="cfgNote" placeholder="예) 스쿼트 무릎 안쪽 주의">
+  </div>
+
+  <!-- 세트 수 -->
+  <div class="settings-row">
+    <span class="s-label">📋 세트 수</span>
+    <div class="sets-toggle">
+      <button class="sets-opt" data-n="3" onclick="setSetsCount(3)">3세트</button>
+      <button class="sets-opt" data-n="4" onclick="setSetsCount(4)">4세트</button>
+      <button class="sets-opt" data-n="5" onclick="setSetsCount(5)">5세트</button>
+      <button class="sets-opt" data-n="custom" onclick="setSetsCount('custom')">운동별</button>
+    </div>
+  </div>
+
+  <div class="section-divider">🔥 추천 워밍업</div>
+  <div class="settings-row">
+    <span class="s-label">① </span>
+    <input class="s-input" id="wu1" placeholder="워밍업 1">
+  </div>
+  <div class="settings-row">
+    <span class="s-label">② </span>
+    <input class="s-input" id="wu2" placeholder="워밍업 2">
+  </div>
+  <div class="settings-row">
+    <span class="s-label">③ </span>
+    <input class="s-input" id="wu3" placeholder="워밍업 3">
+    <button class="suggest-btn" onclick="suggestWarmup()">자동 추천</button>
+  </div>
+
+  <div class="section-divider">🧘 추천 스트레칭</div>
+  <div class="settings-row">
+    <span class="s-label">① </span>
+    <input class="s-input" id="st1" placeholder="스트레칭 1">
+  </div>
+  <div class="settings-row">
+    <span class="s-label">② </span>
+    <input class="s-input" id="st2" placeholder="스트레칭 2">
+  </div>
+  <div class="settings-row">
+    <span class="s-label">③ </span>
+    <input class="s-input" id="st3" placeholder="스트레칭 3">
+    <button class="suggest-btn" onclick="suggestStretch()">자동 추천</button>
+  </div>
+
+  <div style="text-align:right;margin-top:8px;">
+    <button class="suggest-btn" style="font-size:11px;padding:6px 12px;" onclick="renderSheet()">🔄 미리보기 갱신</button>
+  </div>
+</div>
+
+<!-- A4 시트 미리보기 -->
+<div class="sheet-wrap">
+  <div class="a4" id="a4Sheet">
+    <!-- JS로 채움 -->
+    <div style="text-align:center;padding:60px 0;color:#aaa;font-size:13px;">
+      운동 데이터를 불러오는 중...
+    </div>
+  </div>
+</div>
+
+<!-- 액션 바 -->
+<div class="action-bar">
+  <button class="act-btn act-back" onclick="location.href='image-card.html'">← 돌아가기</button>
+  <button class="act-btn act-save" onclick="saveAsImage()">📥 이미지 저장</button>
+  <button class="act-btn act-print" onclick="window.print()">🖨️ 인쇄 / PDF</button>
+</div>
+
+<script>
+// ── 데이터 로드 ───────────────────────────────────────────
+let sheetData = null;
+let setsCount = 3; // 'custom' | 3 | 4 | 5
+
+const WARMUP = {
+  '하체': ['자전거 10분','레그 스윙 앞뒤 10회×2','힙 써클 각 방향 10회×2'],
+  '상체': ['암 써클 각 방향 10회×2','저항 밴드 당기기 15회×2','팔 교차 스윙 10회×2'],
+  '가슴': ['워밍업 푸시업 15회×2','암 써클 10회×2','가슴 오픈 스트레칭 30초×2'],
+  '등':   ['암 써클 10회×2','저항 밴드 로우 15회×2','캣-카우 10회×2'],
+  '어깨': ['숄더 써클 각 방향 10회×2','밴드 패이스풀 15회×2','암 크로스 10회×2'],
+  '팔':   ['손목 써클 10회×2','암 스윙 10회×2','저항 밴드 컬 15회×2'],
+  '코어': ['브리징 15회×2','캣-카우 10회×2','데드버그 10회×2'],
+  '전신': ['점프로프 2분','자전거 5분','동적 스트레칭 5분'],
+  'default': ['유산소 5~10분','동적 스트레칭 5분','가동성 운동 10회×2'],
+};
+const STRETCH = {
+  '하체': ['대퇴사두근 스트레칭 30초×2','햄스트링 스트레칭 30초×2','장딴지 스트레칭 30초×2'],
+  '상체': ['흉부 스트레칭 30초×2','어깨 크로스 스트레칭 30초×2','삼두근 스트레칭 30초×2'],
+  '가슴': ['대흉근 도어 스트레칭 30초×2','흉부 오픈 스트레칭 30초×2','어깨 크로스 스트레칭 30초×2'],
+  '등':   ['아동 자세 30초×2','등 회전 스트레칭 30초×2','고양이 스트레칭 30초×2'],
+  '어깨': ['어깨 크로스 스트레칭 30초×2','삼두근 스트레칭 30초×2','목 측면 스트레칭 30초×2'],
+  '팔':   ['이두근 벽 스트레칭 30초×2','삼두근 머리 위 스트레칭 30초×2','손목 굴신 스트레칭 30초×2'],
+  '코어': ['코브라 스트레칭 30초×2','배 비틀기 스트레칭 30초×2','고관절 굴근 스트레칭 30초×2'],
+  '전신': ['전신 신전 30초×2','고관절 굴근 30초×2','허리 회전 스트레칭 30초×2'],
+  'default': ['호흡 정상화','전신 스트레칭 30초×2','쿨다운 워킹 5분'],
+};
+
+function dominantPart(exercises) {
+  const cnt = {};
+  exercises.forEach(e => { cnt[e.part] = (cnt[e.part]||0)+1; });
+  return Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0]?.[0] || '';
+}
+
+function suggestWarmup() {
+  if (!sheetData) return;
+  const part = dominantPart(sheetData.exercises);
+  const preset = WARMUP[part] || WARMUP['default'];
+  document.getElementById('wu1').value = preset[0] || '';
+  document.getElementById('wu2').value = preset[1] || '';
+  document.getElementById('wu3').value = preset[2] || '';
+  renderSheet();
+}
+function suggestStretch() {
+  if (!sheetData) return;
+  const part = dominantPart(sheetData.exercises);
+  const preset = STRETCH[part] || STRETCH['default'];
+  document.getElementById('st1').value = preset[0] || '';
+  document.getElementById('st2').value = preset[1] || '';
+  document.getElementById('st3').value = preset[2] || '';
+  renderSheet();
+}
+
+function setSetsCount(n) {
+  setsCount = n;
+  document.querySelectorAll('.sets-opt').forEach(b => {
+    b.classList.toggle('on', b.dataset.n == String(n));
+  });
+  renderSheet();
+}
+
+// ── 시트 렌더 ─────────────────────────────────────────────
+function getSetRows(ex) {
+  if (setsCount === 'custom') return ex.sets?.length || 3;
+  return setsCount;
+}
+
+function renderSheet() {
+  if (!sheetData) return;
+  const { member, program, trainer, exercises } = sheetData;
+  const dateVal = document.getElementById('cfgDate').value;
+  const dateStr = dateVal
+    ? new Date(dateVal).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'})
+    : '　　　년　　월　　일';
+  const note    = document.getElementById('cfgNote').value.trim();
+  const wu      = [1,2,3].map(i => document.getElementById(`wu${i}`).value.trim());
+  const st      = [1,2,3].map(i => document.getElementById(`st${i}`).value.trim());
+
+  // ── 운동 2열 그리드 ──
+  const MAX_EX = 6;
+  const exs = exercises.slice(0, MAX_EX);
+  // Pad to even number for 2-column
+  while (exs.length < 2) exs.push(null);
+  if (exs.length % 2 !== 0 && exs.length < MAX_EX) exs.push(null);
+
+  const exHtml = exs.map((ex, i) => {
+    if (!ex) return '<div class="ex-block"></div>';
+    const n = getSetRows(ex);
+    const rows = Array.from({length: n}, (_, si) => {
+      const tgt = ex.sets?.[si];
+      const w = tgt?.weight ? `<span style="color:#bbb;font-size:9px;">${tgt.weight}</span>` : '';
+      const r = tgt?.reps   ? `<span style="color:#bbb;font-size:9px;">${tgt.reps}</span>` : '';
+      return `<tr>
+        <td class="set-n">${si+1}</td>
+        <td>${w}</td>
+        <td>${r}</td>
+      </tr>`;
+    }).join('');
+    const tagHtml = (ex.part||ex.tool)
+      ? `<span class="ex-sub-tag">${[ex.part,ex.tool].filter(Boolean).join(' · ')}</span>` : '';
+    return `
+      <div class="ex-block">
+        <div class="ex-block-head">
+          <div class="ex-num">${i+1}</div>
+          <div class="ex-nm">${ex.name}</div>
+          ${tagHtml}
+        </div>
+        <table class="ex-table">
+          <tr>
+            <th style="width:28px;">세트</th>
+            <th>무게 (kg)</th>
+            <th>횟수</th>
+          </tr>
+          ${rows}
+        </table>
+      </div>`;
+  }).join('');
+
+  // ── 워밍업 / 스트레칭 ──
+  function listHtml(items) {
+    return items.map((txt, i) => `
+      <li>
+        <span>${i+1}.</span>
+        ${txt || '<span style="color:#ddd;">　　　　　　　　　　　　</span>'}
+      </li>`).join('');
+  }
+
+  // ── 전체 HTML ──
+  document.getElementById('a4Sheet').innerHTML = `
+    <!-- 헤더 -->
+    <div class="sh-header">
+      <div class="sh-brand">VERA<span>GYM</span></div>
+      <div class="sh-title">PT 처방전</div>
+      <div class="sh-meta">
+        날짜&nbsp; <strong>${dateStr}</strong><br>
+        회원&nbsp; <strong>${member || '　　　　　'}</strong>&nbsp;&nbsp;
+        트레이너&nbsp; <strong>${trainer || '　　　'}</strong>
+      </div>
+    </div>
+
+    <!-- 프로그램명 -->
+    <div class="sh-program">
+      📋 오늘의 운동 프로그램
+      ${program ? `<span>— ${program}</span>` : ''}
+    </div>
+
+    <!-- 운동 2열 그리드 -->
+    <div class="ex-grid">${exHtml}</div>
+
+    <!-- 워밍업 + 스트레칭 -->
+    <div class="wu-section">
+      <div class="wu-block">
+        <h4>🔥 추천 워밍업</h4>
+        <ul class="wu-list">${listHtml(wu)}</ul>
+      </div>
+      <div class="wu-block">
+        <h4>🧘 추천 스트레칭</h4>
+        <ul class="wu-list">${listHtml(st)}</ul>
+      </div>
+    </div>
+
+    <!-- 메모 -->
+    <div class="sh-notes">
+      <h4>📝 오늘의 포인트 / 트레이너 메모</h4>
+      ${note
+        ? `<div style="font-size:11px;color:#222;padding:4px 0;border-bottom:1px solid #ccc;">${note}</div>`
+        : '<div class="note-lines"><div class="note-line"></div><div class="note-line"></div></div>'}
+    </div>
+
+    <!-- 푸터 -->
+    <div class="sh-footer">
+      <div class="sh-footer-brand">VERA<span>GYM</span></div>
+      <div class="sh-footer-sub">트레이너 맞춤 운동 처방전 · 함께 만들어가는 몸</div>
+      <div class="sh-footer-sub" style="text-align:right;">작성: ${trainer||'트레이너'}</div>
+    </div>
+  `;
+}
+
+// ── 이미지 저장 (Canvas) ─────────────────────────────────
+async function saveAsImage() {
+  showToast('이미지 생성 중...');
+  const sheet = sheetData;
+  if (!sheet) { showToast('데이터 없음'); return; }
+
+  const canvas = document.createElement('canvas');
+  const DPR = 2;
+  const W = 794, H = 1123;
+  canvas.width = W * DPR; canvas.height = H * DPR;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+
+  const FONT = `'Apple SD Gothic Neo','Noto Sans KR',sans-serif`;
+  const dateVal = document.getElementById('cfgDate').value;
+  const dateStr = dateVal
+    ? new Date(dateVal).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'})
+    : '　　　년　　월　　일';
+  const note = document.getElementById('cfgNote').value.trim();
+  const wu   = [1,2,3].map(i => document.getElementById(`wu${i}`).value.trim());
+  const st   = [1,2,3].map(i => document.getElementById(`st${i}`).value.trim());
+
+  const PX = 44, PY = 36; // padding
+  const IW = W - PX*2;
+
+  // 흰 배경
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+
+  let y = PY;
+
+  // ── 헤더 ──
+  ctx.font = `900 22px ${FONT}`;
+  ctx.fillStyle = '#111';
+  ctx.fillText('VERA', PX, y + 20);
+  const vw = ctx.measureText('VERA').width;
+  ctx.fillStyle = '#E8660A';
+  ctx.fillText('GYM', PX + vw, y + 20);
+
+  ctx.font = `700 13px ${FONT}`;
+  ctx.fillStyle = '#555';
+  ctx.textAlign = 'center';
+  ctx.fillText('PT 처방전', W/2, y + 20);
+
+  ctx.font = `500 10px ${FONT}`;
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#555';
+  ctx.fillText(`날짜: ${dateStr}`, W - PX, y + 13);
+  ctx.fillText(`회원: ${sheet.member || '　　　'}  트레이너: ${sheet.trainer || '　　'}`, W - PX, y + 27);
+
+  ctx.textAlign = 'left';
+  y += 36;
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(PX, y); ctx.lineTo(W - PX, y); ctx.stroke();
+  y += 8;
+
+  // ── 프로그램 제목 ──
+  ctx.fillStyle = '#f8f8f8';
+  ctx.fillRect(PX, y, IW, 22);
+  ctx.fillStyle = '#E8660A';
+  ctx.fillRect(PX, y, 4, 22);
+  ctx.font = `700 11px ${FONT}`;
+  ctx.fillStyle = '#222';
+  ctx.fillText(`📋 오늘의 운동 프로그램${sheet.program ? ' — '+sheet.program : ''}`, PX + 10, y + 14);
+  y += 28;
+
+  // ── 운동 2열 그리드 ──
+  const exs = sheet.exercises.slice(0, 6);
+  const COL_W = (IW - 10) / 2;
+  const TH = 18, TR = 20;
+  const exPad = 6;
+
+  for (let i = 0; i < 6; i += 2) {
+    const ex1 = exs[i];
+    const ex2 = exs[i+1];
+    const n1 = ex1 ? getSetRows(ex1) : 0;
+    const n2 = ex2 ? getSetRows(ex2) : 0;
+    const rowH = Math.max(n1, n2);
+    const blockH = 20 + TH + TR * rowH + exPad;
+
+    for (let col = 0; col < 2; col++) {
+      const ex = col === 0 ? ex1 : ex2;
+      const idx = i + col;
+      const cx = PX + col * (COL_W + 10);
+      if (!ex) continue;
+
+      // 헤더 행
+      ctx.fillStyle = '#f0f0f0';
+      ctx.fillRect(cx, y, COL_W, 20);
+      ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1;
+      ctx.strokeRect(cx, y, COL_W, 20);
+
+      // 번호
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.arc(cx + 11, y + 10, 8, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = `900 8px ${FONT}`;
+      ctx.textAlign = 'center';
+      ctx.fillText(String(idx+1), cx + 11, y + 13);
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#111';
+      ctx.font = `700 10px ${FONT}`;
+      ctx.fillText(ex.name, cx + 24, y + 13);
+      if (ex.part || ex.tool) {
+        const tag = [ex.part, ex.tool].filter(Boolean).join(' · ');
+        const nm = ctx.measureText(ex.name).width;
+        ctx.fillStyle = '#666'; ctx.font = `500 8px ${FONT}`;
+        ctx.fillText(tag, cx + 26 + nm, y + 13);
+      }
+
+      // 테이블 헤더
+      const ty = y + 20;
+      ctx.fillStyle = '#fafafa';
+      ctx.fillRect(cx, ty, COL_W, TH);
+      ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1;
+      ctx.strokeRect(cx, ty, COL_W, TH);
+      const cols = [28, (COL_W-28)/2, (COL_W-28)/2];
+      const colX = [cx, cx+28, cx+28+cols[1]];
+      ctx.fillStyle = '#555'; ctx.font = `700 8px ${FONT}`;
+      ctx.textAlign = 'center';
+      ctx.fillText('세트', colX[0]+14, ty+12);
+      ctx.fillText('무게(kg)', colX[1]+cols[1]/2, ty+12);
+      ctx.fillText('횟수', colX[2]+cols[2]/2, ty+12);
+      // 세로선
+      ctx.strokeStyle = '#e0e0e0';
+      [colX[1], colX[2]].forEach(lx => {
+        ctx.beginPath(); ctx.moveTo(lx, ty); ctx.lineTo(lx, ty + TH + TR * getSetRows(ex)); ctx.stroke();
+      });
+
+      // 세트 행
+      const n = getSetRows(ex);
+      for (let si = 0; si < n; si++) {
+        const ry = ty + TH + si * TR;
+        ctx.fillStyle = si % 2 === 0 ? '#fff' : '#fdfdfd';
+        ctx.fillRect(cx, ry, COL_W, TR);
+        ctx.strokeStyle = '#eee'; ctx.lineWidth = 0.5;
+        ctx.strokeRect(cx, ry, COL_W, TR);
+
+        ctx.fillStyle = '#555'; ctx.font = `700 9px ${FONT}`;
+        ctx.textAlign = 'center';
+        ctx.fillText(String(si+1), colX[0]+14, ry+13);
+
+        // 목표값 (흐리게)
+        const tgt = ex.sets?.[si];
+        if (tgt?.weight) {
+          ctx.fillStyle = '#ccc'; ctx.font = `400 8px ${FONT}`;
+          ctx.fillText(String(tgt.weight), colX[1]+cols[1]/2, ry+13);
+        }
+        if (tgt?.reps) {
+          ctx.fillStyle = '#ccc'; ctx.font = `400 8px ${FONT}`;
+          ctx.fillText(String(tgt.reps), colX[2]+cols[2]/2, ry+13);
+        }
+      }
+      ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1;
+      ctx.strokeRect(cx, ty, COL_W, TH + TR * n);
+    }
+
+    y += blockH;
+  }
+
+  y += 6;
+  ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(PX, y); ctx.lineTo(W-PX, y); ctx.stroke();
+  y += 8;
+
+  // ── 워밍업 / 스트레칭 ──
+  const halfW = (IW - 10) / 2;
+  ctx.font = `900 10px ${FONT}`;
+  ctx.fillStyle = '#111'; ctx.textAlign = 'left';
+  ctx.fillText('🔥 추천 워밍업', PX, y + 10);
+  ctx.fillText('🧘 추천 스트레칭', PX + halfW + 10, y + 10);
+  y += 16;
+  [wu, st].forEach((list, li) => {
+    const bx = PX + li * (halfW + 10);
+    list.forEach((item, idx) => {
+      ctx.fillStyle = '#555'; ctx.font = `400 9px ${FONT}`;
+      ctx.fillText(`${idx+1}. ${item || '───────────────────'}`, bx, y + idx*16 + 10);
+    });
+  });
+  y += wu.length * 16 + 10;
+
+  ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(PX, y); ctx.lineTo(W-PX, y); ctx.stroke();
+  y += 8;
+
+  // ── 메모 ──
+  ctx.font = `900 10px ${FONT}`;
+  ctx.fillStyle = '#111';
+  ctx.fillText('📝 오늘의 포인트 / 트레이너 메모', PX, y + 10);
+  y += 16;
+  if (note) {
+    ctx.font = `400 10px ${FONT}`;
+    ctx.fillStyle = '#222';
+    ctx.fillText(note, PX, y + 10);
+    y += 16;
+  } else {
+    for (let li = 0; li < 2; li++) {
+      ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(PX, y+15); ctx.lineTo(W-PX, y+15); ctx.stroke();
+      y += 18;
+    }
+  }
+  y += 8;
+
+  // ── 푸터 ──
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(PX, y); ctx.lineTo(W-PX, y); ctx.stroke();
+  y += 10;
+  ctx.font = `900 11px ${FONT}`;
+  ctx.fillStyle = '#111';
+  ctx.fillText('VERA', PX, y + 10);
+  const vw2 = ctx.measureText('VERA').width;
+  ctx.fillStyle = '#E8660A';
+  ctx.fillText('GYM', PX + vw2, y + 10);
+  ctx.font = `400 9px ${FONT}`;
+  ctx.fillStyle = '#888'; ctx.textAlign = 'center';
+  ctx.fillText('트레이너 맞춤 운동 처방전 · 함께 만들어가는 몸', W/2, y + 10);
+  ctx.textAlign = 'right';
+  ctx.fillText(`작성: ${sheet.trainer || '트레이너'}`, W - PX, y + 10);
+
+  // ── 저장 ──
+  canvas.toBlob(blob => {
+    if (!blob) { showToast('저장 실패'); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const name = sheet.member || 'member';
+    const prog = sheet.program || 'workout';
+    a.href = url; a.download = `VERAGYM_${name}_${prog}_처방전.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('이미지 저장 완료 ✓');
+  }, 'image/png');
+}
+
+// ── 설정 입력 갱신 시 자동 렌더 ──────────────────────────
+['cfgDate','cfgNote','wu1','wu2','wu3','st1','st2','st3'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', renderSheet);
+});
+
+// ── 토스트 ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 2200);
+}
+
+// ── 초기화 ───────────────────────────────────────────────
+(function init() {
+  // 오늘 날짜 기본값
+  document.getElementById('cfgDate').value = new Date().toISOString().split('T')[0];
+
+  // localStorage 데이터 로드
+  try {
+    sheetData = JSON.parse(localStorage.getItem('vg_print_sheet') || 'null');
+  } catch { sheetData = null; }
+
+  if (!sheetData || !sheetData.exercises?.length) {
+    document.getElementById('a4Sheet').innerHTML = `
+      <div style="text-align:center;padding:60px 20px;color:#888;font-size:14px;line-height:2;">
+        운동 데이터가 없습니다.<br>
+        <a href="image-card.html" style="color:#3b82f6;font-weight:700;">← 이미지생성 화면</a>에서
+        운동을 추가한 뒤<br>"A4 출력지" 버튼을 눌러주세요.
+      </div>`;
+    return;
+  }
+
+  // 세트 수 기본값 (데이터의 평균 세트 수로)
+  const avgSets = Math.round(
+    sheetData.exercises.reduce((s,e)=>s+(e.sets?.length||3),0) / sheetData.exercises.length
+  );
+  setSetsCount(avgSets >= 4 ? 4 : 3);
+
+  // 워밍업/스트레칭 자동 추천
+  suggestWarmup();
+  suggestStretch();
+})();
+</script>
+</body>
+</html>
