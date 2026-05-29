@@ -350,9 +350,12 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
 .modal-handle { background:#ddd4b8 !important; }
 .modal-title { color:#1a1a14 !important; }
 .field label { color:#7a6a58 !important; }
-.field input, .field select { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
-.field input:focus, .field select:focus { border-color:#c9a84c !important; }
-.field input::placeholder { color:#a09080 !important; }
+.field input, .field select, .field textarea { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color:#c9a84c !important; }
+.field input::placeholder, .field textarea::placeholder { color:#a09080 !important; }
+#ctContractName { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#a09080 !important; }
+#admUnregReasonText { background:#fff5f5 !important; border-color:#f8a0a088 !important; color:#1a1a14 !important; }
+.field select option { background:#f4f2ec !important; color:#1a1a14 !important; }
 .field .hint { color:#8a7a68 !important; }
 .memo-modal { background:#ffffff !important; border-top-color:#ddd4b8 !important; }
 .memo-meta { color:#8a7a68 !important; }
@@ -599,7 +602,7 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
   <div id="revSub-forecast" class="rev-sub-panel active">
     <!-- <1> 지점 선택 -->
     <div style="margin-bottom:12px">
-      <select id="revGymSelect" onchange="loadAdminRevenue()" style="background:#0a0a08;border:1.5px solid #2a2518;border-radius:10px;padding:10px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;width:100%">
+      <select id="revGymSelect" onchange="loadAdminRevenue()" style="background:#f4f2ec;border:1.5px solid #ddd4b8;border-radius:10px;padding:10px 14px;font-size:14px;color:#1a1a14;outline:none;font-family:inherit;width:100%">
         <option value="미사점">미사점</option>
         <option value="동탄점">동탄점</option>
       </select>
