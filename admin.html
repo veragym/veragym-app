@@ -116,20 +116,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .btn-save { flex:2; background:linear-gradient(135deg,#c9a84c,#a8893a); border:none; border-radius:12px; padding:14px; font-size:15px; color:#000; font-weight:700; cursor:pointer; }
 .btn-save:disabled { opacity:0.4; cursor:default; }
 .err-box { display:none; background:#2d1212; border:1px solid #5a2020; border-radius:8px; padding:10px 14px; font-size:13px; color:#f87171; margin-bottom:10px; }
-/* Request cards */
-.req-card { background:#161610; border:1px solid #2a2518; border-radius:12px; padding:14px 16px; margin-bottom:10px; }
-.req-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-.req-type { font-size:11px; padding:3px 8px; border-radius:20px; font-weight:600; }
-.req-type.db_add { background:#3b82f622; border:1px solid #3b82f644; color:#60a5fa; }
-.req-type.bug_report { background:#f87171aa; border:1px solid #f8717155; color:#f87171; }
-.req-type.other { background:#aaa2; border:1px solid #555; color:#aaa; }
-.req-status { font-size:11px; color:#555; }
-.req-status.completed { color:#4ade80; }
-.req-content { font-size:14px; line-height:1.5; margin-bottom:8px; }
-.req-meta { font-size:11px; color:#444; }
-.req-actions { display:flex; gap:8px; margin-top:10px; }
-.btn-complete { background:#4ade8022; border:1px solid #4ade8044; border-radius:8px; padding:6px 12px; font-size:12px; color:#4ade80; cursor:pointer; }
-.btn-req-del { background:#f8717122; border:1px solid #f8717144; border-radius:8px; padding:6px 12px; font-size:12px; color:#f87171; cursor:pointer; }
 /* Misc */
 .loading { text-align:center; padding:40px; color:#555; }
 .empty { text-align:center; padding:40px; color:#444; font-size:14px; }
@@ -360,10 +346,6 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
 .memo-modal { background:#ffffff !important; border-top-color:#ddd4b8 !important; }
 .memo-meta { color:#8a7a68 !important; }
 .memo-body { background:#f4f2ec !important; color:#1a1a14 !important; }
-.req-card { background:#ffffff !important; border-color:#ddd4b8 !important; }
-.req-content { color:#1a1a14 !important; }
-.req-status { color:#8a7a68 !important; }
-.req-meta { color:#8a7a68 !important; }
 .branch-chip { background:#ffffff !important; border-color:#ddd4b8 !important; }
 .branch-chip:hover, .branch-chip.active { background:#fdf8eb !important; border-color:#c9a84c88 !important; }
 .branch-chip-name { color:#8a7a68 !important; }
@@ -517,7 +499,6 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
   <button class="tab-btn"        onclick="switchTab('members',this)">전체 회원</button>
   <button class="tab-btn"        onclick="switchTab('schedule',this)">일정</button>
   <button class="tab-btn"        onclick="switchTab('revenue',this)">매출관리</button>
-  <button class="tab-btn"        onclick="switchTab('requests',this)">요청사항</button>
   <button class="tab-btn"        onclick="switchTab('exercise',this)">운동DB</button>
 </div>
 
@@ -577,14 +558,6 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
   <div class="ex-stat-bar" id="exStatBar"></div>
   <!-- 결과 -->
   <div id="exerciseList" style="padding:0"><div class="loading">불러오는 중...</div></div>
-</div>
-
-<!-- 요청사항 -->
-<div id="tab-requests" class="tab-content">
-  <div class="sec-header">
-    <span class="sec-title">트레이너 요청사항</span><span class="sec-count" id="reqCount"></span>
-  </div>
-  <div id="reqList"><div class="loading">불러오는 중...</div></div>
 </div>
 
 <!-- ── 일정 탭 ─────────────────────────────────────────── -->
@@ -2509,55 +2482,6 @@ async function exportExerciseExcel() {
   showToast('다운로드 완료 — Excel에서 열기 가능');
 }
 
-// ── 요청사항 ─────────────────────────────────────────────────
-async function loadRequests() {
-  const { data, error } = await db.from('requests')
-    .select('id,type,content,status,created_at,trainers(name)')
-    .order('created_at', { ascending: false });
-  if (error) { showToast('불러오기 실패'); return; }
-
-  const visible   = data.filter(r => r.status !== 'deleted');
-  const pending   = visible.filter(r => r.status === 'pending');
-  const completed = visible.filter(r => r.status === 'completed');
-  document.getElementById('reqCount').textContent = pending.length ? `(미처리 ${pending.length}건)` : `(${visible.length}건)`;
-
-  const wrap = document.getElementById('reqList');
-  if (!visible.length) { wrap.innerHTML = '<div class="empty">요청사항이 없어요</div>'; return; }
-
-  const TYPE_LABEL = { db_add: 'DB 추가', bug_report: '버그 신고', other: '기타' };
-  const card = r => `
-    <div class="req-card">
-      <div class="req-header">
-        <span class="req-type ${r.type}">${TYPE_LABEL[r.type] || r.type}</span>
-        <span class="req-status ${r.status === 'completed' ? 'completed' : ''}">${r.status === 'pending' ? '처리중' : '완료'}</span>
-      </div>
-      <div class="req-content">${esc(r.content)}</div>
-      <div class="req-meta">${esc(r.trainers?.name) || '알수없음'} · ${new Date(r.created_at).toLocaleDateString('ko-KR')}</div>
-      <div class="req-actions">
-        ${r.status === 'pending' ? `<button class="vb vb-sm vb-success" onclick="completeReq('${r.id}')">완료 처리</button>` : ''}
-        <button class="vb vb-sm vb-danger" onclick="deleteReq('${r.id}')">삭제</button>
-      </div>
-    </div>`;
-
-  wrap.innerHTML =
-    (pending.length   ? `<div class="group-label">미처리 (${pending.length})</div>` + pending.map(card).join('') : '') +
-    (completed.length ? `<div class="group-label">완료 (${completed.length})</div>` + completed.map(card).join('') : '');
-}
-
-async function completeReq(id) {
-  const { error } = await db.from('requests').update({ status: 'completed' }).eq('id', id);
-  if (error) { showToast('처리 실패'); return; }
-  showToast('완료 처리했습니다');
-  loadRequests();
-}
-async function deleteReq(id) {
-  if (!await showConfirm('이 요청을 삭제할까요?', { danger: true })) return;
-  const { error } = await db.from('requests').update({ status: 'deleted' }).eq('id', id);
-  if (error) { showToast('삭제 실패'); return; }
-  showToast('삭제됐습니다');
-  loadRequests();
-}
-
 // ── 탭 전환 ──────────────────────────────────────────────────
 function switchTab(id, btn) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -2566,7 +2490,6 @@ function switchTab(id, btn) {
   btn.classList.add('active');
   if (id === 'members')  loadMembers();
   if (id === 'exercise') loadExercise();
-  if (id === 'requests') loadRequests();
   if (id === 'schedule') loadScheduleTab();
   if (id === 'revenue')  loadAdminRevenue();
 }
@@ -3990,8 +3913,6 @@ window.setExTool              = setExTool;
 window.setExPart              = setExPart;
 window.clearMemberSearch      = clearMemberSearch;
 window.closeBranchSchedModal  = closeBranchSchedModal;
-window.completeReq            = completeReq;
-window.deleteReq              = deleteReq;
 window.deleteTrainer          = deleteTrainer;
 window.doChangePw             = doChangePw;
 window.doLogout               = doLogout;

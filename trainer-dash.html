@@ -63,8 +63,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .badge-active { background:#3b82f622; border:1px solid #3b82f644; color:#60a5fa; }
 .badge-inactive { background:#33000088; border:1px solid #550000; color:#f87171; }
 .badge-absent { background:#78350f33; border:1px solid #92400e55; color:#fbbf24; }
-.badge-req-pending { background:#f59e0b22; border:1px solid #f59e0b44; color:#fbbf24; }
-.badge-req-done { background:#22c55e22; border:1px solid #22c55e44; color:#4ade80; }
 .card-arrow { color:#1e3a5f; font-size:18px; flex-shrink:0; }
 
 /* ── Log Cards ───────────────────────────────────────────── */
@@ -119,16 +117,6 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .wm-chip { font-size:12px; font-weight:700; border:1px solid #1e3a5f44; border-radius:8px; cursor:pointer; flex:1; height:34px; transition:background 0.15s; }
 .wm-total { background:#1e3a5f; color:#60a5fa; }
 .wm-single { background:#1a3a20; color:#4ade80; }
-
-/* ── Request Cards ───────────────────────────────────────── */
-.req-card { background:#0d1525; border:1px solid #1e3a5f44; border-radius:12px; padding:14px 16px; margin-bottom:10px; }
-.req-top { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-.req-type-tag { font-size:11px; font-weight:600; padding:3px 9px; border-radius:99px; }
-.type-db { background:#3b82f622; border:1px solid #3b82f644; color:#60a5fa; }
-.type-bug { background:#f8717122; border:1px solid #f8717144; color:#f87171; }
-.type-other { background:#aaaaaa22; border:1px solid #aaaaaa44; color:#aaaaaa; }
-.req-content { font-size:14px; line-height:1.5; margin-bottom:6px; }
-.req-meta { font-size:11px; color:#3a5878; }
 
 /* ── Modal ───────────────────────────────────────────────── */
 .modal-bg { display:none; position:fixed; inset:0; background:#000000cc; z-index:200; align-items:flex-end; justify-content:center; }
@@ -334,9 +322,6 @@ body { background:#f8faff !important; color:#0f172a !important; }
 .wm-chip { border-color:#bfdbfe44 !important; }
 .wm-total { background:#dbeafe !important; color:#3b82f6 !important; }
 .wm-single { background:#dcfce7 !important; color:#15803d !important; }
-.req-card { background:#ffffff !important; border-color:#bfdbfe !important; }
-.req-content { color:#0f172a !important; }
-.req-meta { color:#64748b !important; }
 .modal { background:#ffffff !important; border-top-color:#bfdbfe !important; }
 .modal-handle { background:#bfdbfe !important; }
 .modal-title { color:#0f172a !important; }
@@ -506,15 +491,9 @@ body { background:#f8faff !important; color:#0f172a !important; }
 }
 .log-card div[style*="color:#6a6a8a"] { color:#64748b !important; }
 
-/* ── 요청사항 타입 태그 (다크에서 정의된 것 light 유지) ─ */
-.type-db { background:#dbeafe !important; border-color:#bfdbfe !important; color:#3b82f6 !important; }
-.type-bug { background:#fee2e2 !important; border-color:#fecaca !important; color:#dc2626 !important; }
-.type-other { background:#f1f5f9 !important; border-color:#cbd5e1 !important; color:#64748b !important; }
 .badge-active { background:#dbeafe !important; border-color:#bfdbfe !important; color:#3b82f6 !important; }
 .badge-inactive { background:#fee2e2 !important; border-color:#fecaca !important; color:#dc2626 !important; }
 .badge-absent { background:#fef3c7 !important; border-color:#fcd34d !important; color:#b45309 !important; }
-.badge-req-pending { background:#fef3c7 !important; border-color:#fcd34d !important; color:#b45309 !important; }
-.badge-req-done { background:#dcfce7 !important; border-color:#86efac !important; color:#15803d !important; }
 
 /* ── 토큰 박스 ───────────────────────────────────────── */
 .token-box { background:#eff6ff !important; }
@@ -701,7 +680,6 @@ body { background:#f8faff !important; color:#0f172a !important; }
   <button class="tab-btn" id="nav-spt" onclick="switchTab('spt',this)">SPT</button>
   <button class="tab-btn" id="nav-revenue" onclick="switchTab('revenue',this)">매출관리</button>
   <button class="tab-btn" onclick="location.href='exercise-library.html'">운동DB</button>
-  <button class="tab-btn" id="nav-requests" onclick="switchTab('requests',this)">요청사항</button>
   <button class="tab-btn" id="nav-imggen" onclick="location.href='image-card.html'">이미지생성</button>
 </div>
 
@@ -947,15 +925,6 @@ body { background:#f8faff !important; color:#0f172a !important; }
   </div>
 </div>
 
-<!-- ── Tab: 요청사항 ────────────────────────────────────────── -->
-<div id="tab-requests" class="tab-content">
-  <div class="sec-header">
-    <div><span class="sec-title">요청사항</span><span class="sec-count" id="reqCount"></span></div>
-    <button class="btn-add" onclick="openAddReq()">+ 요청 추가</button>
-  </div>
-  <div id="reqList"><div class="loading">불러오는 중...</div></div>
-</div>
-
 <div id="tab-imggen" class="tab-content">
   <div class="sec-header"><span class="sec-title">이미지 생성</span></div>
 
@@ -998,31 +967,6 @@ body { background:#f8faff !important; color:#0f172a !important; }
 ═══════════════════════════════════════════════════════════ -->
 
 
-<!-- 요청사항 추가 모달 -->
-<div id="addReqModal" class="modal-bg" onclick="closeModal('addReqModal',event)">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">요청사항 추가</div>
-    <div class="err-box" id="reqErr"></div>
-    <div class="field">
-      <label>요청 유형</label>
-      <select id="reqType">
-        <option value="db_add">운동DB 추가 요청</option>
-        <option value="bug_report">버그/오류 신고</option>
-        <option value="other">기타</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>내용 <span style="color:#f87171">*</span></label>
-      <textarea id="reqContent" placeholder="요청 내용을 자세히 적어주세요" rows="4"></textarea>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('addReqModal')">취소</button>
-      <button class="btn-save" id="btnAddReq" onclick="saveReq()">제출</button>
-    </div>
-  </div>
-</div>
-
 <!-- ══════════════════════════════════════════════════════════
      SCRIPTS
 ═══════════════════════════════════════════════════════════ -->
@@ -1040,7 +984,7 @@ let currentDetailMemberId = null; // 현재 열린 회원 상세 ID
 const APP_URL = 'https://veragym.github.io/veragym-app/member-view.html';
 
 // ── 탭 데이터 캐시 (30초) ──────────────────────────────────
-const _tabCache = { members: 0, logs: 0, requests: 0 };
+const _tabCache = { members: 0, logs: 0 };
 const TAB_CACHE_MS = 30_000;
 function _cacheValid(tab) { return Date.now() - (_tabCache[tab] || 0) < TAB_CACHE_MS; }
 function _cacheSet(tab)   { _tabCache[tab] = Date.now(); }
@@ -1053,7 +997,6 @@ async function init() {
 
   // myMembers 는 회원 선택 모달에서도 사용 → 어느 탭이든 항상 로드
   loadMembers();
-  checkPendingReqs();
 
   // URL 파라미터로 탭 지정 처리 (me 설정 이후 실행해야 loadLogs 등이 정상 동작)
   const _urlTab = new URLSearchParams(location.search).get('tab');
@@ -1078,7 +1021,6 @@ function switchTab(id, btn) {
   // 뒤로가기로 열린 detail 닫기
   if (id === 'members') { showMemberList(); if (!_cacheValid('members')) loadMembers(); }
   if (id === 'logs')    { if (!_cacheValid('logs'))     loadLogs(); }
-  if (id === 'requests') { if (!_cacheValid('requests')) loadRequests(); }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1643,87 +1585,8 @@ async function generateWorkoutCard(logId) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// 요청사항
-// ══════════════════════════════════════════════════════════════
-async function checkPendingReqs() {
-  const { count } = await db.from('requests').select('id', { count: 'exact', head: true })
-    .eq('trainer_id', me.id).eq('status', 'pending');
-  if (count > 0) {
-    // Badge will be shown by CSS
-  }
-}
-
-async function loadRequests() {
-  document.getElementById('reqList').innerHTML = '<div class="loading">불러오는 중...</div>';
-  const { data, error } = await db.from('requests')
-    .select('id,type,content,status,admin_note,created_at').eq('trainer_id', me.id).order('created_at', { ascending: false });
-  if (await handleDbError(error, '요청사항 불러오기 실패')) {
-    document.getElementById('reqList').innerHTML = '<div class="empty">불러오기 실패<br><button class="retry-btn" onclick="loadRequests()">다시 시도</button></div>';
-    return;
-  }
-
-  const pending = data?.filter(r => r.status === 'pending') || [];
-  document.getElementById('reqCount').textContent = pending.length ? `(미처리 ${pending.length})` : `(${data?.length || 0}건)`;
-
-  const wrap = document.getElementById('reqList');
-  if (!data?.length) {
-    wrap.innerHTML = `<div class="empty">요청사항이 없어요<br>운동DB 추가, 버그 신고 등을 관리자에게 전달하세요</div>`;
-    return;
-  }
-
-  const TYPE = { db_add:'운동DB 추가', bug_report:'버그 신고', other:'기타' };
-  const TYPE_CLASS = { db_add:'type-db', bug_report:'type-bug', other:'type-other' };
-  const STATUS = { pending:'처리중', completed:'완료', deleted:'삭제됨' };
-
-  wrap.innerHTML = data.map(r => `
-    <div class="req-card">
-      <div class="req-top">
-        <span class="req-type-tag ${TYPE_CLASS[r.type]}">${TYPE[r.type]}</span>
-        <span class="badge ${r.status === 'completed' ? 'badge-req-done' : 'badge-req-pending'}">${STATUS[r.status] || r.status}</span>
-      </div>
-      <div class="req-content">${r.content}</div>
-      <div class="req-meta">${new Date(r.created_at).toLocaleDateString('ko-KR')}${r.admin_note ? ' · 관리자 메모: ' + r.admin_note : ''}</div>
-    </div>`).join('');
-  _cacheSet('requests');
-}
-
-function openAddReq() {
-  document.getElementById('reqContent').value = '';
-  document.getElementById('reqErr').style.display = 'none';
-  openModal('addReqModal');
-}
-
-async function saveReq() {
-  const type    = document.getElementById('reqType').value;
-  const content = document.getElementById('reqContent').value.trim();
-  const btn     = document.getElementById('btnAddReq');
-
-  document.getElementById('reqErr').style.display = 'none';
-  if (!content) { showModalErr('reqErr', '내용을 입력해주세요'); return; }
-
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>제출 중...';
-  const { error } = await db.from('requests').insert({
-    trainer_id: me.id, type, content, status: 'pending'
-  });
-
-  if (error) {
-    showModalErr('reqErr', '제출 실패: ' + error.message);
-  } else {
-    closeModal('addReqModal');
-    showToast('요청 제출 완료!');
-    loadRequests();
-  }
-  btn.disabled = false; btn.textContent = '제출';
-}
-
-// ══════════════════════════════════════════════════════════════
 // 공통 유틸
 // ══════════════════════════════════════════════════════════════
-function showModalErr(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg; el.style.display = 'block';
-}
-
 async function doLogout() {
   await db.auth.signOut();
   localStorage.removeItem('vg_trainer');
@@ -4005,7 +3868,6 @@ window.linkLogSkip         = linkLogSkip;
 window.linkLogWrite        = linkLogWrite;
 window.onBsDay             = onBsDay;
 window.onSchedTypeChange   = onSchedTypeChange;
-window.openAddReq          = openAddReq;
 window.openBranchSchedModal = openBranchSchedModal;
 window.openForecastModal   = openForecastModal;
 window.openLinkLogModal    = openLinkLogModal;
@@ -4013,9 +3875,7 @@ window.openSchedInfo       = openSchedInfo;
 window.openSchedModal      = openSchedModal;
 window.loadMembers         = loadMembers;
 window.loadLogs            = loadLogs;
-window.loadRequests        = loadRequests;
 window.saveForecast        = saveForecast;
-window.saveReq             = saveReq;
 window.saveSchedule        = saveSchedule;
 window.saveTarget          = saveTarget;
 window.selectLinkLog       = selectLinkLog;

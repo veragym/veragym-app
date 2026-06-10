@@ -306,7 +306,6 @@ body { background:#f8faff !important; color:#0f172a !important; }
   <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=spt'">SPT</button>
   <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=revenue'">매출관리</button>
   <button class="tab-btn" onclick="location.href='exercise-library.html'">운동DB</button>
-  <button class="tab-btn" onclick="location.href='trainer-dash.html?tab=requests'">요청사항</button>
   <button class="tab-btn active">이미지생성</button>
 </div>
 
@@ -334,7 +333,6 @@ body { background:#f8faff !important; color:#0f172a !important; }
 <div class="add-bar">
   <button class="btn-add-ex vb vb-md vb-secondary" onclick="openSearch()">＋ 운동 추가</button>
   <button class="btn-add-ex vb vb-md vb-ghost" onclick="openRoutineModal()">루틴 불러오기</button>
-  <button class="btn-add-ex vb vb-md vb-ghost" onclick="goToPrintSheet()" style="color:#E8660A !important;border-color:#E8660A55 !important;">📄 A4 출력지</button>
   <button class="btn-gen-img vb vb-md vb-primary-gradient" id="btnGenImg" onclick="generateImage()">이미지 생성</button>
 </div>
 
@@ -865,28 +863,6 @@ async function loadRoutineIntoImageCard(routineExs) {
   showToast(`루틴 운동 ${routineExs.length}개 불러옴`);
 }
 
-// ── A4 출력지 ────────────────────────────────────────────────
-function goToPrintSheet() {
-  if (!exercises.length) {
-    showToast('운동을 먼저 추가해주세요');
-    return;
-  }
-  const payload = {
-    member:    document.getElementById('igMember')?.value?.trim() || '',
-    program:   document.getElementById('igProgram')?.value?.trim() || '',
-    trainer:   trainer?.name || '',
-    exercises: exercises.map(ex => ({
-      name:        ex.name,
-      part:        ex.part || '',
-      tool:        ex.tool || '',
-      image_url:   ex.image_url || null,
-      weight_mode: ex.weight_mode || 'total',
-      sets:        ex.sets || [],
-    })),
-  };
-  localStorage.setItem('vg_print_sheet', JSON.stringify(payload));
-  location.href = 'print-sheet.html';
-}
 </script>
 </body>
 </html>
