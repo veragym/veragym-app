@@ -811,9 +811,9 @@ function renderExercises() {
       <div class="ex-card-head">
         <div class="ex-order">${i + 1}</div>
         <div class="ex-name-area">
-          <div class="ex-name">${ex.name}</div>
+          <div class="ex-name">${esc(ex.name)}</div>
           ${ex.part || ex.tool
-            ? `<div class="ex-sub">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>`
+            ? `<div class="ex-sub">${esc([ex.part, ex.tool].filter(Boolean).join(' · '))}</div>`
             : ''}
         </div>
         <div class="ex-photo-area">
@@ -850,7 +850,7 @@ function renderExercises() {
 
       <div class="ex-comment">
         <textarea placeholder="이 운동 코멘트 (선택)"
-                  onchange="updComment(${i},this.value)">${ex.comment || ''}</textarea>
+                  onchange="updComment(${i},this.value)">${esc(ex.comment || '')}</textarea>
       </div>
 
     </div>`;
@@ -914,8 +914,10 @@ async function saveSession() {
       notePhotoPath = await uploadNotePhoto(logId);
       const updatePayload = { session_date: date, notes, note_photo_path: notePhotoPath };
       if (scheduleId) updatePayload.schedule_id = scheduleId;
-      await db.from('workout_logs').update(updatePayload).eq('id', logId);
-      await db.from('workout_log_exercises').delete().eq('log_id', logId);
+      const { error: updErr } = await db.from('workout_logs').update(updatePayload).eq('id', logId);
+      if (updErr) throw updErr;
+      const { error: delErr } = await db.from('workout_log_exercises').delete().eq('log_id', logId);
+      if (delErr) throw delErr;
     } else {
       // ── 신규 로그: INSERT 먼저 → logId 확보 → 사진 업로드 ──
       const { data: newLog, error: le } = await db
@@ -1198,11 +1200,11 @@ function resultItemHtml(ex, showCount = false) {
   const cnt = freqMap[ex.refId] || ex.use_count || 0;
   return `
     <div class="result-item"
-         onclick="selectEx('${ex.id}','${ex.refId}','${esc(ex.name)}','${esc(ex.part)}','${esc(ex.tool)}')">
+         onclick="selectEx('${ex.id}','${ex.refId}','${escAttr(ex.name)}','${escAttr(ex.part)}','${escAttr(ex.tool)}')">
       <div class="result-info">
-        <div class="result-name">${ex.name}</div>
+        <div class="result-name">${esc(ex.name)}</div>
         ${ex.part || ex.tool
-          ? `<div class="result-meta">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>`
+          ? `<div class="result-meta">${esc([ex.part, ex.tool].filter(Boolean).join(' · '))}</div>`
           : ''}
       </div>
       ${cnt > 0 ? `<span class="result-badge">${cnt}회</span>` : ''}
@@ -1250,7 +1252,8 @@ async function toggleFav(libId, isFav) {
 
 // ─── 유틸 ───
 function today() { return new Date().toISOString().slice(0, 10); }
-function esc(s)  { return (s||'').replace(/'/g, '&#39;').replace(/"/g, '&quot;'); }
+// 속성값(특히 onclick의 작은따옴표) 이스케이프. innerHTML 본문은 config.js의 esc() 사용.
+function escAttr(s) { return (s||'').replace(/&/g,'&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;'); }
 // ── PT 노트 사진 핸들러 ──────────────────────────────────────
 async function onNotePhotoSelected(input) {
   const file = input.files?.[0];

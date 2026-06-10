@@ -95,6 +95,13 @@
 </div>
 
 <script>
+window.addEventListener('unhandledrejection', e => {
+  console.error('Unhandled rejection:', e.reason);
+});
+window.onerror = (msg, src, line, col, err) => {
+  console.error('Global error:', msg, src, line, err);
+};
+
 const EDGE = 'https://lrzffwawpoidimlrbfxe.supabase.co/functions/v1/approve';
 const params = new URLSearchParams(location.search);
 const TOKEN = params.get('token');

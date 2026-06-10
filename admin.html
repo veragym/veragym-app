@@ -1194,13 +1194,8 @@ function preventBackExit() {
   history.pushState(null, '', location.href);
   window.addEventListener('popstate', () => history.pushState(null, '', location.href));
 }
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-}
-function closeModal(id, e) {
-  if (e && e.target !== e.currentTarget) return;
-  document.getElementById(id).classList.remove('open');
-}
+// openModal/closeModal는 config.js의 전역 버전 사용 (닫기 X 버튼 자동삽입 포함).
+// 인라인 onclick 핸들러가 이미 config.js 전역 버전을 호출하므로 중복 정의 제거(#11).
 // ─────────────────────────────────────────────────────────────
 init_db();
 preventBackExit();
@@ -1425,7 +1420,7 @@ async function loadMembers() {
   const total = _allMembers.length;
   const chips = Object.entries(branchMap).sort((a,b) => b[1]-a[1]).map(([loc, cnt]) => `
     <div class="branch-chip" onclick="showBranch('${loc}')">
-      <div class="branch-chip-name">${loc}</div>
+      <div class="branch-chip-name">${esc(loc)}</div>
       <div class="branch-chip-count">${cnt}</div>
       <div class="branch-chip-label">명</div>
     </div>`).join('');
@@ -1467,7 +1462,7 @@ function showAllBranches() {
     const trainerCount = [...new Set(mbs.map(m => m.trainer_id).filter(Boolean))].length;
     return `<div class="hier-row" onclick="showBranch('${loc}')">
       <div class="hier-info">
-        <div class="hier-name">${loc}</div>
+        <div class="hier-name">${esc(loc)}</div>
         <div class="hier-sub">트레이너 ${trainerCount}명 · 회원 ${mbs.length}명</div>
       </div>
       <div class="hier-arrow">›</div>
@@ -2419,9 +2414,10 @@ async function openExDetail(id) {
   openModal('exDetailModal');
 
   // DB에서 새 컬럼 조회 (비동기)
-  const { data } = await db.from('exercise_refs')
+  const { data, error } = await db.from('exercise_refs')
     .select('primary_muscle,synergist_1,synergist_2,is_stretch')
     .eq('id', id).single();
+  if (error) { console.error('exercise_refs', error); return; }
   if (data) {
     document.getElementById('exEditPrimary').value = data.primary_muscle || '';
     document.getElementById('exEditSyn1').value    = data.synergist_1    || '';
@@ -3111,8 +3107,9 @@ async function scOpenCreate(trainerId){
   _scCreateCtx = { date: scSelectedDate, trainerId: trainerId||'', products: [] };
   // 회원 캐시 없으면 로드
   if (!_allMembers || !_allMembers.length){
-    const { data } = await db.from('members')
+    const { data, error } = await db.from('members')
       .select('id,name,gym_location,is_active,phone,trainer_id').order('name');
+    if (error) { console.error('members', error); showToast('불러오기 실패'); return; }
     _allMembers = data || [];
   }
   // 날짜/시간/기본값
@@ -3516,7 +3513,7 @@ async function loadAllPayments() {
   if (_payDataLoaded) return;
   try {
     const [pRes, tRes] = await Promise.all([
-      db.from('payment_records').select('payment_date,member_name,payment_amount,net_amount,price_per_session,total_sessions,trainer_name,trainer_id').order('payment_date', { ascending: false }),
+      db.from('payment_records').select('id,payment_date,member_name,payment_amount,net_amount,price_per_session,total_sessions,trainer_name,trainer_id').order('payment_date', { ascending: false }),
       db.from('trainers').select('id,name,gym_location').eq('is_active', true).order('name')
     ]);
     _allPayments = pRes.data || [];
@@ -3565,7 +3562,10 @@ function renderPayList() {
     return `<div class="pay-item">
       <div class="pay-item-top">
         <span class="pay-item-name">${esc(p.member_name)||'-'}</span>
-        <span class="pay-item-amt">${_admFmtWon(p.payment_amount)}</span>
+        <span style="display:flex;align-items:center;gap:10px">
+          <span class="pay-item-amt">${_admFmtWon(p.payment_amount)}</span>
+          <button onclick="deletePayRecord('${esc(p.id)}')" style="background:none;border:none;color:#8a3030;font-size:13px;cursor:pointer;padding:2px 4px" title="결제내역 삭제">🗑</button>
+        </span>
       </div>
       <div class="pay-item-sub">
         <span>${date}</span>
@@ -3575,6 +3575,23 @@ function renderPayList() {
       </div>
     </div>`;
   }).join('') + (filtered.length > 100 ? `<div style="text-align:center;color:#666;font-size:11px;padding:10px 0">외 ${filtered.length - 100}건 더...</div>` : '');
+}
+
+// ── 결제내역 삭제 ──
+async function deletePayRecord(id) {
+  const p = _allPayments.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`결제내역을 삭제하시겠습니까?\n\n${p.member_name || '-'} · ${p.payment_date} · ${_admFmtWon(p.payment_amount)} (${p.total_sessions || 0}회)\n\n※ 결제 기록만 삭제됩니다. 회원의 수강권(잔여횟수)에는 영향이 없습니다.\n이 작업은 되돌릴 수 없습니다.`)) return;
+  try {
+    const { error } = await db.from('payment_records').delete().eq('id', id);
+    if (error) { console.error('deletePayRecord', error); showToast('삭제 실패: ' + error.message); return; }
+    _allPayments = _allPayments.filter(x => x.id !== id);
+    renderPayList();
+    showToast('결제내역이 삭제되었습니다');
+  } catch (e) {
+    console.error('deletePayRecord', e);
+    showToast('오류가 발생했습니다. 새로고침해주세요.');
+  }
 }
 
 // ── 매출통계 렌더링 ──
@@ -3930,6 +3947,7 @@ window.openBranchSchedModal   = openBranchSchedModal;
 window.openChangePw           = openChangePw;
 window.openChangeTrainer      = openChangeTrainer;
 window.openExDetail           = openExDetail;
+window.deletePayRecord        = deletePayRecord;
 window.renderPayList          = renderPayList;
 window.renderStats            = renderStats;
 window.saveChangeTrainer      = saveChangeTrainer;

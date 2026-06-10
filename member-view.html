@@ -763,6 +763,10 @@ function loadToken() {
   } catch(_e) {}
   return t;
 }
+function clearToken() {
+  try { localStorage.removeItem('vg_member_token'); } catch(_e) {}
+  try { document.cookie = 'vg_tok=; max-age=0; path=/'; } catch(_e) {}
+}
 const isPWA = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 
 // ── 초기화 ───────────────────────────────────────────────────
@@ -811,8 +815,7 @@ async function init() {
   const { data, error } = await db.rpc('member_get_by_token', { p_token: token });
   if (error || !data || !data.length) {
     // 토큰 만료/무효 → 저장소 정리
-    try { localStorage.removeItem('vg_member_token'); } catch(_e) {}
-    try { document.cookie = 'vg_tok=;path=/;max-age=0'; } catch(_e) {}
+    clearToken();
     showError();
     return;
   }
@@ -948,7 +951,7 @@ async function loadLogs(token) {
           <div>
             <div class="sess-num-badge">#${logs.length - i}</div>
             <div class="sess-date">${dateStr}</div>
-            <div class="sess-sub">운동 ${exCount}종목${exPreview ? ' · ' + exPreview : ''}</div>
+            <div class="sess-sub">운동 ${exCount}종목${exPreview ? ' · ' + esc(exPreview) : ''}</div>
           </div>
           <div class="chevron" id="chev${i}">›</div>
         </div>
@@ -1001,7 +1004,7 @@ async function toggleSess(i, logId) {
       const ref      = _exAll.find(x => x.id === ex.exercise_ref_id) || {};
       const imgUrl   = ref.image_url || '';
       const thumbHtml = imgUrl
-        ? `<div style="width:100%;border-radius:10px;overflow:visible;background:#f5f5f0;margin-top:6px;padding:8px 0"><img src="${imgUrl}" loading="lazy" style="width:100%;height:auto;object-fit:contain;display:block" onerror="this.parentElement.style.display='none'"></div>`
+        ? `<div style="width:100%;border-radius:10px;overflow:visible;background:#f5f5f0;margin-top:6px;padding:8px 0"><img src="${esc(imgUrl)}" loading="lazy" style="width:100%;height:auto;object-fit:contain;display:block" onerror="this.parentElement.style.display='none'"></div>`
         : '';
       const setsHtml = sets.length ? `
         <table class="sets-table">
@@ -1012,9 +1015,9 @@ async function toggleSess(i, logId) {
         <button class="mv-photo-btn"
           onclick="viewMemberPhotos(${JSON.stringify(photo.start_path||null)}, ${JSON.stringify(photo.end_path||null)}, ${JSON.stringify(name)})">
           📷 자세 사진 보기</button>` : '';
-      const commentHtml = ex.comment ? `<div class="ex-item-comment">${ex.comment.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>` : '';
+      const commentHtml = ex.comment ? `<div class="ex-item-comment">${esc(ex.comment).replace(/\n/g,'<br>')}</div>` : '';
       return `<div class="ex-item">
-        <div class="ex-item-name">${name}</div>
+        <div class="ex-item-name">${esc(name)}</div>
         ${category ? `<div class="ex-item-cat">${category}</div>` : ''}
         ${thumbHtml}
         ${setsHtml}${photoBtn}${commentHtml}
@@ -1203,7 +1206,7 @@ function exRenderList() {
   const items = list.slice(0, _exShowCount);
   wrap.innerHTML = items.map(ex => {
     const thumb = ex.image_url
-      ? `<div class="ex-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
+      ? `<div class="ex-thumb"><img src="${esc(ex.image_url)}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
       : `<div class="ex-thumb"></div>`;
     const isMine = _myExIds.has(ex.id);
     const isFav = _myExFavIds.has(ex.id);

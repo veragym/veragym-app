@@ -101,8 +101,10 @@ async function checkAdminSession(session) {
   if (session.user.email === SUPER_ADMIN_EMAIL) {
     location.replace('admin.html'); return true;
   }
-  const { data: t } = await db.from('trainers')
+  const { data: t, error: tErr } = await db.from('trainers')
     .select('is_admin,is_active').eq('auth_id', session.user.id).single();
+  // 네트워크/일시 오류(PGRST116=레코드 없음 제외)는 현재 세션 유지 → signOut 방지
+  if (tErr && tErr.code !== 'PGRST116') return true;
   if (t?.is_admin && t?.is_active) { location.replace('admin.html'); return true; }
   return false;
 }

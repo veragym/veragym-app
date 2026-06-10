@@ -394,6 +394,7 @@ let filterPart  = '';
 let showCount   = 50;
 let searchTm    = null;
 let _memberMode = false; // 회원 토큰으로 접근 시 true (read-only)
+let _memberToken = ''; // 회원 모드일 때 탭 이동 시 전달할 토큰
 
 const TOOLS = ['전체','핀 머신','플레이트 머신','스미스머신','바벨','덤벨','케이블','케틀벨','소도구','밴드','체중','머신'];
 const PARTS = ['전체','가슴','등','어깨','팔','코어','하체','전신'];
@@ -414,6 +415,7 @@ async function init() {
       : (_p.get('token') || _p.get('t') || localStorage.getItem('vg_member_token'));
     if (memberToken) {
       _memberMode = true;
+      _memberToken = memberToken;
       // 회원 모드: sessionStorage 캐시 클리어 후 강제 로드
       sessionStorage.removeItem('vg_exdb_cache_v2');
       // 회원 모드: 그린 테마 CSS 주입 (실제 클래스명 기준)
@@ -455,11 +457,12 @@ async function init() {
       document.getElementById('trainerInfo').textContent = '운동 라이브러리';
       document.querySelector('.btn-logout').style.display = 'none';
       // 탭을 회원용으로 교체, 내 운동 탭 숨김
+      const _tk = encodeURIComponent(_memberToken);
       document.getElementById('topTabs').innerHTML = `
-        <button class="tab-btn" onclick="location.href='member-view.html'">수업일지</button>
-        <button class="tab-btn" onclick="location.href='member-view.html#schedule'">일정</button>
+        <button class="tab-btn" onclick="location.href='member-view.html?token=${_tk}'">수업일지</button>
+        <button class="tab-btn" onclick="location.href='member-view.html?token=${_tk}#schedule'">일정</button>
         <button class="tab-btn active">운동DB</button>
-        <button class="tab-btn" onclick="location.href='member-view.html#anatomy'">해부도</button>
+        <button class="tab-btn" onclick="location.href='member-view.html?token=${_tk}#anatomy'">해부도</button>
       `;
       document.getElementById('tabMine').style.display = 'none';
       await loadAllExercises();
@@ -601,8 +604,8 @@ async function renderRoutines() {
     <div style="background:#ffffff;border-radius:10px;padding:14px 16px;
                 margin-bottom:10px;border:1px solid #bfdbfe;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <span style="font-size:14px;font-weight:700;color:#0f172a;">${r.name}</span>
-        <button class="vb vb-sm vb-danger" onclick="deleteRoutineConfirm('${r.id}','${r.name.replace(/'/g,'&#39;')}')">
+        <span style="font-size:14px;font-weight:700;color:#0f172a;">${esc(r.name)}</span>
+        <button class="vb vb-sm vb-danger" onclick="deleteRoutineConfirm('${r.id}','${esc(r.name).replace(/'/g,'&#39;')}')">
           삭제
         </button>
       </div>
@@ -611,8 +614,8 @@ async function renderRoutines() {
           ? '<span style="color:#94a3b8;">운동 없음</span>'
           : r.exs.map(e => `
             <span style="background:#eff6ff;padding:3px 8px;border-radius:12px;display:inline-flex;align-items:center;gap:4px;border:1px solid #bfdbfe;color:#0f172a;">
-              ${e.name_ko}
-              <span onclick="removeRoutineExercise('${e.id}','${e.name_ko.replace(/'/g,'&#39;').replace(/"/g,'&quot;')}')"
+              ${esc(e.name_ko)}
+              <span onclick="removeRoutineExercise('${e.id}','${esc(e.name_ko).replace(/'/g,'&#39;').replace(/"/g,'&quot;')}')"
                 style="color:#ef4444;cursor:pointer;font-size:11px;line-height:1;">✕</span>
             </span>`).join('')
         }
@@ -935,18 +938,18 @@ function renderList() {
     const isFav  = favIds.has(ex.id);
     const cnt    = useCountMap[ex.id] || 0;
     const thumb  = ex.image_url
-      ? `<div class="ex-thumb"><img src="${ex.image_url}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
+      ? `<div class="ex-thumb"><img src="${esc(ex.image_url)}" loading="lazy" onerror="this.parentElement.textContent=''"></div>`
       : `<div class="ex-thumb"></div>`;
     return `
       <div class="ex-card" onclick="openExDetail('${ex.id}')" style="cursor:pointer">
         <div class="ex-card-row">
           ${thumb}
           <div class="ex-info">
-            <div class="ex-name">${ex.name_ko || ex.name_en}</div>
-            ${(ex.name_en && ex.name_en !== ex.name_ko) ? `<div class="ex-en">${ex.name_en}</div>` : ''}
+            <div class="ex-name">${esc(ex.name_ko || ex.name_en)}</div>
+            ${(ex.name_en && ex.name_en !== ex.name_ko) ? `<div class="ex-en">${esc(ex.name_en)}</div>` : ''}
             <div class="ex-tags">
-              ${ex.tool_unified ? `<span class="ex-tag-tool">${ex.tool_unified}</span>` : ''}
-              ${ex.part_unified ? `<span class="ex-tag-part">${ex.part_unified}</span>` : ''}
+              ${ex.tool_unified ? `<span class="ex-tag-tool">${esc(ex.tool_unified)}</span>` : ''}
+              ${ex.part_unified ? `<span class="ex-tag-part">${esc(ex.part_unified)}</span>` : ''}
               ${cnt > 0 ? `<span class="ex-tag-cnt">${cnt}회 사용</span>` : ''}
               <span class="ex-tag-wm ${ex.weight_mode === 'single' ? 'ex-tag-wm-single' : 'ex-tag-wm-total'}">${ex.weight_mode === 'single' ? '한쪽' : '양손'}</span>
             </div>
@@ -978,7 +981,7 @@ function openExDetail(id) {
   if (!ex) return;
 
   const imgHtml = ex.image_url
-    ? `<img class="modal-img" src="${ex.image_url}" onerror="this.style.display='none'">`
+    ? `<img class="modal-img" src="${esc(ex.image_url)}" onerror="this.style.display='none'">`
     : `<div class="modal-no-img">🏋️</div>`;
 
   const newMuscles = [
@@ -1002,11 +1005,11 @@ function openExDetail(id) {
 
   document.getElementById('exModalBody').innerHTML = `
     ${imgHtml}
-    <div class="modal-name">${ex.name_ko || ex.name_en}</div>
-    ${(ex.name_en && ex.name_en !== ex.name_ko) ? `<div class="modal-en">${ex.name_en}</div>` : ''}
+    <div class="modal-name">${esc(ex.name_ko || ex.name_en)}</div>
+    ${(ex.name_en && ex.name_en !== ex.name_ko) ? `<div class="modal-en">${esc(ex.name_en)}</div>` : ''}
     <div class="modal-tags">
-      ${ex.tool_unified ? `<span class="modal-tag-tool">${ex.tool_unified}</span>` : ''}
-      ${ex.part_unified ? `<span class="modal-tag-part">${ex.part_unified}</span>` : ''}
+      ${ex.tool_unified ? `<span class="modal-tag-tool">${esc(ex.tool_unified)}</span>` : ''}
+      ${ex.part_unified ? `<span class="modal-tag-part">${esc(ex.part_unified)}</span>` : ''}
       <span class="${ex.weight_mode === 'single' ? 'modal-tag-wm-single' : 'modal-tag-wm-total'}">${ex.weight_mode === 'single' ? '한쪽 무게 입력' : '양손 무게 입력'}</span>
     </div>
     ${muscleHtml}

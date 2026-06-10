@@ -3568,8 +3568,8 @@ function igSearchEx() {
     if (!hits.length) { res.style.display = 'none'; return; }
     res.innerHTML = hits.map(e =>
       `<div class="ig-result" onclick="igAddExById('${e.id}')">
-        <div class="ig-result-name">${e.name_ko || e.name_en}</div>
-        <div class="ig-result-sub">${[e.part_unified, e.tool_unified].filter(Boolean).join(' · ')}</div>
+        <div class="ig-result-name">${esc(e.name_ko || e.name_en)}</div>
+        <div class="ig-result-sub">${esc([e.part_unified, e.tool_unified].filter(Boolean).join(' · '))}</div>
        </div>`
     ).join('');
     res.style.display = 'block';
@@ -3609,8 +3609,8 @@ function igRenderList() {
       <div class="ig-ex-head">
         <div class="ig-ex-num">${i + 1}</div>
         <div style="flex:1">
-          <div class="ig-ex-name">${ex.name}</div>
-          ${ex.part || ex.tool ? `<div class="ig-ex-sub">${[ex.part, ex.tool].filter(Boolean).join(' · ')}</div>` : ''}
+          <div class="ig-ex-name">${esc(ex.name)}</div>
+          ${ex.part || ex.tool ? `<div class="ig-ex-sub">${esc([ex.part, ex.tool].filter(Boolean).join(' · '))}</div>` : ''}
         </div>
         <button class="ig-ex-del" onclick="igRemoveEx(${i})">✕</button>
       </div>
