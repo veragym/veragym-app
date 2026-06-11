@@ -2840,9 +2840,10 @@ async function openBranchSchedModal(){
 async function _bsLoadDay(dateStr){
   if(!_bsTrainers.length)return;
   const ids=_bsTrainers.map(t=>t.id);
-  const{data}=await db.from('schedules')
+  const{data,error}=await db.from('schedules')
     .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,pt_product_id,members(name),pt_products(total_sessions,remaining_sessions)')
     .in('trainer_id',ids).eq('sched_date',dateStr).neq('status','cancelled').order('start_time');
+  if(error){console.error('schedules load',error);showToast('일정 로드 실패');return;}
   _bsSchedules=data||[];
 }
 

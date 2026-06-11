@@ -417,7 +417,7 @@ async function init() {
       _memberMode = true;
       _memberToken = memberToken;
       // 회원 모드: sessionStorage 캐시 클리어 후 강제 로드
-      sessionStorage.removeItem('vg_exdb_cache_v2');
+      sessionStorage.removeItem('vg_exdb_cache_v6'); // _EX_CACHE_KEY와 동일 (선언 전 실행 지점이라 리터럴 사용)
       // 회원 모드: 그린 테마 CSS 주입 (실제 클래스명 기준)
       const memberStyle = document.createElement('style');
       memberStyle.textContent = `
@@ -626,7 +626,7 @@ async function renderRoutines() {
           <button class="vb vb-sm vb-ghost" onclick="copyRoutineLink('${r.id}')">
             링크복사
           </button>
-          <button class="vb vb-sm vb-secondary" onclick="openRoutineAddExerciseModal('${r.id}','${r.name.replace(/'/g,'&#39;')}',${r.exs.length})">
+          <button class="vb vb-sm vb-secondary" onclick="openRoutineAddExerciseModal('${r.id}','${esc(r.name).replace(/'/g,'&#39;')}',${r.exs.length})">
             운동 추가
           </button>
         </div>
@@ -794,12 +794,12 @@ function openRoutineAddExerciseModal(routineId, routineName, currentExCount) {
           style="display:flex;align-items:center;gap:10px;padding:10px 8px;
                  border-bottom:1px solid #bfdbfe22;cursor:pointer;border-radius:6px;">
           <div style="width:38px;height:38px;border-radius:6px;background:#eff6ff;overflow:hidden;flex-shrink:0;">
-            ${ex.image_url ? `<img src="${ex.image_url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : ''}
+            ${ex.image_url ? `<img src="${esc(ex.image_url).replace(/"/g,'&quot;')}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : ''}
           </div>
           <div style="flex:1;min-width:0;">
-            <div style="font-size:13px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ex.name_ko||ex.name_en}</div>
+            <div style="font-size:13px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(ex.name_ko||ex.name_en)}</div>
             <div style="font-size:11px;color:#64748b;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
-              ${[ex.part_unified,ex.tool_unified].filter(Boolean).join(' · ')}
+              ${esc([ex.part_unified,ex.tool_unified].filter(Boolean).join(' · '))}
               <span style="background:${ex.weight_mode==='single'?'#dcfce722':'#dbeafe22'};border:1px solid ${ex.weight_mode==='single'?'#4ade8044':'#3b82f644'};border-radius:4px;padding:1px 6px;font-size:10px;font-weight:600;color:${ex.weight_mode==='single'?'#16a34a':'#3b82f6'};">${ex.weight_mode==='single'?'한쪽':'양손'}</span>
             </div>
           </div>
@@ -1092,7 +1092,7 @@ init();
 async function doLogout() {
   await db.auth.signOut();
   localStorage.removeItem('vg_trainer');
-  localStorage.removeItem('vg_exdb_cache_v2');
+  sessionStorage.removeItem(_EX_CACHE_KEY);
   sessionStorage.removeItem('vg_session_draft');
   location.replace('trainer-login.html');
 }

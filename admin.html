@@ -1419,7 +1419,7 @@ async function loadMembers() {
   });
   const total = _allMembers.length;
   const chips = Object.entries(branchMap).sort((a,b) => b[1]-a[1]).map(([loc, cnt]) => `
-    <div class="branch-chip" onclick="showBranch('${loc}')">
+    <div class="branch-chip" onclick="showBranch('${esc(loc).replace(/'/g,'&#39;')}')">
       <div class="branch-chip-name">${esc(loc)}</div>
       <div class="branch-chip-count">${cnt}</div>
       <div class="branch-chip-label">명</div>
@@ -1460,7 +1460,7 @@ function showAllBranches() {
   if (!Object.keys(branchMap).length) { wrap.innerHTML = '<div class="empty">등록된 회원이 없어요</div>'; return; }
   wrap.innerHTML = Object.entries(branchMap).sort((a,b) => b[1].length - a[1].length).map(([loc, mbs]) => {
     const trainerCount = [...new Set(mbs.map(m => m.trainer_id).filter(Boolean))].length;
-    return `<div class="hier-row" onclick="showBranch('${loc}')">
+    return `<div class="hier-row" onclick="showBranch('${esc(loc).replace(/'/g,'&#39;')}')">
       <div class="hier-info">
         <div class="hier-name">${esc(loc)}</div>
         <div class="hier-sub">트레이너 ${trainerCount}명 · 회원 ${mbs.length}명</div>
@@ -1812,7 +1812,7 @@ function openChangeTrainer(productId, contractTrainerId) {
   sel.innerHTML = '<option value="">미배정</option>' +
     _allTrainers.filter(t => !t.is_admin && t.is_active)
       .sort((a,b) => a.name.localeCompare(b.name,'ko'))
-      .map(t => `<option value="${t.id}"${t.id === currentTrainerId ? ' selected' : ''}>${t.name}</option>`)
+      .map(t => `<option value="${t.id}"${t.id === currentTrainerId ? ' selected' : ''}>${esc(t.name)}</option>`)
       .join('');
   document.getElementById('ctErr').style.display = 'none';
   openModal('changeTrainerModal');
@@ -1883,7 +1883,7 @@ function openEditPtProduct(productId) {
     .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
   document.getElementById('editPtContractTrainer').innerHTML =
     '<option value="">-- 선택 --</option>' +
-    trainers.map(t => `<option value="${t.id}"${t.id === p.contract_trainer_id ? ' selected' : ''}>${t.name}</option>`).join('');
+    trainers.map(t => `<option value="${t.id}"${t.id === p.contract_trainer_id ? ' selected' : ''}>${esc(t.name)}</option>`).join('');
   openModal('editPtModal');
 }
 async function saveEditPtProduct() {
@@ -2033,7 +2033,7 @@ function openAddPtProduct() {
   const trainers = _allTrainers
     .filter(t => t.is_active && (!gym || t.gym_location === gym))
     .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-  const opts = '<option value="">-- 선택 --</option>' + trainers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  const opts = '<option value="">-- 선택 --</option>' + trainers.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
   document.getElementById('ptContractTrainer').innerHTML = opts;
   openModal('addPtModal');
 }
@@ -2161,8 +2161,8 @@ function filterTrainersByGym(gym) {
     .filter(t => t.is_active && t.gym_location === gym)
     .sort((a,b) => a.name.localeCompare(b.name, 'ko'));
   const blank = '<option value="">-- 선택 --</option>';
-  const trOpts = blank + trainers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-  const ctOpts = '<option value="">-- 선택 안 함 --</option>' + trainers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  const trOpts = blank + trainers.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  const ctOpts = '<option value="">-- 선택 안 함 --</option>' + trainers.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
   document.getElementById('mTrainer').innerHTML = trOpts;
   document.getElementById('mContractTrainer').innerHTML = ctOpts;
 }
@@ -2512,7 +2512,8 @@ function scDurMin(s,e){if(!s||!e)return 60;const[sh,sm]=s.split(':').map(Number)
 async function loadScheduleTab(){
   if(!scStart)scStart=scDayStart(new Date());
   if(!scTrainersLoaded){
-    const{data}=await db.from('trainers').select('id,name,gym_location,show_on_chart').eq('is_active',true).order('name');
+    const{data,error}=await db.from('trainers').select('id,name,gym_location,show_on_chart').eq('is_active',true).order('name');
+    if(error){console.error('trainers load',error);showToast('트레이너 목록 로드 실패');return;}
     _scAllTrainers=data||[];
     // 지점 드롭다운 채우기
     const branchSel=document.getElementById('scBranchSel');
@@ -2861,15 +2862,15 @@ function scRenderList(){
       const dur=scDurMin(s.start_time,s.end_time);
       const sType=s.type||'PT';
       let stxt='';if(sType==='PT'&&s.pt_products){const ps=calcPtSession(s,scData);stxt=` ${ps.num!=null?ps.num:'·'}/${ps.total}`;}
-      const memberLine=s.members?.name?`${s.members.name} <span class="sc-card-dur">${sType}${stxt} (${dur}분)</span>`:`<span class="sc-card-dur">${sType} (${dur}분)</span>`;
+      const memberLine=s.members?.name?`${esc(s.members.name)} <span class="sc-card-dur">${sType}${stxt} (${dur}분)</span>`:`<span class="sc-card-dur">${sType} (${dur}분)</span>`;
       html+=`<div class="sc-card">
         <div class="sc-card-top">
           <span class="sc-card-time">${tStr}</span>
-          <span class="sc-card-trainer">${s.trainers?.name||'-'}</span>
+          <span class="sc-card-trainer">${esc(s.trainers?.name||'-')}</span>
           <span class="sc-st ${SC_SC[s.status]||''}">${SC_SL[s.status]||s.status}</span>
         </div>
         <div class="sc-card-member">${memberLine}</div>
-        ${s.notes?`<div style="font-size:12px;color:#555;margin-top:6px;padding-top:6px;border-top:1px solid #2a251833;">${s.notes}</div>`:''}
+        ${s.notes?`<div style="font-size:12px;color:#555;margin-top:6px;padding-top:6px;border-top:1px solid #2a251833;">${esc(s.notes)}</div>`:''}
         <div class="sc-card-acts">${scBuildActBtns(s)}</div>
       </div>`;
     });
@@ -3123,13 +3124,13 @@ async function scOpenCreate(trainerId){
   const branch = document.getElementById('scBranchSel')?.value || '';
   const trList = branch ? _scAllTrainers.filter(t=>t.gym_location===branch) : _scAllTrainers;
   trSel.innerHTML = '<option value="">트레이너 선택</option>' +
-    trList.map(t=>`<option value="${t.id}"${t.id===trainerId?' selected':''}>${t.name}${t.gym_location?' ('+t.gym_location+')':''}</option>`).join('');
+    trList.map(t=>`<option value="${t.id}"${t.id===trainerId?' selected':''}>${esc(t.name)}${t.gym_location?' ('+esc(t.gym_location)+')':''}</option>`).join('');
   // 회원 datalist (is_active=true만)
   const list = document.getElementById('scCrMemberList');
   list.innerHTML = _allMembers.filter(m=>m.is_active).map(m=>{
     const p4 = (m.phone||'').replace(/\D/g,'').slice(-4);
     const label = p4 ? `${m.name} · ${p4}` : m.name;
-    return `<option value="${label.replace(/"/g,'&quot;')}" data-id="${m.id}"></option>`;
+    return `<option value="${esc(label).replace(/"/g,'&quot;')}" data-id="${m.id}"></option>`;
   }).join('');
   // PT 상품 select 초기화
   const prodSel = document.getElementById('scCrProduct');
@@ -3352,9 +3353,10 @@ async function openBranchSchedModal(dateStr){
 async function _bsLoadDay(dateStr){
   if(!_bsTrainers.length)return;
   const ids=_bsTrainers.map(t=>t.id);
-  const{data}=await db.from('schedules')
+  const{data,error}=await db.from('schedules')
     .select('id,trainer_id,member_id,sched_date,start_time,end_time,type,status,notes,pt_product_id,members(name),pt_products(total_sessions,remaining_sessions)')
     .in('trainer_id',ids).eq('sched_date',dateStr).neq('status','cancelled').order('start_time');
+  if(error){console.error('schedules load',error);showToast('일정 로드 실패');return;}
   _bsSchedules=data||[];
 }
 
@@ -3532,7 +3534,7 @@ function buildPayFilters() {
   mSel.innerHTML = '<option value="">전체 기간</option>' + months.map(m => `<option value="${m}">${m.replace('-','년 ')}월</option>`).join('');
   // 트레이너 목록
   const tSel = document.getElementById('payTrainerSel');
-  tSel.innerHTML = '<option value="">전체 트레이너</option>' + _allTrainersList.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  tSel.innerHTML = '<option value="">전체 트레이너</option>' + _allTrainersList.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
 }
 
 // ── 결제내역 렌더링 ──
@@ -3648,7 +3650,7 @@ function renderStats() {
     ? trainerRank.map((t, i) => `<div class="stat-trainer-row">
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:12px;font-weight:700;color:${i<3?'#c9a84c':'#666'};width:18px">${i+1}</span>
-          <span style="font-size:13px;font-weight:600;color:#ddd">${t.name}</span>
+          <span style="font-size:13px;font-weight:600;color:#ddd">${esc(t.name)}</span>
           <span style="font-size:11px;color:#555" title="결제건수 / 고유회원수">${t.count}건 · ${t.memberCount}명</span>
         </div>
         <span style="font-size:13px;font-weight:700;color:#c9a84c">${_admFmtWon(t.total)}</span>
