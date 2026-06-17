@@ -88,6 +88,13 @@ body { font-family:-apple-system,'Pretendard','Apple SD Gothic Neo',sans-serif; 
 .sets-table td { font-size:14px; color:#444444; padding:6px 8px; text-align:center; border-top:1px solid #e5e5e5; }
 .sets-table .set-cell { color:#888888; font-size:12px; }
 .mv-photo-btn { display:inline-flex; align-items:center; gap:5px; background:#f0ffd0; border:1px solid #C8FF0044; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:600; color:#3a6600; cursor:pointer; font-family:inherit; margin-top:10px; }
+/* ── 운동별 시작/끝 자세 사진 인라인 썸네일 ───────────────── */
+.mv-pose-row { display:flex; gap:8px; margin-top:10px; }
+.mv-pose-thumb { flex:1; min-width:0; position:relative; aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#f5f5f0; border:1px solid #e5e5e5; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.mv-pose-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.mv-pose-thumb.empty { cursor:default; background:#fafafa; }
+.mv-pose-none { font-size:11px; color:#aaaaaa; }
+.mv-pose-tag { position:absolute; left:6px; bottom:6px; background:rgba(0,0,0,0.6); color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px; }
 
 /* ── Schedule Cards (일정) ───────────────────────────────── */
 .sched-card { background:#ffffff; border:1px solid #e5e5e5; border-radius:14px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
@@ -994,6 +1001,16 @@ async function toggleSess(i, logId) {
   }
   const photoMap = {};
   (photos || []).forEach(p => { photoMap[p.order_idx ?? 0] = p; });
+  // 시작/끝 자세 사진을 일괄 서명 → 운동 카드에 인라인 썸네일로 바로 표시
+  const _posePaths = [];
+  (photos || []).forEach(p => { if (p.start_path) _posePaths.push(p.start_path); if (p.end_path) _posePaths.push(p.end_path); });
+  const _poseUrl = {};
+  if (_posePaths.length) {
+    try {
+      const { data: signed } = await db.storage.from('session-photos').createSignedUrls(_posePaths, 3600);
+      (signed || []).forEach(s => { if (s.signedUrl && !s.error) _poseUrl[s.path] = s.signedUrl; });
+    } catch (e) { console.error('pose signed urls failed:', e); }
+  }
   detailEl.innerHTML = exs
     .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
     .map(ex => {
@@ -1011,16 +1028,21 @@ async function toggleSess(i, logId) {
           <tr><th>세트</th><th>무게(kg)</th><th>횟수</th></tr>
           ${sets.map((set, si) => `<tr><td class="set-cell">${si+1}세트</td><td>${set.weight??'-'}</td><td>${set.reps??'-'}</td></tr>`).join('')}
         </table>` : '<div style="font-size:12px;color:#888888;padding:4px 0">세트 정보 없음</div>';
-      const photoBtn = (photo?.start_path || photo?.end_path) ? `
-        <button class="mv-photo-btn"
-          onclick="viewMemberPhotos(${JSON.stringify(photo.start_path||null)}, ${JSON.stringify(photo.end_path||null)}, ${JSON.stringify(name)})">
-          📷 자세 사진 보기</button>` : '';
+      const poseHtml = (photo?.start_path || photo?.end_path) ? `
+        <div class="mv-pose-row">
+          ${[['시작', photo.start_path], ['끝', photo.end_path]].map(([label, p]) => {
+            const u = p ? _poseUrl[p] : null;
+            if (!p) return `<div class="mv-pose-thumb empty"><div class="mv-pose-none">미촬영</div><div class="mv-pose-tag">${label}</div></div>`;
+            if (!u)  return `<div class="mv-pose-thumb empty"><div class="mv-pose-none">로드 실패</div><div class="mv-pose-tag">${label}</div></div>`;
+            return `<div class="mv-pose-thumb" data-start="${esc(photo.start_path||'')}" data-end="${esc(photo.end_path||'')}" data-name="${esc(name)}" onclick="openPoseViewer(this)"><img src="${esc(u)}" loading="lazy"><div class="mv-pose-tag">${label}</div></div>`;
+          }).join('')}
+        </div>` : '';
       const commentHtml = ex.comment ? `<div class="ex-item-comment">${esc(ex.comment).replace(/\n/g,'<br>')}</div>` : '';
       return `<div class="ex-item">
         <div class="ex-item-name">${esc(name)}</div>
         ${category ? `<div class="ex-item-cat">${esc(category)}</div>` : ''}
         ${thumbHtml}
-        ${setsHtml}${photoBtn}${commentHtml}
+        ${setsHtml}${poseHtml}${commentHtml}
       </div>`;
     }).join('');
 }
@@ -2320,6 +2342,11 @@ async function viewMemberPhotos(startPath, endPath, exName) {
   imgs.innerHTML = slots.join('');
 }
 function closeMemberPhotoViewer() { document.getElementById('memberPhotoViewer').classList.remove('open'); }
+
+// 인라인 썸네일 탭 → 시작/끝 자세 사진 확대 뷰어
+function openPoseViewer(el) {
+  viewMemberPhotos(el.dataset.start || null, el.dataset.end || null, el.dataset.name || '운동');
+}
 
 // PT 노트 사진 인라인 토글 (signed URL 캐시 포함)
 const _notePhotoUrlCache = {};
