@@ -1036,7 +1036,8 @@ async function onPhotoSelected(input) {
   const compressed = await _compressPhoto(file);
 
   const ex    = exercises[idx];
-  const exKey = ex.refId || ('ex' + idx);
+  // exKey에 슬롯 순번(idx) 포함 → 같은 세션에 동일 운동 2회 넣어도 경로 충돌 없음
+  const exKey = (ex.refId || 'ex') + '_' + idx;
   const path  = `member_photos/${memberId}/${logId}/${exKey}/${type}.jpg`;
 
   try {
