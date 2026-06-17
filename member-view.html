@@ -1000,10 +1000,11 @@ async function toggleSess(i, logId) {
     return;
   }
   const photoMap = {};
-  (photos || []).forEach(p => { photoMap[p.order_idx ?? 0] = p; });
+  (photos || []).forEach(p => { photoMap[p.order_index ?? 0] = p; });
   // 시작/끝 자세 사진을 일괄 서명 → 운동 카드에 인라인 썸네일로 바로 표시
+  // (RPC member_get_log_photos 반환 필드: order_index, start_url, end_url — 값은 스토리지 경로)
   const _posePaths = [];
-  (photos || []).forEach(p => { if (p.start_path) _posePaths.push(p.start_path); if (p.end_path) _posePaths.push(p.end_path); });
+  (photos || []).forEach(p => { if (p.start_url) _posePaths.push(p.start_url); if (p.end_url) _posePaths.push(p.end_url); });
   const _poseUrl = {};
   if (_posePaths.length) {
     try {
@@ -1028,13 +1029,13 @@ async function toggleSess(i, logId) {
           <tr><th>세트</th><th>무게(kg)</th><th>횟수</th></tr>
           ${sets.map((set, si) => `<tr><td class="set-cell">${si+1}세트</td><td>${set.weight??'-'}</td><td>${set.reps??'-'}</td></tr>`).join('')}
         </table>` : '<div style="font-size:12px;color:#888888;padding:4px 0">세트 정보 없음</div>';
-      const poseHtml = (photo?.start_path || photo?.end_path) ? `
+      const poseHtml = (photo?.start_url || photo?.end_url) ? `
         <div class="mv-pose-row">
-          ${[['시작', photo.start_path], ['끝', photo.end_path]].map(([label, p]) => {
+          ${[['시작', photo.start_url], ['끝', photo.end_url]].map(([label, p]) => {
             const u = p ? _poseUrl[p] : null;
             if (!p) return `<div class="mv-pose-thumb empty"><div class="mv-pose-none">미촬영</div><div class="mv-pose-tag">${label}</div></div>`;
             if (!u)  return `<div class="mv-pose-thumb empty"><div class="mv-pose-none">로드 실패</div><div class="mv-pose-tag">${label}</div></div>`;
-            return `<div class="mv-pose-thumb" data-start="${esc(photo.start_path||'')}" data-end="${esc(photo.end_path||'')}" data-name="${esc(name)}" onclick="openPoseViewer(this)"><img src="${esc(u)}" loading="lazy"><div class="mv-pose-tag">${label}</div></div>`;
+            return `<div class="mv-pose-thumb" data-start="${esc(photo.start_url||'')}" data-end="${esc(photo.end_url||'')}" data-name="${esc(name)}" onclick="openPoseViewer(this)"><img src="${esc(u)}" loading="lazy"><div class="mv-pose-tag">${label}</div></div>`;
           }).join('')}
         </div>` : '';
       const commentHtml = ex.comment ? `<div class="ex-item-comment">${esc(ex.comment).replace(/\n/g,'<br>')}</div>` : '';
