@@ -694,7 +694,7 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
   <!-- 날짜 버튼 행 (7일) -->
   <div id="scDatePills" style="display:flex;background:#fffff8;border-bottom:2px solid #ddd4b8;position:sticky;top:145px;z-index:95;"></div>
   <!-- 트레이너 컬럼 데이뷰 -->
-  <div id="scDayView" style="display:flex;flex-direction:column;overflow:hidden;height:calc(100dvh - 57px - 44px - 44px - 52px);background:#fafaf7;"></div>
+  <div id="scDayView" style="overflow:auto;-webkit-overflow-scrolling:touch;height:calc(100dvh - 57px - 44px - 44px - 52px);background:#fafaf7;"></div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -2723,9 +2723,9 @@ function scRenderDayView(){
   });
   bodyHtml+=`</div>`;
 
-  let html=`<div class="sc-dv-header" style="flex:0 0 auto;"><span>${mo}/${da}(${SC_DAY[dow]}) · ${branch||'전체 지점'} · 트레이너 ${trainers.length}명 · 수업 ${dayData.length}건</span>${bulkBtn}</div>`;
-  // 요약줄은 고정(flex:0), 헤더+본문은 같은 2D 스크롤 영역에 → hdrHtml의 sticky top:0 이 제대로 동작(헤더 행 고정)
-  html+=`<div style="flex:1 1 auto;overflow:auto;-webkit-overflow-scrolling:touch;">${hdrHtml}${bodyHtml}</div>`;
+  let html=`<div class="sc-dv-header"><span>${mo}/${da}(${SC_DAY[dow]}) · ${branch||'전체 지점'} · 트레이너 ${trainers.length}명 · 수업 ${dayData.length}건</span>${bulkBtn}</div>`;
+  // scDayView 자체가 단일 스크롤 영역(세로+가로). hdrHtml(트레이너 헤더)의 sticky top:0 이 여기에 고정됨. (이중 스크롤 제거)
+  html+=`${hdrHtml}${bodyHtml}`;
   dv.innerHTML=html;
 }
 
