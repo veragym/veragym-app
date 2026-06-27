@@ -1681,30 +1681,57 @@ function renderTokenSection(m) {
   }
 }
 
-async function adminExtendToken() {
-  const m = _allMembers.find(x => x.id === _currentMemberId);
-  if (!m) return;
-  const { error } = await db.rpc('admin_extend_member_token', { p_member_id: _currentMemberId });
-  if (error) { showToast('연장 실패: ' + error.message); return; }
+// _allMembers 캐시가 다른 동작(트레이너 변경/일정탭 등)으로 교체돼 현재 회원이
+// 빠져 있을 수 있으므로, 캐시에 없으면 DB에서 다시 가져온다(조용히 실패하지 않게).
+async function _getCurrentMemberFresh() {
+  if (!_currentMemberId) { showToast('회원 정보를 찾을 수 없어요. 모달을 다시 열어주세요.'); return null; }
+  let m = _allMembers.find(x => x.id === _currentMemberId);
+  if (m) return m;
+  const { data, error } = await db.from('members')
+    .select('id,name,gym_location,notes,is_active,member_status,status_override,trainer_id,phone,token_active,token_issued_at,token_expires_at')
+    .eq('id', _currentMemberId).maybeSingle();
+  if (error || !data) {
+    showToast('회원 정보를 불러오지 못했어요: ' + (error?.message || 'not found'));
+    return null;
+  }
+  _allMembers.push(data);
+  return data;
+}
 
-  // 로컬 캐시 업데이트
-  const base = new Date(Math.max(new Date(m.token_expires_at || Date.now()), Date.now()));
-  base.setFullYear(base.getFullYear() + 1);
-  m.token_expires_at = base.toISOString();
-  m.token_active = true;
-  renderTokenSection(m);
-  showToast('토큰 1년 연장 완료');
+async function adminExtendToken() {
+  try {
+    const m = await _getCurrentMemberFresh();
+    if (!m) return;
+    const { error } = await db.rpc('admin_extend_member_token', { p_member_id: _currentMemberId });
+    if (error) { showToast('연장 실패: ' + error.message); return; }
+
+    // 로컬 캐시 업데이트
+    const base = new Date(Math.max(new Date(m.token_expires_at || Date.now()), Date.now()));
+    base.setFullYear(base.getFullYear() + 1);
+    m.token_expires_at = base.toISOString();
+    m.token_active = true;
+    renderTokenSection(m);
+    showToast('토큰 1년 연장 완료');
+  } catch (e) {
+    console.error('adminExtendToken failed:', e);
+    showToast('연장 중 오류가 생겼어요: ' + (e?.message || e));
+  }
 }
 
 async function adminToggleToken() {
-  const m = _allMembers.find(x => x.id === _currentMemberId);
-  if (!m) return;
-  const newActive = !m.token_active;
-  const { error } = await db.rpc('admin_toggle_member_token', { p_member_id: _currentMemberId, p_active: newActive });
-  if (error) { showToast('변경 실패: ' + error.message); return; }
-  m.token_active = newActive;
-  renderTokenSection(m);
-  showToast(newActive ? '토큰 활성화됨' : '토큰 비활성화됨');
+  try {
+    const m = await _getCurrentMemberFresh();
+    if (!m) return;
+    const newActive = !m.token_active;
+    const { error } = await db.rpc('admin_toggle_member_token', { p_member_id: _currentMemberId, p_active: newActive });
+    if (error) { showToast('변경 실패: ' + error.message); return; }
+    m.token_active = newActive;
+    renderTokenSection(m);
+    showToast(newActive ? '토큰 활성화됨' : '토큰 비활성화됨');
+  } catch (e) {
+    console.error('adminToggleToken failed:', e);
+    showToast('변경 중 오류가 생겼어요: ' + (e?.message || e));
+  }
 }
 
 async function adminSetStatus() {
