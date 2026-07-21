@@ -3882,11 +3882,15 @@ function renderAdminTrainerList() {
     const regSum  = forecasts.filter(f => f.is_registered === true ).reduce((s,f)=>s+amt(f),0);
     const expSum  = forecasts.filter(f => f.is_registered === null || f.is_registered === undefined).reduce((s,f)=>s+amt(f),0);
     const missSum = forecasts.filter(f => f.is_registered === false).reduce((s,f)=>s+amt(f),0);
+    // 매출파일 합계 = 당월 결제내역(실적) 합계 = 매출담당 (payment_records 기준, 예상매출과 별개)
+    const payTotal = _admRevPayments
+      .filter(p => p.trainer_id === t.id && (p.payment_date||'').slice(0,7) === _admCurMonth())
+      .reduce((s,p) => s + (p.net_amount||0), 0);
 
     const groupRow = `<tr class="rs-group">
       <td colspan="5">${esc(t.name)}
         <button class="rev-add-btn" style="margin-left:8px" onclick="admOpenFcModal('add','${t.id}')">+ 추가</button></td>
-      <td colspan="3" class="rs-gsum">매출파일 합계 ${_admFmtWon(fcTotal)} · ${forecasts.length}건</td>
+      <td colspan="3" class="rs-gsum">당월 결제 ${_admFmtWon(payTotal)}<span style="color:#8a7a68;font-weight:400"> · 예상 ${forecasts.length}건</span></td>
     </tr>`;
 
     const bodyRows = forecasts.length ? forecasts.map(f => {
@@ -3916,8 +3920,8 @@ function renderAdminTrainerList() {
     }).join('') : `<tr><td colspan="8" style="text-align:center;color:#8a7a68;padding:12px 0">등록된 예상매출이 없습니다.</td></tr>`;
 
     const subRow = forecasts.length ? `<tr class="rs-sub">
-      <td colspan="4" class="rs-muted">소계</td>
-      <td colspan="4" class="rs-num">총 <b>${fcTotal.toLocaleString('ko-KR')}</b>
+      <td colspan="4" class="rs-muted">예상 소계</td>
+      <td colspan="4" class="rs-num">예상합계 <b>${fcTotal.toLocaleString('ko-KR')}</b>
         · <span style="color:#0f6e56">확정 ${regSum.toLocaleString('ko-KR')}</span>
         · <span style="color:#185fa5">예상 ${expSum.toLocaleString('ko-KR')}</span>
         · <span style="color:#a32d2d">미스 ${missSum.toLocaleString('ko-KR')}</span></td>
