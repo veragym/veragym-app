@@ -482,6 +482,30 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
 #exDetailImg { background:#f0edd8 !important; }
 #exDetailMuscles { background:#f4f2ec !important; color:#3a3020 !important; }
 #exEditPrimary, #exEditSyn1, #exEditSyn2 { background:#f4f2ec !important; border-color:#ddd4b8 !important; color:#1a1a14 !important; }
+
+/* ── 매출관리 스프레드시트 테이블 ── */
+.rev-sheet-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid #ddd4b8; border-radius:12px; background:#fff; }
+.rev-sheet { border-collapse:collapse; font-size:12px; white-space:nowrap; min-width:600px; width:100%; }
+.rev-sheet th { position:sticky; top:0; background:#f1efe8; color:#5f5e5a; font-weight:600; text-align:left; padding:8px 9px; border-bottom:1px solid #ddd4b8; }
+.rev-sheet td { padding:7px 9px; border-bottom:1px solid #f2f0e8; color:#1a1a14; }
+.rev-sheet .rs-num { text-align:right; }
+.rev-sheet .rs-muted { color:#8a7a68; }
+.rev-sheet .rs-amt { text-align:right; font-weight:600; }
+.rev-sheet .rs-group td { background:#fbf7ea; font-weight:600; color:#1a1a14; border-bottom:1px solid #eee; }
+.rev-sheet .rs-group .rs-gsum { text-align:right; color:#a07d1f; }
+.rev-sheet .rs-sub td { background:#f7f6f0; font-size:11px; border-bottom:1px solid #eee; }
+.rev-sheet tr.rs-reg   { background:#eafaf0; }
+.rev-sheet tr.rs-miss  { background:#fdecec; }
+.rev-sheet tr.rs-miss .rs-name { color:#a32d2d; }
+.rev-badge { display:inline-block; font-size:11px; padding:2px 7px; border-radius:4px; font-weight:600; }
+.rev-badge.b-exp { background:#e6f1fb; color:#185fa5; }
+.rev-badge.b-reg { background:#d7f2e3; color:#0f6e56; }
+.rev-badge.b-miss{ background:#f7d5d5; color:#a32d2d; }
+.rev-act-btn { font-size:11px; padding:3px 9px; border-radius:5px; border:1px solid #ddd4b8; background:#f8f7f3; color:#7a6a58; cursor:pointer; }
+.rev-act-btn.del { border-color:#f0999944; color:#c0392b; background:#fff5f5; }
+.rev-add-btn { font-size:11px; padding:3px 10px; border-radius:5px; border:1px solid #c9a84c66; background:#c9a84c18; color:#a8893a; cursor:pointer; font-weight:600; }
+.rev-sheet .rs-memo { white-space:normal; min-width:150px; max-width:230px; color:#555; }
+.rev-sheet .rs-reason { color:#a35a5a; font-size:11px; }
 </style>
 </head>
 <body>
@@ -1060,6 +1084,59 @@ body { background:#fafaf7 !important; color:#1a1a14 !important; }
     <div class="vb-group">
       <button class="vb vb-lg vb-cancel" onclick="closeModal('admUnregReasonModal')">취소</button>
       <button class="vb vb-lg" id="btnAdmUnregSave" style="background:#7f1d1d;border-color:#f87171;color:#f87171" onclick="admConfirmUnregistered()">미등록 처리</button>
+    </div>
+  </div>
+</div>
+
+<!-- 관리자 예상매출 추가/수정 모달 -->
+<div id="admFcModal" class="modal-bg" onclick="closeModal('admFcModal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="admFcModalTitle">예상매출 추가</div>
+    <div id="admFcTrainerLabel" style="font-size:12px;color:#a8893a;font-weight:600;margin:-12px 0 16px"></div>
+    <div class="err-box" id="admFcErr"></div>
+    <div class="field">
+      <label>회원명</label>
+      <input id="admFcName" type="text" placeholder="회원명 입력" autocomplete="off">
+    </div>
+    <div style="display:flex;gap:10px">
+      <div class="field" style="flex:1">
+        <label>세션단가</label>
+        <input id="admFcPPS" type="number" min="0" placeholder="55000" oninput="admFcCalcAmount()">
+      </div>
+      <div class="field" style="flex:1">
+        <label>세션 수</label>
+        <input id="admFcCount" type="number" min="1" placeholder="30" oninput="admFcCalcAmount()">
+      </div>
+    </div>
+    <div class="field">
+      <label>예상금액</label>
+      <input id="admFcAmount" type="text" readonly value="0원" style="font-weight:700;color:#a8893a">
+    </div>
+    <div class="field">
+      <label>결제예정일</label>
+      <input id="admFcDueDate" type="date" style="color-scheme:light">
+    </div>
+    <div class="field">
+      <label>구분</label>
+      <select id="admFcStatus" onchange="admFcOnStatusChange()">
+        <option value="exp">예상</option>
+        <option value="reg">확정</option>
+        <option value="miss">미스 (미등록)</option>
+      </select>
+    </div>
+    <div class="field" id="admFcReasonField" style="display:none">
+      <label>미스 사유</label>
+      <textarea id="admFcReason" rows="2" placeholder="미등록 사유를 입력해주세요" style="width:100%;resize:none"></textarea>
+    </div>
+    <div class="field">
+      <label>매출 내용</label>
+      <textarea id="admFcMemo" rows="2" placeholder="메모 입력" style="width:100%;resize:none"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('admFcModal')">취소</button>
+      <button class="btn-cancel" id="admFcDelBtn" style="display:none;color:#c0392b !important;border-color:#f0999966 !important;background:#fff5f5 !important" onclick="admDeleteFc()">삭제</button>
+      <button class="btn-save" id="admFcSaveBtn" onclick="admSaveFc()">저장</button>
     </div>
   </div>
 </div>
@@ -3790,22 +3867,73 @@ function renderAdminTrainerList() {
     return;
   }
 
-  el.innerHTML = _admRevTrainers.map(t => {
-    const forecasts = _admRevForecasts.filter(f => f.trainer_id === t.id && f.forecast_month === month);
-    const fcTotal = forecasts.reduce((s,f) => s + (f.price_per_session * f.session_count), 0);
-    const fcCount = forecasts.length;
+  const statusOrder = f => (f.is_registered === null || f.is_registered === undefined) ? 0 : f.is_registered === false ? 1 : 2;
 
-    return `<div class="adm-trainer-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleAdminTrainerDetail(this.closest('.adm-trainer-card'),'${t.id}','${month}')">
-        <span style="font-size:14px;font-weight:600;color:#1a1a14">${esc(t.name)}</span>
-        <div style="text-align:right">
-          <div style="font-size:14px;font-weight:700;color:#c9a84c">${_admFmtWon(fcTotal)}</div>
-          <div style="font-size:11px;color:#666">${fcCount}건</div>
-        </div>
-      </div>
-      <div class="adm-trainer-detail" style="display:none"></div>
-    </div>`;
+  const rows = _admRevTrainers.map(t => {
+    const forecasts = _admRevForecasts
+      .filter(f => f.trainer_id === t.id && f.forecast_month === month)
+      .sort((a,b) => {
+        const so = statusOrder(a) - statusOrder(b);
+        if (so !== 0) return so;
+        return (a.payment_due_date || '9999') < (b.payment_due_date || '9999') ? -1 : 1;
+      });
+    const amt = f => (f.price_per_session||0) * (f.session_count||0);
+    const fcTotal = forecasts.reduce((s,f) => s + amt(f), 0);
+    const regSum  = forecasts.filter(f => f.is_registered === true ).reduce((s,f)=>s+amt(f),0);
+    const expSum  = forecasts.filter(f => f.is_registered === null || f.is_registered === undefined).reduce((s,f)=>s+amt(f),0);
+    const missSum = forecasts.filter(f => f.is_registered === false).reduce((s,f)=>s+amt(f),0);
+
+    const groupRow = `<tr class="rs-group">
+      <td colspan="5">${esc(t.name)}
+        <button class="rev-add-btn" style="margin-left:8px" onclick="admOpenFcModal('add','${t.id}')">+ 추가</button></td>
+      <td colspan="3" class="rs-gsum">매출파일 합계 ${_admFmtWon(fcTotal)} · ${forecasts.length}건</td>
+    </tr>`;
+
+    const bodyRows = forecasts.length ? forecasts.map(f => {
+      const isPending = f.is_registered === null || f.is_registered === undefined;
+      const isReg = f.is_registered === true;
+      const rowCls = isReg ? 'rs-reg' : (f.is_registered === false ? 'rs-miss' : '');
+      const badge = isPending ? '<span class="rev-badge b-exp">예상</span>'
+        : isReg ? '<span class="rev-badge b-reg">확정</span>'
+        : '<span class="rev-badge b-miss">미스</span>';
+      const memoHtml = [
+        f.memo ? esc(f.memo) : '',
+        (f.is_registered === false && f.unregistered_reason) ? `<div class="rs-reason">사유: ${esc(f.unregistered_reason)}</div>` : ''
+      ].join('');
+      return `<tr class="${rowCls}">
+        <td class="rs-muted">${f.payment_due_date ? esc(f.payment_due_date.slice(5)) : '-'}</td>
+        <td class="rs-name">${esc(f.member_name)}</td>
+        <td class="rs-num">${f.session_count||0}</td>
+        <td class="rs-num rs-muted">${(f.price_per_session||0).toLocaleString('ko-KR')}</td>
+        <td class="rs-amt">${amt(f).toLocaleString('ko-KR')}</td>
+        <td style="text-align:center">${badge}</td>
+        <td class="rs-memo">${memoHtml || '<span class="rs-muted">-</span>'}</td>
+        <td style="white-space:nowrap">
+          <button class="rev-act-btn" onclick="admOpenFcModal('edit','${f.trainer_id}','${f.id}')">수정</button>
+          <button class="rev-act-btn del" onclick="admDeleteFc('${f.id}')">삭제</button>
+        </td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="8" style="text-align:center;color:#8a7a68;padding:12px 0">등록된 예상매출이 없습니다.</td></tr>`;
+
+    const subRow = forecasts.length ? `<tr class="rs-sub">
+      <td colspan="4" class="rs-muted">소계</td>
+      <td colspan="4" class="rs-num">총 <b>${fcTotal.toLocaleString('ko-KR')}</b>
+        · <span style="color:#0f6e56">확정 ${regSum.toLocaleString('ko-KR')}</span>
+        · <span style="color:#185fa5">예상 ${expSum.toLocaleString('ko-KR')}</span>
+        · <span style="color:#a32d2d">미스 ${missSum.toLocaleString('ko-KR')}</span></td>
+    </tr>` : '';
+
+    return groupRow + bodyRows + subRow;
   }).join('');
+
+  el.innerHTML = `<div class="rev-sheet-wrap"><table class="rev-sheet">
+    <thead><tr>
+      <th>날짜</th><th>회원명</th><th class="rs-num">세션</th><th class="rs-num">단가</th>
+      <th class="rs-num">금액</th><th style="text-align:center">구분</th><th>매출 내용</th><th>관리</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>
+  <div style="font-size:11px;color:#8a7a68;text-align:center;margin-top:6px">← 좌우로 밀어서 모든 열 보기 · 관리자는 모든 트레이너 내역을 수정·추가·삭제할 수 있습니다</div>`;
 }
 
 let _admUnregTargetId = null;
@@ -3940,7 +4068,104 @@ async function admSetFcStatus(id, status) {
     showToast(status === true ? '등록 처리되었습니다.' : '대기 상태로 변경되었습니다.');
   }
 }
+// ── 관리자 예상매출 CRUD (모달) ──────────────────────────────
+let _admFcMode = 'add';   // 'add' | 'edit'
+let _admFcId = null;
+let _admFcTrainerId = null;
+
+function admFcCalcAmount() {
+  const pps = parseInt(document.getElementById('admFcPPS').value)||0;
+  const cnt = parseInt(document.getElementById('admFcCount').value)||0;
+  document.getElementById('admFcAmount').value = _admFmtWon(pps*cnt);
+}
+function admFcOnStatusChange() {
+  const v = document.getElementById('admFcStatus').value;
+  document.getElementById('admFcReasonField').style.display = (v === 'miss') ? 'block' : 'none';
+}
+function admOpenFcModal(mode, trainerId, id) {
+  _admFcMode = mode; _admFcTrainerId = trainerId; _admFcId = id || null;
+  const t = _admRevTrainers.find(x => x.id === trainerId);
+  const month = _admRevMonthMode === 'cur' ? _admCurMonth() : _admNextMonth();
+  document.getElementById('admFcModalTitle').textContent = mode === 'edit' ? '예상매출 수정' : '예상매출 추가';
+  document.getElementById('admFcTrainerLabel').textContent = (t ? t.name : '') + ' · ' + month;
+  const err = document.getElementById('admFcErr'); err.style.display='none'; err.textContent='';
+  const f = mode === 'edit' ? _admRevForecasts.find(x => x.id === id) : null;
+  document.getElementById('admFcName').value    = f ? (f.member_name||'') : '';
+  document.getElementById('admFcPPS').value      = f ? (f.price_per_session||'') : '';
+  document.getElementById('admFcCount').value    = f ? (f.session_count||'') : '';
+  document.getElementById('admFcDueDate').value  = f ? (f.payment_due_date||'') : '';
+  document.getElementById('admFcMemo').value     = f ? (f.memo||'') : '';
+  document.getElementById('admFcReason').value   = f ? (f.unregistered_reason||'') : '';
+  document.getElementById('admFcStatus').value   = !f ? 'exp' : (f.is_registered===true?'reg':(f.is_registered===false?'miss':'exp'));
+  admFcCalcAmount(); admFcOnStatusChange();
+  document.getElementById('admFcDelBtn').style.display = mode === 'edit' ? 'inline-block' : 'none';
+  openModal('admFcModal');
+}
+async function admSaveFc() {
+  const name = document.getElementById('admFcName').value.trim();
+  const pps  = parseInt(document.getElementById('admFcPPS').value)||0;
+  const cnt  = parseInt(document.getElementById('admFcCount').value)||0;
+  const due  = document.getElementById('admFcDueDate').value || null;
+  const memo = document.getElementById('admFcMemo').value.trim() || null;
+  const statusV = document.getElementById('admFcStatus').value;
+  const reason  = document.getElementById('admFcReason').value.trim();
+  const err = document.getElementById('admFcErr');
+  if (!name) { err.textContent='회원명을 입력해주세요'; err.style.display='block'; return; }
+  if (!pps || !cnt) { err.textContent='세션단가와 세션 수를 입력해주세요'; err.style.display='block'; return; }
+  if (statusV === 'miss' && !reason) { err.textContent='미스(미등록) 사유를 입력해주세요'; err.style.display='block'; return; }
+  const is_registered = statusV==='reg' ? true : statusV==='miss' ? false : null;
+  const unregistered_reason = statusV==='miss' ? reason : null;
+  const btn = document.getElementById('admFcSaveBtn'); btn.disabled = true;
+  try {
+    if (_admFcMode === 'edit') {
+      const payload = { member_name:name, price_per_session:pps, session_count:cnt, payment_due_date:due, memo, is_registered, unregistered_reason, updated_at:new Date().toISOString() };
+      const { data, error } = await db.from('sales_forecasts').update(payload).eq('id', _admFcId).select().single();
+      if (error) throw error;
+      const idx = _admRevForecasts.findIndex(x => x.id === _admFcId);
+      if (idx !== -1) _admRevForecasts[idx] = data;
+      showToast('수정되었습니다.');
+    } else {
+      const month = _admRevMonthMode === 'cur' ? _admCurMonth() : _admNextMonth();
+      const { data, error } = await db.from('sales_forecasts').insert({
+        trainer_id:_admFcTrainerId, forecast_month:month, member_name:name,
+        price_per_session:pps, session_count:cnt, payment_due_date:due, memo, is_registered, unregistered_reason
+      }).select().single();
+      if (error) throw error;
+      _admRevForecasts.push(data);
+      showToast('추가되었습니다.');
+    }
+    closeModal('admFcModal');
+    renderAdminTrainerList(); renderAdminRevSummary();
+  } catch(e) {
+    console.error('admSaveFc failed:', e);
+    err.textContent = '저장 실패: ' + (e.message||''); err.style.display='block';
+  }
+  btn.disabled = false;
+}
+async function admDeleteFc(id) {
+  id = id || _admFcId;
+  const f = _admRevForecasts.find(x => x.id === id);
+  if (!f) return;
+  if (!confirm(`예상매출 내역을 삭제할까요?\n\n${f.member_name || '-'} · ${_admFmtWon((f.price_per_session||0)*(f.session_count||0))}\n\n이 작업은 되돌릴 수 없습니다.`)) return;
+  try {
+    const { error } = await db.from('sales_forecasts').delete().eq('id', id);
+    if (error) throw error;
+    _admRevForecasts = _admRevForecasts.filter(x => x.id !== id);
+    closeModal('admFcModal');
+    renderAdminTrainerList(); renderAdminRevSummary();
+    showToast('삭제되었습니다.');
+  } catch(e) {
+    console.error('admDeleteFc failed:', e);
+    showToast('삭제 실패: ' + (e.message||''));
+  }
+}
+
 // ── 공개 API (HTML onclick에서 호출) ──────────────────────────
+window.admOpenFcModal         = admOpenFcModal;
+window.admSaveFc              = admSaveFc;
+window.admDeleteFc            = admDeleteFc;
+window.admFcCalcAmount        = admFcCalcAmount;
+window.admFcOnStatusChange    = admFcOnStatusChange;
 window.admSetForecastStatus   = admSetForecastStatus;
 window.admToggleFcEdit        = admToggleFcEdit;
 window.admSetFcStatus         = admSetFcStatus;
